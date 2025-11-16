@@ -11,8 +11,17 @@ import { rateLimit } from '../middleware/rate-limiter.js';
 
 const router = Router();
 
-// Rate limiting: 10 refresh attempts per 5 minutes per IP
-router.use(rateLimit({ max: 10, windowMs: 5 * 60 * 1000 }));
+// Rate limiting: 5 refresh attempts per minute per IP (distributed via Redis)
+// This prevents token refresh abuse and brute-force attacks
+router.use(rateLimit({ 
+  max: 5, 
+  windowMs: 60 * 1000, // 1 minute window
+  keyGenerator: (req) => {
+    // Use IP address for distributed rate limiting
+    return req.ip || req.socket.remoteAddress || 'unknown';
+  },
+  message: 'Too many token refresh attempts. Please try again later.',
+}));
 
 /**
  * POST /auth/refresh

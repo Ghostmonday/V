@@ -3,7 +3,7 @@
  * Track metrics for $5K/month goal
  */
 
-import { supabase } from '../../config/db.js';
+import { supabase } from '../../config/db.ts';
 import { logError } from '../../shared/logger.js';
 
 export interface VIBESAnalytics {

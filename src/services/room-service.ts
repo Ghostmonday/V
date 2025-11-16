@@ -1,10 +1,12 @@
 /**
  * Room Service - Real Implementation
  * Real Supabase integration, no stubs
+ * Phase 3.4: Integrated Redis caching for hot data
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
+import { warmCache, invalidatePattern } from './cache-service.js';
 
 /**
  * Create a room
@@ -50,6 +52,12 @@ export async function createRoom(name: string, userId: string): Promise<any> {
     }
 
     logInfo(`Room created: ${room.id} - ${room.name}`);
+    
+    // Phase 3.4: Invalidate room listing cache when room is created
+    await invalidatePattern('rooms:list:*').catch(err => {
+      logError('Failed to invalidate room cache', err);
+    });
+    
     return room;
   } catch (error: any) {
     logError('createRoom error', error);
@@ -119,20 +127,31 @@ export async function joinRoom(roomId: string, userId: string): Promise<{ succes
 
 /**
  * Get room by ID
+ * Phase 3.4: Cached for 5 minutes
  */
 export async function getRoom(roomId: string): Promise<any | null> {
   try {
-    const { data, error } = await supabase
-      .from('rooms')
-      .select('*')
-      .eq('id', roomId)
-      .single();
+    // Phase 3.4: Cache room data (5 minute TTL)
+    const cacheKey = `room:${roomId}`;
+    const room = await warmCache(
+      cacheKey,
+      async () => {
+        const { data, error } = await supabase
+          .from('rooms')
+          .select('*')
+          .eq('id', roomId)
+          .single();
 
-    if (error || !data) {
-      return null;
-    }
+        if (error || !data) {
+          return null;
+        }
 
-    return data;
+        return data;
+      },
+      300 // 5 minutes TTL
+    );
+
+    return room;
   } catch (error) {
     logError('getRoom error', error instanceof Error ? error : new Error(String(error)));
     return null;
@@ -141,22 +160,33 @@ export async function getRoom(roomId: string): Promise<any | null> {
 
 /**
  * List rooms
+ * Phase 3.4: Cached for 2 minutes (rooms change frequently)
  */
 export async function listRooms(isPrivate?: boolean): Promise<any[]> {
   try {
-    let query = supabase.from('rooms').select('*');
+    // Phase 3.4: Cache room listings (2 minute TTL)
+    const cacheKey = `rooms:list:${isPrivate !== undefined ? (isPrivate ? 'private' : 'public') : 'all'}`;
+    const rooms = await warmCache(
+      cacheKey,
+      async () => {
+        let query = supabase.from('rooms').select('*');
 
-    if (isPrivate !== undefined) {
-      query = query.eq('is_private', isPrivate);
-    }
+        if (isPrivate !== undefined) {
+          query = query.eq('is_private', isPrivate);
+        }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+        const { data, error } = await query.order('created_at', { ascending: false });
 
-    if (error) {
-      throw error;
-    }
+        if (error) {
+          throw error;
+        }
 
-    return data || [];
+        return data || [];
+      },
+      120 // 2 minutes TTL (rooms change frequently)
+    );
+
+    return rooms;
   } catch (error) {
     logError('listRooms error', error instanceof Error ? error : new Error(String(error)));
     return [];

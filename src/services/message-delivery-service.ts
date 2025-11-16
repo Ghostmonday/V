@@ -9,8 +9,8 @@
  * - Retry backoff (exponential)
  */
 
-import { supabase } from '../config/db.js';
-import { getRedisClient } from '../config/db.js';
+import { supabase } from '../config/db.ts';
+import { getRedisClient } from '../config/db.ts';
 import { logError, logWarning, logInfo } from '../shared/logger.js';
 import { validateServiceData, validateBeforeDB, validateAfterDB } from '../middleware/incremental-validation.js';
 import { z } from 'zod';
@@ -205,18 +205,94 @@ export async function getDeliveryStatus(messageId: string, userId: string): Prom
 }
 
 /**
+ * Handle client delivery acknowledgement
+ * Called when client confirms receipt of message
+ */
+export async function handleDeliveryAck(messageId: string, userId: string): Promise<void> {
+  try {
+    // VALIDATION CHECKPOINT: Validate message ID format
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(messageId)) {
+      throw new Error('Invalid message ID format');
+    }
+    
+    // Mark as delivered
+    await markMessageDelivered(messageId, userId);
+    
+    // Cancel any pending retries for this message/user
+    if (redis) {
+      const retryKey = `msg:retry:${messageId}:${userId}`;
+      await redis.del(retryKey);
+    }
+    
+    logInfo(`Delivery acknowledged: ${messageId} -> ${userId}`);
+  } catch (error: any) {
+    logError('Failed to handle delivery ack', error);
+    throw error;
+  }
+}
+
+/**
  * Process pending deliveries (called periodically)
+ * Checks for messages that haven't been acknowledged and schedules retries
  */
 export async function processPendingDeliveries(): Promise<number> {
   try {
-    // Get messages pending delivery (older than retry timeout)
-    const retryThreshold = new Date(Date.now() - RETRY_TIMEOUT_MS);
+    if (!redis) {
+      return 0; // Can't process without Redis
+    }
     
-    // This would query message_receipts for pending deliveries
-    // For now, return 0 (implementation depends on schema)
+    // Get all pending retry keys from Redis
+    const retryKeys = await redis.keys('msg:retry:*');
+    let processedCount = 0;
+    
+    for (const retryKey of retryKeys) {
+      try {
+        const retryDataStr = await redis.get(retryKey);
+        if (!retryDataStr) {
+          // Key expired or doesn't exist - skip
+          continue;
+        }
+        
+        const retryData = JSON.parse(retryDataStr);
+        const { messageId, userId, attemptCount } = retryData;
+        
+        // Check if message was delivered since retry was scheduled
+        const status = await getDeliveryStatus(messageId, userId);
+        if (status === 'delivered') {
+          // Already delivered - clean up retry
+          await redis.del(retryKey);
+          continue;
+        }
+        
+        // Check if retry timeout has passed
+        const scheduledAt = new Date(retryData.scheduledAt);
+        const now = Date.now();
+        const elapsed = now - scheduledAt.getTime();
+        
+        if (elapsed >= RETRY_TIMEOUT_MS) {
+          // Retry timeout reached - attempt to resend
+          // In a real implementation, this would trigger message resend
+          // For now, we'll schedule another retry or mark as failed
+          if (attemptCount >= MAX_RETRY_ATTEMPTS) {
+            await trackMessageDelivery(messageId, userId, 'failed');
+            await redis.del(retryKey);
+            logWarning(`Message delivery failed after max retries: ${messageId} -> ${userId}`);
+          } else {
+            // Schedule next retry
+            await scheduleDeliveryRetry(messageId, userId, attemptCount);
+            await redis.del(retryKey);
+          }
+          processedCount++;
+        }
+      } catch (error: any) {
+        logError(`Failed to process retry key ${retryKey}`, error);
+        // Continue processing other keys
+      }
+    }
     
     // VALIDATION CHECKPOINT: Validate processing completed
-    return 0;
+    logInfo(`Processed ${processedCount} pending deliveries`);
+    return processedCount;
   } catch (error: any) {
     logError('Failed to process pending deliveries', error);
     return 0;

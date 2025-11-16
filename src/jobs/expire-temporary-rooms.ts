@@ -4,7 +4,7 @@
  * Run via Supabase Edge Functions, cron-job.org, or scheduled task
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logInfo, logError } from '../shared/logger.js';
 
 /**

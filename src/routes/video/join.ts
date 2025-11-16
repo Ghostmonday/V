@@ -4,7 +4,7 @@ import { Router } from 'express';
 
 import { AccessToken } from 'livekit-server-sdk';
 
-import { supabase } from '../../config/db.js';
+import { supabase } from '../../config/db.ts';
 
 import { healingLogger } from '../../shared/logger.js';
 

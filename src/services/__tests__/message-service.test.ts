@@ -9,7 +9,7 @@ import * as moderationService from '../moderation.service.js';
 import * as roomService from '../room-service.js';
 import * as subscriptionService from '../subscription-service.js';
 import * as supabaseHelpers from '../../shared/supabase-helpers.js';
-import { getRedisClient } from '../../config/db.js';
+import { getRedisClient } from '../../config/db.ts';
 
 // Mock dependencies
 vi.mock('../moderation.service.js');

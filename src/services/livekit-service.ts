@@ -7,7 +7,7 @@ import { RoomServiceClient, AccessToken } from 'livekit-server-sdk';
 import { recordTelemetryEvent } from './telemetry-service.js';
 import { logError, logInfo } from '../shared/logger.js';
 import { getLiveKitKeys } from './api-keys-service.js';
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import type { VoiceSession, VoiceStats } from '../types/message.types.js';
 
 const redis = getRedisClient();

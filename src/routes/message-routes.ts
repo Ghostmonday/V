@@ -139,5 +139,35 @@ router.get('/search', async (req, res, next) => {
   }
 });
 
+/**
+ * Phase 3.3: Retrieve archived message
+ * GET /messaging/archives/:message_id
+ */
+router.get('/archives/:message_id', async (req, res, next) => {
+  try {
+    const { retrieveArchivedMessage } = await import('../services/message-archival-service.js');
+    const { message_id } = req.params;
+    
+    if (!message_id || typeof message_id !== 'string') {
+      res.status(400).json({ error: 'Invalid message_id' });
+      return;
+    }
+    
+    const archivedMessage = await retrieveArchivedMessage(message_id);
+    
+    if (!archivedMessage) {
+      res.status(404).json({ error: 'Archived message not found' });
+      return;
+    }
+    
+    res.json({
+      success: true,
+      message: archivedMessage,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
 

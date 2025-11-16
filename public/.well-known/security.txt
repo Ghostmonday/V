@@ -1,0 +1,52 @@
+Contact: security@vibez.app
+Expires: 2026-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://vibez.app/.well-known/security.txt
+Policy: https://vibez.app/security-policy
+
+# Security Policy
+
+We take security seriously. If you discover a security vulnerability, please follow these guidelines:
+
+## Reporting a Vulnerability
+
+1. **Do NOT** open a public issue
+2. Email security@vibez.app with:
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
+
+## Response Timeline
+
+- Initial response within 48 hours
+- Status update within 7 days
+- Resolution timeline depends on severity
+
+## Scope
+
+- VibeZ API (api.vibez.app)
+- VibeZ Web App (vibez.app)
+- VibeZ iOS App
+- Infrastructure and deployment systems
+
+## Out of Scope
+
+- Social engineering attacks
+- Physical security issues
+- Denial of service attacks
+- Spam or abuse reports (use support@vibez.app)
+
+## Recognition
+
+We recognize security researchers who responsibly disclose vulnerabilities. With your permission, we'll credit you in our security advisories.
+
+## Legal
+
+We will not pursue legal action against security researchers who:
+- Act in good faith
+- Do not access or modify data beyond what's necessary
+- Do not disrupt our services
+- Follow responsible disclosure practices
+
+Thank you for helping keep VibeZ secure!

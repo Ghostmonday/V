@@ -7,14 +7,16 @@
 
 import axios from 'axios';
 import { logError, logWarning, logInfo } from '../shared/logger.js';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logModerationEvent } from './telemetry-service.js';
 import { sanitizePrompt, logPromptAudit } from '../utils/prompt-sanitizer.js';
 import { getDeepSeekKey } from './api-keys-service.js';
+import { analyzeWithPerspective, getModerationThresholds } from './perspective-api-service.js';
 
 /**
- * Scan message for toxicity using DeepSeek LLM
+ * Scan message for toxicity using Perspective API (primary) and DeepSeek (fallback)
  * Returns score, isToxic flag, and suggestion text
+ * Uses configurable thresholds from system config
  */
 export async function scanForToxicity(
   content: string,
@@ -23,9 +25,62 @@ export async function scanForToxicity(
   userId?: string
 ): Promise<{ score: number; isToxic: boolean; suggestion: string }> {
   try {
+    // Get configurable thresholds
+    const thresholds = await getModerationThresholds();
+    const warnThreshold = thresholds.warn; // Default: 0.6
+    const blockThreshold = thresholds.block; // Default: 0.8
+
+    // Try Perspective API first (more reliable for toxicity detection)
+    const perspectiveResult = await analyzeWithPerspective(content);
+    
+    if (perspectiveResult) {
+      // Use Perspective API result
+      const score = perspectiveResult.toxicity;
+      const isBlocked = score >= blockThreshold;
+      
+      // Generate suggestion based on severity
+      let suggestion = 'Please keep conversations respectful';
+      if (isBlocked) {
+        suggestion = 'This message violates our community guidelines. Please revise.';
+      } else if (score >= warnThreshold) {
+        suggestion = 'This message may be inappropriate. Please be respectful.';
+      }
+
+      // Auto-flag messages above warn threshold
+      if (score >= warnThreshold && messageId && userId) {
+        const { flagMessage } = await import('./message-flagging-service.js');
+        await flagMessage(
+          messageId,
+          roomId,
+          userId,
+          'toxicity',
+          score,
+          'system',
+          { 
+            source: 'perspective_api',
+            perspectiveScores: {
+              toxicity: perspectiveResult.toxicity,
+              severeToxicity: perspectiveResult.severeToxicity,
+              identityAttack: perspectiveResult.identityAttack,
+              insult: perspectiveResult.insult,
+              profanity: perspectiveResult.profanity,
+              threat: perspectiveResult.threat,
+            }
+          }
+        );
+      }
+
+      return { 
+        score, 
+        isToxic: isBlocked, // Block only at blockThreshold (0.8)
+        suggestion 
+      };
+    }
+
+    // Fallback to DeepSeek if Perspective API unavailable
     const deepseekKey = await getDeepSeekKey();
     if (!deepseekKey) {
-      logWarning('DeepSeek API key not found in vault - moderation disabled');
+      logWarning('No moderation API keys found - moderation disabled');
       return { score: 0, isToxic: false, suggestion: '' };
     }
 
@@ -80,8 +135,11 @@ Respond with JSON only: {"score": 0-1, "isToxic": true/false, "suggestion": "bri
 
     const score = Math.max(0, Math.min(1, parseFloat(result.score) || 0));
     
-    // Auto-flag messages above threshold
-    if (score > 0.7 && messageId && userId) {
+    // Use configurable thresholds for DeepSeek results too
+    const isToxic = score >= blockThreshold; // Block at higher threshold
+    
+    // Auto-flag messages above warn threshold
+    if (score >= warnThreshold && messageId && userId) {
       const { flagMessage } = await import('./message-flagging-service.js');
       await flagMessage(
         messageId,
@@ -93,12 +151,12 @@ Respond with JSON only: {"score": 0-1, "isToxic": true/false, "suggestion": "bri
         { source: 'deepseek_moderation' }
       );
     }
-    const isToxic = result.isToxic === true || score > 0.7; // Threshold: 0.7
+    
     const suggestion = result.suggestion || 'Please keep conversations respectful';
 
     return { score, isToxic, suggestion };
   } catch (error: any) {
-    logError('DeepSeek scan failed', error);
+    logError('Moderation scan failed', error);
     // Fail-safe: return safe if API fails
     return { score: 0, isToxic: false, suggestion: '' };
   }

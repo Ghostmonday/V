@@ -10,7 +10,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import { logError, logWarning, logAudit } from '../shared/logger.js';
 import { validateServiceData } from './incremental-validation.js';
 import { z } from 'zod';
@@ -19,9 +19,9 @@ const redis = getRedisClient();
 
 // Configuration
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION_SECONDS = 15 * 60; // 15 minutes
+const LOCKOUT_DURATION_SECONDS = 15 * 60; // Base lockout duration: 15 minutes
 const CAPTCHA_THRESHOLD = 3; // Require CAPTCHA after 3 failures
-const ATTEMPT_WINDOW_SECONDS = 15 * 60; // Track attempts in 15-minute window
+const ATTEMPT_WINDOW_SECONDS = 60; // Track attempts in 60-second window (5/min per IP)
 
 // Validation schema
 const captchaTokenSchema = z.object({
@@ -35,6 +35,7 @@ interface LoginAttempt {
   lastAttempt: number;
   lockedUntil?: number;
   captchaRequired: boolean;
+  lockoutCount?: number; // Number of times the user/IP has been locked
 }
 
 /**
@@ -75,33 +76,49 @@ async function recordFailedAttempt(identifier: string): Promise<LoginAttempt> {
     const existing = await getLoginAttempts(identifier);
     
     const now = Date.now();
-    const windowStart = now - (ATTEMPT_WINDOW_SECONDS * 1000);
+    const windowStart = now - ATTEMPT_WINDOW_SECONDS * 1000;
     
     let attempts: LoginAttempt;
     
+    const existingLockoutCount = existing?.lockoutCount ?? 0;
+    
     if (existing && existing.firstAttempt > windowStart) {
       // Within window - increment count
+      const nextCount = existing.count + 1;
+      let lockedUntil = existing.lockedUntil;
+      let lockoutCount = existingLockoutCount;
+
+      if (nextCount >= MAX_LOGIN_ATTEMPTS) {
+        // Exponential backoff for lockouts:
+        // 1st lockout: 15 minutes, then 30, 60, cap at 120 minutes
+        const nextLockoutCount = existingLockoutCount + 1;
+        const multiplier = Math.min(2 ** (nextLockoutCount - 1), 8); // 1,2,4,8
+        const lockoutDurationMs = LOCKOUT_DURATION_SECONDS * 1000 * multiplier;
+        lockedUntil = now + lockoutDurationMs;
+        lockoutCount = nextLockoutCount;
+      }
+
       attempts = {
-        count: existing.count + 1,
+        count: nextCount,
         firstAttempt: existing.firstAttempt,
         lastAttempt: now,
-        captchaRequired: existing.count + 1 >= CAPTCHA_THRESHOLD,
-        lockedUntil: existing.count + 1 >= MAX_LOGIN_ATTEMPTS 
-          ? now + (LOCKOUT_DURATION_SECONDS * 1000)
-          : existing.lockedUntil,
+        captchaRequired: nextCount >= CAPTCHA_THRESHOLD,
+        lockedUntil,
+        lockoutCount,
       };
     } else {
-      // New window - reset count
+      // New window - reset count but carry over historical lockout count
       attempts = {
         count: 1,
         firstAttempt: now,
         lastAttempt: now,
         captchaRequired: false,
+        lockoutCount: existingLockoutCount,
       };
     }
     
     // Store with TTL (expires after lockout duration + window)
-    const ttl = attempts.lockedUntil 
+    const ttl = attempts.lockedUntil
       ? Math.ceil((attempts.lockedUntil - now) / 1000) + ATTEMPT_WINDOW_SECONDS
       : ATTEMPT_WINDOW_SECONDS;
     
@@ -191,7 +208,7 @@ export async function isCaptchaRequired(identifier: string): Promise<boolean> {
 }
 
 /**
- * Verify CAPTCHA token (simple validation - integrate with actual CAPTCHA service)
+ * Verify CAPTCHA token with reCAPTCHA v3
  */
 async function verifyCaptchaToken(token: string, challenge?: string): Promise<boolean> {
   // VALIDATION CHECKPOINT: Validate CAPTCHA token format
@@ -202,14 +219,55 @@ async function verifyCaptchaToken(token: string, challenge?: string): Promise<bo
       'verifyCaptchaToken'
     );
     
-    // TODO: Integrate with actual CAPTCHA service (reCAPTCHA, hCaptcha, etc.)
-    // For now, validate token exists and is not empty
     if (!validated.token || validated.token.length === 0) {
       return false;
     }
     
-    // Placeholder: In production, verify token with CAPTCHA service
-    // Example: await fetch('https://www.google.com/recaptcha/api/siteverify', { ... })
+    // Get reCAPTCHA secret key from environment
+    const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY;
+    
+    if (!recaptchaSecretKey) {
+      // If no secret key configured, log warning but allow through in development
+      if (process.env.NODE_ENV === 'development') {
+        logWarning('reCAPTCHA secret key not configured - allowing in development');
+        return true;
+      }
+      logError('reCAPTCHA secret key not configured in production');
+      return false;
+    }
+    
+    // Verify token with Google reCAPTCHA API
+    const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+    const response = await fetch(verifyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        secret: recaptchaSecretKey,
+        response: validated.token,
+      }),
+    });
+    
+    if (!response.ok) {
+      logError('reCAPTCHA verification request failed', { status: response.status });
+      return false;
+    }
+    
+    const data = await response.json() as { success: boolean; score?: number; challenge_ts?: string; hostname?: string };
+    
+    // VALIDATION CHECKPOINT: Validate reCAPTCHA response
+    if (!data.success) {
+      logWarning('reCAPTCHA verification failed', { data });
+      return false;
+    }
+    
+    // For reCAPTCHA v3, check score (0.0 to 1.0, higher is better)
+    // Require score >= 0.5 for login attempts
+    if (data.score !== undefined && data.score < 0.5) {
+      logWarning('reCAPTCHA score too low', { score: data.score });
+      return false;
+    }
     
     return true;
   } catch (error: any) {

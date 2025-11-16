@@ -11,8 +11,8 @@
  * 4. Respect legal holds and room-level retention overrides
  */
 
-import { supabase } from '../config/db.js';
-import { getRedisClient } from '../config/db.js';
+import { supabase } from '../config/db.ts';
+import { getRedisClient } from '../config/db.ts';
 import { logInfo, logError } from '../shared/logger.js';
 import { getDefaultTTL } from '../services/DatabaseService.js';
 

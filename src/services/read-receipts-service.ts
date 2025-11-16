@@ -3,8 +3,8 @@
  * Handles message read receipts (delivered_at, read_at, seen_at)
  */
 
-import { supabase } from '../config/db.js';
-import { getRedisClient } from '../config/db.js';
+import { supabase } from '../config/db.ts';
+import { getRedisClient } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 
 const redis = getRedisClient();

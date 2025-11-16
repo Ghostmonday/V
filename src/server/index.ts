@@ -44,6 +44,7 @@ import bandwidthRoutes from '../routes/bandwidth-routes.js';
 import vibesConversationRoutes from '../routes/vibes/conversation-routes.js';
 import vibesCardRoutes from '../routes/vibes/card-routes.js';
 import vibesMuseumRoutes from '../routes/vibes/museum-routes.js';
+import userDataRoutes from '../routes/user-data-routes.js';
 import { telemetryMiddleware } from './middleware/telemetry.js';
 import { errorMiddleware } from './middleware/error.js';
 import { rateLimit, ipRateLimit } from '../middleware/rate-limiter.js';
@@ -52,6 +53,7 @@ import { sanitizeInput } from '../middleware/input-validation.js';
 import { fileUploadSecurity } from '../middleware/file-upload-security.js';
 import authMiddleware from '../middleware/auth.js'; // Optional auth middleware
 import helmet from 'helmet';
+import csurf from 'csurf';
 import { logInfo } from '../shared/logger.js';
 import { LIMIT_REQUESTS_PER_MIN } from './utils/config.js';
 import { vibesConfig } from '../config/vibes.config.js';
@@ -64,6 +66,18 @@ const wss = new WebSocketServer({ server });
 
 // collect node metrics for Prometheus
 client.collectDefaultMetrics();
+
+// HTTPS enforcement in production
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    // Check if request is HTTP (not HTTPS)
+    if (req.header('x-forwarded-proto') !== 'https' && req.protocol !== 'https') {
+      // Redirect to HTTPS
+      return res.redirect(308, `https://${req.get('host')}${req.url}`);
+    }
+    next();
+  });
+}
 
 // CORS configuration - locked to vibez.app and localhost:3000
 // SECURITY: Never use wildcard (*) with credentials: true
@@ -125,6 +139,64 @@ app.use(helmet({
 // Health endpoint - must be public (before rate limiting and auth)
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
+// Security.txt endpoint (RFC 9116)
+app.get('/.well-known/security.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.send(`Contact: security@vibez.app
+Expires: 2026-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://vibez.app/.well-known/security.txt
+Policy: https://vibez.app/security-policy
+
+# Security Policy
+
+We take security seriously. If you discover a security vulnerability, please follow these guidelines:
+
+## Reporting a Vulnerability
+
+1. **Do NOT** open a public issue
+2. Email security@vibez.app with:
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
+
+## Response Timeline
+
+- Initial response within 48 hours
+- Status update within 7 days
+- Resolution timeline depends on severity
+
+## Scope
+
+- VibeZ API (api.vibez.app)
+- VibeZ Web App (vibez.app)
+- VibeZ iOS App
+- Infrastructure and deployment systems
+
+## Out of Scope
+
+- Social engineering attacks
+- Physical security issues
+- Denial of service attacks
+- Spam or abuse reports (use support@vibez.app)
+
+## Recognition
+
+We recognize security researchers who responsibly disclose vulnerabilities. With your permission, we'll credit you in our security advisories.
+
+## Legal
+
+We will not pursue legal action against security researchers who:
+- Act in good faith
+- Do not access or modify data beyond what's necessary
+- Do not disrupt our services
+- Follow responsible disclosure practices
+
+Thank you for helping keep VibeZ secure!
+`);
+});
+
 // Simple rate limiting - 60 requests per minute per IP (fails open if Redis unavailable)
 app.use(rateLimiter);
 
@@ -136,6 +208,24 @@ app.use(cookieParser()); // Parse cookies for HTTP-only token storage
 app.use(express.json({ limit: '10mb' })); // Limit request size
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sanitizeInput); // SECURITY: Sanitize all input before processing
+
+// CSRF protection (skip for API endpoints, WebSocket, and health checks)
+const csrfProtection = csurf({ 
+  cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' },
+  ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
+});
+app.use((req, res, next) => {
+  // Skip CSRF for API endpoints, WebSocket upgrade, and health checks
+  if (req.path.startsWith('/api/') || 
+      req.path.startsWith('/auth/') ||
+      req.path.startsWith('/metrics') ||
+      req.path === '/health' ||
+      req.headers.upgrade === 'websocket') {
+    return next();
+  }
+  csrfProtection(req, res, next);
+});
+
 app.use(telemetryMiddleware);
 
 // Routes
@@ -159,6 +249,7 @@ app.use('/api/reactions', reactionsRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/threads', threadsRoutes);
 app.use('/api/ux-telemetry', uxTelemetryRoutes); // UX Telemetry (separate from system telemetry)
+app.use('/api/users', userDataRoutes); // GDPR user data endpoints
 app.use('/api/read-receipts', readReceiptsRoutes); // Read receipts endpoints
 app.use('/api/nicknames', nicknamesRoutes); // Nicknames endpoints
 app.use('/api/pinned', pinnedRoutes); // Pinned items endpoints

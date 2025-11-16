@@ -11,7 +11,7 @@
 
 import { rotatePartition, runAllCleanup } from '../services/partition-management-service.js';
 import { logInfo, logError } from '../shared/logger.js';
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 
 const redis = getRedisClient();
 const LOCK_KEY = 'partition_management_lock';

@@ -3,7 +3,7 @@
  * Provides consistent error handling and simplified query patterns
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError } from '../shared/logger.js';
 
 /**
@@ -107,9 +107,14 @@ export async function findMany<T = unknown>(
       }
     }
     
-    // Determine cursor column
+    // Determine cursor column (use explicit cursorColumn if provided, otherwise use orderBy column, fallback to created_at)
     const cursorColumn = options?.cursorColumn || options?.orderBy?.column || 'created_at';
     const ascending = options?.orderBy?.ascending ?? false; // Default DESC for pagination
+    
+    // VALIDATION CHECKPOINT: Ensure cursorColumn is valid
+    if (!cursorColumn || typeof cursorColumn !== 'string') {
+      throw new Error('Invalid cursor column');
+    }
     
     // Apply cursor-based pagination if cursor provided
     if (options?.cursor) {

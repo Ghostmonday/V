@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { getCached, setCached, generateETag, invalidatePattern } from '../../services/cache-service.js';
-import { getRedisClient } from '../../config/db.js';
+import { getRedisClient } from '../../config/db.ts';
 
 const redis = getRedisClient();
 

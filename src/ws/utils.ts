@@ -5,9 +5,12 @@
  * direct WebSocket broadcasting (for single-server optimization)
  */
 
-import { getRedisPublisher } from '../config/redis-pubsub.js';
+import { getRedisPublisher, getRedisSubscriber } from '../config/redis-pubsub.js';
 import { WebSocket } from 'ws';
-import { logInfo, logError } from '../shared/logger.js';
+import { logInfo, logError, logWarning } from '../shared/logger.js';
+
+// Configuration: Maximum connections per room
+const MAX_CONNECTIONS_PER_ROOM = parseInt(process.env.WS_MAX_CONNECTIONS_PER_ROOM || '1000', 10);
 
 /**
  * Room-based WebSocket client mapping for efficient direct broadcasting
@@ -17,20 +20,82 @@ import { logInfo, logError } from '../shared/logger.js';
 const roomClientMap = new Map<string, Set<WebSocket>>();
 
 /**
+ * Track room connection counts (for distributed systems via Redis)
+ */
+let redisSubscriberInitialized = false;
+
+/**
  * Track which rooms each WebSocket connection is subscribed to
  * Maps WebSocket -> Set of roomIds
  */
 const wsRoomMap = new WeakMap<WebSocket, Set<string>>();
 
 /**
+ * Get connection count for a room (local + distributed via Redis)
+ */
+async function getRoomConnectionCount(roomId: string): Promise<number> {
+  // Get local connection count
+  const localCount = roomClientMap.get(roomId)?.size || 0;
+  
+  // Try to get distributed count from Redis (if available)
+  try {
+    const redis = getRedisPublisher();
+    if (redis) {
+      const redisKey = `room:connections:${roomId}`;
+      const distributedCount = await redis.get(redisKey);
+      if (distributedCount) {
+        return parseInt(distributedCount, 10);
+      }
+    }
+  } catch (error) {
+    // Non-critical: fall back to local count
+    logWarning('Failed to get distributed connection count', error instanceof Error ? error : new Error(String(error)));
+  }
+  
+  return localCount;
+}
+
+/**
+ * Update room connection count in Redis (for distributed systems)
+ */
+async function updateRoomConnectionCount(roomId: string, delta: number): Promise<void> {
+  try {
+    const redis = getRedisPublisher();
+    if (redis) {
+      const redisKey = `room:connections:${roomId}`;
+      const currentCount = await redis.get(redisKey);
+      const newCount = Math.max(0, (parseInt(currentCount || '0', 10) + delta));
+      await redis.setex(redisKey, 3600, newCount.toString()); // 1 hour TTL
+    }
+  } catch (error) {
+    // Non-critical: log but don't fail
+    logWarning('Failed to update distributed connection count', error instanceof Error ? error : new Error(String(error)));
+  }
+}
+
+/**
  * Register a WebSocket connection to a room
  * Used for efficient room-based broadcasting
+ * Enforces room connection limits
  */
-export function registerWebSocketToRoom(ws: WebSocket, roomId: string): void {
+export async function registerWebSocketToRoom(ws: WebSocket, roomId: string): Promise<boolean> {
+  // Check room connection limit
+  const currentCount = await getRoomConnectionCount(roomId);
+  if (currentCount >= MAX_CONNECTIONS_PER_ROOM) {
+    logWarning(`Room connection limit exceeded: ${roomId} (${currentCount}/${MAX_CONNECTIONS_PER_ROOM})`);
+    ws.send(JSON.stringify({
+      type: 'error',
+      msg: 'room_full',
+      reason: `Room has reached maximum capacity (${MAX_CONNECTIONS_PER_ROOM} connections)`,
+    }));
+    return false;
+  }
+  
   // Add WebSocket to room's client set
   if (!roomClientMap.has(roomId)) {
     roomClientMap.set(roomId, new Set());
   }
+  const wasNew = !roomClientMap.get(roomId)!.has(ws);
   roomClientMap.get(roomId)!.add(ws);
   
   // Track room membership for this WebSocket (using WeakMap for automatic cleanup)
@@ -39,18 +104,25 @@ export function registerWebSocketToRoom(ws: WebSocket, roomId: string): void {
   }
   wsRoomMap.get(ws)!.add(roomId);
   
-  logInfo('WebSocket registered to room', { roomId });
+  // Update distributed connection count if this is a new connection
+  if (wasNew) {
+    await updateRoomConnectionCount(roomId, 1);
+  }
+  
+  logInfo('WebSocket registered to room', { roomId, localCount: roomClientMap.get(roomId)!.size });
+  return true;
 }
 
 /**
  * Unregister a WebSocket connection from a room
  * Called when connection closes or leaves room
  */
-export function unregisterWebSocketFromRoom(ws: WebSocket, roomId: string): void {
+export async function unregisterWebSocketFromRoom(ws: WebSocket, roomId: string): Promise<void> {
   // Remove WebSocket from room's client set
   const clients = roomClientMap.get(roomId);
+  let wasRemoved = false;
   if (clients) {
-    clients.delete(ws);
+    wasRemoved = clients.delete(ws);
     // Clean up room entry if no clients remain
     if (clients.size === 0) {
       roomClientMap.delete(roomId);
@@ -63,6 +135,11 @@ export function unregisterWebSocketFromRoom(ws: WebSocket, roomId: string): void
     rooms.delete(roomId);
   }
   
+  // Update distributed connection count if connection was removed
+  if (wasRemoved) {
+    await updateRoomConnectionCount(roomId, -1);
+  }
+  
   logInfo('WebSocket unregistered from room', { roomId });
 }
 
@@ -70,11 +147,13 @@ export function unregisterWebSocketFromRoom(ws: WebSocket, roomId: string): void
  * Unregister WebSocket from all rooms
  * Called when connection closes
  */
-export function unregisterWebSocket(ws: WebSocket): void {
+export async function unregisterWebSocket(ws: WebSocket): Promise<void> {
   const rooms = wsRoomMap.get(ws);
   if (rooms) {
-    for (const roomId of rooms) {
-      unregisterWebSocketFromRoom(ws, roomId);
+    // Create array copy since we'll be modifying the set
+    const roomIds = Array.from(rooms);
+    for (const roomId of roomIds) {
+      await unregisterWebSocketFromRoom(ws, roomId);
     }
   }
 }
@@ -112,10 +191,14 @@ function processBroadcastQueue(roomId: string): void {
         } catch (error: unknown) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           logError('Failed to send WebSocket batch', error instanceof Error ? error : new Error(errorMessage));
-          unregisterWebSocketFromRoom(client, roomId);
+          unregisterWebSocketFromRoom(client, roomId).catch(() => {
+            // Ignore cleanup errors
+          });
         }
       } else {
-        unregisterWebSocketFromRoom(client, roomId);
+        unregisterWebSocketFromRoom(client, roomId).catch(() => {
+          // Ignore cleanup errors
+        });
       }
     }
     
@@ -188,10 +271,14 @@ export function broadcastToRoom(
           } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             logError('Failed to send WebSocket message', error instanceof Error ? error : new Error(errorMessage));
-            unregisterWebSocketFromRoom(client, roomId);
+            unregisterWebSocketFromRoom(client, roomId).catch(() => {
+              // Ignore cleanup errors
+            });
           }
         } else {
-          unregisterWebSocketFromRoom(client, roomId);
+          unregisterWebSocketFromRoom(client, roomId).catch(() => {
+            // Ignore cleanup errors
+          });
         }
       }
       
@@ -202,14 +289,81 @@ export function broadcastToRoom(
     }
   }
   
-  // Fallback to Redis pub/sub (for multi-server or when direct broadcast fails)
+  // Always publish to Redis pub/sub for cross-process broadcasting
+  // This ensures messages reach all server instances in a clustered deployment
   try {
     const publisher = getRedisPublisher();
-    publisher.publish(`room:${roomId}`, JSON.stringify(message));
-    logInfo('Broadcasted via Redis pub/sub', { roomId });
+    if (publisher) {
+      publisher.publish(`room:${roomId}`, JSON.stringify(message));
+      logInfo('Broadcasted via Redis pub/sub', { roomId });
+    }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     logError('Failed to broadcast via Redis', error instanceof Error ? error : new Error(errorMessage));
+  }
+}
+
+/**
+ * Initialize Redis subscriber for cross-process message broadcasting
+ * Subscribes to room channels and broadcasts to local WebSocket connections
+ */
+export function initializeRedisSubscriber(): void {
+  if (redisSubscriberInitialized) {
+    return; // Already initialized
+  }
+  
+  try {
+    const subscriber = getRedisSubscriber();
+    if (!subscriber) {
+      logWarning('Redis subscriber not available, skipping cross-process broadcasting setup');
+      return;
+    }
+    
+    // Subscribe to all room channels (pattern: room:*)
+    subscriber.psubscribe('room:*', (err: Error | null) => {
+      if (err) {
+        logError('Failed to subscribe to Redis room channels', err);
+        return;
+      }
+      logInfo('Subscribed to Redis room channels for cross-process broadcasting');
+    });
+    
+    // Handle incoming messages from other server instances
+    subscriber.on('pmessage', (pattern: string, channel: string, message: string) => {
+      try {
+        const roomId = channel.replace('room:', '');
+        const messageData = JSON.parse(message);
+        
+        // Broadcast to local WebSocket connections in this room
+        const clients = roomClientMap.get(roomId);
+        if (clients && clients.size > 0) {
+          let sentCount = 0;
+          for (const client of clients) {
+            if (client.readyState === WebSocket.OPEN) {
+              try {
+                client.send(JSON.stringify(messageData));
+                sentCount++;
+              } catch (error: unknown) {
+                logError('Failed to send cross-process message', error instanceof Error ? error : new Error(String(error)));
+                unregisterWebSocketFromRoom(client, roomId).catch(() => {
+                  // Ignore cleanup errors
+                });
+              }
+            }
+          }
+          
+          if (sentCount > 0) {
+            logInfo('Broadcasted cross-process message to local clients', { roomId, sentCount });
+          }
+        }
+      } catch (error: unknown) {
+        logError('Failed to process cross-process message', error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+    
+    redisSubscriberInitialized = true;
+  } catch (error: unknown) {
+    logError('Failed to initialize Redis subscriber', error instanceof Error ? error : new Error(String(error)));
   }
 }
 

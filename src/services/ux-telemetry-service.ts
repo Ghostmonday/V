@@ -7,7 +7,7 @@
  * @module ux-telemetry-service
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 import type { UXTelemetryEvent, UXEventCategory } from '../types/ux-telemetry.js';
 import { redactUXTelemetryEvent, redactUXTelemetryBatch } from './ux-telemetry-redaction.js';

@@ -3,7 +3,7 @@
  * Analyzes conversations for emotional dynamics and sentiment
  */
 
-import { supabase } from '../../config/db.js';
+import { supabase } from '../../config/db.ts';
 import { logError } from '../../shared/logger.js';
 import { vibesConfig } from '../../config/vibes.config.js';
 

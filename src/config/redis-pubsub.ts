@@ -2,7 +2,7 @@
  * Redis Pub/Sub helpers for real-time events
  */
 
-import { getRedisClient } from './db.js';
+import { getRedisClient } from './db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 
 // Publisher instance (for sending messages to Redis channels)

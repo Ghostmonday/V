@@ -3,7 +3,7 @@
  * Provides Redis-based caching with invalidation strategies and metrics
  */
 
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import { logInfo, logError } from '../shared/logger.js';
 import { createHash } from 'crypto';
 

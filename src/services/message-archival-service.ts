@@ -9,7 +9,7 @@
  * - Archive integrity verification
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError, logInfo, logWarning } from '../shared/logger.js';
 import { validateServiceData, validateBeforeDB, validateAfterDB } from '../middleware/incremental-validation.js';
 import { encryptField, decryptField } from './encryption-service.js';

@@ -1,0 +1,162 @@
+{
+  "timestamp": "2025-11-16T17:34:20.685Z",
+  "results": [
+    {
+      "phase": "Phase 1",
+      "section": "1.1",
+      "test": "Database connection",
+      "passed": false,
+      "message": "Supabase client not available - check environment variables"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.2",
+      "test": "Database connection",
+      "passed": false,
+      "message": "Supabase client not available"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.3",
+      "test": "Database connection",
+      "passed": false,
+      "message": "Supabase client not available"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.4",
+      "test": "Redis connection",
+      "passed": false,
+      "message": "Redis client not available"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.5",
+      "test": "Server config",
+      "passed": true,
+      "message": "Server configuration file exists"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.5",
+      "test": "Security.txt",
+      "passed": true,
+      "message": "security.txt file exists"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.5",
+      "test": "HSTS headers",
+      "passed": true,
+      "message": "HSTS headers check requires HTTP request (see integration tests)"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.1",
+      "test": "Dependencies",
+      "passed": false,
+      "message": "Redis or rate limiter not available"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.2",
+      "test": "WebSocket gateway",
+      "passed": true,
+      "message": "WebSocket gateway exists"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.2",
+      "test": "Idle timeout",
+      "passed": true,
+      "message": "Idle timeout configured"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.2",
+      "test": "Ping/pong",
+      "passed": true,
+      "message": "Ping/pong implemented"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.3",
+      "test": "Database connection",
+      "passed": false,
+      "message": "Supabase client not available"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.4",
+      "test": "Redis connection",
+      "passed": false,
+      "message": "Redis client not available"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.1",
+      "test": "Database connection",
+      "passed": false,
+      "message": "Supabase client not available"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.2",
+      "test": "Pagination helpers",
+      "passed": true,
+      "message": "Pagination helpers exist"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.2",
+      "test": "Cursor pagination",
+      "passed": true,
+      "message": "Cursor-based pagination implemented"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.2",
+      "test": "Limit validation",
+      "passed": true,
+      "message": "Limit validation (max 100) implemented"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.2",
+      "test": "Pagination metadata",
+      "passed": true,
+      "message": "Pagination metadata implemented"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.3",
+      "test": "Database connection",
+      "passed": false,
+      "message": "Supabase client not available"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.4",
+      "test": "Redis connection",
+      "passed": false,
+      "message": "Redis client not available"
+    }
+  ],
+  "summary": {
+    "Phase 1": {
+      "passed": 3,
+      "failed": 4,
+      "total": 7
+    },
+    "Phase 2": {
+      "passed": 3,
+      "failed": 3,
+      "total": 6
+    },
+    "Phase 3": {
+      "passed": 4,
+      "failed": 3,
+      "total": 7
+    }
+  }
+}

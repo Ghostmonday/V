@@ -1,5 +1,5 @@
-import { getRedisClient } from '../config/db.js';
-import { supabase } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
+import { supabase } from '../config/db.ts';
 import { logAudit, logError } from '../shared/logger.js';
 
 const redis = getRedisClient();
@@ -78,9 +78,26 @@ export async function cleanupOrphanedPresenceKeys(): Promise<number> {
   }
 }
 
+/**
+ * List public rooms ordered by active users
+ * Phase 3.4: Cached for 1 minute (presence changes frequently)
+ */
 export async function listRooms(): Promise<any[]> {
-  const { data } = await supabase.from('rooms').select('*').eq('is_public', true).order('active_users', { ascending: false });
-  return data || [];
+  const { warmCache } = await import('./cache-service.js');
+  
+  const cacheKey = 'rooms:public:active_users';
+  return await warmCache(
+    cacheKey,
+    async () => {
+      const { data } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('is_public', true)
+        .order('active_users', { ascending: false });
+      return data || [];
+    },
+    60 // 1 minute TTL (presence changes frequently)
+  );
 }
 
 export async function getActivityFeed(userId: string): Promise<any[]> {

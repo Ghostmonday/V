@@ -14,6 +14,7 @@
 
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import argon2 from 'argon2';
 import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
 import { promisify } from 'util';
 import { findOne, upsert, create } from '../shared/supabase-helpers.js';
@@ -316,16 +317,30 @@ export async function authenticateWithCredentials(
     // Check if user has password_hash (new system) or password (legacy)
     let isValid = false;
     if (user.password_hash) {
-      // New system: verify bcrypt hash
-      isValid = await bcrypt.compare(password, user.password_hash);
+      // New system: verify hash (supports both bcrypt and argon2)
+      if (user.password_hash.startsWith('$argon2')) {
+        // Argon2 hash
+        isValid = await argon2.verify(user.password_hash, password);
+      } else if (user.password_hash.startsWith('$2')) {
+        // Bcrypt hash
+        isValid = await bcrypt.compare(password, user.password_hash);
+      } else {
+        // Unknown hash format - try bcrypt first
+        isValid = await bcrypt.compare(password, user.password_hash).catch(() => false);
+      }
     } else if (user.password) {
-      // Legacy system: migrate to hash
+      // Legacy system: migrate to hash (use argon2 for new passwords)
       isValid = password === user.password;
       if (isValid) {
-        // Migrate to hashed password
-        const password_hash = await bcrypt.hash(password, 10);
+        // Migrate to argon2 hash (more secure)
+        const password_hash = await argon2.hash(password, {
+          type: argon2.argon2id,
+          memoryCost: 65536, // 64 MB
+          timeCost: 3,
+          parallelism: 4,
+        });
         await upsert('users', { id: user.id, password_hash }, 'id');
-        logInfo('User password migrated to hash', user.id);
+        logInfo('User password migrated to argon2 hash', user.id);
       }
     } else {
       throw new Error('Invalid username or password');
@@ -382,8 +397,14 @@ export async function registerUser(
     }
 
     // VALIDATION CHECKPOINT: Validate password hash generation
-    const password_hash = await bcrypt.hash(password, 10);
-    if (!password_hash || password_hash.length < 10) {
+    // Use argon2 for new passwords (more secure than bcrypt)
+    const password_hash = await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 65536, // 64 MB
+      timeCost: 3,
+      parallelism: 4,
+    });
+    if (!password_hash || !password_hash.startsWith('$argon2')) {
       throw new Error('Failed to hash password');
     }
 

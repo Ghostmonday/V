@@ -18,16 +18,28 @@ BEGIN
     
     IF token_count = 0 THEN
         RAISE NOTICE '❌ Phase 1.1: refresh_tokens table does not exist';
+        RAISE NOTICE '   Run migration: sql/migrations/2025-01-XX-refresh-tokens.sql';
     ELSE
         RAISE NOTICE '✅ Phase 1.1: refresh_tokens table exists';
         
-        -- Check tokens are hashed (64 char hex)
-        SELECT COUNT(*) INTO hashed_count
-        FROM refresh_tokens
-        WHERE LENGTH(token_hash) = 64 
-          AND token_hash ~ '^[0-9a-f]{64}$';
-        
-        SELECT COUNT(*) INTO token_count FROM refresh_tokens;
+        -- Check if table has required columns before querying
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'refresh_tokens' AND column_name = 'token_hash'
+        ) THEN
+            -- Check tokens are hashed (64 char hex)
+            SELECT COUNT(*) INTO hashed_count
+            FROM refresh_tokens
+            WHERE token_hash IS NOT NULL
+              AND LENGTH(token_hash) = 64 
+              AND token_hash ~ '^[0-9a-f]{64}$';
+            
+            SELECT COUNT(*) INTO token_count FROM refresh_tokens;
+        ELSE
+            RAISE NOTICE '⚠️  Phase 1.1: refresh_tokens table exists but token_hash column missing';
+            token_count := 0;
+            hashed_count := 0;
+        END IF;
         
         IF token_count > 0 AND hashed_count = token_count THEN
             RAISE NOTICE '✅ Phase 1.1: All tokens properly hashed (% tokens checked)', token_count;
@@ -37,10 +49,18 @@ BEGIN
             RAISE NOTICE '❌ Phase 1.1: Some tokens not properly hashed (%/% hashed)', hashed_count, token_count;
         END IF;
         
-        -- Check family_id exists
-        SELECT COUNT(*) INTO family_id_count
-        FROM refresh_tokens
-        WHERE family_id IS NOT NULL;
+        -- Check family_id exists (only if table has the column)
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'refresh_tokens' AND column_name = 'family_id'
+        ) THEN
+            SELECT COUNT(*) INTO family_id_count
+            FROM refresh_tokens
+            WHERE family_id IS NOT NULL;
+        ELSE
+            family_id_count := 0;
+            RAISE NOTICE '⚠️  Phase 1.1: family_id column missing from refresh_tokens table';
+        END IF;
         
         IF token_count > 0 AND family_id_count = token_count THEN
             RAISE NOTICE '✅ Phase 1.1: All tokens have family_id';
@@ -72,32 +92,63 @@ END $$;
 -- ===============================================
 DO $$
 DECLARE
+    users_table_exists BOOLEAN;
     user_count INTEGER;
     plaintext_count INTEGER;
     bcrypt_count INTEGER;
     argon2_count INTEGER;
 BEGIN
+    -- Check if users table exists
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'users'
+    ) INTO users_table_exists;
+    
+    IF NOT users_table_exists THEN
+        RAISE NOTICE '❌ Phase 1.2: users table does not exist';
+        RETURN;
+    END IF;
+    
     SELECT COUNT(*) INTO user_count FROM users;
     
     IF user_count = 0 THEN
         RAISE NOTICE '⚠️  Phase 1.2: No users to check';
     ELSE
-        -- Check for plaintext passwords (not starting with $2 or $argon2)
-        SELECT COUNT(*) INTO plaintext_count
-        FROM users
-        WHERE (password_hash IS NOT NULL OR password IS NOT NULL)
-          AND COALESCE(password_hash, password) !~ '^\$2[aby]?\$'
-          AND COALESCE(password_hash, password) !~ '^\$argon2';
+        -- Check if password columns exist
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'users' 
+            AND (column_name = 'password_hash' OR column_name = 'password')
+        ) THEN
+            -- Check for plaintext passwords (not starting with $2 or $argon2)
+            SELECT COUNT(*) INTO plaintext_count
+            FROM users
+            WHERE (password_hash IS NOT NULL OR password IS NOT NULL)
+              AND COALESCE(password_hash, password) !~ '^\$2[aby]?\$'
+              AND COALESCE(password_hash, password) !~ '^\$argon2';
+        ELSE
+            RAISE NOTICE '⚠️  Phase 1.2: password_hash/password columns not found';
+            plaintext_count := 0;
+        END IF;
         
-        -- Check bcrypt hashes
-        SELECT COUNT(*) INTO bcrypt_count
-        FROM users
-        WHERE COALESCE(password_hash, password) ~ '^\$2[aby]?\$';
-        
-        -- Check argon2 hashes
-        SELECT COUNT(*) INTO argon2_count
-        FROM users
-        WHERE COALESCE(password_hash, password) ~ '^\$argon2';
+        -- Check bcrypt hashes (only if password columns exist)
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'users' 
+            AND (column_name = 'password_hash' OR column_name = 'password')
+        ) THEN
+            SELECT COUNT(*) INTO bcrypt_count
+            FROM users
+            WHERE COALESCE(password_hash, password) ~ '^\$2[aby]?\$';
+            
+            -- Check argon2 hashes
+            SELECT COUNT(*) INTO argon2_count
+            FROM users
+            WHERE COALESCE(password_hash, password) ~ '^\$argon2';
+        ELSE
+            bcrypt_count := 0;
+            argon2_count := 0;
+        END IF;
         
         IF plaintext_count = 0 THEN
             RAISE NOTICE '✅ Phase 1.2: No plaintext passwords found (% users checked)', user_count;
@@ -113,43 +164,68 @@ END $$;
 -- ===============================================
 DO $$
 DECLARE
-    role_column_exists BOOLEAN;
+    users_table_exists BOOLEAN;
     valid_roles TEXT[] := ARRAY['user', 'moderator', 'admin', 'owner'];
     invalid_role_count INTEGER;
 BEGIN
-    -- Check if role column exists
+    -- Check if users table exists
     SELECT EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'users' AND column_name = 'role'
-    ) INTO role_column_exists;
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'users'
+    ) INTO users_table_exists;
     
-    IF role_column_exists THEN
-        RAISE NOTICE '✅ Phase 1.3: role column exists in users table';
+    IF NOT users_table_exists THEN
+        RAISE NOTICE '❌ Phase 1.3: users table does not exist';
+        RETURN;
+    END IF;
+    
+    -- Try to check roles - use exception handling to catch missing column
+    BEGIN
+        EXECUTE '
+            SELECT COUNT(*) 
+            FROM users 
+            WHERE role IS NOT NULL 
+              AND role != ALL($1::TEXT[])
+        ' INTO invalid_role_count USING valid_roles;
         
-        -- Check for invalid roles
-        SELECT COUNT(*) INTO invalid_role_count
-        FROM users
-        WHERE role IS NOT NULL
-          AND role != ALL(valid_roles);
+        RAISE NOTICE '✅ Phase 1.3: role column exists in users table';
         
         IF invalid_role_count = 0 THEN
             RAISE NOTICE '✅ Phase 1.3: All roles are valid';
         ELSE
             RAISE NOTICE '❌ Phase 1.3: Found % users with invalid roles', invalid_role_count;
         END IF;
-    ELSE
-        RAISE NOTICE '❌ Phase 1.3: role column missing from users table';
-    END IF;
+    EXCEPTION
+        WHEN undefined_column THEN
+            RAISE NOTICE '❌ Phase 1.3: role column missing from users table';
+            RAISE NOTICE '   Add role column: ALTER TABLE users ADD COLUMN role TEXT DEFAULT ''user'';';
+        WHEN undefined_table THEN
+            RAISE NOTICE '❌ Phase 1.3: users table does not exist';
+        WHEN OTHERS THEN
+            RAISE NOTICE '⚠️  Phase 1.3: Error checking roles: %', SQLERRM;
+    END;
 END $$;
 
 -- Phase 2.3: Delivery Acknowledgements
 -- ===============================================
 DO $$
 DECLARE
+    messages_table_exists BOOLEAN;
     message_id_exists BOOLEAN;
     delivery_status_exists BOOLEAN;
     message_count INTEGER;
 BEGIN
+    -- Check if messages table exists
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'messages'
+    ) INTO messages_table_exists;
+    
+    IF NOT messages_table_exists THEN
+        RAISE NOTICE '❌ Phase 2.3: messages table does not exist';
+        RETURN;
+    END IF;
+    
     -- Check for message_id column
     SELECT EXISTS (
         SELECT 1 FROM information_schema.columns
@@ -181,11 +257,23 @@ END $$;
 -- ===============================================
 DO $$
 DECLARE
+    messages_table_exists BOOLEAN;
     sender_index_exists BOOLEAN;
     room_index_exists BOOLEAN;
     created_at_index_exists BOOLEAN;
     index_count INTEGER;
 BEGIN
+    -- Check if messages table exists
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'messages'
+    ) INTO messages_table_exists;
+    
+    IF NOT messages_table_exists THEN
+        RAISE NOTICE '❌ Phase 3.1: messages table does not exist';
+        RETURN;
+    END IF;
+    
     -- Check for critical indexes on messages table
     SELECT EXISTS (
         SELECT 1 FROM pg_indexes
@@ -234,10 +322,22 @@ END $$;
 -- Check conversation_participants indexes
 DO $$
 DECLARE
+    conv_table_exists BOOLEAN;
     user_index_exists BOOLEAN;
     conv_index_exists BOOLEAN;
     index_count INTEGER;
 BEGIN
+    -- Check if conversation_participants table exists
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'conversation_participants'
+    ) INTO conv_table_exists;
+    
+    IF NOT conv_table_exists THEN
+        RAISE NOTICE '⚠️  Phase 3.1: conversation_participants table does not exist';
+        RETURN;
+    END IF;
+    
     SELECT EXISTS (
         SELECT 1 FROM pg_indexes
         WHERE tablename = 'conversation_participants'
@@ -295,11 +395,14 @@ END $$;
 -- Summary
 -- ===============================================
 DO $$
+DECLARE
+    separator TEXT;
 BEGIN
+    separator := repeat('=', 80);
     RAISE NOTICE '';
-    RAISE NOTICE '=' || repeat('=', 78);
+    RAISE NOTICE '%', separator;
     RAISE NOTICE 'VALIDATION COMPLETE';
-    RAISE NOTICE '=' || repeat('=', 78);
+    RAISE NOTICE '%', separator;
     RAISE NOTICE '';
     RAISE NOTICE 'Review the results above. All checks marked with ✅ passed.';
     RAISE NOTICE 'Items marked with ❌ need attention.';

@@ -3,7 +3,7 @@
  * Handles bot invite tokens and templates
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { sign } from 'jsonwebtoken';
 import { logError, logInfo } from '../shared/logger.js';
 

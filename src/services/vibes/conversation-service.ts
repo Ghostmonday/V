@@ -3,7 +3,7 @@
  * Handles conversation creation, joining, and lifecycle
  */
 
-import { supabase } from '../../config/db.js';
+import { supabase } from '../../config/db.ts';
 import { logError } from '../../shared/logger.js';
 import { ConversationNotFoundError, handleVIBESError } from './error-handler.js';
 import { VIBES_CONSTANTS } from './constants.js';

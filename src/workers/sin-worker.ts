@@ -4,7 +4,7 @@
  * Runs every 5 minutes
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 import { getDeepSeekKey } from '../services/api-keys-service.js';
 

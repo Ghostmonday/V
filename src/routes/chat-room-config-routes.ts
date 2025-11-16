@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError } from '../shared/logger.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { getUserSubscription, SubscriptionTier } from '../services/subscription-service.js';

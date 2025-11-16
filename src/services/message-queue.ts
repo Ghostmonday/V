@@ -4,7 +4,7 @@
  */
 
 import Queue from 'bull';
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 import * as messageService from './message-service.js';
 

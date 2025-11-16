@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vibez-validation-postgres
+    environment:
+      POSTGRES_USER: vibez
+      POSTGRES_PASSWORD: vibez_dev_password
+      POSTGRES_DB: vibez_validation
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"  # Use 5433 to avoid conflicts with local Postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro  # Auto-run migrations
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vibez -d vibez_validation"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - validation-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: vibez-validation-redis
+    ports:
+      - "6380:6379"  # Use 6380 to avoid conflicts with local Redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - validation-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  validation-network:
+    driver: bridge
+

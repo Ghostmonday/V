@@ -9,7 +9,7 @@
  * - get_table_size()
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logInfo, logError, logWarning } from '../shared/logger.js';
 
 /**

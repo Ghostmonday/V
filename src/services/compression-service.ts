@@ -10,7 +10,7 @@ import { Readable } from 'stream';
 import { createGzip } from 'zlib';
 import * as lz4 from 'lz4';
 import * as snappy from 'snappyjs';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logInfo } from '../shared/logger.js';
 
 /**

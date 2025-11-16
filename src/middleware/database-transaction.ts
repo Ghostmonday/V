@@ -3,7 +3,7 @@
  * Wraps multi-step operations in transactions for atomicity
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError } from '../shared/logger.js';
 
 /**

@@ -8,7 +8,7 @@ import { requireAdmin, requireModerator } from '../middleware/admin-auth.js';
 import { getFlaggedMessages, reviewFlaggedMessage } from '../services/message-flagging-service.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { rateLimit } from '../middleware/rate-limiter.js';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 
 const router = Router();
 

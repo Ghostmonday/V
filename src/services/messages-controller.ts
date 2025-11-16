@@ -4,10 +4,11 @@
  */
 
 import { Request, Response } from 'express';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { redisPublisher } from '../config/redis-pubsub.js';
 import { recordTelemetryEvent } from './telemetry-service.js';
 import { logError, logInfo } from '../shared/logger.js';
+import { findMany, PaginatedResult } from '../shared/supabase-helpers.js';
 import type { MessageReaction, ReactionUpdate, CreateThreadRequest, Thread } from '../types/message.types.js';
 
 export class MessagesController {
@@ -257,11 +258,12 @@ export class MessagesController {
 
   /**
    * SIN-302: Get thread with messages
+   * Updated to use cursor-based pagination (Phase 3.2)
    */
   async getThread(req: Request, res: Response): Promise<void> {
     try {
       const { thread_id } = req.params;
-      const page = parseInt(req.query.page as string) || 1;
+      const cursor = req.query.cursor as string | undefined;
       const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
 
       if (!thread_id || typeof thread_id !== 'string') {
@@ -269,32 +271,30 @@ export class MessagesController {
         return;
       }
 
-      const offset = (page - 1) * limit;
-
       // Parallelize thread info and messages queries for better performance
-      // Both queries use thread_id from route params, so they can run simultaneously
       const [threadResult, messagesResult] = await Promise.all([
         // Get thread info with parent message (Supabase foreign key join)
-        // 'parent_message:messages(*)' syntax joins messages table where id = parent_message_id
         supabase
           .from('threads')
-          .select('*, parent_message:messages(*)') // Join parent message via foreign key
+          .select('*, parent_message:messages(*)')
           .eq('id', thread_id)
-          .single(), // Expect exactly one result (throw if 0 or 2+)
-        // Get thread messages with pagination and user info
-        // 'user:users(...)' syntax joins users table where id = sender_id
-        // ascending: true = oldest messages first (chronological order)
-        // range() = SQL LIMIT/OFFSET for pagination
-        supabase
-          .from('messages')
-          .select('*, user:users(handle, display_name)') // Join user info (only handle and display_name)
-          .eq('thread_id', thread_id) // Only messages in this thread
-          .order('created_at', { ascending: true }) // Oldest first (thread conversation order)
-          .range(offset, offset + limit - 1) // Pagination: skip offset, take limit
+          .single(),
+        // Get thread messages with cursor-based pagination
+        findMany('messages', {
+          filter: {
+            thread_id,
+          },
+          orderBy: {
+            column: 'created_at',
+            ascending: true, // Oldest first (chronological order)
+          },
+          cursor,
+          cursorColumn: 'created_at',
+          limit,
+        }),
       ]);
 
       const { data: thread, error: threadError } = threadResult;
-      const { data: messages, error: messagesError } = messagesResult;
 
       if (threadError || !thread) {
         logError('Error fetching thread', threadError);
@@ -302,19 +302,51 @@ export class MessagesController {
         return;
       }
 
-      if (messagesError) {
-        logError('Error fetching thread messages', messagesError);
-        throw messagesError;
+      // Handle paginated result
+      if (Array.isArray(messagesResult)) {
+        // Fallback: simple array
+        res.json({
+          success: true,
+          thread,
+          messages: messagesResult,
+          pagination: {
+            limit,
+            hasMore: messagesResult.length === limit,
+          },
+        });
+        return;
       }
+
+      const paginatedMessages = messagesResult as PaginatedResult<any>;
+
+      // Fetch user info for messages (findMany doesn't support joins)
+      const messagesWithUsers = await Promise.all(
+        paginatedMessages.data.map(async (message: any) => {
+          if (message.sender_id) {
+            const { data: user } = await supabase
+              .from('users')
+              .select('handle, display_name')
+              .eq('id', message.sender_id)
+              .single();
+            
+            return {
+              ...message,
+              user: user || null,
+            };
+          }
+          return message;
+        })
+      );
 
       res.json({
         success: true,
         thread,
-        messages: messages || [],
+        messages: messagesWithUsers,
         pagination: {
-          page,
-          limit,
-          has_more: (messages?.length || 0) === limit,
+          cursor: paginatedMessages.pagination.cursor,
+          prevCursor: paginatedMessages.pagination.prevCursor,
+          hasMore: paginatedMessages.pagination.hasMore,
+          limit: paginatedMessages.pagination.limit,
         },
       });
     } catch (error: any) {
@@ -325,11 +357,12 @@ export class MessagesController {
 
   /**
    * SIN-302: Get room threads
+   * Updated to use cursor-based pagination (Phase 3.2)
    */
   async getRoomThreads(req: Request, res: Response): Promise<void> {
     try {
       const { room_id } = req.params;
-      const page = parseInt(req.query.page as string) || 1;
+      const cursor = req.query.cursor as string | undefined;
       const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 
       if (!room_id || typeof room_id !== 'string') {
@@ -337,33 +370,68 @@ export class MessagesController {
         return;
       }
 
-      // Calculate pagination offset (how many records to skip)
-      // page 1 = offset 0, page 2 = offset limit, page 3 = offset 2*limit, etc.
-      const offset = (page - 1) * limit;
+      // Use cursor-based pagination via findMany helper
+      // Note: findMany doesn't support joins, so we'll query threads first, then fetch parent messages
+      const result = await findMany<Thread>('threads', {
+        filter: {
+          room_id,
+          is_archived: false,
+        },
+        orderBy: {
+          column: 'updated_at',
+          ascending: false,
+        },
+        cursor,
+        cursorColumn: 'updated_at',
+        limit,
+        includeTotal: true, // Include total count for backward compatibility
+      });
 
-      // Query threads with parent message preview and total count
-      // count: 'exact' = get total count for pagination metadata (has_more calculation)
-      const { data: threads, error, count } = await supabase
-        .from('threads')
-        .select('*, parent_message:messages(content_preview)', { count: 'exact' }) // Join parent message, get total count
-        .eq('room_id', room_id) // Only threads in this room
-        .eq('is_archived', false) // Exclude archived threads
-        .order('updated_at', { ascending: false }) // Most recently updated first (active threads at top)
-        .range(offset, offset + limit - 1); // Pagination: skip offset rows, return limit rows
-
-      if (error) {
-        logError('Error fetching room threads', error);
-        throw error;
+      // Check if result is paginated (cursor-based) or simple array (backward compat)
+      if (Array.isArray(result)) {
+        // Fallback: simple array (shouldn't happen with cursor)
+        res.json({
+          success: true,
+          threads: result,
+          pagination: {
+            limit,
+            has_more: result.length === limit,
+          },
+        });
+        return;
       }
+
+      const paginatedResult = result as PaginatedResult<Thread>;
+
+      // Fetch parent message previews for each thread
+      // Since findMany doesn't support joins, we need to fetch parent messages separately
+      const threadsWithParentMessages = await Promise.all(
+        paginatedResult.data.map(async (thread: any) => {
+          if (thread.parent_message_id) {
+            const { data: parentMessage } = await supabase
+              .from('messages')
+              .select('content_preview')
+              .eq('id', thread.parent_message_id)
+              .single();
+            
+            return {
+              ...thread,
+              parent_message: parentMessage || null,
+            };
+          }
+          return thread;
+        })
+      );
 
       res.json({
         success: true,
-        threads: threads || [],
+        threads: threadsWithParentMessages,
         pagination: {
-          page,
-          limit,
-          total: count || 0,
-          has_more: (count || 0) > offset + limit,
+          cursor: paginatedResult.pagination.cursor,
+          prevCursor: paginatedResult.pagination.prevCursor,
+          hasMore: paginatedResult.pagination.hasMore,
+          limit: paginatedResult.pagination.limit,
+          total: paginatedResult.pagination.total,
         },
       });
     } catch (error: any) {
@@ -555,11 +623,14 @@ export class MessagesController {
 
   /**
    * SIN-402: Search messages
+   * Updated to support cursor-based pagination (Phase 3.2)
+   * Note: Full-text search uses limit/offset fallback when cursor not provided for backward compatibility
    */
   async searchMessages(req: Request, res: Response): Promise<void> {
     try {
       const { q, room_id } = req.query;
-      const page = parseInt(req.query.page as string) || 1;
+      const cursor = req.query.cursor as string | undefined;
+      const page = parseInt(req.query.page as string) || (cursor ? undefined : 1);
       const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 
       if (!q || typeof q !== 'string' || q.trim().length === 0) {
@@ -567,57 +638,82 @@ export class MessagesController {
         return;
       }
 
-      const offset = (page - 1) * limit;
-
       // Build search query using PostgreSQL full-text search
-      // message_search_index is a materialized view with pre-computed search vectors
-      // textSearch uses PostgreSQL tsvector for fast full-text matching
       let query = supabase
         .from('message_search_index')
         .select('*')
         .textSearch('search_vector', q, {
-          type: 'websearch', // PostgreSQL websearch_to_tsquery (handles phrases, quotes, etc.)
-          config: 'english', // English language stemming (e.g., "running" matches "run")
+          type: 'websearch',
+          config: 'english',
         });
 
-      // Optionally filter by room (scoped search)
-      // If room_id provided, only search messages in that room
+      // Optionally filter by room
       if (room_id && typeof room_id === 'string') {
         query = query.eq('room_id', room_id);
       }
 
-      // Execute search with pagination
-      // Order by created_at DESC = newest matches first (most relevant)
-      const { data: results, error, count } = await query
-        .order('created_at', { ascending: false }) // Newest first
-        .range(offset, offset + limit - 1); // Pagination
+      // Use cursor-based pagination if cursor provided, otherwise fallback to limit/offset
+      if (cursor) {
+        // Cursor-based pagination: filter by created_at < cursor (for DESC order)
+        const cursorDate = new Date(cursor);
+        query = query.lt('created_at', cursorDate.toISOString());
+      } else if (page) {
+        // Fallback: limit/offset pagination for backward compatibility
+        const offset = (page - 1) * limit;
+        query = query.range(offset, offset + limit - 1);
+      }
 
-      // Get total count separately (for pagination metadata)
-      // head: true = don't return data, only count (more efficient)
-      // This gives us total matching results across all pages
-      const { count: totalCount } = await supabase
-        .from('message_search_index')
-        .select('*', { count: 'exact', head: true }) // head = no data, just count
-        .textSearch('search_vector', q, {
-          type: 'websearch',
-          config: 'english',
-        });
+      // Execute search ordered by created_at DESC (newest first)
+      const { data: results, error, count } = await query
+        .order('created_at', { ascending: false })
+        .limit(limit + 1); // Fetch one extra to check if more exists
 
       if (error) {
         logError('Error searching messages', error);
         throw error;
       }
 
-      res.json({
-        success: true,
-        results: results || [],
-        pagination: {
-          page,
-          limit,
-          total: count || 0,
-          has_more: (count || 0) > offset + limit,
-        },
-      });
+      const resultsArray = results || [];
+      const hasMore = resultsArray.length > limit;
+      const actualResults = hasMore ? resultsArray.slice(0, limit) : resultsArray;
+
+      // Calculate next cursor from last result
+      let nextCursor: string | undefined;
+      if (hasMore && actualResults.length > 0) {
+        const lastResult = actualResults[actualResults.length - 1] as any;
+        if (lastResult.created_at) {
+          nextCursor = new Date(lastResult.created_at).toISOString();
+        }
+      }
+
+      // Return pagination metadata
+      if (cursor || nextCursor) {
+        // Cursor-based pagination response
+        res.json({
+          success: true,
+          results: actualResults,
+          pagination: {
+            cursor: nextCursor,
+            prevCursor: cursor,
+            hasMore,
+            limit,
+            total: count || undefined,
+          },
+        });
+      } else {
+        // Limit/offset pagination response (backward compatibility)
+        const offset = page ? (page - 1) * limit : 0;
+        res.json({
+          success: true,
+          results: actualResults,
+          pagination: {
+            page: page || 1,
+            limit,
+            total: count || 0,
+            has_more: (count || 0) > offset + limit,
+          },
+        });
+      }
     } catch (error: any) {
       logError('Search messages error', error);
       res.status(500).json({ error: 'Failed to search messages' });

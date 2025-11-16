@@ -3,7 +3,7 @@
  * Handles card ownership, claims, and transfers
  */
 
-import { supabase } from '../../config/db.js';
+import { supabase } from '../../config/db.ts';
 import { logError } from '../../shared/logger.js';
 import { vibesConfig } from '../../config/vibes.config.js';
 import { Card } from './card-generator.js';

@@ -4,7 +4,7 @@
  */
 
 import { Response, NextFunction } from 'express';
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import { logWarning } from '../shared/logger.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { getUserSubscription, SubscriptionTier } from '../services/subscription-service.js';

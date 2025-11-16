@@ -4,7 +4,7 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import * as optimizerService from '../services/optimizer-service.js';
 import { telemetryHook } from '../telemetry/index.js';
 import { authMiddleware } from '../middleware/auth.js';

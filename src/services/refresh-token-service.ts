@@ -10,7 +10,7 @@
  */
 
 import crypto from 'crypto';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logError, logInfo, logAudit } from '../shared/logger.js';
 import { issueToken } from './user-authentication-service.js';
 

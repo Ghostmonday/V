@@ -5,7 +5,7 @@
  */
 
 import pLimit from 'p-limit';
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import { logWarning, logInfo } from '../shared/logger.js';
 
 // Rate limit: 5 concurrent connections, 2 per second per IP

@@ -10,7 +10,7 @@
 
 import { WebSocket } from 'ws';
 import crypto from 'crypto';
-import { getRedisClient } from '../../config/db.js';
+import { getRedisClient } from '../../config/db.ts';
 import { broadcastToRoom } from '../utils.js';
 import { checkMessageRateLimit } from '../../middleware/ws-message-rate-limiter.js';
 import { scanForToxicity } from '../../services/moderation.service.js';
@@ -143,16 +143,33 @@ export async function handleMessaging(ws: WebSocket & { userId?: string }, envel
     }
 
     // VALIDATION POINT 9: Validate broadcast payload before sending
+    // Generate message ID if not provided (required for delivery tracking)
+    const messageId = validatedEnvelope.msg_id || crypto.randomUUID();
     const broadcastPayload = {
       type: 'message',
-      id: validatedEnvelope.msg_id || crypto.randomUUID(),
+      id: messageId,
       payload: validatedEnvelope.payload,
+      sender_id: userId,
+      room_id: roomId,
+      created_at: new Date().toISOString(),
+      requires_ack: true, // Flag to indicate client should send delivery ack
     };
     
     // Validate payload structure
     if (!broadcastPayload.id || !broadcastPayload.payload) {
       ws.send(JSON.stringify({ type: 'error', msg: 'invalid_broadcast_payload' }));
       return;
+    }
+
+    // Track message as pending delivery for all room participants
+    // This allows retry logic if acknowledgements are not received
+    if (userId && messageId) {
+      import('../../services/message-delivery-service.js').then(({ trackMessageDelivery }) => {
+        // Track initial delivery status as pending
+        trackMessageDelivery(messageId, userId, 'pending').catch(err => {
+          logError('Failed to track message delivery', err);
+        });
+      });
     }
 
     // Broadcast message to room using optimized WebSocket utility
@@ -164,11 +181,11 @@ export async function handleMessaging(ws: WebSocket & { userId?: string }, envel
     );
     
     // VALIDATION POINT 10: Validate acknowledgment payload
-    const messageId = validatedEnvelope.msg_id || broadcastPayload.id;
     const ackPayload = {
       type: 'msg_ack',
       msg_id: messageId,
-      delivered_at: new Date().toISOString(),
+      status: 'published', // Message published to room (not yet delivered to all clients)
+      published_at: new Date().toISOString(),
     };
     
     // VALIDATION CHECKPOINT: Validate ack payload structure
@@ -177,17 +194,9 @@ export async function handleMessaging(ws: WebSocket & { userId?: string }, envel
       return;
     }
     
-    // Track delivery status (async - don't block)
-    if (userId) {
-      import('../../services/message-delivery-service.js').then(({ markMessageDelivered }) => {
-        markMessageDelivered(messageId, userId).catch(err => {
-          logError('Failed to track message delivery', err);
-        });
-      });
-    }
-    
-    // Send acknowledgment back to sender with delivery confirmation
+    // Send acknowledgment back to sender with publication confirmation
     // Confirms message was received and published (client can show "sent" status)
+    // Actual delivery to recipients will be tracked via client-side acks
     ws.send(JSON.stringify(ackPayload));
   } catch (error: any) {
     // VALIDATION POINT 11: Error handling with validation

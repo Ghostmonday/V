@@ -4,12 +4,12 @@
  */
 
 import { create, findMany } from '../shared/supabase-helpers.js';
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import { logError, logWarning } from '../shared/logger.js';
 import { scanForToxicity, handleViolation, isUserMuted, getRoomById } from './moderation.service.js';
 import { getRoomConfig, isEnterpriseUser } from './room-service.js';
 import { getUserSubscription } from './subscription-service.js';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { validateServiceData, validateBeforeDB, validateAfterDB } from '../middleware/incremental-validation.js';
 import { isEncryptedPayload, isE2ERoom } from './e2e-encryption.js';
 import { z } from 'zod';

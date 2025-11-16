@@ -6,7 +6,7 @@
  * Maps polarity: >0.6 = happy, <-0.6 = sad, else neutral
  */
 
-import { getRedisClient } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 
 // Try to import sentiment package (install: npm install sentiment)

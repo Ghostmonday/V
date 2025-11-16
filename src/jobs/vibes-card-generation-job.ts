@@ -3,7 +3,7 @@
  * Background job that checks conversations and generates cards
  */
 
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { logInfo, logError } from '../shared/logger.js';
 import { qualifiesForCardGeneration } from '../services/vibes/conversation-service.js';
 import { getSentimentAnalysis, analyzeConversation } from '../services/vibes/sentiment-service.js';

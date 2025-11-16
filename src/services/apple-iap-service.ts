@@ -9,7 +9,7 @@ import { updateSubscription, SubscriptionTier } from './subscription-service.js'
 import { create, findOne } from '../shared/supabase-helpers.js';
 import { logError, logInfo } from '../shared/logger.js';
 import { getAppleSharedSecret } from './api-keys-service.js';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 
 interface AppleReceiptResponse {
   status: number;

@@ -1,5 +1,5 @@
 import express from 'express';
-import { supabase } from '../config/db.js';
+import { supabase } from '../config/db.ts';
 import { authMiddleware as authenticate } from '../middleware/auth.js';
 import { broadcastToRoom } from '../ws/utils.js';
 

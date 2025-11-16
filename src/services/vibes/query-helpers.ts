@@ -3,7 +3,7 @@
  * Optimized database queries for VIBES
  */
 
-import { supabase } from '../../config/db.js';
+import { supabase } from '../../config/db.ts';
 
 /**
  * Get conversation with participant count

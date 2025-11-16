@@ -1,5 +1,5 @@
-import { getRedisClient } from '../config/db.js';
-import { supabase } from '../config/db.js';
+import { getRedisClient } from '../config/db.ts';
+import { supabase } from '../config/db.ts';
 import webPush from 'web-push';
 import { logError, logInfo } from '../shared/logger.js';
 

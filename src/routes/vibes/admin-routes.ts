@@ -5,6 +5,7 @@
 
 import express from 'express';
 import { authMiddleware } from '../../middleware/auth.js';
+import { requireAdmin } from '../../middleware/admin-auth.js';
 import { getCard, burnCard } from '../../services/vibes/card-generator.js';
 import { getRedactedCards } from '../../services/vibes/museum-service.js';
 import { getVIBESAnalytics } from '../../services/vibes/analytics-service.js';
@@ -12,10 +13,10 @@ import { logError } from '../../shared/logger.js';
 
 const router = express.Router();
 
-// TODO: Add admin role check middleware
+// All routes in this file require admin privileges
 
 // Get all cards (admin)
-router.get('/cards', authMiddleware, async (req, res, next) => {
+router.get('/cards', authMiddleware, requireAdmin, async (req, res, next) => {
   try {
     // TODO: Implement admin card listing with pagination
     res.json({ message: 'Admin card listing - TODO' });
@@ -26,7 +27,7 @@ router.get('/cards', authMiddleware, async (req, res, next) => {
 });
 
 // Get redacted cards
-router.get('/cards/redacted', authMiddleware, async (req, res, next) => {
+router.get('/cards/redacted', authMiddleware, requireAdmin, async (req, res, next) => {
   try {
     const cards = await getRedactedCards();
     res.json({ cards });
@@ -37,7 +38,7 @@ router.get('/cards/redacted', authMiddleware, async (req, res, next) => {
 });
 
 // Burn card
-router.post('/cards/:id/burn', authMiddleware, async (req, res, next) => {
+router.post('/cards/:id/burn', authMiddleware, requireAdmin, async (req, res, next) => {
   try {
     const { reason } = req.body;
     await burnCard(req.params.id, reason);
@@ -49,7 +50,7 @@ router.post('/cards/:id/burn', authMiddleware, async (req, res, next) => {
 });
 
 // Get card statistics
-router.get('/stats', authMiddleware, async (req, res, next) => {
+router.get('/stats', authMiddleware, requireAdmin, async (req, res, next) => {
   try {
     const analytics = await getVIBESAnalytics();
     res.json(analytics);
