@@ -1,98 +1,4 @@
-
-<!DOCTYPE html>
-<html>
-<head>
-  <title>VibeZ Codebase</title>
-  <style>
-    body { font-family: -apple-system, monospace; margin: 40px; }
-    pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
-    a { color: #0066cc; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .toc { position: fixed; left: 0; top: 0; width: 300px; height: 100vh; 
-           overflow-y: auto; background: #fafafa; padding: 20px; }
-    .content { margin-left: 340px; }
-    .category { margin-bottom: 30px; }
-    details { margin: 10px 0; }
-    summary { cursor: pointer; font-weight: bold; }
-  </style>
-</head>
-<body>
-  <div class="toc">
-    <h2>Navigation</h2>
-    
-      <details open>
-        <summary>Other (40)</summary>
-        <ul>
-          <li><a href="#-cursor-settings-json">settings.json</a></li><li><a href="#-eslintrc-json">.eslintrc.json</a></li><li><a href="#-prettierrc-json">.prettierrc.json</a></li><li><a href="#---------------json">CODEBASE_INDEX.json</a></li><li><a href="#apps-api-package-json">package.json</a></li><li><a href="#package-lock-json">package-lock.json</a></li><li><a href="#package-json">package.json</a></li><li><a href="#packages-ai-mod-package-json">package.json</a></li><li><a href="#packages-core-package-json">package.json</a></li><li><a href="#packages-core-src-index-ts">index.ts</a></li><li><a href="#packages-core-src-validation-index-ts">index.ts</a></li><li><a href="#packages-supabase-package-json">package.json</a></li><li><a href="#schemas-events-json">events.json</a></li><li><a href="#scripts-audit-and-update-data-files-ts">audit-and-update-data-files.ts</a></li><li><a href="#scripts-clean-production-js">clean-production.js</a></li><li><a href="#scripts-dev-validate-openapi-ts">validate-openapi.ts</a></li><li><a href="#scripts-generate-codebase-doc-ts">generate-codebase-doc.ts</a></li><li><a href="#scripts-generate-codebase-index-ts">generate-codebase-index.ts</a></li><li><a href="#server--eslintrc-json">.eslintrc.json</a></li><li><a href="#server-index-ts">index.ts</a></li><li><a href="#server-package-lock-json">package-lock.json</a></li><li><a href="#server-package-json">package.json</a></li><li><a href="#server-tsconfig-json">tsconfig.json</a></li><li><a href="#src-jobs-expire-temporary-rooms-ts">expire-temporary-rooms.ts</a></li><li><a href="#src-jobs-partition-management-cron-ts">partition-management-cron.ts</a></li><li><a href="#src-jobs-vibes-card-generation-job-ts">vibes-card-generation-job.ts</a></li><li><a href="#src-server-index-ts">index.ts</a></li><li><a href="#src-server-utils-config-ts">config.ts</a></li><li><a href="#src-shared-logger-ts">logger.ts</a></li><li><a href="#src-shared-supabase-client-ts">supabase-client.ts</a></li><li><a href="#src-shared-supabase-helpers-ts">supabase-helpers.ts</a></li><li><a href="#src-telemetry-index-ts">index.ts</a></li><li><a href="#src-utils-prompt-sanitizer-ts">prompt-sanitizer.ts</a></li><li><a href="#src-utils-vibes-helpers-ts">vibes-helpers.ts</a></li><li><a href="#src-workers-sin-worker-ts">sin-worker.ts</a></li><li><a href="#supabase-functions-api-key-vault-index-ts">index.ts</a></li><li><a href="#supabase-functions-join-room-index-ts">index.ts</a></li><li><a href="#tsconfig-json">tsconfig.json</a></li><li><a href="#turbo-json">turbo.json</a></li><li><a href="#vitest-config-ts">vitest.config.ts</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>Database/SQL (42)</summary>
-        <ul>
-          <li><a href="#--------------------------sql">MISSING_INDEXES_APPLY_NOW.sql</a></li><li><a href="#-----------------------sql">MISSING_INDEXES_REPORT.sql</a></li><li><a href="#quick-validate-sql">quick-validate.sql</a></li><li><a href="#sql-01-sinapse-schema-sql">01_sinapse_schema.sql</a></li><li><a href="#sql-02-compressor-functions-sql">02_compressor_functions.sql</a></li><li><a href="#sql-03-retention-policy-sql">03_retention_policy.sql</a></li><li><a href="#sql-05-rls-policies-sql">05_rls_policies.sql</a></li><li><a href="#sql-06-partition-management-sql">06_partition_management.sql</a></li><li><a href="#sql-07-healing-logs-sql">07_healing_logs.sql</a></li><li><a href="#sql-08-enhanced-rls-policies-sql">08_enhanced_rls_policies.sql</a></li><li><a href="#sql-09-p0-features-sql">09_p0_features.sql</a></li><li><a href="#sql-10-integrated-features-sql">10_integrated_features.sql</a></li><li><a href="#sql-11-indexing-and-rls-sql">11_indexing_and_rls.sql</a></li><li><a href="#sql-12-verify-setup-sql">12_verify_setup.sql</a></li><li><a href="#sql------------------sql">QUICK_VALIDATION.sql</a></li><li><a href="#sql-functions-batch-fetch-sql">batch_fetch.sql</a></li><li><a href="#sql-functions-compression-sql">compression.sql</a></li><li><a href="#sql-migrations-2025-01-27-api-keys-vault-sql">2025-01-27-api-keys-vault.sql</a></li><li><a href="#sql-migrations-2025-01-27-complete-setup-sql">2025-01-27-complete-setup.sql</a></li><li><a href="#sql-migrations-2025-01-27-fix-category-function-sql">2025-01-27-fix-category-function.sql</a></li><li><a href="#sql-migrations-2025-01-27-populate-api-keys-sql">2025-01-27-populate-api-keys.sql</a></li><li><a href="#sql-migrations-2025-01-27-populate-only-sql">2025-01-27-populate-only.sql</a></li><li><a href="#sql-migrations-2025-01-27-quick-populate-keys-sql">2025-01-27-quick-populate-keys.sql</a></li><li><a href="#sql-migrations-2025-01-27-test-retrieval-sql">2025-01-27-test-retrieval.sql</a></li><li><a href="#sql-migrations-2025-01-28-add-age-verification-sql">2025-01-28-add-age-verification.sql</a></li><li><a href="#sql-migrations-2025-01----add-performance-indexes-sql">2025-01-XX-add-performance-indexes.sql</a></li><li><a href="#sql-migrations-2025-01----flagged-messages-sql">2025-01-XX-flagged-messages.sql</a></li><li><a href="#sql-migrations-2025-01----refresh-tokens-sql">2025-01-XX-refresh-tokens.sql</a></li><li><a href="#sql-migrations-2025-01----room-member-count-trigger-sql">2025-01-XX-room-member-count-trigger.sql</a></li><li><a href="#sql-migrations-2025-01-add-moderation-tables-sql">2025-01-add-moderation-tables.sql</a></li><li><a href="#sql-migrations-2025-01-add-rooms-tier-moderation-sql">2025-01-add-rooms-tier-moderation.sql</a></li><li><a href="#sql-migrations-2025-11-10-feature-enhancements-sql">2025-11-10-feature-enhancements.sql</a></li><li><a href="#sql-migrations-2025-11-12-subscriptions-usage-sql">2025-11-12-subscriptions-usage.sql</a></li><li><a href="#sql-migrations-2025-11-15-vibes-core-schema-sql">2025-11-15-vibes-core-schema.sql</a></li><li><a href="#sql-migrations-2025-11-create-rooms-table-sql">2025-11-create-rooms-table.sql</a></li><li><a href="#sql-migrations-2025-11-security-audit-logs-sql">2025-11-security-audit-logs.sql</a></li><li><a href="#sql-migrations-migrate-remaining-tables-sql">migrate-remaining-tables.sql</a></li><li><a href="#sql-migrations-migrate-subscription-support-sql">migrate-subscription-support.sql</a></li><li><a href="#sql-migrations-test-supabase-schema-sql">test-supabase-schema.sql</a></li><li><a href="#sql-migrations-verify-supabase-schema-sql">verify-supabase-schema.sql</a></li><li><a href="#supabase-setup-sql">supabase-setup.sql</a></li><li><a href="#validate-setup-sql">validate-setup.sql</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>iOS Frontend (131)</summary>
-        <ul>
-          <li><a href="#frontend-i----ssets-xcassets--pp-con-appiconset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--mages--ero--elcome-ero-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--mages--arketing--pp-con-arketing-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--mages--aywall--aywall-ero-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--mages--iers--ier-ard-nterprise-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--mages--iers--ier-ard-ro-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--mages--iers--ier-ard-tarter-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--mages--oice--oice-resence-aveform-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--aunch-mage-imageset--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--inapse-eep-color-et--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--inapse-low-color-et--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--inapse-old-color-et--ontents-json">Contents.json</a></li><li><a href="#frontend-i----ssets-xcassets--inapse-old-ark-color-et--ontents-json">Contents.json</a></li><li><a href="#frontend-i----omponents--ood-radient-swift">MoodGradient.swift</a></li><li><a href="#frontend-i----omponents--oice-rb-swift">VoiceOrb.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--tomic----vatar-swift">DSAvatar.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--tomic----utton-swift">DSButton.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--tomic----hip-swift">DSChip.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--tomic----ivider-swift">DSDivider.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--tomic----resence-rb-swift">DSPresenceOrb.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--olecular----mpty-tate-swift">DSEmptyState.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--olecular----essage-ubble-swift">DSMessageBubble.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--olecular----earch-ield-swift">DSSearchField.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--olecular----ier-ard-swift">DSTierCard.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--rganisms----hat-omposer-swift">DSChatComposer.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--rganisms----oom-ow-swift">DSRoomRow.swift</a></li><li><a href="#frontend-i----esign-ystem--omponents--wift---enerated----ackgrounds-swift">DSBackgrounds.swift</a></li><li><a href="#frontend-i----esign-ystem--esign-okens-swift">DesignTokens.swift</a></li><li><a href="#frontend-i----esign-ystem--alidation----alidation-swift">DSValidation.swift</a></li><li><a href="#frontend-i----nums--uth-tate-swift">AuthState.swift</a></li><li><a href="#frontend-i----nums--irebase-uth-rror-swift">FirebaseAuthError.swift</a></li><li><a href="#frontend-i----nums--ogin-ption-swift">LoginOption.swift</a></li><li><a href="#frontend-i----xtensions--olor--xtensions-swift">Color+Extensions.swift</a></li><li><a href="#frontend-i----xtensions--tring--irebase-swift">String+Firebase.swift</a></li><li><a href="#frontend-i----xtensions--iew--ccessibility-swift">View+Accessibility.swift</a></li><li><a href="#frontend-i----xtensions--iew--xtensions-swift">View+Extensions.swift</a></li><li><a href="#frontend-i----xtensions--iew--erformance-swift">View+Performance.swift</a></li><li><a href="#frontend-i----anagers----easoner-swift">AIReasoner.swift</a></li><li><a href="#frontend-i----anagers-----lient-swift">APIClient.swift</a></li><li><a href="#frontend-i----anagers--gora-oom-anager-swift">AgoraRoomManager.swift</a></li><li><a href="#frontend-i----anagers--pple-uth-elper-swift">AppleAuthHelper.swift</a></li><li><a href="#frontend-i----anagers--onstants-swift">Constants.swift</a></li><li><a href="#frontend-i----anagers--eep-eek-lient-swift">DeepSeekClient.swift</a></li><li><a href="#frontend-i----anagers--oogle-uth-elper-swift">GoogleAuthHelper.swift</a></li><li><a href="#frontend-i----anagers--ive-it-oom-anager-swift">LiveKitRoomManager.swift</a></li><li><a href="#frontend-i----anagers--essage-anager-swift">MessageManager.swift</a></li><li><a href="#frontend-i----anagers--oom-anager-swift">RoomManager.swift</a></li><li><a href="#frontend-i----anagers--peech-anager-swift">SpeechManager.swift</a></li><li><a href="#frontend-i----anagers--ubscription-anager-swift">SubscriptionManager.swift</a></li><li><a href="#frontend-i----anagers--ystem-onitor-swift">SystemMonitor.swift</a></li><li><a href="#frontend-i----anagers--eb-ocket-anager-swift">WebSocketManager.swift</a></li><li><a href="#frontend-i----odels----og-swift">AILog.swift</a></li><li><a href="#frontend-i----odels-----eceipt-swift">IAPReceipt.swift</a></li><li><a href="#frontend-i----odels--essage-swift">Message.swift</a></li><li><a href="#frontend-i----odels--oom-swift">Room.swift</a></li><li><a href="#frontend-i----odels--ubscription-ier-swift">SubscriptionTier.swift</a></li><li><a href="#frontend-i----odels--elemetry-etric-swift">TelemetryMetric.swift</a></li><li><a href="#frontend-i----odels----vent-ype-swift">UXEventType.swift</a></li><li><a href="#frontend-i----odels--ser-swift">User.swift</a></li><li><a href="#frontend-i----ackage-swift">Package.swift</a></li><li><a href="#frontend-i----ervices----est-anager-swift">ABTestManager.swift</a></li><li><a href="#frontend-i----ervices----ervice-swift">AIService.swift</a></li><li><a href="#frontend-i----ervices--uth-ervice-swift">AuthService.swift</a></li><li><a href="#frontend-i----ervices--irebase-uth-epository-swift">FirebaseAuthRepository.swift</a></li><li><a href="#frontend-i----ervices-----ervice-swift">IAPService.swift</a></li><li><a href="#frontend-i----ervices--essage-ervice-swift">MessageService.swift</a></li><li><a href="#frontend-i----ervices--ollback-anager-swift">RollbackManager.swift</a></li><li><a href="#frontend-i----ervices--oom-ervice-swift">RoomService.swift</a></li><li><a href="#frontend-i----ervices--ystem-ervice-swift">SystemService.swift</a></li><li><a href="#frontend-i----ervices----elemetry-ervice-swift">UXTelemetryService.swift</a></li><li><a href="#frontend-i----ervices--iew-enerator-swift">ViewGenerator.swift</a></li><li><a href="#frontend-i----elemetry--elemetry-swift">Telemetry.swift</a></li><li><a href="#frontend-i----ests--ashboard-elemetry-ests-swift">DashboardTelemetryTests.swift</a></li><li><a href="#frontend-i----ests--ashboard-iew-ests-swift">DashboardViewTests.swift</a></li><li><a href="#frontend-i----ests--resence-iew-odel-ests-swift">PresenceViewModelTests.swift</a></li><li><a href="#frontend-i----ests--eb-ocket-anager-ests-swift">WebSocketManagerTests.swift</a></li><li><a href="#frontend-i----ibe--pp-swift">VibeZApp.swift</a></li><li><a href="#frontend-i----iew-odels--motional---iew-odel-swift">EmotionalAIViewModel.swift</a></li><li><a href="#frontend-i----iew-odels--irebase-uth-iew-odel-swift">FirebaseAuthViewModel.swift</a></li><li><a href="#frontend-i----iew-odels--resence-iew-odel-swift">PresenceViewModel.swift</a></li><li><a href="#frontend-i----iew-odels--oom-iew-odel-swift">RoomViewModel.swift</a></li><li><a href="#frontend-i----iews--gora-oom-iew-swift">AgoraRoomView.swift</a></li><li><a href="#frontend-i----iews--uth--ogin-iew-swift">LoginView.swift</a></li><li><a href="#frontend-i----iews--uth--ocial-ogins-iew-swift">SocialLoginsView.swift</a></li><li><a href="#frontend-i----iews--hat-nput-iew-swift">ChatInputView.swift</a></li><li><a href="#frontend-i----iews--hat-iew-swift">ChatView.swift</a></li><li><a href="#frontend-i----iews--reate-oom-heet-swift">CreateRoomSheet.swift</a></li><li><a href="#frontend-i----iews--ashboard-iew-swift">DashboardView.swift</a></li><li><a href="#frontend-i----iews--osting-uide-iew-swift">HostingGuideView.swift</a></li><li><a href="#frontend-i----iews--ain-ab-iew-swift">MainTabView.swift</a></li><li><a href="#frontend-i----iews--essage-ubble-iew-swift">MessageBubbleView.swift</a></li><li><a href="#frontend-i----iews--ickname-anagement-iew-swift">NicknameManagementView.swift</a></li><li><a href="#frontend-i----iews--nboarding--oom-ier-iew-swift">RoomTierView.swift</a></li><li><a href="#frontend-i----iews--nboarding--ier-election-iew-swift">TierSelectionView.swift</a></li><li><a href="#frontend-i----iews--nboarding--elcome-iew-swift">WelcomeView.swift</a></li><li><a href="#frontend-i----iews--nboarding-low-iew-swift">OnboardingFlowView.swift</a></li><li><a href="#frontend-i----iews--nboarding-iew-swift">OnboardingView.swift</a></li><li><a href="#frontend-i----iews--aywall-iew-swift">PaywallView.swift</a></li><li><a href="#frontend-i----iews--resence-ndicator-iew-swift">PresenceIndicatorView.swift</a></li><li><a href="#frontend-i----iews--resence-rb-iew-swift">PresenceOrbView.swift</a></li><li><a href="#frontend-i----iews--rofile--ricing-heet-swift">PricingSheet.swift</a></li><li><a href="#frontend-i----iews--rofile-iew-swift">ProfileView.swift</a></li><li><a href="#frontend-i----iews--rogrammatic---iew-swift">ProgrammaticUIView.swift</a></li><li><a href="#frontend-i----iews--oom-ist-iew-swift">RoomListView.swift</a></li><li><a href="#frontend-i----iews--oom-ettings-iew-swift">RoomSettingsView.swift</a></li><li><a href="#frontend-i----iews--earch-iew-swift">SearchView.swift</a></li><li><a href="#frontend-i----iews--ettings-iew-swift">SettingsView.swift</a></li><li><a href="#frontend-i----iews--hared--nimations--nimation-odifiers-swift">AnimationModifiers.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--utonomous-abel-swift">AutonomousLabel.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--utonomous-alidation-abel-swift">AutonomousValidationLabel.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--moji-icker-iew-swift">EmojiPickerView.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--rror-ecovery-iew-swift">ErrorRecoveryView.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--ile-pload-omponent-swift">FileUploadComponent.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--oading-keleton-swift">LoadingSkeleton.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--oading-pinner-swift">LoadingSpinner.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--uick-ump-ar-swift">QuickJumpBar.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--ead-eceipt-ndicator-swift">ReadReceiptIndicator.swift</a></li><li><a href="#frontend-i----iews--hared--omponents--ideo-ile-iew-swift">VideoTileView.swift</a></li><li><a href="#frontend-i----iews--hared--lobal-tyles-swift">GlobalStyles.swift</a></li><li><a href="#frontend-i----iews--hared--oading-iew-swift">LoadingView.swift</a></li><li><a href="#frontend-i----iews--hared--odifiers--utton-tate-odifier-swift">ButtonStateModifier.swift</a></li><li><a href="#frontend-i----iews--hared--odifiers--orm-tate-odifier-swift">FormStateModifier.swift</a></li><li><a href="#frontend-i----iews--hared--odifiers--nput-tate-odifier-swift">InputStateModifier.swift</a></li><li><a href="#frontend-i----iews--hared--odifiers--resence-odifier-swift">PresenceModifier.swift</a></li><li><a href="#frontend-i----iews--hared--oast-iew-swift">ToastView.swift</a></li><li><a href="#frontend-i----iews--ubscription-iew-swift">SubscriptionView.swift</a></li><li><a href="#frontend-i----iews--hread-iew-swift">ThreadView.swift</a></li><li><a href="#frontend-i----iews--oice-oom-iew-swift">VoiceRoomView.swift</a></li><li><a href="#frontend-i----iews--oice-ideo-anel-iew-swift">VoiceVideoPanelView.swift</a></li><li><a href="#frontend-i----iews--oice-iew-swift">VoiceView.swift</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>Configuration (6)</summary>
-        <ul>
-          <li><a href="#packages-core-src-config-index-ts">index.ts</a></li><li><a href="#src-config-db-d-ts">db.d.ts</a></li><li><a href="#src-config-db-js">db.js</a></li><li><a href="#src-config-llm-params-config-ts">llm-params.config.ts</a></li><li><a href="#src-config-redis-pubsub-ts">redis-pubsub.ts</a></li><li><a href="#src-config-vibes-config-ts">vibes.config.ts</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>Middleware (22)</summary>
-        <ul>
-          <li><a href="#src-middleware---tests---auth-test-ts">auth.test.ts</a></li><li><a href="#src-middleware-admin-auth-ts">admin-auth.ts</a></li><li><a href="#src-middleware-age-verification-ts">age-verification.ts</a></li><li><a href="#src-middleware-auth-ts">auth.ts</a></li><li><a href="#src-middleware-brute-force-protection-ts">brute-force-protection.ts</a></li><li><a href="#src-middleware-cache-ts">cache.ts</a></li><li><a href="#src-middleware-circuit-breaker-ts">circuit-breaker.ts</a></li><li><a href="#src-middleware-database-transaction-ts">database-transaction.ts</a></li><li><a href="#src-middleware-error-alerting-ts">error-alerting.ts</a></li><li><a href="#src-middleware-error-ts">error.ts</a></li><li><a href="#src-middleware-file-upload-security-ts">file-upload-security.ts</a></li><li><a href="#src-middleware-incremental-validation-ts">incremental-validation.ts</a></li><li><a href="#src-middleware-input-validation-ts">input-validation.ts</a></li><li><a href="#src-middleware-moderation-ts">moderation.ts</a></li><li><a href="#src-middleware-password-strength-ts">password-strength.ts</a></li><li><a href="#src-middleware-rate-limiter-ts">rate-limiter.ts</a></li><li><a href="#src-middleware-structured-logging-ts">structured-logging.ts</a></li><li><a href="#src-middleware-subscription-gate-ts">subscription-gate.ts</a></li><li><a href="#src-middleware-telemetry-ts">telemetry.ts</a></li><li><a href="#src-middleware-vibes-auth-ts">vibes-auth.ts</a></li><li><a href="#src-middleware-ws-message-rate-limiter-ts">ws-message-rate-limiter.ts</a></li><li><a href="#src-middleware-ws-rate-limiter-ts">ws-rate-limiter.ts</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>API Routes (31)</summary>
-        <ul>
-          <li><a href="#src-routes-admin-moderation-routes-ts">admin-moderation-routes.ts</a></li><li><a href="#src-routes-admin-routes-ts">admin-routes.ts</a></li><li><a href="#src-routes-agora-routes-ts">agora-routes.ts</a></li><li><a href="#src-routes-bandwidth-routes-ts">bandwidth-routes.ts</a></li><li><a href="#src-routes-chat-room-config-routes-ts">chat-room-config-routes.ts</a></li><li><a href="#src-routes-config-routes-ts">config-routes.ts</a></li><li><a href="#src-routes-entitlements-routes-ts">entitlements-routes.ts</a></li><li><a href="#src-routes-file-storage-routes-ts">file-storage-routes.ts</a></li><li><a href="#src-routes-health-routes-ts">health-routes.ts</a></li><li><a href="#src-routes-iap-routes-ts">iap-routes.ts</a></li><li><a href="#src-routes-message-routes-ts">message-routes.ts</a></li><li><a href="#src-routes-nicknames-routes-ts">nicknames-routes.ts</a></li><li><a href="#src-routes-notify-routes-ts">notify-routes.ts</a></li><li><a href="#src-routes-pinned-routes-ts">pinned-routes.ts</a></li><li><a href="#src-routes-presence-routes-ts">presence-routes.ts</a></li><li><a href="#src-routes-reactions-routes-ts">reactions-routes.ts</a></li><li><a href="#src-routes-read-receipts-routes-ts">read-receipts-routes.ts</a></li><li><a href="#src-routes-refresh-token-routes-ts">refresh-token-routes.ts</a></li><li><a href="#src-routes-room-routes-ts">room-routes.ts</a></li><li><a href="#src-routes-search-routes-ts">search-routes.ts</a></li><li><a href="#src-routes-subscription-routes-ts">subscription-routes.ts</a></li><li><a href="#src-routes-telemetry-routes-ts">telemetry-routes.ts</a></li><li><a href="#src-routes-threads-routes-ts">threads-routes.ts</a></li><li><a href="#src-routes-user-authentication-routes-ts">user-authentication-routes.ts</a></li><li><a href="#src-routes-ux-telemetry-routes-ts">ux-telemetry-routes.ts</a></li><li><a href="#src-routes-vibes-admin-routes-ts">admin-routes.ts</a></li><li><a href="#src-routes-vibes-card-routes-ts">card-routes.ts</a></li><li><a href="#src-routes-vibes-conversation-routes-ts">conversation-routes.ts</a></li><li><a href="#src-routes-vibes-museum-routes-ts">museum-routes.ts</a></li><li><a href="#src-routes-video-join-ts">join.ts</a></li><li><a href="#src-routes-voice-routes-ts">voice-routes.ts</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>Backend Services (58)</summary>
-        <ul>
-          <li><a href="#src-services---tests---message-service-test-ts">message-service.test.ts</a></li><li><a href="#src-services-agora-service-ts">agora-service.ts</a></li><li><a href="#src-services-api-keys-service-ts">api-keys-service.ts</a></li><li><a href="#src-services-apple-iap-service-ts">apple-iap-service.ts</a></li><li><a href="#src-services-apple-jwks-verifier-ts">apple-jwks-verifier.ts</a></li><li><a href="#src-services-bandwidth-service-ts">bandwidth-service.ts</a></li><li><a href="#src-services-bot-invite-service-ts">bot-invite-service.ts</a></li><li><a href="#src-services-compression-service-ts">compression-service.ts</a></li><li><a href="#src-services-config-service-ts">config-service.ts</a></li><li><a href="#src-services-e2e-encryption-ts">e2e-encryption.ts</a></li><li><a href="#src-services-encryption-service-ts">encryption-service.ts</a></li><li><a href="#src-services-entitlements-ts">entitlements.ts</a></li><li><a href="#src-services-file-storage-service-ts">file-storage-service.ts</a></li><li><a href="#src-services-livekit-service-ts">livekit-service.ts</a></li><li><a href="#src-services-livekit-token-service-ts">livekit-token-service.ts</a></li><li><a href="#src-services-message-archival-service-ts">message-archival-service.ts</a></li><li><a href="#src-services-message-delivery-service-ts">message-delivery-service.ts</a></li><li><a href="#src-services-message-flagging-service-ts">message-flagging-service.ts</a></li><li><a href="#src-services-message-queue-ts">message-queue.ts</a></li><li><a href="#src-services-message-service-ts">message-service.ts</a></li><li><a href="#src-services-messages-controller-ts">messages-controller.ts</a></li><li><a href="#src-services-moderation-service-ts">moderation.service.ts</a></li><li><a href="#src-services-monitoring-service-ts">monitoring-service.ts</a></li><li><a href="#src-services-nickname-service-ts">nickname-service.ts</a></li><li><a href="#src-services-notifications-service-ts">notifications-service.ts</a></li><li><a href="#src-services-partition-management-service-ts">partition-management-service.ts</a></li><li><a href="#src-services-perspective-api-service-ts">perspective-api-service.ts</a></li><li><a href="#src-services-pinned-items-service-ts">pinned-items-service.ts</a></li><li><a href="#src-services-poll-service-ts">poll-service.ts</a></li><li><a href="#src-services-presence-service-ts">presence-service.ts</a></li><li><a href="#src-services-query-optimization-service-ts">query-optimization-service.ts</a></li><li><a href="#src-services-read-receipts-service-ts">read-receipts-service.ts</a></li><li><a href="#src-services-refresh-token-service-ts">refresh-token-service.ts</a></li><li><a href="#src-services-room-service-ts">room-service.ts</a></li><li><a href="#src-services-search-service-ts">search-service.ts</a></li><li><a href="#src-services-sentiment-analysis-service-ts">sentiment-analysis-service.ts</a></li><li><a href="#src-services-subscription-service-ts">subscription-service.ts</a></li><li><a href="#src-services-telemetry-service-ts">telemetry-service.ts</a></li><li><a href="#src-services-usage-service-ts">usage-service.ts</a></li><li><a href="#src-services-usage-eter-ts">usageMeter.ts</a></li><li><a href="#src-services-user-authentication-service-ts">user-authentication-service.ts</a></li><li><a href="#src-services-ux-telemetry-redaction-ts">ux-telemetry-redaction.ts</a></li><li><a href="#src-services-ux-telemetry-service-ts">ux-telemetry-service.ts</a></li><li><a href="#src-services-vibes---tests---conversation-service-test-ts">conversation-service.test.ts</a></li><li><a href="#src-services-vibes---tests---rarity-engine-test-ts">rarity-engine.test.ts</a></li><li><a href="#src-services-vibes-analytics-service-ts">analytics-service.ts</a></li><li><a href="#src-services-vibes-card-generator-ts">card-generator.ts</a></li><li><a href="#src-services-vibes-card-lifecycle-hook-ts">card-lifecycle-hook.ts</a></li><li><a href="#src-services-vibes-constants-ts">constants.ts</a></li><li><a href="#src-services-vibes-conversation-service-ts">conversation-service.ts</a></li><li><a href="#src-services-vibes-error-handler-ts">error-handler.ts</a></li><li><a href="#src-services-vibes-museum-service-ts">museum-service.ts</a></li><li><a href="#src-services-vibes-ownership-service-ts">ownership-service.ts</a></li><li><a href="#src-services-vibes-query-helpers-ts">query-helpers.ts</a></li><li><a href="#src-services-vibes-rarity-engine-ts">rarity-engine.ts</a></li><li><a href="#src-services-vibes-sentiment-service-ts">sentiment-service.ts</a></li><li><a href="#src-services-vibes-validation-ts">validation.ts</a></li><li><a href="#src-services-webhooks-ts">webhooks.ts</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>TypeScript Types (7)</summary>
-        <ul>
-          <li><a href="#src-types-auth-types-ts">auth.types.ts</a></li><li><a href="#src-types-compression-d-ts">compression.d.ts</a></li><li><a href="#src-types-generated-types-ts">generated_types.ts</a></li><li><a href="#src-types-livekit-d-ts">livekit.d.ts</a></li><li><a href="#src-types-message-types-ts">message.types.ts</a></li><li><a href="#src-types-ux-telemetry-ts">ux-telemetry.ts</a></li><li><a href="#src-types-vibes-types-ts">vibes.types.ts</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>WebSocket (7)</summary>
-        <ul>
-          <li><a href="#src-ws-gateway-ts">gateway.ts</a></li><li><a href="#src-ws-handlers-messaging-ts">messaging.ts</a></li><li><a href="#src-ws-handlers-presence-ts">presence.ts</a></li><li><a href="#src-ws-handlers-reactions-threads-ts">reactions-threads.ts</a></li><li><a href="#src-ws-handlers-read-receipts-ts">read-receipts.ts</a></li><li><a href="#src-ws-handlers-vibes-cards-ts">vibes-cards.ts</a></li><li><a href="#src-ws-utils-ts">utils.ts</a></li>
-        </ul>
-      </details>
-    
-      <details open>
-        <summary>Next.js Frontend (12)</summary>
-        <ul>
-          <li><a href="#v-app-app-api-messaging-route-ts">route.ts</a></li><li><a href="#v-app-app-api-rooms--id--messages-route-ts">route.ts</a></li><li><a href="#v-app-app-api-rooms-route-ts">route.ts</a></li><li><a href="#v-app-app-layout-tsx">layout.tsx</a></li><li><a href="#v-app-app-page-tsx">page.tsx</a></li><li><a href="#v-app-app-rooms--id--page-tsx">page.tsx</a></li><li><a href="#v-app-app-rooms-page-tsx">page.tsx</a></li><li><a href="#v-app-next-env-d-ts">next-env.d.ts</a></li><li><a href="#v-app-next-config-ts">next.config.ts</a></li><li><a href="#v-app-package-lock-json">package-lock.json</a></li><li><a href="#v-app-package-json">package.json</a></li><li><a href="#v-app-tsconfig-json">tsconfig.json</a></li>
-        </ul>
-      </details>
-    
-  </div>
-  <div class="content">
-    # VibeZ Complete Codebase
+# VibeZ Complete Codebase
 
 Generated: 2025-11-16T05:05:19.633Z
 Total Categories: 10
@@ -173,16 +79,18 @@ Total Categories: 10
 - [vitest.config.ts](#vitest-config-ts) (29 lines)
 
 ### <a id="-cursor-settings-json"></a>.cursor/settings.json
-<pre><code class="json">{"worktrees": {"autoCreate": false, "enabled": false}}
+```json
+{"worktrees": {"autoCreate": false, "enabled": false}}
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="-eslintrc-json"></a>.eslintrc.json
-<pre><code class="json">{
+```json
+{
   "root": true,
   "env": {
     "node": true,
@@ -223,14 +131,15 @@ Total Categories: 10
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="-prettierrc-json"></a>.prettierrc.json
-<pre><code class="json">{
+```json
+{
   "semi": true,
   "trailingComma": "es5",
   "singleQuote": true,
@@ -242,14 +151,15 @@ Total Categories: 10
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="---------------json"></a>CODEBASE_INDEX.json
-<pre><code class="json">{
+```json
+{
   "generated": "2025-11-16T05:05:18.870Z",
   "totalFiles": 356,
   "totalLines": 77367,
@@ -3277,14 +3187,15 @@ Total Categories: 10
     }
   ]
 }
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="apps-api-package-json"></a>apps/api/package.json
-<pre><code class="json">{
+```json
+{
   "name": "@vibez/api",
   "version": "1.0.0",
   "type": "module",
@@ -3345,14 +3256,15 @@ Total Categories: 10
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="package-lock-json"></a>package-lock.json
-<pre><code class="json">{
+```json
+{
   "name": "sinaps-mvp",
   "version": "1.0.0",
   "lockfileVersion": 3,
@@ -19487,14 +19399,15 @@ Total Categories: 10
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="package-json"></a>package.json
-<pre><code class="json">{
+```json
+{
   "name": "sinaps-mvp",
   "version": "1.0.0",
   "type": "module",
@@ -19541,14 +19454,15 @@ Total Categories: 10
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="packages-ai-mod-package-json"></a>packages/ai-mod/package.json
-<pre><code class="json">{
+```json
+{
   "name": "@vibez/ai-mod",
   "version": "1.0.0",
   "type": "module",
@@ -19572,14 +19486,15 @@ Total Categories: 10
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="packages-core-package-json"></a>packages/core/package.json
-<pre><code class="json">{
+```json
+{
   "name": "@vibez/core",
   "version": "1.0.0",
   "type": "module",
@@ -19602,24 +19517,26 @@ Total Categories: 10
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="packages-core-src-index-ts"></a>packages/core/src/index.ts
-<pre><code class="ts">export * from './config';
+```ts
+export * from './config';
 export * from './validation';
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="packages-core-src-validation-index-ts"></a>packages/core/src/validation/index.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Shared Zod validation schemas
  * Single source of truth for all API input validation
  */
@@ -19703,14 +19620,15 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="packages-supabase-package-json"></a>packages/supabase/package.json
-<pre><code class="json">{
+```json
+{
   "name": "@vibez/supabase",
   "version": "1.0.0",
   "type": "module",
@@ -19733,14 +19651,15 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="schemas-events-json"></a>schemas/events.json
-<pre><code class="json">{
+```json
+{
   "join_nda": {"userId":"string","timestamp":"number"},
   "contribution_recorded": {"userId":"string","amount":"number","type":"string"},
   "equity_distributed": {"recipient":"string","amount":"number"},
@@ -19752,14 +19671,15 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="scripts-audit-and-update-data-files-ts"></a>scripts/audit-and-update-data-files.ts
-<pre><code class="ts">#!/usr/bin/env ts-node
+```ts
+#!/usr/bin/env ts-node
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -19980,14 +19900,15 @@ async function main() {
 main().catch(console.error);
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="scripts-clean-production-js"></a>scripts/clean-production.js
-<pre><code class="js">/**
+```js
+/**
  * Production Build Cleanup
  * Removes dev dependencies, console.logs, debugger statements
  */
@@ -20078,14 +19999,15 @@ verifyClean(distDir);
 console.log(`Production cleanup complete. Cleaned ${cleanedCount} files.`);
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="scripts-dev-validate-openapi-ts"></a>scripts/dev/validate-openapi.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Minimal validation stub.
  * Hook into spectral or openapi-validator in CI to run real checks.
  */
@@ -20093,14 +20015,15 @@ console.log(`Production cleanup complete. Cleaned ${cleanedCount} files.`);
 console.log('OpenAPI validation passed (stub).');
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="scripts-generate-codebase-doc-ts"></a>scripts/generate-codebase-doc.ts
-<pre><code class="ts">#!/usr/bin/env ts-node
+```ts
+#!/usr/bin/env ts-node
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -20303,7 +20226,7 @@ async function generateCodebaseDoc() {
     `).join('')}
   </div>
   <div class="content">
-    ${output.replace(/</code></pre>(\w+)\n([\s\S]*?)```/g, '<pre><code class="$1">$2</code></pre>')}
+    ${output.replace(/```(\w+)\n([\s\S]*?)```/g, '<pre><code class="$1">$2</code></pre>')}
   </div>
 </body>
 </html>`;
@@ -20324,7 +20247,8 @@ generateCodebaseDoc().catch(console.error);
 ---
 
 ### <a id="scripts-generate-codebase-index-ts"></a>scripts/generate-codebase-index.ts
-<pre><code class="ts">#!/usr/bin/env ts-node
+```ts
+#!/usr/bin/env ts-node
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -20461,14 +20385,15 @@ function groupByExtension(files: FileIndex[]): Record<string, number> {
 
 generateIndex().catch(console.error);
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="server--eslintrc-json"></a>server/.eslintrc.json
-<pre><code class="json">{
+```json
+{
   "root": true,
   "env": {
     "node": true,
@@ -20509,14 +20434,15 @@ generateIndex().catch(console.error);
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="server-index-ts"></a>server/index.ts
-<pre><code class="ts">import express from 'express';
+```ts
+import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createRedis } from 'redis';
 import { Server } from 'socket.io';
@@ -20667,14 +20593,15 @@ server.listen(PORT, () => {
 });
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="server-package-lock-json"></a>server/package-lock.json
-<pre><code class="json">{
+```json
+{
   "name": "server",
   "version": "1.0.0",
   "lockfileVersion": 3,
@@ -24348,14 +24275,15 @@ server.listen(PORT, () => {
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="server-package-json"></a>server/package.json
-<pre><code class="json">{
+```json
+{
   "name": "server",
   "version": "1.0.0",
   "description": "",
@@ -24400,14 +24328,15 @@ server.listen(PORT, () => {
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="server-tsconfig-json"></a>server/tsconfig.json
-<pre><code class="json">{
+```json
+{
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
@@ -24426,14 +24355,15 @@ server.listen(PORT, () => {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-jobs-expire-temporary-rooms-ts"></a>src/jobs/expire-temporary-rooms.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Room Expiry Cron Job
  * Expires temporary Pro-tier rooms that have passed their expiration date
  * Run via Supabase Edge Functions, cron-job.org, or scheduled task
@@ -24500,14 +24430,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-jobs-partition-management-cron-ts"></a>src/jobs/partition-management-cron.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Partition Management Cron Job
  * Runs daily to rotate partitions and clean up old data
  * 
@@ -24642,14 +24573,15 @@ export function schedulePartitionManagement(): void {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-jobs-vibes-card-generation-job-ts"></a>src/jobs/vibes-card-generation-job.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Card Generation Job
  * Background job that checks conversations and generates cards
  */
@@ -24796,14 +24728,15 @@ export async function processExpiredClaims(): Promise<void> {
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-server-index-ts"></a>src/server/index.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Main API server
  * - Express HTTP API
  * - WebSocket gateway
@@ -25133,14 +25066,15 @@ Promise.all([
 app.use(errorMiddleware);
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-server-utils-config-ts"></a>src/server/utils/config.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Server configuration
  * Centralized config values - hardcoded defaults with vault migration path
  */
@@ -25184,14 +25118,15 @@ export const LIMIT_REQUESTS_PER_MIN = config.rateLimits.ipRequestsPerMinute;
 export const LIMIT_USER_REQUESTS_PER_MIN = config.rateLimits.userRequestsPerMinute;
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-shared-logger-ts"></a>src/shared/logger.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Shared logging utilities
  * Provides consistent logging across the application
  * Production-ready logger abstraction
@@ -25237,14 +25172,15 @@ export function log(...args: unknown[]): void {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-shared-supabase-client-ts"></a>src/shared/supabase-client.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Supabase client export for authentication
  * Re-exports the Supabase client from config/db.js for use in authentication services
  */
@@ -25252,14 +25188,15 @@ export function log(...args: unknown[]): void {
 export { supabase } from '../config/db.js';
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-shared-supabase-helpers-ts"></a>src/shared/supabase-helpers.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Shared Supabase query helpers
  * Provides consistent error handling and simplified query patterns
  */
@@ -25677,14 +25614,15 @@ export async function executeTransaction(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-telemetry-index-ts"></a>src/telemetry/index.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Telemetry glue
  * Exports telemetry functions used across codebase
  * Maintains backward compatibility with existing telemetryHook usage
@@ -25767,14 +25705,15 @@ export {
 } from '../services/telemetry-service.js';
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-utils-prompt-sanitizer-ts"></a>src/utils/prompt-sanitizer.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Prompt Sanitizer
  * Strips HTML, escapes backticks, caps at 4k tokens
  * Hashes and logs to audit_logs table
@@ -25858,14 +25797,15 @@ export async function logPromptAudit(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-utils-vibes-helpers-ts"></a>src/utils/vibes-helpers.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Helper Utilities
  * Common functions for VIBES operations
  */
@@ -25937,14 +25877,15 @@ export function validateCardMetadata(metadata: any): boolean {
   return required.every(field => field in metadata);
 }
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="src-workers-sin-worker-ts"></a>src/workers/sin-worker.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Sin AI Worker
  * Cron job that scans empty rooms and activates Sin bot via DeepSeek API
  * Runs every 5 minutes
@@ -26128,14 +26069,15 @@ export function startSinWorker(): void {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="supabase-functions-api-key-vault-index-ts"></a>supabase/functions/api-key-vault/index.ts
-<pre><code class="ts">/**
+```ts
+/**
  * API Key Vault - Supabase Edge Function
  * Exposes secrets only via signed JWT from auth endpoint
  * Zero client-side keys ever
@@ -26240,14 +26182,15 @@ serve(async (req) => {
 });
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="supabase-functions-join-room-index-ts"></a>supabase/functions/join-room/index.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Join Room - LiveKit token generation
  * Secure endpoint for WebRTC room access
  */
@@ -26436,14 +26379,15 @@ serve(async (req) => {
   }
 });
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="tsconfig-json"></a>tsconfig.json
-<pre><code class="json">{
+```json
+{
   "compilerOptions": {
     "target": "ES2020",
     "module": "NodeNext",
@@ -26460,14 +26404,15 @@ serve(async (req) => {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="turbo-json"></a>turbo.json
-<pre><code class="json">{
+```json
+{
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
   "pipeline": {
@@ -26497,14 +26442,15 @@ serve(async (req) => {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
 ---
 
 ### <a id="vitest-config-ts"></a>vitest.config.ts
-<pre><code class="ts">import { defineConfig } from 'vitest/config';
+```ts
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -26533,7 +26479,7 @@ export default defineConfig({
 });
 
 
-</code></pre>
+```
 
 [↑ Back to Other](#other)
 
@@ -26588,7 +26534,8 @@ export default defineConfig({
 - [validate-setup.sql](#validate-setup-sql) (306 lines)
 
 ### <a id="--------------------------sql"></a>MISSING_INDEXES_APPLY_NOW.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- MISSING INDEXES - READY TO APPLY IN SUPABASE SQL EDITOR
 -- Copy and paste each numbered section into Supabase SQL Editor
 -- ===============================================
@@ -26772,14 +26719,15 @@ WHERE schemaname = 'public'
 ORDER BY tablename, indexname;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="-----------------------sql"></a>MISSING_INDEXES_REPORT.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- MISSING INDEXES REPORT - PART 1: REQUIRED INDEXES
 -- Generated from codebase analysis
 -- Date: 2025-01-XX
@@ -27192,14 +27140,15 @@ COMMIT;
 -- 8. Consider dropping unused indexes if they're not improving query performance
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="quick-validate-sql"></a>quick-validate.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- QUICK VALIDATION - Run this first for a fast check
 -- ===============================================
 
@@ -27266,14 +27215,15 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-01-sinapse-schema-sql"></a>sql/01_sinapse_schema.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 01_vibez_schema.sql
 -- PURPOSE: Core tables, extensions, and indexes for VibeZ Communication Ledger
 -- DEPENDENCIES: None (run first)
@@ -27559,14 +27509,15 @@ BEGIN
 END $$;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-02-compressor-functions-sql"></a>sql/02_compressor_functions.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 02_compressor_functions.sql
 -- PURPOSE: Compression pipeline functions and encode queue management
 -- DEPENDENCIES: 01_vibez_schema.sql
@@ -27897,14 +27848,15 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-03-retention-policy-sql"></a>sql/03_retention_policy.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 03_retention_policy.sql
 -- PURPOSE: Retention scheduling, cold storage, and legal holds
 -- DEPENDENCIES: 01_vibez_schema.sql, 02_compressor_functions.sql
@@ -28110,14 +28062,15 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-05-rls-policies-sql"></a>sql/05_rls_policies.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 05_rls_policies.sql
 -- PURPOSE: Row-Level Security policies for data immutability and access control
 -- DEPENDENCIES: 01_vibez_schema.sql
@@ -28370,14 +28323,15 @@ CREATE POLICY room_memberships_all_service ON room_memberships
   WITH CHECK (true);
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-06-partition-management-sql"></a>sql/06_partition_management.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 06_partition_management.sql
 -- PURPOSE: Dynamic partition creation for logs_compressed
 -- DEPENDENCIES: 01_vibez_schema.sql
@@ -28490,14 +28444,15 @@ RETURNS bigint AS $$
 $$ LANGUAGE sql SECURITY DEFINER;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-07-healing-logs-sql"></a>sql/07_healing_logs.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 07_healing_logs.sql
 -- PURPOSE: Healing logs table for autonomy system error tracking
 -- DESCRIPTION: Tracks failures and errors from the autonomy healing loop
@@ -28519,14 +28474,15 @@ CREATE INDEX IF NOT EXISTS idx_healing_logs_room_id ON healing_logs (room_id) WH
 CREATE INDEX IF NOT EXISTS idx_healing_logs_type ON healing_logs (type);
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-08-enhanced-rls-policies-sql"></a>sql/08_enhanced_rls_policies.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 08_enhanced_rls_policies.sql
 -- PURPOSE: Enhanced RLS policies with proper room membership checks
 -- DEPENDENCIES: 01_vibez_schema.sql, 05_rls_policies.sql
@@ -28672,14 +28628,15 @@ CREATE POLICY healing_logs_deny_others ON healing_logs
   USING (false);
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-09-p0-features-sql"></a>sql/09_p0_features.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 09_p0_features.sql
 -- PURPOSE: P0 features migration - reactions, threads, edit history, search, bot API
 -- DEPENDENCIES: 01_vibez_schema.sql
@@ -28862,14 +28819,15 @@ CREATE TRIGGER trigger_mark_message_edited
 COMMIT;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-10-integrated-features-sql"></a>sql/10_integrated_features.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 10_integrated_features.sql
 -- PURPOSE: Missing tables for integrated features (assistants, bots, subscriptions, embeddings, metrics)
 -- DEPENDENCIES: 01_vibez_schema.sql, 09_p0_features.sql
@@ -29076,14 +29034,15 @@ CREATE TRIGGER update_subscriptions_updated_at
 COMMIT;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-11-indexing-and-rls-sql"></a>sql/11_indexing_and_rls.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 11_indexing_and_rls.sql
 -- PURPOSE: Performance indexes, RLS policies, and AI integration points
 -- DEPENDENCIES: 01_vibez_schema.sql, 09_p0_features.sql, 10_integrated_features.sql
@@ -29582,14 +29541,15 @@ COMMIT;
 -- 6. Create an 'ai_service' role if you want dedicated AI access
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-12-verify-setup-sql"></a>sql/12_verify_setup.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 12_verify_setup.sql
 -- PURPOSE: Diagnostic script to verify all indexes, RLS policies, AI views, and functions
 -- USAGE: Run AFTER 11_indexing_and_rls.sql to confirm everything is working
@@ -30136,14 +30096,15 @@ SELECT
   'Check NOTICE messages above for detailed results' AS note;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql------------------sql"></a>sql/QUICK_VALIDATION.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- QUICK SUPABASE VALIDATION SCRIPT
 -- ===============================================
 -- Run this in Supabase SQL Editor after setup
@@ -30300,14 +30261,15 @@ SELECT
     'Check results above. All critical items should show ✅' as note;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-functions-batch-fetch-sql"></a>sql/functions/batch_fetch.sql
-<pre><code class="sql">/**
+```sql
+/**
  * Batch fetch messages for multiple rooms
  * Optimizes message retrieval by batching 5 room queries into one RPC call
  * Reduces round-trips by ~78%
@@ -30349,14 +30311,15 @@ $$;
 COMMENT ON FUNCTION get_room_messages_batch IS 'Batch fetch messages for multiple rooms. Reduces round-trips by ~78% compared to individual queries.';
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-functions-compression-sql"></a>sql/functions/compression.sql
-<pre><code class="sql">/**
+```sql
+/**
  * Message compression functions
  * Compresses message content at DB write using JSONB + pg_trgm for full-text search
  * Reduces storage by 30-45% while maintaining searchability
@@ -30408,14 +30371,15 @@ COMMENT ON FUNCTION compress_message_content IS 'Compresses message content usin
 COMMENT ON FUNCTION extract_message_content IS 'Extracts original content from compressed JSONB format.';
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-27-api-keys-vault-sql"></a>sql/migrations/2025-01-27-api-keys-vault.sql
-<pre><code class="sql">-- ============================================================================
+```sql
+-- ============================================================================
 -- API Keys Vault System
 -- Secure storage and retrieval of all API keys and secrets
 -- Uses pgcrypto for encryption at rest
@@ -30818,14 +30782,15 @@ IMPORTANT SECURITY CONSIDERATIONS:
 */
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-27-complete-setup-sql"></a>sql/migrations/2025-01-27-complete-setup.sql
-<pre><code class="sql">-- ============================================================================
+```sql
+-- ============================================================================
 -- COMPLETE API KEYS VAULT SETUP - RUN THIS FIRST!
 -- This creates everything you need, then populates with your keys
 -- ============================================================================
@@ -31318,14 +31283,15 @@ SELECT * FROM api_keys_metadata ORDER BY key_category, key_name;
 -- ============================================================================
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-27-fix-category-function-sql"></a>sql/migrations/2025-01-27-fix-category-function.sql
-<pre><code class="sql">-- ============================================================================
+```sql
+-- ============================================================================
 -- Fix get_api_keys_by_category function - resolve ambiguous column reference
 -- ============================================================================
 
@@ -31389,14 +31355,15 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-27-populate-api-keys-sql"></a>sql/migrations/2025-01-27-populate-api-keys.sql
-<pre><code class="sql">-- ============================================================================
+```sql
+-- ============================================================================
 -- Populate API Keys - READY TO COPY-PASTE!
 -- All your actual keys are included below
 -- ============================================================================
@@ -31618,14 +31585,15 @@ SELECT store_api_key('NODE_ENV', 'app',
 SELECT * FROM api_keys_metadata ORDER BY key_category, key_name;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-27-populate-only-sql"></a>sql/migrations/2025-01-27-populate-only.sql
-<pre><code class="sql">-- ============================================================================
+```sql
+-- ============================================================================
 -- POPULATE API KEYS - Run this to add/update keys
 -- Assumes the vault system is already set up (table + functions exist)
 -- ============================================================================
@@ -31840,14 +31808,15 @@ SELECT store_api_key('NODE_ENV', 'app',
 SELECT * FROM api_keys_metadata ORDER BY key_category, key_name;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-27-quick-populate-keys-sql"></a>sql/migrations/2025-01-27-quick-populate-keys.sql
-<pre><code class="sql">-- ============================================================================
+```sql
+-- ============================================================================
 -- QUICK START: Populate API Keys with Your Current Values
 -- Copy-paste this into Supabase SQL Editor and run
 -- ============================================================================
@@ -31937,14 +31906,15 @@ ORDER BY key_category, key_name;
 -- SELECT get_api_key('APPLE_TEAM_ID', 'production');
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-27-test-retrieval-sql"></a>sql/migrations/2025-01-27-test-retrieval.sql
-<pre><code class="sql">-- ============================================================================
+```sql
+-- ============================================================================
 -- TEST KEY RETRIEVAL - Verify keys can be retrieved and decrypted
 -- ============================================================================
 
@@ -32044,14 +32014,15 @@ END $$;
 SELECT '✅ All retrieval tests completed!' AS summary;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-28-add-age-verification-sql"></a>sql/migrations/2025-01-28-add-age-verification.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Add Age Verification Support
 -- Purpose: Add age_verified column to users table for 18+ gate
 -- ===============================================
@@ -32078,14 +32049,15 @@ CREATE INDEX IF NOT EXISTS idx_users_age_verified ON users(age_verified) WHERE a
 COMMIT;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01----add-performance-indexes-sql"></a>sql/migrations/2025-01-XX-add-performance-indexes.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Add Performance Indexes
 -- Purpose: Add indexes on frequently queried columns for better query performance
 -- Date: 2025-01-XX
@@ -32174,14 +32146,15 @@ COMMIT;
 -- ORDER BY tablename, indexname;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01----flagged-messages-sql"></a>sql/migrations/2025-01-XX-flagged-messages.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Message Flagging System
 -- Purpose: Store flagged messages for admin review
 -- Date: 2025-01-XX
@@ -32216,14 +32189,15 @@ CREATE INDEX IF NOT EXISTS idx_flagged_messages_flagged_by ON flagged_messages(f
 COMMIT;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01----refresh-tokens-sql"></a>sql/migrations/2025-01-XX-refresh-tokens.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Refresh Token Rotation System
 -- Purpose: Secure token management with rotation and invalidation
 -- Date: 2025-01-XX
@@ -32285,14 +32259,15 @@ $$ LANGUAGE plpgsql;
 COMMIT;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01----room-member-count-trigger-sql"></a>sql/migrations/2025-01-XX-room-member-count-trigger.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Room Member Count Trigger
 -- Purpose: Automatically update room.active_users when members join/leave
 -- Date: 2025-01-XX
@@ -32393,14 +32368,15 @@ COMMIT;
 -- LIMIT 10;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-add-moderation-tables-sql"></a>sql/migrations/2025-01-add-moderation-tables.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 2025-01-add-moderation-tables.sql
 -- PURPOSE: Add message violations and user mutes tables
 -- DEPENDENCIES: 2025-01-add-rooms-tier-moderation.sql
@@ -32448,14 +32424,15 @@ CREATE TRIGGER update_message_violations_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-01-add-rooms-tier-moderation-sql"></a>sql/migrations/2025-01-add-rooms-tier-moderation.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- FILE: 2025-01-add-rooms-tier-moderation.sql
 -- PURPOSE: Add room tiers and AI moderation support
 -- DEPENDENCIES: 01_vibez_schema.sql
@@ -32492,14 +32469,15 @@ CREATE INDEX IF NOT EXISTS idx_moderation_flags_created_at ON moderation_flags(c
 CREATE INDEX IF NOT EXISTS idx_rooms_expires_at ON rooms(expires_at) WHERE expires_at IS NOT NULL;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-11-10-feature-enhancements-sql"></a>sql/migrations/2025-11-10-feature-enhancements.sql
-<pre><code class="sql">-- Feature Enhancements Migration
+```sql
+-- Feature Enhancements Migration
 -- Adds: Full-text search, read receipts, nicknames, file uploads, formatting, polls, pinned items, bandwidth mode
 
 -- 1. Full-text search index on messages
@@ -32784,14 +32762,15 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-11-12-subscriptions-usage-sql"></a>sql/migrations/2025-11-12-subscriptions-usage.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Monetization Subscriptions & Usage
 -- Date: 2025-11-12
 -- Purpose: Add tables for subscription-based monetization and usage tracking
@@ -32969,14 +32948,15 @@ COMMIT;
 -- SELECT * FROM usage WHERE user_id = auth.uid();
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-11-15-vibes-core-schema-sql"></a>sql/migrations/2025-11-15-vibes-core-schema.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- VIBES Core Database Schema
 -- Purpose: Foundation tables for conversation-to-card system
 -- Date: 2025-11-15
@@ -33141,14 +33121,15 @@ COMMIT;
 -- Run these to verify schema:
 -- SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('conversations', 'conversation_participants', 'sentiment_analysis', 'cards', 'card_ownerships', 'card_events', 'museum_entries', 'boosts');
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-11-create-rooms-table-sql"></a>sql/migrations/2025-11-create-rooms-table.sql
-<pre><code class="sql">-- Create rooms table - Real implementation
+```sql
+-- Create rooms table - Real implementation
 -- Run this in Supabase SQL Editor
 
 CREATE TABLE IF NOT EXISTS rooms (
@@ -33182,14 +33163,15 @@ INSERT INTO rooms (name, creator_id, is_private) VALUES
 ON CONFLICT DO NOTHING;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-2025-11-security-audit-logs-sql"></a>sql/migrations/2025-11-security-audit-logs.sql
-<pre><code class="sql">-- Security: Audit Logs Table
+```sql
+-- Security: Audit Logs Table
 -- Tracks all LLM prompts, API key access, and security events
 
 CREATE TABLE IF NOT EXISTS audit_logs (
@@ -33239,14 +33221,15 @@ $$ LANGUAGE plpgsql;
 -- SELECT cron.schedule('cleanup-audit-logs', '0 2 * * *', 'SELECT cleanup_old_audit_logs()');
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-migrate-remaining-tables-sql"></a>sql/migrations/migrate-remaining-tables.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Add Remaining Missing Tables & Columns
 -- Purpose: Complete schema setup after P0 features migration
 -- Run this AFTER 09_p0_features_fixed.sql
@@ -33406,14 +33389,15 @@ SELECT
     (SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'usage_stats' AND column_name = 'metadata') as has_usage_stats_metadata;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-migrate-subscription-support-sql"></a>sql/migrations/migrate-subscription-support.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Migration: Add Subscription & Usage Support
 -- Purpose: Add missing columns/tables for monetization features
 -- Run this AFTER verifying schema with verify-supabase-schema.sql
@@ -33534,14 +33518,15 @@ SELECT
     (SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'iap_receipts' AND column_name = 'product_id') as has_product_id;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-test-supabase-schema-sql"></a>sql/migrations/test-supabase-schema.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Supabase Schema Test Script
 -- Purpose: Test all tables, columns, and basic operations
 -- Run this in Supabase SQL Editor to verify everything works
@@ -33848,14 +33833,15 @@ AND tablename IN ('users', 'messages', 'usage_stats', 'threads', 'config', 'file
 ORDER BY tablename, indexname;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="sql-migrations-verify-supabase-schema-sql"></a>sql/migrations/verify-supabase-schema.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- Supabase Schema Verification Script
 -- Purpose: Check if all required tables/columns exist
 -- Run this in Supabase SQL Editor to verify setup
@@ -34005,14 +33991,15 @@ FROM information_schema.tables
 WHERE table_schema = 'public';
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="supabase-setup-sql"></a>supabase-setup.sql
-<pre><code class="sql">-- 1 - COMPLETE SETUP SQL (Copy entire block into Supabase SQL Editor)
+```sql
+-- 1 - COMPLETE SETUP SQL (Copy entire block into Supabase SQL Editor)
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
@@ -34446,14 +34433,15 @@ WHERE table_schema = 'public'
 -- JWT_SECRET=dev_secret_change_in_production
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
 ---
 
 ### <a id="validate-setup-sql"></a>validate-setup.sql
-<pre><code class="sql">-- ===============================================
+```sql
+-- ===============================================
 -- COMPREHENSIVE SETUP VALIDATION
 -- Run this in Supabase SQL Editor to verify everything is working
 -- ===============================================
@@ -34759,7 +34747,7 @@ BEGIN
 END $$;
 
 
-</code></pre>
+```
 
 [↑ Back to Database/SQL](#database-sql)
 
@@ -34903,7 +34891,8 @@ END $$;
 - [frontend/iOS/Views/VoiceView.swift](#frontend-i----iews--oice-iew-swift) (9 lines)
 
 ### <a id="frontend-i----ssets-xcassets--pp-con-appiconset--ontents-json"></a>frontend/iOS/Assets.xcassets/AppIcon.appiconset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images": [
     {
       "filename": "AppIcon@2x.png",
@@ -35037,28 +35026,30 @@ END $$;
     "version": 1
   }
 }
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--ontents-json"></a>frontend/iOS/Assets.xcassets/Contents.json
-<pre><code class="json">{
+```json
+{
   "info" : {
     "author" : "xcode",
     "version" : 1
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--mages--ero--elcome-ero-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/Images/Hero/WelcomeHero.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "WelcomeHero.png",
@@ -35083,14 +35074,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--mages--arketing--pp-con-arketing-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/Images/Marketing/AppIconMarketing.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "AppIconMarketing.png",
@@ -35114,14 +35106,15 @@ END $$;
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--mages--aywall--aywall-ero-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/Images/Paywall/PaywallHero.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "PaywallHero.png",
@@ -35145,14 +35138,15 @@ END $$;
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--mages--iers--ier-ard-nterprise-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/Images/Tiers/TierCardEnterprise.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "TierCardEnterprise.png",
@@ -35177,14 +35171,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--mages--iers--ier-ard-ro-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/Images/Tiers/TierCardPro.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "TierCardPro.png",
@@ -35209,14 +35204,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--mages--iers--ier-ard-tarter-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/Images/Tiers/TierCardStarter.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "TierCardStarter.png",
@@ -35241,14 +35237,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--mages--oice--oice-resence-aveform-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/Images/Voice/VoicePresenceWaveform.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "VoicePresenceWaveform.png",
@@ -35273,14 +35270,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--aunch-mage-imageset--ontents-json"></a>frontend/iOS/Assets.xcassets/LaunchImage.imageset/Contents.json
-<pre><code class="json">{
+```json
+{
   "images" : [
     {
       "filename" : "LaunchImage.png",
@@ -35308,14 +35306,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--inapse-eep-color-et--ontents-json"></a>frontend/iOS/Assets.xcassets/SinapseDeep.colorSet/Contents.json
-<pre><code class="json">{
+```json
+{
   "colors" : [
     {
       "color" : {
@@ -35355,14 +35354,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--inapse-low-color-et--ontents-json"></a>frontend/iOS/Assets.xcassets/SinapseGlow.colorSet/Contents.json
-<pre><code class="json">{
+```json
+{
   "colors" : [
     {
       "color" : {
@@ -35404,14 +35404,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--inapse-old-color-et--ontents-json"></a>frontend/iOS/Assets.xcassets/SinapseGold.colorSet/Contents.json
-<pre><code class="json">{
+```json
+{
   "colors" : [
     {
       "color" : {
@@ -35451,14 +35452,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ssets-xcassets--inapse-old-ark-color-et--ontents-json"></a>frontend/iOS/Assets.xcassets/SinapseGoldDark.colorSet/Contents.json
-<pre><code class="json">{
+```json
+{
   "colors" : [
     {
       "color" : {
@@ -35498,14 +35500,15 @@ END $$;
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----omponents--ood-radient-swift"></a>frontend/iOS/Components/MoodGradient.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 struct MoodGradient: View {
     let mood: String
@@ -35520,14 +35523,15 @@ struct MoodGradient: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----omponents--oice-rb-swift"></a>frontend/iOS/Components/VoiceOrb.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 struct VoiceOrb: View {
     var body: some View {
@@ -35536,14 +35540,15 @@ struct VoiceOrb: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--tomic----vatar-swift"></a>frontend/iOS/DesignSystem/Components/Atomic/DSAvatar.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Avatar Component
  * 
  * Enhanced avatar component with presence indicators, status rings,
@@ -35759,14 +35764,15 @@ struct DSAvatarStack: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--tomic----utton-swift"></a>frontend/iOS/DesignSystem/Components/Atomic/DSButton.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Button Components
  * 
  * Comprehensive button system with multiple variants, sizes, and states.
@@ -36007,14 +36013,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--tomic----hip-swift"></a>frontend/iOS/DesignSystem/Components/Atomic/DSChip.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Chip Component
  * 
  * Versatile chip component for tags, filters, and quick actions.
@@ -36170,14 +36177,15 @@ struct DSTag: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--tomic----ivider-swift"></a>frontend/iOS/DesignSystem/Components/Atomic/DSDivider.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Divider Component
  * 
  * Consistent separator component with multiple variants.
@@ -36253,14 +36261,15 @@ struct DSSectionHeader: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--tomic----resence-rb-swift"></a>frontend/iOS/DesignSystem/Components/Atomic/DSPresenceOrb.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Presence Orb Component
  * 
  * Enhanced presence orb with breathing animation, status colors,
@@ -36421,14 +36430,15 @@ struct DSPresenceIndicator: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--olecular----mpty-tate-swift"></a>frontend/iOS/DesignSystem/Components/Molecular/DSEmptyState.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Empty State Component
  * 
  * Consistent empty states with SF Symbols (no image assets needed).
@@ -36564,14 +36574,15 @@ extension DSEmptyState {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--olecular----essage-ubble-swift"></a>frontend/iOS/DesignSystem/Components/Molecular/DSMessageBubble.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Message Bubble Component
  * 
  * Enhanced message bubble with validation states, read receipts,
@@ -36845,14 +36856,15 @@ extension DSMessageBubble.MessageViewModel.ReadState {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--olecular----earch-ield-swift"></a>frontend/iOS/DesignSystem/Components/Molecular/DSSearchField.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Search Field Component
  * 
  * Enhanced search field with validation, clear button, and loading states.
@@ -36978,14 +36990,15 @@ struct DSSearchField: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--olecular----ier-ard-swift"></a>frontend/iOS/DesignSystem/Components/Molecular/DSTierCard.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Tier Card Component
  * 
  * Enhanced subscription tier card with improved visual hierarchy,
@@ -37149,14 +37162,15 @@ struct DSFeatureList: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--rganisms----hat-omposer-swift"></a>frontend/iOS/DesignSystem/Components/Organisms/DSChatComposer.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Chat Composer Component
  * 
  * Enhanced chat input with validation, attachments, emoji picker,
@@ -37288,14 +37302,15 @@ struct DSChatComposer: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--rganisms----oom-ow-swift"></a>frontend/iOS/DesignSystem/Components/Organisms/DSRoomRow.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Room Row Component
  * 
  * Enhanced room list item with presence indicators, validation states,
@@ -37482,14 +37497,15 @@ struct DSRoomRow: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--omponents--wift---enerated----ackgrounds-swift"></a>frontend/iOS/DesignSystem/Components/SwiftUIGenerated/DSBackgrounds.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - SwiftUI-Generated Backgrounds
  * 
  * Background components generated in code (no image assets needed).
@@ -37736,14 +37752,15 @@ struct DSDashboardSparkline: View {
 
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--esign-okens-swift"></a>frontend/iOS/DesignSystem/DesignTokens.swift
-<pre><code class="swift">/**
+```swift
+/**
  * VibeZ Design System - Design Tokens
  * 
  * A comprehensive, production-ready design system with semantic tokens,
@@ -38110,14 +38127,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----esign-ystem--alidation----alidation-swift"></a>frontend/iOS/DesignSystem/Validation/DSValidation.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Design System - Validation System
  * 
  * Comprehensive validation utilities for forms, inputs, and data.
@@ -38474,14 +38492,15 @@ struct DSValidatedField: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----nums--uth-tate-swift"></a>frontend/iOS/Enums/AuthState.swift
-<pre><code class="swift">//
+```swift
+//
 //  AuthState.swift
 //  VibeZ iOS
 //
@@ -38494,14 +38513,15 @@ enum AuthState {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----nums--irebase-uth-rror-swift"></a>frontend/iOS/Enums/FirebaseAuthError.swift
-<pre><code class="swift">//
+```swift
+//
 //  FirebaseAuthError.swift
 //  VibeZ iOS
 //
@@ -38561,14 +38581,15 @@ enum FirebaseAuthError: Error, LocalizedError {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----nums--ogin-ption-swift"></a>frontend/iOS/Enums/LoginOption.swift
-<pre><code class="swift">//
+```swift
+//
 //  LoginOption.swift
 //  VibeZ iOS
 //
@@ -38582,14 +38603,15 @@ enum LoginOption {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----xtensions--olor--xtensions-swift"></a>frontend/iOS/Extensions/Color+Extensions.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 extension Color {
     // Golden VibeZ Theme Colors
@@ -38623,14 +38645,15 @@ extension Color {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----xtensions--tring--irebase-swift"></a>frontend/iOS/Extensions/String+Firebase.swift
-<pre><code class="swift">//
+```swift
+//
 //  String+Firebase.swift
 //  VibeZ iOS
 //
@@ -38685,14 +38708,15 @@ extension String {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----xtensions--iew--ccessibility-swift"></a>frontend/iOS/Extensions/View+Accessibility.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Accessibility Helper Extension
 /// Provides convenient accessibility modifiers for all interactive elements
@@ -38738,14 +38762,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----xtensions--iew--xtensions-swift"></a>frontend/iOS/Extensions/View+Extensions.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 extension View {
     func ambientFeedback() -> some View {
@@ -38766,14 +38791,15 @@ struct AmbientParticlesModifier: ViewModifier {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----xtensions--iew--erformance-swift"></a>frontend/iOS/Extensions/View+Performance.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Performance Optimization Extensions
 extension View {
@@ -38925,14 +38951,15 @@ struct PaginatedList<Item: Identifiable, Content: View>: View {
 
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers----easoner-swift"></a>frontend/iOS/Managers/AIReasoner.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 @MainActor
 class AIReasoner {
@@ -38957,14 +38984,15 @@ class AIReasoner {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers-----lient-swift"></a>frontend/iOS/Managers/APIClient.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 /// API Client for VibeZ backend
 /// Handles all HTTP requests to Express/Node backend
@@ -39184,14 +39212,15 @@ class AuthTokenManager {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--gora-oom-anager-swift"></a>frontend/iOS/Managers/AgoraRoomManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import Combine
 
 /// Agora Room Manager - Handles room joining, token management, and member state
@@ -39487,14 +39516,15 @@ struct ErrorResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--pple-uth-elper-swift"></a>frontend/iOS/Managers/AppleAuthHelper.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import AuthenticationServices
 import UIKit
 
@@ -39563,14 +39593,15 @@ class AppleAuthHelper: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
     }
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--onstants-swift"></a>frontend/iOS/Managers/Constants.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import SwiftUI
 
 enum VibeZColors {
@@ -39583,28 +39614,30 @@ enum VibeZColors {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--eep-eek-lient-swift"></a>frontend/iOS/Managers/DeepSeekClient.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 class DeepSeekClient {
     // Placeholder implementation
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--oogle-uth-elper-swift"></a>frontend/iOS/Managers/GoogleAuthHelper.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import UIKit
 
 #if canImport(GoogleSignIn)
@@ -39649,14 +39682,15 @@ class GoogleAuthHelper {
 }
 #endif
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--ive-it-oom-anager-swift"></a>frontend/iOS/Managers/LiveKitRoomManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import Combine
 
 // NOTE: This requires LiveKit Swift SDK integration
@@ -39862,14 +39896,15 @@ struct DeviceInfo: Identifiable, Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--essage-anager-swift"></a>frontend/iOS/Managers/MessageManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 @MainActor
 class MessageManager {
@@ -39894,14 +39929,15 @@ class MessageManager {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--oom-anager-swift"></a>frontend/iOS/Managers/RoomManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 @MainActor
 class RoomManager {
@@ -39922,28 +39958,30 @@ class RoomManager {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--peech-anager-swift"></a>frontend/iOS/Managers/SpeechManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 class SpeechManager {
     // Placeholder implementation
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--ubscription-anager-swift"></a>frontend/iOS/Managers/SubscriptionManager.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Module: SubscriptionManager
  * Purpose: Manage in-app subscription purchases via StoreKit 2, handle tier upgrades, and gate feature access.
  * Related: [FEATURE: Paywalls] [API] [SEC] [GATE]
@@ -40200,14 +40238,15 @@ class SubscriptionManager: ObservableObject {
 // - Telemetry: subscription_purchased event emission [EVENT] [FEATURE: Telemetry]
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--ystem-onitor-swift"></a>frontend/iOS/Managers/SystemMonitor.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 @MainActor
 class SystemMonitor {
@@ -40225,14 +40264,15 @@ class SystemMonitor {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----anagers--eb-ocket-anager-swift"></a>frontend/iOS/Managers/WebSocketManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import Combine
 import OSLog
 import UIKit
@@ -40542,14 +40582,15 @@ struct TypingEvent: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels----og-swift"></a>frontend/iOS/Models/AILog.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 struct AILog: Codable {
     let query: String
@@ -40570,14 +40611,15 @@ struct AIChatResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels-----eceipt-swift"></a>frontend/iOS/Models/IAPReceipt.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 struct IAPReceipt: Codable {
     let transactionId: String
@@ -40586,14 +40628,15 @@ struct IAPReceipt: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels--essage-swift"></a>frontend/iOS/Models/Message.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 struct Message: Codable, Identifiable {
     let id: UUID
@@ -40655,14 +40698,15 @@ struct SendMessageRequest: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels--oom-swift"></a>frontend/iOS/Models/Room.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 struct Room: Codable, Identifiable {
     let id: UUID
@@ -40733,14 +40777,15 @@ struct RoomResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels--ubscription-ier-swift"></a>frontend/iOS/Models/SubscriptionTier.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 /// Subscription Tier Model
 /// Based on PRICING_TIERS.md: Starter ($9), Professional ($29), Enterprise ($99)
@@ -40948,14 +40993,15 @@ enum Feature: String, Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels--elemetry-etric-swift"></a>frontend/iOS/Models/TelemetryMetric.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 struct TelemetryMetric: Codable {
     let eventType: String
@@ -40975,14 +41021,15 @@ struct TelemetryLogRequest: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels----vent-ype-swift"></a>frontend/iOS/Models/UXEventType.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import SwiftUI
 
 /// UX Event Categories
@@ -41261,14 +41308,15 @@ public struct EmotionPulseEvent: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----odels--ser-swift"></a>frontend/iOS/Models/User.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import SwiftUI
 import FirebaseAuth
 
@@ -41352,14 +41400,15 @@ extension User {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ackage-swift"></a>frontend/iOS/Package.swift
-<pre><code class="swift">// swift-tools-version: 5.9
+```swift
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -41403,14 +41452,15 @@ let package = Package(
 )
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices----est-anager-swift"></a>frontend/iOS/Services/ABTestManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 /// A/B Test Manager
 /// Manages A/B testing experiments, variant assignment, and conversion tracking
@@ -41527,28 +41577,30 @@ class ABTestManager {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices----ervice-swift"></a>frontend/iOS/Services/AIService.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 class AIService {
     // Placeholder implementation
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices--uth-ervice-swift"></a>frontend/iOS/Services/AuthService.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 @MainActor
 class AuthService {
@@ -41641,14 +41693,15 @@ class AuthService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices--irebase-uth-epository-swift"></a>frontend/iOS/Services/FirebaseAuthRepository.swift
-<pre><code class="swift">//
+```swift
+//
 //  FirebaseAuthRepository.swift
 //  VibeZ iOS
 //
@@ -41900,14 +41953,15 @@ extension FirebaseAuthRepository: ASAuthorizationControllerDelegate, ASAuthoriza
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices-----ervice-swift"></a>frontend/iOS/Services/IAPService.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import StoreKit
 
 class IAPService {
@@ -41918,14 +41972,15 @@ class IAPService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices--essage-ervice-swift"></a>frontend/iOS/Services/MessageService.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 class MessageService {
     /// Send a message to a room
@@ -41970,14 +42025,15 @@ class MessageService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices--ollback-anager-swift"></a>frontend/iOS/Services/RollbackManager.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import OSLog
 
 /// Rollback Manager
@@ -42136,14 +42192,15 @@ extension Notification.Name {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices--oom-ervice-swift"></a>frontend/iOS/Services/RoomService.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 class RoomService {
     /// Fetch rooms from backend
@@ -42210,14 +42267,15 @@ class RoomService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices--ystem-ervice-swift"></a>frontend/iOS/Services/SystemService.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 class SystemService {
     /// Log telemetry event to backend
@@ -42241,14 +42299,15 @@ class SystemService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices----elemetry-ervice-swift"></a>frontend/iOS/Services/UXTelemetryService.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import UIKit
 
 /// UX Telemetry Service
@@ -42968,14 +43027,15 @@ class UXTelemetryService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ervices--iew-enerator-swift"></a>frontend/iOS/Services/ViewGenerator.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import SwiftUI
 
 /// View Generator
@@ -43111,14 +43171,15 @@ extension Notification.Name {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----elemetry--elemetry-swift"></a>frontend/iOS/Telemetry/Telemetry.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import SwiftUI
 import Combine
 
@@ -43261,14 +43322,15 @@ class TapRateTracker {
     }
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ests--ashboard-elemetry-ests-swift"></a>frontend/iOS/Tests/DashboardTelemetryTests.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Unit Tests for DashboardView Telemetry Triggers
  * Tests telemetry logging at correct view lifecycle events
  */
@@ -43369,14 +43431,15 @@ class MockUXTelemetryService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ests--ashboard-iew-ests-swift"></a>frontend/iOS/Tests/DashboardViewTests.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Unit Tests for DashboardView Message Velocity Logic
  * Tests message velocity tracking, timer functionality, and telemetry triggers
  */
@@ -43444,14 +43507,15 @@ final class DashboardViewTests: XCTestCase {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ests--resence-iew-odel-ests-swift"></a>frontend/iOS/Tests/PresenceViewModelTests.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Unit Tests for PresenceViewModel
  * Tests presence loading, status fetching, distribution calculation, and incremental updates
  */
@@ -43579,14 +43643,15 @@ class MockRoomService {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ests--eb-ocket-anager-ests-swift"></a>frontend/iOS/Tests/WebSocketManagerTests.swift
-<pre><code class="swift">/**
+```swift
+/**
  * Unit Tests for WebSocketManager
  * Tests connection management, message sending/receiving, and state tracking
  */
@@ -43701,14 +43766,15 @@ final class WebSocketManagerTests: XCTestCase {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----ibe--pp-swift"></a>frontend/iOS/VibeZApp.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import FirebaseCore
 import GoogleSignIn
 
@@ -43809,14 +43875,15 @@ struct VibeZApp: App {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iew-odels--motional---iew-odel-swift"></a>frontend/iOS/ViewModels/EmotionalAIViewModel.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 
 class EmotionalAIViewModel: ObservableObject {
     @Published var emotion: String = "neutral"
@@ -43835,14 +43902,15 @@ class EmotionalAIViewModel: ObservableObject {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iew-odels--irebase-uth-iew-odel-swift"></a>frontend/iOS/ViewModels/FirebaseAuthViewModel.swift
-<pre><code class="swift">//
+```swift
+//
 //  FirebaseAuthViewModel.swift
 //  VibeZ iOS
 //
@@ -44222,14 +44290,15 @@ class FirebaseAuthViewModel: ObservableObject {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iew-odels--resence-iew-odel-swift"></a>frontend/iOS/ViewModels/PresenceViewModel.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import Combine
 import OSLog
 
@@ -44421,14 +44490,15 @@ private struct PresenceStatusResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iew-odels--oom-iew-odel-swift"></a>frontend/iOS/ViewModels/RoomViewModel.swift
-<pre><code class="swift">import Foundation
+```swift
+import Foundation
 import Combine
 
 @MainActor
@@ -44477,14 +44547,15 @@ class RoomViewModel: ObservableObject {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--gora-oom-iew-swift"></a>frontend/iOS/Views/AgoraRoomView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import AVFoundation
 
 /// Agora Room View - Simple, addictive, stranger-friendly video/voice room
@@ -44841,14 +44912,15 @@ struct RoomMember: Identifiable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--uth--ogin-iew-swift"></a>frontend/iOS/Views/Auth/LoginView.swift
-<pre><code class="swift">//
+```swift
+//
 //  LoginView.swift
 //  VibeZ iOS
 //
@@ -45093,14 +45165,15 @@ extension SecureField {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--uth--ocial-ogins-iew-swift"></a>frontend/iOS/Views/Auth/SocialLoginsView.swift
-<pre><code class="swift">//
+```swift
+//
 //  SocialLoginsView.swift
 //  VibeZ iOS
 //
@@ -45179,14 +45252,15 @@ struct SocialLoginsView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hat-nput-iew-swift"></a>frontend/iOS/Views/ChatInputView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Chat Input View
 /// Migrated from src/components/ChatInput.vue
@@ -45452,14 +45526,15 @@ struct ModerationResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hat-iew-swift"></a>frontend/iOS/Views/ChatView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Chat view with message send and AI feedback
 struct ChatView: View {
@@ -45619,14 +45694,15 @@ struct ChatView: View {
     ChatView()
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--reate-oom-heet-swift"></a>frontend/iOS/Views/CreateRoomSheet.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Create Room Sheet
 /// Allows users to create a new room
@@ -45711,14 +45787,15 @@ struct CreateRoomSheet: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--ashboard-iew-swift"></a>frontend/iOS/Views/DashboardView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 // EmotionPulse and EmotionPulseEvent are defined in Models/UXEventType.swift
 // ⚠️ DO NOT REDEFINE - You have been warned. This will haunt you.
 import Combine
@@ -46481,14 +46558,15 @@ struct UpgradePromptCard: View {
     }
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--osting-uide-iew-swift"></a>frontend/iOS/Views/HostingGuideView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Hosting guide - pulls from docs/SELF-HOSTING.md
 struct HostingGuideView: View {
@@ -46563,14 +46641,15 @@ struct GuideSection: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--ain-ab-iew-swift"></a>frontend/iOS/Views/MainTabView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 @available(iOS 17.0, *)
 struct MainTabView: View {
@@ -46615,14 +46694,15 @@ struct MainTabView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--essage-ubble-iew-swift"></a>frontend/iOS/Views/MessageBubbleView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Message Bubble View
 /// Migrated from src/components/MessageBubble.vue
@@ -46754,14 +46834,15 @@ struct MessageBubbleView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--ickname-anagement-iew-swift"></a>frontend/iOS/Views/NicknameManagementView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Nickname Management View - Set custom nicknames per room
 struct NicknameManagementView: View {
@@ -46931,14 +47012,15 @@ private func updateBandwidthPreference(_ enabled: Bool) async {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--nboarding--oom-ier-iew-swift"></a>frontend/iOS/Views/Onboarding/RoomTierView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Tier selection - cards stack like album art
 struct RoomTierView: View {
@@ -47056,14 +47138,15 @@ struct RoomTierCard: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--nboarding--ier-election-iew-swift"></a>frontend/iOS/Views/Onboarding/TierSelectionView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Onboarding tier selection - first screen after launch
 struct TierSelectionView: View {
@@ -47255,14 +47338,15 @@ struct TierSelectionCard: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--nboarding--elcome-iew-swift"></a>frontend/iOS/Views/Onboarding/WelcomeView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Welcome screen - first launch
 struct WelcomeView: View {
@@ -47307,14 +47391,15 @@ struct WelcomeView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--nboarding-low-iew-swift"></a>frontend/iOS/Views/OnboardingFlowView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import AVFoundation
 
 struct OnboardingFlowView: View {
@@ -47462,14 +47547,15 @@ struct OnboardingFlowView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--nboarding-iew-swift"></a>frontend/iOS/Views/OnboardingView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import AuthenticationServices
 
 struct OnboardingView: View {
@@ -47713,14 +47799,15 @@ struct OnboardingView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--aywall-iew-swift"></a>frontend/iOS/Views/PaywallView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import StoreKit
 
 /// Paywall view for subscription purchases
@@ -47923,14 +48010,15 @@ struct ProductCard: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--resence-ndicator-iew-swift"></a>frontend/iOS/Views/PresenceIndicatorView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Presence Indicator View
 /// Migrated from src/components/PresenceIndicator.vue
@@ -48004,14 +48092,15 @@ private struct StatusResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--resence-rb-iew-swift"></a>frontend/iOS/Views/PresenceOrbView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import Combine
 
 /// Presence Orb View
@@ -48103,14 +48192,15 @@ private struct PresenceStatusResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--rofile--ricing-heet-swift"></a>frontend/iOS/Views/Profile/PricingSheet.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Pricing Sheet View
 /// Displays all three tiers with feature comparison and upgrade CTAs
@@ -48454,14 +48544,15 @@ struct CheckmarkView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--rofile-iew-swift"></a>frontend/iOS/Views/ProfileView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import Foundation
 
 @available(iOS 15.0, *)
@@ -48823,14 +48914,15 @@ struct QuickActionButton: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--rogrammatic---iew-swift"></a>frontend/iOS/Views/ProgrammaticUIView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Programmatic UI View
 /// Migrated from src/components/ProgrammaticUI.vue
@@ -49511,14 +49603,15 @@ struct ProgrammaticUIView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--oom-ist-iew-swift"></a>frontend/iOS/Views/RoomListView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 struct RoomListView: View {
     @State private var rooms: [Room] = []
@@ -49803,14 +49896,15 @@ struct RoomRow: View {
     RoomListView()
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--oom-ettings-iew-swift"></a>frontend/iOS/Views/RoomSettingsView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Room settings with AI moderation toggle
 struct RoomSettingsView: View {
@@ -49906,14 +50000,15 @@ struct RoomSettingsView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--earch-iew-swift"></a>frontend/iOS/Views/SearchView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Search View - Full-text search across messages, rooms, and users
 struct SearchView: View {
@@ -50203,14 +50298,15 @@ struct SearchResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--ettings-iew-swift"></a>frontend/iOS/Views/SettingsView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Settings with hosting options
 struct SettingsView: View {
@@ -50323,14 +50419,15 @@ struct SettingsView: View {
     SettingsView()
 }
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--nimations--nimation-odifiers-swift"></a>frontend/iOS/Views/Shared/Animations/AnimationModifiers.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 // MARK: - Animation Utilities
 
@@ -50478,14 +50575,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--utonomous-abel-swift"></a>frontend/iOS/Views/Shared/Components/AutonomousLabel.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Autonomous Label
 /// Label component that automatically smooths based on emotional curves and dropoffs
@@ -50577,14 +50675,15 @@ struct AutonomousLabel: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--utonomous-alidation-abel-swift"></a>frontend/iOS/Views/Shared/Components/AutonomousValidationLabel.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Autonomous Validation Label
 /// Validation label that automatically smooths based on emotional curves and dropoffs
@@ -50705,14 +50804,15 @@ struct AutonomousValidationLabel: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--moji-icker-iew-swift"></a>frontend/iOS/Views/Shared/Components/EmojiPickerView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Emoji Picker Component
 /// Native iOS emoji picker for reactions
@@ -50758,14 +50858,15 @@ struct HapticManager {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--rror-ecovery-iew-swift"></a>frontend/iOS/Views/Shared/Components/ErrorRecoveryView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Error Recovery View - Shows error with retry option
 struct ErrorRecoveryView: View {
@@ -50860,14 +50961,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--ile-pload-omponent-swift"></a>frontend/iOS/Views/Shared/Components/FileUploadComponent.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import UniformTypeIdentifiers
 
 /// File Upload Component
@@ -51103,14 +51205,15 @@ struct FileUploadResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--oading-keleton-swift"></a>frontend/iOS/Views/Shared/Components/LoadingSkeleton.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Loading Skeleton Component - Shimmer effect for loading states
 struct LoadingSkeleton: View {
@@ -51188,14 +51291,15 @@ struct SkeletonCard: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--oading-pinner-swift"></a>frontend/iOS/Views/Shared/Components/LoadingSpinner.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Loading Spinner Component
 /// Reusable spinner matching Vue loading states
@@ -51229,14 +51333,15 @@ struct LoadingSpinner: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--uick-ump-ar-swift"></a>frontend/iOS/Views/Shared/Components/QuickJumpBar.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Quick Jump Bar - Quick access to pinned rooms
 struct QuickJumpBar: View {
@@ -51322,14 +51427,15 @@ struct PinnedRoomsResponse: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--ead-eceipt-ndicator-swift"></a>frontend/iOS/Views/Shared/Components/ReadReceiptIndicator.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Read Receipt Indicator Component
 /// Shows checkmark status for sent messages (delivered/read)
@@ -51393,14 +51499,15 @@ struct ReadReceiptIndicator: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--omponents--ideo-ile-iew-swift"></a>frontend/iOS/Views/Shared/Components/VideoTileView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 import AVFoundation
 
 /// Video Tile Component
@@ -51494,14 +51601,15 @@ struct ParticipantInfo: Identifiable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--lobal-tyles-swift"></a>frontend/iOS/Views/Shared/GlobalStyles.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Global styling constants - Notes.app meets Signal
 extension View {
@@ -51549,14 +51657,15 @@ struct VibeZCard<Content: View>: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--oading-iew-swift"></a>frontend/iOS/Views/Shared/LoadingView.swift
-<pre><code class="swift">//
+```swift
+//
 //  LoadingView.swift
 //  VibeZ iOS
 //
@@ -51600,14 +51709,15 @@ struct LoadingView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--odifiers--utton-tate-odifier-swift"></a>frontend/iOS/Views/Shared/Modifiers/ButtonStateModifier.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Button State Enum (matches TypeScript ButtonState)
 enum ButtonState: String {
@@ -51688,14 +51798,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--odifiers--orm-tate-odifier-swift"></a>frontend/iOS/Views/Shared/Modifiers/FormStateModifier.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Form State Enum (matches TypeScript FormState)
 enum FormState: String {
@@ -51747,14 +51858,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--odifiers--nput-tate-odifier-swift"></a>frontend/iOS/Views/Shared/Modifiers/InputStateModifier.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Input State Enum (matches TypeScript InputState)
 enum InputState: String {
@@ -51822,14 +51934,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--odifiers--resence-odifier-swift"></a>frontend/iOS/Views/Shared/Modifiers/PresenceModifier.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Presence Status (matches backend presence types)
 enum PresenceStatus: String, Codable {
@@ -51880,14 +51993,15 @@ extension View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hared--oast-iew-swift"></a>frontend/iOS/Views/Shared/ToastView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Toast notification for flagged messages
 struct ToastView: View {
@@ -51936,14 +52050,15 @@ struct ToastView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--ubscription-iew-swift"></a>frontend/iOS/Views/SubscriptionView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Subscription upsell with gradient cards
 struct SubscriptionView: View {
@@ -52069,14 +52184,15 @@ struct SubscriptionCard: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--hread-iew-swift"></a>frontend/iOS/Views/ThreadView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 /// Thread View
 /// Migrated from src/components/ThreadView.vue
@@ -52275,14 +52391,15 @@ private struct ReactionRequest: Codable {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--oice-oom-iew-swift"></a>frontend/iOS/Views/VoiceRoomView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 struct VoiceRoomView: View {
     var body: some View {
@@ -52291,14 +52408,15 @@ struct VoiceRoomView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--oice-ideo-anel-iew-swift"></a>frontend/iOS/Views/VoiceVideoPanelView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 struct VoiceVideoPanelView: View {
     var body: some View {
@@ -52307,14 +52425,15 @@ struct VoiceVideoPanelView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
 ---
 
 ### <a id="frontend-i----iews--oice-iew-swift"></a>frontend/iOS/Views/VoiceView.swift
-<pre><code class="swift">import SwiftUI
+```swift
+import SwiftUI
 
 struct VoiceView: View {
     var body: some View {
@@ -52323,7 +52442,7 @@ struct VoiceView: View {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to iOS Frontend](#ios-frontend)
 
@@ -52342,7 +52461,8 @@ struct VoiceView: View {
 - [src/config/vibes.config.ts](#src-config-vibes-config-ts) (120 lines)
 
 ### <a id="packages-core-src-config-index-ts"></a>packages/core/src/config/index.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Consolidated Configuration
  * Single source of truth for all environment variables and config
  */
@@ -52459,14 +52579,15 @@ export const getRateLimitConfig = () => config.rateLimits;
 export const getCorsConfig = () => config.cors;
 
 
-</code></pre>
+```
 
 [↑ Back to Configuration](#configuration)
 
 ---
 
 ### <a id="src-config-db-d-ts"></a>src/config/db.d.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Type declarations for db.js module
  * Database configuration - Supabase REST API only
  */
@@ -52476,14 +52597,15 @@ import type Redis from 'ioredis';
 export const supabase: SupabaseClient;
 export function getRedisClient(): Redis;
 
-</code></pre>
+```
 
 [↑ Back to Configuration](#configuration)
 
 ---
 
 ### <a id="src-config-db-js"></a>src/config/db.js
-<pre><code class="js">/**
+```js
+/**
  * Database configuration
  * Provides Supabase client and Redis connection instances
  */
@@ -52619,14 +52741,15 @@ export function getRedisClient(): Redis {
 // Database is Supabase-only - no legacy PostgreSQL adapters
 
 
-</code></pre>
+```
 
 [↑ Back to Configuration](#configuration)
 
 ---
 
 ### <a id="src-config-llm-params-config-ts"></a>src/config/llm-params.config.ts
-<pre><code class="ts">/**
+```ts
+/**
  * LLM Parameters Configuration
  * Centralized configuration for all LLM-controlled parameters
  * 
@@ -53021,14 +53144,15 @@ export type AutomationConfigType = AutomationConfig;
 export type SearchConfigType = SearchConfig;
 export type MaintenanceConfigType = MaintenanceConfig;
 
-</code></pre>
+```
 
 [↑ Back to Configuration](#configuration)
 
 ---
 
 ### <a id="src-config-redis-pubsub-ts"></a>src/config/redis-pubsub.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Redis Pub/Sub helpers for real-time events
  */
 
@@ -53086,14 +53210,15 @@ export const redisPublisher = getRedisPublisher();
 export const redisSubscriber = getRedisSubscriber();
 
 
-</code></pre>
+```
 
 [↑ Back to Configuration](#configuration)
 
 ---
 
 ### <a id="src-config-vibes-config-ts"></a>src/config/vibes.config.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Configuration
  * Central config module for VIBES application
  */
@@ -53213,7 +53338,7 @@ if (vibesConfig.cardGenerationEnabled && !vibesConfig.openaiApiKey) {
 
 export default vibesConfig;
 
-</code></pre>
+```
 
 [↑ Back to Configuration](#configuration)
 
@@ -53248,7 +53373,8 @@ export default vibesConfig;
 - [src/middleware/ws-rate-limiter.ts](#src-middleware-ws-rate-limiter-ts) (117 lines)
 
 ### <a id="src-middleware---tests---auth-test-ts"></a>src/middleware/__tests__/auth.test.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Auth Middleware Tests
  * Tests JWT authentication middleware
  */
@@ -53354,14 +53480,15 @@ describe('authMiddleware', () => {
 });
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-admin-auth-ts"></a>src/middleware/admin-auth.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Admin Authentication Middleware
  * Role hierarchy: user → moderator → admin → owner
  * Requires user to have appropriate role for protected endpoints
@@ -53617,14 +53744,15 @@ export function requirePermission(permission: string) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-age-verification-ts"></a>src/middleware/age-verification.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Age Verification Middleware
  * Checks if user has verified they are 18+ before allowing room-related actions
  * Must be used after authMiddleware
@@ -53669,14 +53797,15 @@ export const ageVerificationMiddleware = async (
 };
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-auth-ts"></a>src/middleware/auth.ts
-<pre><code class="ts">/**
+```ts
+/**
  * JWT auth middleware
  * - expects Authorization: Bearer <token>
  * - sets req.user on success
@@ -53783,14 +53912,15 @@ export const authMiddleware = async (req: AuthenticatedRequest | Request, res: R
 // Default export (for new usage)
 export default authMiddleware;
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-brute-force-protection-ts"></a>src/middleware/brute-force-protection.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Brute-force Protection Middleware
  * Tracks login attempts and implements account lockout
  * 
@@ -54102,14 +54232,15 @@ export async function recordFailedLogin(identifier: string): Promise<{ locked: b
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-cache-ts"></a>src/middleware/cache.ts
-<pre><code class="ts">import { Request, Response, NextFunction } from 'express';
+```ts
+import { Request, Response, NextFunction } from 'express';
 import { getCached, setCached, generateETag } from '../../services/cache-service.js';
 
 export function cacheMiddleware(prefix: string) {
@@ -54130,14 +54261,15 @@ export function cacheMiddleware(prefix: string) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-circuit-breaker-ts"></a>src/middleware/circuit-breaker.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Circuit Breaker Pattern Implementation
  * Prevents cascading failures by stopping requests to failing services
  */
@@ -54331,14 +54463,15 @@ export const s3CircuitBreaker = new CircuitBreaker('s3', {
 });
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-database-transaction-ts"></a>src/middleware/database-transaction.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Database Transaction Middleware
  * Wraps multi-step operations in transactions for atomicity
  */
@@ -54603,14 +54736,15 @@ export async function createMessageWithSentiment(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-error-alerting-ts"></a>src/middleware/error-alerting.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Error Alerting Middleware
  * Sends alerts to Slack/email for critical errors
  */
@@ -54740,14 +54874,15 @@ export function configureAlerting(config: Partial<AlertConfig>): void {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-error-ts"></a>src/middleware/error.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Error handler middleware
  * SECURITY: Never exposes internal error details to clients
  */
@@ -54779,14 +54914,15 @@ export const errorMiddleware = (err: Error, req: Request, res: Response, next: N
 };
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-file-upload-security-ts"></a>src/middleware/file-upload-security.ts
-<pre><code class="ts">/**
+```ts
+/**
  * File Upload Security Middleware
  * Validates file types, sizes, and content before upload
  */
@@ -54893,14 +55029,15 @@ export const fileUploadModeration = async (req: Request, res: Response, next: Ne
 };
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-incremental-validation-ts"></a>src/middleware/incremental-validation.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Incremental Validation Middleware
  * Validates data at every point where validation becomes possible
  * Implements defense-in-depth validation strategy
@@ -55299,14 +55436,15 @@ export function validateTransformation<T>(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-input-validation-ts"></a>src/middleware/input-validation.ts
-<pre><code class="ts">import { Request, Response, NextFunction } from 'express';
+```ts
+import { Request, Response, NextFunction } from 'express';
 import { logError } from '../shared/logger.js';
 
 /**
@@ -55387,14 +55525,15 @@ export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-moderation-ts"></a>src/middleware/moderation.ts
-<pre><code class="ts">import { Response, NextFunction } from 'express';
+```ts
+import { Response, NextFunction } from 'express';
 import { logAudit } from '../shared/logger.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 
@@ -55468,14 +55607,15 @@ export const moderateContent = async (req: AuthenticatedRequest, res: Response, 
 };
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-password-strength-ts"></a>src/middleware/password-strength.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Password Strength Validation
  * Enforces password strength requirements
  * 
@@ -55622,14 +55762,15 @@ export function getPasswordStrength(password: string): 'weak' | 'medium' | 'stro
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-rate-limiter-ts"></a>src/middleware/rate-limiter.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Rate Limiter Middleware
  * Implements token bucket algorithm for API rate limiting and DDoS protection
  */
@@ -55858,14 +55999,15 @@ const simpleRateLimiter = async (req: Request, res: Response, next: NextFunction
 export default simpleRateLimiter;
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-structured-logging-ts"></a>src/middleware/structured-logging.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Structured Logging Middleware
  * JSON logs with request IDs for production monitoring
  */
@@ -55970,14 +56112,15 @@ export function logErrorWithContext(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-subscription-gate-ts"></a>src/middleware/subscription-gate.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Subscription Gate Middleware
  * Enforces subscription tier requirements for routes
  */
@@ -56031,14 +56174,15 @@ export const requireTeam = async (req: AuthenticatedRequest, res: Response, next
 };
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-telemetry-ts"></a>src/middleware/telemetry.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Simple telemetry middleware that forwards a small event to prom-client via telemetryHook
  */
 
@@ -56052,14 +56196,15 @@ export const telemetryMiddleware = (req: Request, res: Response, next: NextFunct
 };
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-vibes-auth-ts"></a>src/middleware/vibes-auth.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES-specific authentication middleware
  * Additional checks for VIBES features
  */
@@ -56105,14 +56250,15 @@ export async function validateConversationAccess(
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-ws-message-rate-limiter-ts"></a>src/middleware/ws-message-rate-limiter.ts
-<pre><code class="ts">/**
+```ts
+/**
  * WebSocket Message Rate Limiter
  * Limits messages per user: max 15 messages per 30 seconds
  * Uses Redis for distributed rate limiting across multiple servers
@@ -56256,14 +56402,15 @@ export async function resetUserRateLimit(userId: string, roomId?: string): Promi
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
 ---
 
 ### <a id="src-middleware-ws-rate-limiter-ts"></a>src/middleware/ws-rate-limiter.ts
-<pre><code class="ts">/**
+```ts
+/**
  * WebSocket Rate Limiter
  * Uses p-limit + Redis store to prevent spam
  * Blocks spam without breaking legit bursts
@@ -56380,7 +56527,7 @@ export function rateLimitWSJoin<T extends any[]>(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Middleware](#middleware)
 
@@ -56424,7 +56571,8 @@ export function rateLimitWSJoin<T extends any[]>(
 - [src/routes/voice-routes.ts](#src-routes-voice-routes-ts) (146 lines)
 
 ### <a id="src-routes-admin-moderation-routes-ts"></a>src/routes/admin-moderation-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Admin Moderation Routes
  * Endpoints for reviewing flagged messages and moderation actions
  */
@@ -56534,14 +56682,15 @@ router.get('/stats', requireAdmin, async (req: AuthenticatedRequest, res: Respon
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-admin-routes-ts"></a>src/routes/admin-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Admin Routes
  * Administrative endpoints including health check and demo seeding
  */
@@ -56717,14 +56866,15 @@ router.post('/apply-recommendation', authMiddleware, async (req: Request, res: R
 
 export default router;
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-agora-routes-ts"></a>src/routes/agora-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Agora Routes
  * Handles mute/unmute, video toggle, and room member management
  */
@@ -56853,14 +57003,15 @@ router.post('/rooms/:id/leave', authMiddleware, async (req: AuthenticatedRequest
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-bandwidth-routes-ts"></a>src/routes/bandwidth-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Bandwidth Routes
  */
 
@@ -56912,14 +57063,15 @@ router.post('/', authMiddleware, async (req: AuthenticatedRequest, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-chat-room-config-routes-ts"></a>src/routes/chat-room-config-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Chat Room Config Routes
  * Manage room configuration including AI moderation settings
  */
@@ -57128,14 +57280,15 @@ router.put('/:id/config', authMiddleware, async (req, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-config-routes-ts"></a>src/routes/config-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Configuration Routes
  * Handles application configuration retrieval and updates
  */
@@ -57179,14 +57332,15 @@ router.put('/', async (req, res, next) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-entitlements-routes-ts"></a>src/routes/entitlements-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Entitlements Routes
  * Handles subscription entitlements API
  */
@@ -57248,14 +57402,15 @@ router.post('/subscription', async (req: AuthenticatedRequest, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-file-storage-routes-ts"></a>src/routes/file-storage-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * File Storage Routes
  * Handles file upload, retrieval, and deletion endpoints
  */
@@ -57332,14 +57487,15 @@ router.delete('/:id', async (req, res, next) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-health-routes-ts"></a>src/routes/health-routes.ts
-<pre><code class="ts">import express from 'express';
+```ts
+import express from 'express';
 import { getRedisClient } from '../config/redis-pubsub.js';
 import { supabase } from '../config/db.js';
 
@@ -57359,14 +57515,15 @@ router.get('/healthz', async (req, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-iap-routes-ts"></a>src/routes/iap-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * In-App Purchase routes
  * Handles IAP verification and receipt management
  */
@@ -57414,14 +57571,15 @@ router.post('/verify', async (req: Request, res: Response) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-message-routes-ts"></a>src/routes/message-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Message Routes
  * Handles message sending and retrieval endpoints
  */
@@ -57565,14 +57723,15 @@ router.get('/search', async (req, res, next) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-nicknames-routes-ts"></a>src/routes/nicknames-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Nicknames Routes
  */
 
@@ -57637,14 +57796,15 @@ router.get('/:roomId/all', authMiddleware, async (req: AuthenticatedRequest, res
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-notify-routes-ts"></a>src/routes/notify-routes.ts
-<pre><code class="ts">import express from 'express';
+```ts
+import express from 'express';
 import { authMiddleware as authenticate } from '../middleware/auth.js';
 import { enqueueNotification } from '../services/notifications-service.js';
 
@@ -57663,14 +57823,15 @@ router.post('/', authenticate, async (req, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-pinned-routes-ts"></a>src/routes/pinned-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Pinned Items Routes
  */
 
@@ -57752,14 +57913,15 @@ router.get('/:roomId/check', authMiddleware, async (req: AuthenticatedRequest, r
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-presence-routes-ts"></a>src/routes/presence-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Presence Routes
  * Handles user online/offline status endpoints
  */
@@ -57803,14 +57965,15 @@ router.post('/update', async (req, res, next) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-reactions-routes-ts"></a>src/routes/reactions-routes.ts
-<pre><code class="ts">import express from 'express';
+```ts
+import express from 'express';
 import { supabase } from '../config/db.js';
 import { authMiddleware as authenticate } from '../middleware/auth.js';
 import { broadcastToRoom } from '../ws/utils.js';
@@ -57885,14 +58048,15 @@ router.post('/', authenticate, async (req, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-read-receipts-routes-ts"></a>src/routes/read-receipts-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Read Receipts Routes
  * API endpoints for marking messages as read/delivered
  */
@@ -58019,14 +58183,15 @@ router.get('/room/:room_id', authMiddleware, async (req: AuthenticatedRequest, r
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-refresh-token-routes-ts"></a>src/routes/refresh-token-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Refresh Token Routes
  * Handles token refresh and revocation endpoints
  */
@@ -58140,14 +58305,15 @@ router.post('/revoke-all', authMiddleware, async (req: AuthenticatedRequest, res
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-room-routes-ts"></a>src/routes/room-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Room Routes - Real Implementation
  * POST /chat-rooms - Create room
  * POST /chat-rooms/:id/join - Join room
@@ -58302,14 +58468,15 @@ router.get('/chat-rooms/:id', authMiddleware, async (req: AuthenticatedRequest, 
 
 export default router;
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-search-routes-ts"></a>src/routes/search-routes.ts
-<pre><code class="ts">import express from 'express';
+```ts
+import express from 'express';
 import { authMiddleware as authenticate } from '../middleware/auth.js';
 import { fullTextSearch, searchRoomMessages, searchRooms } from '../services/search-service.js';
 import { logAudit } from '../shared/logger.js';
@@ -58404,14 +58571,15 @@ router.get('/rooms', authenticate, async (req: AuthenticatedRequest, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-subscription-routes-ts"></a>src/routes/subscription-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Subscription Routes
  * Handles subscription status, plans, and IAP verification
  */
@@ -58509,14 +58677,15 @@ router.get('/plans', async (req, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-telemetry-routes-ts"></a>src/routes/telemetry-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Telemetry Routes
  * Handles telemetry event logging endpoints
  */
@@ -58545,14 +58714,15 @@ router.post('/log', async (req, res, next) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-threads-routes-ts"></a>src/routes/threads-routes.ts
-<pre><code class="ts">import express from 'express';
+```ts
+import express from 'express';
 import { supabase } from '../config/db.js';
 import { authMiddleware as authenticate } from '../middleware/auth.js';
 import { broadcastToRoom } from '../ws/utils.js';
@@ -58594,14 +58764,15 @@ router.get('/:id', authenticate, async (req, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-user-authentication-routes-ts"></a>src/routes/user-authentication-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * User Authentication Routes
  * Handles Apple Sign-In and credential-based authentication endpoints
  */
@@ -58805,14 +58976,15 @@ router.post('/register', async (req, res, next) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-ux-telemetry-routes-ts"></a>src/routes/ux-telemetry-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * UX Telemetry Routes
  * 
  * API endpoints for UX telemetry ingestion and querying.
@@ -59169,14 +59341,15 @@ router.delete('/user/:userId', authMiddleware, async (req: AuthenticatedRequest,
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-vibes-admin-routes-ts"></a>src/routes/vibes/admin-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Admin Routes
  * Administrative endpoints for card management
  */
@@ -59239,14 +59412,15 @@ router.get('/stats', authMiddleware, async (req, res, next) => {
 
 export default router;
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-vibes-card-routes-ts"></a>src/routes/vibes/card-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Card Routes
  * API endpoints for card operations
  */
@@ -59354,14 +59528,15 @@ router.post('/:id/burn', authMiddleware, async (req, res, next) => {
 
 export default router;
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-vibes-conversation-routes-ts"></a>src/routes/vibes/conversation-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Conversation Routes
  * API endpoints for conversation management
  */
@@ -59468,14 +59643,15 @@ router.get('/:id/qualifies-for-card', authMiddleware, async (req, res, next) => 
 
 export default router;
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-vibes-museum-routes-ts"></a>src/routes/vibes/museum-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Museum Routes
  * API endpoints for public museum
  */
@@ -59534,14 +59710,15 @@ router.get('/redacted', async (req, res, next) => {
 
 export default router;
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-video-join-ts"></a>src/routes/video/join.ts
-<pre><code class="ts">// 🔧 Upgraded: src/routes/video/join.ts
+```ts
+// 🔧 Upgraded: src/routes/video/join.ts
 
 import { Router } from 'express';
 
@@ -59819,14 +59996,15 @@ router.get('/health', async (_req, res) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
 ---
 
 ### <a id="src-routes-voice-routes-ts"></a>src/routes/voice-routes.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Voice/Video Routes
  * SIN-101: LiveKit integration for voice channels
  */
@@ -59972,7 +60150,7 @@ router.post('/rooms/:room_name/stats', async (req, res, next) => {
 export default router;
 
 
-</code></pre>
+```
 
 [↑ Back to API Routes](#api-routes)
 
@@ -60043,7 +60221,8 @@ export default router;
 - [src/services/webhooks.ts](#src-services-webhooks-ts) (271 lines)
 
 ### <a id="src-services---tests---message-service-test-ts"></a>src/services/__tests__/message-service.test.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Message Service Tests
  * Tests message service functionality
  */
@@ -60166,14 +60345,15 @@ describe('Message Service', () => {
 });
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-agora-service-ts"></a>src/services/agora-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Agora Service
  * Handles Agora token generation and room state management
  * Uses Redis for real-time state, Supabase for persistence
@@ -60476,14 +60656,15 @@ async function removeRoomMemberFromSupabase(roomId: string, userId: string): Pro
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-api-keys-service-ts"></a>src/services/api-keys-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * API Keys Service
  * Retrieves encrypted API keys from database
  * Replaces hardcoded environment variables
@@ -60701,14 +60882,15 @@ export async function initializeApiKeys(): Promise<void> {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-apple-iap-service-ts"></a>src/services/apple-iap-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Apple IAP Verification Service
  * Verifies Apple App Store receipts and updates subscriptions
  */
@@ -60830,14 +61012,15 @@ export async function verifyAppleReceipt(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-apple-jwks-verifier-ts"></a>src/services/apple-jwks-verifier.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Apple JWKS Token Verifier - Real Implementation
  * Verifies Apple ID tokens using Apple's JSON Web Key Set (JWKS)
  * Uses jose library for proper JWK handling
@@ -60885,14 +61068,15 @@ export async function verifyAppleTokenWithJWKS(token: string): Promise<any> {
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-bandwidth-service-ts"></a>src/services/bandwidth-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Bandwidth Service
  * Handles low-bandwidth mode preferences and media downsampling
  */
@@ -60985,14 +61169,15 @@ export function downsampleMedia(originalUrl: string, quality: 'low' | 'medium' |
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-bot-invite-service-ts"></a>src/services/bot-invite-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Bot Invite Service
  * Handles bot invite tokens and templates
  */
@@ -61141,14 +61326,15 @@ export async function getBotTemplates() {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-compression-service-ts"></a>src/services/compression-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Compression and Storage Function
  * Implements adaptive compression selection based on payload type detection.
  * Uses MIME type for detection if provided, falling back to basic type checks.
@@ -61279,14 +61465,15 @@ export async function compressAndStore(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-config-service-ts"></a>src/services/config-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Configuration Service
  * Manages application configuration stored as key-value pairs
  */
@@ -61330,14 +61517,15 @@ export async function updateConfiguration(configurationUpdates: Record<string, a
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-e2e-encryption-ts"></a>src/services/e2e-encryption.ts
-<pre><code class="ts">/**
+```ts
+/**
  * E2E Encryption Service
  * Uses libsodium.js for sealed boxes (encryption)
  */
@@ -61438,14 +61626,15 @@ export function isE2ERoom(roomMetadata: any): boolean {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-encryption-service-ts"></a>src/services/encryption-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Encryption Service
  * Encrypts sensitive PII fields at rest using Supabase Vault
  * Implements privacy-by-design with transparent encryption/decryption
@@ -61636,14 +61825,15 @@ export function redactPII(text: string, patterns: RegExp[] = []): string {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-entitlements-ts"></a>src/services/entitlements.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Entitlements Service
  * Manages user subscription entitlements and syncs with Supabase
  */
@@ -61784,14 +61974,15 @@ export async function hasEntitlement(userId: string, productId: string): Promise
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-file-storage-service-ts"></a>src/services/file-storage-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * File Storage Service
  * Handles file uploads to AWS S3 and metadata storage in Supabase
  */
@@ -61968,14 +62159,15 @@ export async function deleteFileById(fileId: string): Promise<void> {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-livekit-service-ts"></a>src/services/livekit-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * LiveKit Service
  * Complete voice/video session lifecycle management
  */
@@ -62356,14 +62548,15 @@ export function untrackActiveRoom(roomName: string): void {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-livekit-token-service-ts"></a>src/services/livekit-token-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * LiveKit Token Service
  * Generates tokens for room calls with proper roles
  */
@@ -62431,14 +62624,15 @@ export async function generateLiveKitToken(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-message-archival-service-ts"></a>src/services/message-archival-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Message Archival Service
  * Implements hot/cold storage strategy for message retention
  * 
@@ -62764,14 +62958,15 @@ export async function archiveMessagesBatch(): Promise<{ archived: number; failed
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-message-delivery-service-ts"></a>src/services/message-delivery-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Message Delivery Service
  * Tracks message delivery status and implements retry logic for failed deliveries
  * 
@@ -62997,14 +63192,15 @@ export async function processPendingDeliveries(): Promise<number> {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-message-flagging-service-ts"></a>src/services/message-flagging-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Message Flagging Service
  * Stores flagged messages with reason for admin review
  */
@@ -63142,14 +63338,15 @@ export async function reviewFlaggedMessage(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-message-queue-ts"></a>src/services/message-queue.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Message Queue Service
  * Implements Bull queue for reliable message processing with retries and back-pressure
  */
@@ -63341,14 +63538,15 @@ export async function cleanupQueue() {
 setInterval(cleanupQueue, 3600000);
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-message-service-ts"></a>src/services/message-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Message Service
  * Handles message persistence and real-time broadcasting
  */
@@ -63608,14 +63806,15 @@ export async function getRoomMessages(roomId: string | number | (string | number
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-messages-controller-ts"></a>src/services/messages-controller.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Messages Controller
  * Handles reactions, threads, and message management
  */
@@ -64245,14 +64444,15 @@ export class MessagesController {
 export const messagesController = new MessagesController();
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-moderation-service-ts"></a>src/services/moderation.service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Moderation Service
  * AI-powered content moderation using DeepSeek API
  * Enterprise-only feature for room-level moderation
@@ -64561,14 +64761,15 @@ export async function logFlag(
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-monitoring-service-ts"></a>src/services/monitoring-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Monitoring Service
  * Prometheus/Grafana metrics collection
  * Tracks rate limits, sentiment, errors, and performance
@@ -64701,14 +64902,15 @@ export function recordDatabaseQuery(table: string, operation: string, duration: 
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-nickname-service-ts"></a>src/services/nickname-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Nickname Service
  * Handles custom nicknames per room
  */
@@ -64822,14 +65024,15 @@ export async function getRoomNicknames(roomId: string): Promise<Record<string, s
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-notifications-service-ts"></a>src/services/notifications-service.ts
-<pre><code class="ts">import { getRedisClient } from '../config/db.js';
+```ts
+import { getRedisClient } from '../config/db.js';
 import { supabase } from '../config/db.js';
 import webPush from 'web-push';
 import { logError, logInfo } from '../shared/logger.js';
@@ -65009,14 +65212,15 @@ setInterval(() => {
 }, 2000);
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-partition-management-service-ts"></a>src/services/partition-management-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Partition Management Service
  * Handles partition rotation, cleanup, and metadata loading
  * 
@@ -65212,14 +65416,15 @@ export async function loadPartitionMetadata(): Promise<Array<{
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-perspective-api-service-ts"></a>src/services/perspective-api-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Perspective API Service
  * Google Perspective API integration for toxicity detection
  * 
@@ -65341,14 +65546,15 @@ export async function getModerationThresholds(): Promise<{
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-pinned-items-service-ts"></a>src/services/pinned-items-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Pinned Items Service
  * Handles pinned rooms/channels for quick access
  */
@@ -65454,14 +65660,15 @@ export async function isRoomPinned(userId: string, roomId: string): Promise<bool
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-poll-service-ts"></a>src/services/poll-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Poll Service
  * Handles polls, votes, and analytics
  */
@@ -65693,14 +65900,15 @@ export async function getRoomPolls(roomId: string, includeClosed: boolean = fals
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-presence-service-ts"></a>src/services/presence-service.ts
-<pre><code class="ts">import { getRedisClient } from '../config/db.js';
+```ts
+import { getRedisClient } from '../config/db.js';
 import { supabase } from '../config/db.js';
 import { logAudit, logError } from '../shared/logger.js';
 
@@ -65795,14 +66003,15 @@ export async function getActivityFeed(userId: string): Promise<any[]> {
   return data || [];
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-query-optimization-service-ts"></a>src/services/query-optimization-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Query Optimization Service
  * Cursor-based pagination and query optimization utilities
  */
@@ -65948,14 +66157,15 @@ export async function getConversationHistory(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-read-receipts-service-ts"></a>src/services/read-receipts-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Read Receipts Service
  * Handles message read receipts (delivered_at, read_at, seen_at)
  */
@@ -66136,14 +66346,15 @@ export async function getRoomReadStatus(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-refresh-token-service-ts"></a>src/services/refresh-token-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Refresh Token Service
  * Implements secure token rotation with server-side invalidation
  * 
@@ -66474,14 +66685,15 @@ export function getAccessTokenExpiry(): Date {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-room-service-ts"></a>src/services/room-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Room Service - Real Implementation
  * Real Supabase integration, no stubs
  */
@@ -66646,14 +66858,15 @@ export async function listRooms(isPrivate?: boolean): Promise<any[]> {
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-search-service-ts"></a>src/services/search-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Search Service
  * Full-text search across messages, rooms, and users
  * Uses PostgreSQL GIN indexes and RLS-safe RPC functions
@@ -66874,14 +67087,15 @@ export async function searchRooms(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-sentiment-analysis-service-ts"></a>src/services/sentiment-analysis-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Sentiment Analysis Service
  * Real NLP-based sentiment analysis with caching and error fallback
  * 
@@ -67040,14 +67254,15 @@ export async function analyzeSentimentBatch(texts: string[]): Promise<SentimentR
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-subscription-service-ts"></a>src/services/subscription-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Module: subscription-service
  * Purpose: Manage user subscription tiers, enforce limits, and sync with iOS StoreKit purchases.
  * Related: [FEATURE: Paywalls] [DB] [API] [GATE] [SEC]
@@ -67147,14 +67362,15 @@ export async function updateSubscription(userId: string, tier: SubscriptionTier)
 // - Telemetry: subscription_updated event emission [EVENT] [FEATURE: Telemetry]
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-telemetry-service-ts"></a>src/services/telemetry-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Telemetry Service
  * Comprehensive event logging for analytics, monitoring, and AI analysis
  * Dual logging: Prometheus (real-time) + Supabase (persistent)
@@ -67839,14 +68055,15 @@ export async function logTelemetryBatch(
 // Legacy exports for backward compatibility
 export const recordTelemetryEvent = logTelemetryEvent;
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-usage-service-ts"></a>src/services/usage-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Usage Tracking Service
  * Tracks user usage for subscription limits
  */
@@ -67938,14 +68155,15 @@ export async function checkUsageLimit(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-usage-eter-ts"></a>src/services/usageMeter.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Usage Metering Service
  * Tracks and enforces usage quotas for AI calls, voice minutes, and storage
  */
@@ -68078,14 +68296,15 @@ export async function getUsage(userId: string): Promise<{
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-user-authentication-service-ts"></a>src/services/user-authentication-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * User Authentication Service
  * Handles Apple Sign-In verification, username/password login, and JWT token generation
  * 
@@ -68360,14 +68579,15 @@ export async function registerUser(
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-ux-telemetry-redaction-ts"></a>src/services/ux-telemetry-redaction.ts
-<pre><code class="ts">/**
+```ts
+/**
  * UX Telemetry PII Redaction Service
  * 
  * Server-side PII detector and redaction pipeline.
@@ -68760,14 +68980,15 @@ export function validateNoPII(event: UXTelemetryEvent): {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-ux-telemetry-service-ts"></a>src/services/ux-telemetry-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * UX Telemetry Service
  * 
  * Service layer for storing and querying UX telemetry events.
@@ -69466,14 +69687,15 @@ function transformDbToEvent(dbRecord: any): UXTelemetryEvent {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes---tests---conversation-service-test-ts"></a>src/services/vibes/__tests__/conversation-service.test.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Conversation Service Tests
  * Basic validation tests
  */
@@ -69499,14 +69721,15 @@ describe('Conversation Service', () => {
   });
 });
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes---tests---rarity-engine-test-ts"></a>src/services/vibes/__tests__/rarity-engine.test.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Rarity Engine Tests
  */
 
@@ -69566,14 +69789,15 @@ describe('Rarity Engine', () => {
   });
 });
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-analytics-service-ts"></a>src/services/vibes/analytics-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Analytics Service
  * Track metrics for $5K/month goal
  */
@@ -69720,14 +69944,15 @@ export async function trackCardClaim(cardId: string, userId: string): Promise<vo
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-card-generator-ts"></a>src/services/vibes/card-generator.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Card Generator Service
  * Generates collectible cards from conversations
  */
@@ -69916,14 +70141,15 @@ function generateCaption(sentiment: SentimentAnalysis): string {
   return 'A moment captured in time';
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-card-lifecycle-hook-ts"></a>src/services/vibes/card-lifecycle-hook.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Card Lifecycle Hook
  * Triggers card generation when conversations qualify
  */
@@ -69964,14 +70190,15 @@ export async function onMessageSent(
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-constants-ts"></a>src/services/vibes/constants.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Constants
  * Configuration constants for VIBES system
  */
@@ -70034,14 +70261,15 @@ export const VIBES_CONSTANTS = {
   ] as const,
 } as const;
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-conversation-service-ts"></a>src/services/vibes/conversation-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Conversation Service
  * Handles conversation creation, joining, and lifecycle
  */
@@ -70203,14 +70431,15 @@ export async function qualifiesForCardGeneration(conversationId: string): Promis
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-error-handler-ts"></a>src/services/vibes/error-handler.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Error Handler
  * Standardized error handling for VIBES services
  */
@@ -70280,14 +70509,15 @@ export function handleVIBESError(error: unknown): VIBESError {
   return vibesError;
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-museum-service-ts"></a>src/services/vibes/museum-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Museum Service
  * Public ledger of all cards
  */
@@ -70411,14 +70641,15 @@ export async function getRedactedCards(): Promise<MuseumEntry[]> {
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-ownership-service-ts"></a>src/services/vibes/ownership-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Ownership Service
  * Handles card ownership, claims, and transfers
  */
@@ -70638,14 +70869,15 @@ export async function getCardOwnership(cardId: string): Promise<CardOwnership | 
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-query-helpers-ts"></a>src/services/vibes/query-helpers.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Query Helpers
  * Optimized database queries for VIBES
  */
@@ -70733,14 +70965,15 @@ export async function getUserCardStats(userId: string) {
   return stats;
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-rarity-engine-ts"></a>src/services/vibes/rarity-engine.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Rarity Engine
  * Calculates rarity tiers for cards based on sentiment and dynamics
  */
@@ -70870,14 +71103,15 @@ function calculateGroupSizeMultiplier(participantCount: number): number {
   return 0.1; // 10% boost for 3-4
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-sentiment-service-ts"></a>src/services/vibes/sentiment-service.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Sentiment Analysis Service
  * Analyzes conversations for emotional dynamics and sentiment
  */
@@ -71051,14 +71285,15 @@ function detectSafetyIssues(text: string): string[] {
   return flags;
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-vibes-validation-ts"></a>src/services/vibes/validation.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Data Validation
  * Input validation for VIBES operations
  */
@@ -71152,14 +71387,15 @@ export function sanitizeCardCaption(caption: string): string {
     .replace(/[<>]/g, ''); // Remove HTML brackets
 }
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
 ---
 
 ### <a id="src-services-webhooks-ts"></a>src/services/webhooks.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Webhooks Service
  * Handles App Store Server Notifications for subscription updates
  */
@@ -71430,7 +71666,7 @@ export async function appStoreWebhook(req: Request, res: Response): Promise<void
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Backend Services](#backend-services)
 
@@ -71450,7 +71686,8 @@ export async function appStoreWebhook(req: Request, res: Response): Promise<void
 - [src/types/vibes.types.ts](#src-types-vibes-types-ts) (128 lines)
 
 ### <a id="src-types-auth-types-ts"></a>src/types/auth.types.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Authentication types
  * Proper types for authenticated requests
  */
@@ -71468,14 +71705,15 @@ export interface AuthenticatedRequest extends Request {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to TypeScript Types](#typescript-types)
 
 ---
 
 ### <a id="src-types-compression-d-ts"></a>src/types/compression.d.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Type declarations for compression libraries
  */
 
@@ -71492,14 +71730,15 @@ declare module 'snappyjs' {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to TypeScript Types](#typescript-types)
 
 ---
 
 ### <a id="src-types-generated-types-ts"></a>src/types/generated_types.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Generated API types (finalized placeholders)
  * Use openapi-typescript / ts-proto in CI to generate real types from specs.
  */
@@ -71515,14 +71754,15 @@ export interface TelemetryEvent { event: string; metadata?: any; }
 export interface Recommendation { recommendation: any; }
 
 
-</code></pre>
+```
 
 [↑ Back to TypeScript Types](#typescript-types)
 
 ---
 
 ### <a id="src-types-livekit-d-ts"></a>src/types/livekit.d.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Type declarations for optional @livekit/server-sdk module
  * This allows the build to succeed even if the package is not installed
  */
@@ -71537,14 +71777,15 @@ declare module '@livekit/server-sdk' {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to TypeScript Types](#typescript-types)
 
 ---
 
 ### <a id="src-types-message-types-ts"></a>src/types/message.types.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Type definitions for messages, reactions, threads, and voice
  */
 
@@ -71632,14 +71873,15 @@ export interface VoiceStats {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to TypeScript Types](#typescript-types)
 
 ---
 
 ### <a id="src-types-ux-telemetry-ts"></a>src/types/ux-telemetry.ts
-<pre><code class="ts">/**
+```ts
+/**
  * UX Telemetry Type Definitions
  * 
  * Standalone telemetry system for product observability, user behavior analysis,
@@ -71957,14 +72199,15 @@ export const DEFAULT_SDK_CONFIG: Partial<UXTelemetrySDKConfig> = {
 };
 
 
-</code></pre>
+```
 
 [↑ Back to TypeScript Types](#typescript-types)
 
 ---
 
 ### <a id="src-types-vibes-types-ts"></a>src/types/vibes.types.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Type Definitions
  * Centralized types for VIBES system
  */
@@ -72092,7 +72335,7 @@ export interface Boost {
   created_at: Date;
 }
 
-</code></pre>
+```
 
 [↑ Back to TypeScript Types](#typescript-types)
 
@@ -72112,7 +72355,8 @@ export interface Boost {
 - [src/ws/utils.ts](#src-ws-utils-ts) (216 lines)
 
 ### <a id="src-ws-gateway-ts"></a>src/ws/gateway.ts
-<pre><code class="ts">/**
+```ts
+/**
  * WebSocket gateway using protobuf envelope
  * - uses specs/proto/ws_envelope.proto for decoding
  * - delegates to handlers based on envelope.type
@@ -72426,14 +72670,15 @@ export function setupWebSocketGateway(wss: WebSocketServer) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to WebSocket](#websocket)
 
 ---
 
 ### <a id="src-ws-handlers-messaging-ts"></a>src/ws/handlers/messaging.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Handle messaging WSEnvelope and publish to Redis room channel
  * 
  * When a client sends a message via WebSocket:
@@ -72616,14 +72861,15 @@ export async function handleMessaging(ws: WebSocket & { userId?: string }, envel
 }
 
 
-</code></pre>
+```
 
 [↑ Back to WebSocket](#websocket)
 
 ---
 
 ### <a id="src-ws-handlers-presence-ts"></a>src/ws/handlers/presence.ts
-<pre><code class="ts">/**
+```ts
+/**
  * Handle presence WSEnvelope
  * 
  * Updates user's online/offline status when they connect/disconnect via WebSocket.
@@ -72651,14 +72897,15 @@ export function handlePresence(ws: WebSocket, envelope: any) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to WebSocket](#websocket)
 
 ---
 
 ### <a id="src-ws-handlers-reactions-threads-ts"></a>src/ws/handlers/reactions-threads.ts
-<pre><code class="ts">/**
+```ts
+/**
  * WebSocket handlers for reactions and threads
  * SIN-203, SIN-303: Real-time reaction and thread updates
  */
@@ -72791,14 +73038,15 @@ export function handleThreadCreate(ws: WebSocket, data: any) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to WebSocket](#websocket)
 
 ---
 
 ### <a id="src-ws-handlers-read-receipts-ts"></a>src/ws/handlers/read-receipts.ts
-<pre><code class="ts">/**
+```ts
+/**
  * WebSocket handler for read receipts
  * Handles real-time read receipt updates
  */
@@ -72905,14 +73153,15 @@ export function handleReadReceipt(ws: WebSocket, envelope: any) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to WebSocket](#websocket)
 
 ---
 
 ### <a id="src-ws-handlers-vibes-cards-ts"></a>src/ws/handlers/vibes-cards.ts
-<pre><code class="ts">/**
+```ts
+/**
  * VIBES Card WebSocket Handlers
  * Real-time events for card generation, claims, etc.
  */
@@ -73021,14 +73270,15 @@ export async function broadcastCardEvent(
   // For now, placeholder
 }
 
-</code></pre>
+```
 
 [↑ Back to WebSocket](#websocket)
 
 ---
 
 ### <a id="src-ws-utils-ts"></a>src/ws/utils.ts
-<pre><code class="ts">/**
+```ts
+/**
  * WebSocket utility functions for broadcasting messages
  * 
  * Supports both Redis pub/sub (for multi-server deployments) and
@@ -73244,7 +73494,7 @@ export function broadcastToRoom(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to WebSocket](#websocket)
 
@@ -73269,7 +73519,8 @@ export function broadcastToRoom(
 - [v-app/tsconfig.json](#v-app-tsconfig-json) (35 lines)
 
 ### <a id="v-app-app-api-messaging-route-ts"></a>v-app/app/api/messaging/route.ts
-<pre><code class="ts">const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+```ts
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -73283,14 +73534,15 @@ export async function POST(request: Request) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-app-api-rooms--id--messages-route-ts"></a>v-app/app/api/rooms/[id]/messages/route.ts
-<pre><code class="ts">const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+```ts
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export async function GET(
   request: Request,
@@ -73304,14 +73556,15 @@ export async function GET(
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-app-api-rooms-route-ts"></a>v-app/app/api/rooms/route.ts
-<pre><code class="ts">const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+```ts
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export async function GET() {
   const res = await fetch(`${BACKEND_URL}/rooms`, {
@@ -73333,14 +73586,15 @@ export async function POST(request: Request) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-app-layout-tsx"></a>v-app/app/layout.tsx
-<pre><code class="tsx">import { ClerkProvider } from '@clerk/nextjs';
+```tsx
+import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -73353,14 +73607,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-app-page-tsx"></a>v-app/app/page.tsx
-<pre><code class="tsx">import Image from "next/image";
+```tsx
+import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -73427,14 +73682,15 @@ export default function Home() {
   );
 }
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-app-rooms--id--page-tsx"></a>v-app/app/rooms/[id]/page.tsx
-<pre><code class="tsx">'use client';
+```tsx
+'use client';
 
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
@@ -73479,14 +73735,15 @@ export default function Room({ params }: { params: { id: string } }) {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-app-rooms-page-tsx"></a>v-app/app/rooms/page.tsx
-<pre><code class="tsx">'use client';
+```tsx
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
@@ -73511,28 +73768,30 @@ export default function Rooms() {
 }
 
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-next-env-d-ts"></a>v-app/next-env.d.ts
-<pre><code class="ts">/// <reference types="next" />
+```ts
+/// <reference types="next" />
 /// <reference types="next/image-types/global" />
 import "./.next/types/routes.d.ts";
 
 // NOTE: This file should not be edited
 // see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-next-config-ts"></a>v-app/next.config.ts
-<pre><code class="ts">import type { NextConfig } from "next";
+```ts
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -73540,14 +73799,15 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-package-lock-json"></a>v-app/package-lock.json
-<pre><code class="json">{
+```json
+{
   "name": "v-app",
   "version": "0.1.0",
   "lockfileVersion": 3,
@@ -80649,14 +80909,15 @@ export default nextConfig;
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-package-json"></a>v-app/package.json
-<pre><code class="json">{
+```json
+{
   "name": "v-app",
   "version": "0.1.0",
   "private": true,
@@ -80685,14 +80946,15 @@ export default nextConfig;
   }
 }
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
 ---
 
 ### <a id="v-app-tsconfig-json"></a>v-app/tsconfig.json
-<pre><code class="json">{
+```json
+{
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -80727,7 +80989,7 @@ export default nextConfig;
   "exclude": ["node_modules"]
 }
 
-</code></pre>
+```
 
 [↑ Back to Next.js Frontend](#next-js-frontend)
 
@@ -80738,7 +81000,3 @@ export default nextConfig;
 - Total Files: 356
 - Total Lines: 77699
 - Average Lines per File: 218
-
-  </div>
-</body>
-</html>

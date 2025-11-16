@@ -11,6 +11,7 @@ import { getRoomConfig, isEnterpriseUser } from './room-service.js';
 import { getUserSubscription } from './subscription-service.js';
 import { supabase } from '../config/db.js';
 import { validateServiceData, validateBeforeDB, validateAfterDB } from '../middleware/incremental-validation.js';
+import { isEncryptedPayload, isE2ERoom } from './e2e-encryption.js';
 import { z } from 'zod';
 
 const redis = getRedisClient();
@@ -122,31 +123,55 @@ export async function sendMessageToRoom(data: {
       }
     }
 
-    // Compress message content at DB write using JSONB compression
-    // This reduces storage by 30-45% while maintaining full-text search capability
-    const compressedContent = JSON.stringify({
-      content: validatedInput.content,
-      compressed: true,
-      length: validatedInput.content.length
-    });
+    // VALIDATION POINT 7: Check if room requires encryption and validate payload
+    const room = await getRoomById(String(roomIdValue));
+    const requiresEncryption = room && isE2ERoom(room);
     
-    // VALIDATION POINT 7: Validate compressed content structure
-    try {
-      JSON.parse(compressedContent);
-    } catch (e) {
-      throw new Error('Failed to compress message content');
+    if (requiresEncryption && !isEncryptedPayload(validatedInput.content)) {
+      throw new Error('Room requires end-to-end encryption. Message payload must be encrypted.');
     }
     
-    // VALIDATION POINT 8: Validate data before database insert
+    // For E2E rooms, store encrypted payload only (no plaintext)
+    // For non-E2E rooms, compress content for storage efficiency
+    let contentToStore: string;
+    if (requiresEncryption) {
+      // Store encrypted payload as-is (already encrypted by client)
+      contentToStore = validatedInput.content;
+    } else {
+      // Compress message content at DB write using JSONB compression
+      // This reduces storage by 30-45% while maintaining full-text search capability
+      contentToStore = JSON.stringify({
+        content: validatedInput.content,
+        compressed: true,
+        length: validatedInput.content.length
+      });
+    }
+    
+    // VALIDATION POINT 8: Validate content structure
+    try {
+      if (!requiresEncryption) {
+        JSON.parse(contentToStore);
+      }
+    } catch (e) {
+      throw new Error('Failed to prepare message content for storage');
+    }
+    
+    // VALIDATION POINT 9: Validate data before database insert
     const dbPayload = {
       room_id: roomIdValue,
       conversation_id: roomIdValue, // VIBES: Also set conversation_id
       sender_id: validatedInput.senderId,
-      content: compressedContent, // Store as JSONB-compressed content
+      content: contentToStore, // Store encrypted (E2E) or compressed (non-E2E) content
       message_type: 'text',
+      is_encrypted: requiresEncryption, // Flag to indicate encryption status
     };
     
-    const validatedDBPayload = validateBeforeDB(dbPayload, messageDBSchema, 'insert_message');
+    // Update schema to include is_encrypted flag
+    const messageDBSchemaWithEncryption = messageDBSchema.extend({
+      is_encrypted: z.boolean().optional(),
+    });
+    
+    const validatedDBPayload = validateBeforeDB(dbPayload, messageDBSchemaWithEncryption, 'insert_message');
     
     // Insert message with compressed content (moderation doesn't block, just warns/mutes)
     // Use transaction for atomicity (message + receipt if needed)

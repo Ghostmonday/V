@@ -14,13 +14,157 @@
 
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
+import { promisify } from 'util';
 import { findOne, upsert, create } from '../shared/supabase-helpers.js';
 import { logError, logInfo } from '../shared/logger.js';
 import { verifyAppleTokenWithJWKS } from './apple-jwks-verifier.js';
-import { getJwtSecret, getLiveKitKeys } from './api-keys-service.js';
+import { getJwtSecret, getLiveKitKeys, getApiKey } from './api-keys-service.js';
 import { supabase } from '../shared/supabase-client.js';
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
+
+// AES-256-GCM encryption configuration
+const ALGORITHM = 'aes-256-gcm';
+const IV_LENGTH = 12; // 96 bits for GCM
+const SALT_LENGTH = 16;
+const TAG_LENGTH = 16;
+
+// Cache for encryption key (derived from vault key)
+let encryptionKeyCache: Buffer | null = null;
+let encryptionKeyPromise: Promise<Buffer> | null = null;
+
+/**
+ * Get encryption key from vault
+ * Derives a 32-byte key using scrypt from the master encryption key
+ */
+async function getEncryptionKey(): Promise<Buffer> {
+  if (encryptionKeyCache) {
+    return encryptionKeyCache;
+  }
+
+  if (encryptionKeyPromise) {
+    return encryptionKeyPromise;
+  }
+
+  encryptionKeyPromise = (async () => {
+    try {
+      // Get master encryption key from vault
+      const masterKey = await getApiKey('ENCRYPTION_MASTER_KEY', 'production').catch(() => {
+        // Fallback to environment variable if vault not available
+        return process.env.ENCRYPTION_MASTER_KEY || '';
+      });
+
+      if (!masterKey) {
+        throw new Error('ENCRYPTION_MASTER_KEY not found in vault or environment');
+      }
+
+      // Derive 32-byte key using scrypt
+      const scryptAsync = promisify(scrypt);
+      const salt = Buffer.from('vibez-encryption-salt', 'utf8'); // Fixed salt for consistency
+      const derivedKey = (await scryptAsync(masterKey, salt, 32)) as Buffer;
+      
+      encryptionKeyCache = derivedKey;
+      return derivedKey;
+    } catch (error) {
+      logError('Failed to get encryption key', error instanceof Error ? error : new Error(String(error)));
+      throw error;
+    }
+  })();
+
+  return encryptionKeyPromise;
+}
+
+/**
+ * Encrypt sensitive data using AES-256-GCM
+ * @param plaintext - Data to encrypt
+ * @returns Encrypted data as base64 string (format: iv:tag:encrypted)
+ */
+export async function encryptSensitiveData(plaintext: string): Promise<string> {
+  try {
+    const key = await getEncryptionKey();
+    const iv = randomBytes(IV_LENGTH);
+    
+    const cipher = createCipheriv(ALGORITHM, key, iv);
+    let encrypted = cipher.update(plaintext, 'utf8');
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    
+    const tag = cipher.getAuthTag();
+    
+    // Combine IV, tag, and encrypted data
+    const combined = Buffer.concat([iv, tag, encrypted]);
+    return combined.toString('base64');
+  } catch (error) {
+    logError('Encryption failed', error instanceof Error ? error : new Error(String(error)));
+    throw new Error('Failed to encrypt sensitive data');
+  }
+}
+
+/**
+ * Decrypt sensitive data using AES-256-GCM
+ * @param encryptedData - Encrypted data as base64 string
+ * @returns Decrypted plaintext
+ */
+export async function decryptSensitiveData(encryptedData: string): Promise<string> {
+  try {
+    const key = await getEncryptionKey();
+    const combined = Buffer.from(encryptedData, 'base64');
+    
+    // Extract IV, tag, and encrypted data
+    const iv = combined.subarray(0, IV_LENGTH);
+    const tag = combined.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
+    const encrypted = combined.subarray(IV_LENGTH + TAG_LENGTH);
+    
+    const decipher = createDecipheriv(ALGORITHM, key, iv);
+    decipher.setAuthTag(tag);
+    
+    let decrypted = decipher.update(encrypted);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    
+    return decrypted.toString('utf8');
+  } catch (error) {
+    logError('Decryption failed', error instanceof Error ? error : new Error(String(error)));
+    throw new Error('Failed to decrypt sensitive data');
+  }
+}
+
+/**
+ * Encrypt user email for storage
+ * @param email - Email address to encrypt
+ * @returns Encrypted email
+ */
+export async function encryptUserEmail(email: string): Promise<string> {
+  return encryptSensitiveData(email.toLowerCase().trim());
+}
+
+/**
+ * Decrypt user email from storage
+ * @param encryptedEmail - Encrypted email
+ * @returns Decrypted email
+ */
+export async function decryptUserEmail(encryptedEmail: string): Promise<string> {
+  return decryptSensitiveData(encryptedEmail);
+}
+
+/**
+ * Encrypt user phone number for storage
+ * @param phone - Phone number to encrypt
+ * @returns Encrypted phone
+ */
+export async function encryptUserPhone(phone: string): Promise<string> {
+  // Normalize phone number before encryption
+  const normalized = phone.replace(/\D/g, '');
+  return encryptSensitiveData(normalized);
+}
+
+/**
+ * Decrypt user phone number from storage
+ * @param encryptedPhone - Encrypted phone
+ * @returns Decrypted phone
+ */
+export async function decryptUserPhone(encryptedPhone: string): Promise<string> {
+  return decryptSensitiveData(encryptedPhone);
+}
 
 /**
  * NEW: Authenticate user with email and password using Supabase Auth

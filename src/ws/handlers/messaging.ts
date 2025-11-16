@@ -16,6 +16,7 @@ import { checkMessageRateLimit } from '../../middleware/ws-message-rate-limiter.
 import { scanForToxicity } from '../../services/moderation.service.js';
 import { logError } from '../../shared/logger.js';
 import { validateWSMessage } from '../../middleware/incremental-validation.js';
+import { isEncryptedPayload, isE2ERoom } from '../../services/e2e-encryption.js';
 import { z } from 'zod';
 
 const redis = getRedisClient();
@@ -57,9 +58,33 @@ export async function handleMessaging(ws: WebSocket & { userId?: string }, envel
       return;
     }
     
+    // VALIDATION POINT 4.5: Validate encryption for E2E rooms
+    // Check if room requires encryption and validate payload is encrypted
+    try {
+      const { getRoomById } = await import('../../services/room-service.js');
+      const room = await getRoomById(roomId);
+      
+      if (room && isE2ERoom(room)) {
+        // Room requires E2E encryption - validate payload is encrypted
+        if (!isEncryptedPayload(messageContent)) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            msg: 'encryption_required',
+            reason: 'This room requires end-to-end encryption. Message payload must be encrypted.',
+          }));
+          return;
+        }
+      }
+    } catch (error) {
+      // Non-critical: if we can't check room config, allow message but log warning
+      logError('Failed to check room encryption requirement', error instanceof Error ? error : new Error(String(error)));
+    }
+    
     // VALIDATION POINT 5: Validate message length
-    if (messageContent.length > 10000) {
-      ws.send(JSON.stringify({ type: 'error', msg: 'message_too_long', maxLength: 10000 }));
+    // For encrypted messages, allow longer payloads (encryption adds overhead)
+    const maxLength = isEncryptedPayload(messageContent) ? 20000 : 10000;
+    if (messageContent.length > maxLength) {
+      ws.send(JSON.stringify({ type: 'error', msg: 'message_too_long', maxLength }));
       return;
     }
 

@@ -1,12 +1,12 @@
 {
-  "generated": "2025-11-16T04:42:49.548Z",
-  "totalFiles": 359,
-  "totalLines": 79506,
-  "totalSize": 2590236,
+  "generated": "2025-11-16T05:05:18.870Z",
+  "totalFiles": 356,
+  "totalLines": 77367,
+  "totalSize": 2523766,
   "categories": {
     "Other": 183,
-    "Database/SQL": 45,
     "Backend Services": 58,
+    "Database/SQL": 42,
     "Middleware": 22,
     "Configuration": 6,
     "API Routes": 31,
@@ -41,18 +41,10 @@
     {
       "path": "CODEBASE_INDEX.json",
       "category": "Other",
-      "lines": 2995,
-      "size": 80966,
-      "lastModified": "2025-11-16T02:56:22.759Z",
+      "lines": 3051,
+      "size": 82462,
+      "lastModified": "2025-11-16T04:42:49.549Z",
       "language": "JSON"
-    },
-    {
-      "path": "sql/archive/legacy/sinapse_complete.sql",
-      "category": "Database/SQL",
-      "lines": 1499,
-      "size": 44576,
-      "lastModified": "2025-11-15T18:15:28.178Z",
-      "language": "SQL"
     },
     {
       "path": "frontend/iOS/Views/DashboardView.swift",
@@ -101,14 +93,6 @@
       "size": 22024,
       "lastModified": "2025-11-15T18:15:28.183Z",
       "language": "TypeScript"
-    },
-    {
-      "path": "sql/archive/legacy/sinapse_complete_setup.sql",
-      "category": "Database/SQL",
-      "lines": 622,
-      "size": 21679,
-      "lastModified": "2025-11-15T18:15:28.179Z",
-      "language": "SQL"
     },
     {
       "path": "sql/12_verify_setup.sql",
@@ -173,6 +157,22 @@
       "size": 9739,
       "lastModified": "2025-11-16T03:58:01.706Z",
       "language": "TypeScript"
+    },
+    {
+      "path": "src/config/llm-params.config.ts",
+      "category": "Configuration",
+      "lines": 394,
+      "size": 10309,
+      "lastModified": "2025-11-15T07:21:23.693Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/ux-telemetry-redaction.ts",
+      "category": "Backend Services",
+      "lines": 392,
+      "size": 9632,
+      "lastModified": "2025-11-15T07:21:23.760Z",
+      "language": "TypeScript"
     }
   ],
   "files": [
@@ -203,18 +203,10 @@
     {
       "path": "CODEBASE_INDEX.json",
       "category": "Other",
-      "lines": 2995,
-      "size": 80966,
-      "lastModified": "2025-11-16T02:56:22.759Z",
+      "lines": 3051,
+      "size": 82462,
+      "lastModified": "2025-11-16T04:42:49.549Z",
       "language": "JSON"
-    },
-    {
-      "path": "sql/archive/legacy/sinapse_complete.sql",
-      "category": "Database/SQL",
-      "lines": 1499,
-      "size": 44576,
-      "lastModified": "2025-11-15T18:15:28.178Z",
-      "language": "SQL"
     },
     {
       "path": "frontend/iOS/Views/DashboardView.swift",
@@ -263,14 +255,6 @@
       "size": 22024,
       "lastModified": "2025-11-15T18:15:28.183Z",
       "language": "TypeScript"
-    },
-    {
-      "path": "sql/archive/legacy/sinapse_complete_setup.sql",
-      "category": "Database/SQL",
-      "lines": 622,
-      "size": 21679,
-      "lastModified": "2025-11-15T18:15:28.179Z",
-      "language": "SQL"
     },
     {
       "path": "sql/12_verify_setup.sql",
@@ -733,7 +717,7 @@
       "category": "Other",
       "lines": 220,
       "size": 6522,
-      "lastModified": "2025-11-16T04:42:46.393Z",
+      "lastModified": "2025-11-16T04:43:09.769Z",
       "language": "TypeScript"
     },
     {
@@ -1919,14 +1903,6 @@
       "size": 2298,
       "lastModified": "2025-11-15T07:21:23.730Z",
       "language": "TypeScript"
-    },
-    {
-      "path": "sql/archive/legacy/init-db.sql",
-      "category": "Database/SQL",
-      "lines": 74,
-      "size": 1711,
-      "lastModified": "2025-11-15T18:15:28.177Z",
-      "language": "SQL"
     },
     {
       "path": "frontend/iOS/Views/HostingGuideView.swift",
