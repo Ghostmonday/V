@@ -1,0 +1,838 @@
+# VibeZ Enterprise-Grade Build Plan
+# ⚠️ CRITICAL: Every implementation step MUST include validation points
+# Validation occurs incrementally at every data boundary and transformation
+
+## Phase 1: Security & Authentication Guard Rails (150 hours)
+
+### 1.1 Refresh Token Rotation (20 hours)
+**Files:** `src/services/refresh-token-service.ts`, `sql/migrations/2025-01-XX-refresh-tokens.sql`
+
+**Validation Points:**
+- [VALIDATION] Validate token format before hashing
+- [VALIDATION] Validate token hash matches stored hash
+- [VALIDATION] Validate token family ID exists
+- [VALIDATION] Validate token expiry before rotation
+- [VALIDATION] Validate new token pair structure before returning
+- [VALIDATION] Validate audit log entry after token operations
+
+**Implementation Steps:**
+1. Add token family tracking for reuse detection
+   - [VALIDATION CHECKPOINT] Validate family_id generation (UUID format)
+   - [VALIDATION CHECKPOINT] Validate family_id stored correctly in DB
+2. Implement server-side invalidation on reuse
+   - [VALIDATION CHECKPOINT] Validate reuse detection logic (last_used_at check)
+   - [VALIDATION CHECKPOINT] Validate entire family invalidated on reuse
+3. Store token hashes (SHA256) not raw tokens
+   - [VALIDATION CHECKPOINT] Validate hash format (64 char hex string)
+   - [VALIDATION CHECKPOINT] Validate hash matches token before rotation
+4. Add audit logging for token events
+   - [VALIDATION CHECKPOINT] Validate audit log entry created for each event
+   - [VALIDATION CHECKPOINT] Validate audit log structure (user_id, event_type, timestamp)
+
+### 1.2 Short-lived Access Tokens (15 hours)
+**Status:** Already implemented at 15 minutes
+**Files:** `src/services/user-authentication-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate user object before token generation
+- [VALIDATION] Validate JWT secret exists
+- [VALIDATION] Validate token expiry time calculation
+- [VALIDATION] Validate token structure before returning
+
+**Implementation Steps:**
+1. Add secure storage guidance for frontend
+   - [VALIDATION CHECKPOINT] Validate documentation includes secure storage examples
+2. Implement HTTP-only cookie option
+   - [VALIDATION CHECKPOINT] Validate cookie flags (httpOnly, secure, sameSite)
+   - [VALIDATION CHECKPOINT] Validate cookie not accessible via JavaScript
+3. Add token refresh middleware
+   - [VALIDATION CHECKPOINT] Validate middleware checks token expiry
+   - [VALIDATION CHECKPOINT] Validate refresh token rotation on use
+
+### 1.3 Enhanced Password Security (10 hours)
+**Files:** `src/services/user-authentication-service.ts`, `frontend/iOS/Services/FirebaseAuthRepository.swift`
+
+**Validation Points:**
+- [VALIDATION] Validate password length (min 8, max 500)
+- [VALIDATION] Validate password strength requirements
+- [VALIDATION] Validate bcrypt hash format before storage
+- [VALIDATION] Validate hash comparison result
+- [VALIDATION] Validate migration success after password update
+
+**Implementation Steps:**
+1. Migrate remaining plaintext passwords
+   - [VALIDATION CHECKPOINT] Validate password identified as plaintext
+   - [VALIDATION CHECKPOINT] Validate hash created successfully
+   - [VALIDATION CHECKPOINT] Validate old password removed after migration
+2. Add password strength requirements
+   - [VALIDATION CHECKPOINT] Validate password length (min 8, max 500)
+   - [VALIDATION CHECKPOINT] Validate password complexity rules enforced
+3. Implement argon2 as alternative to bcrypt
+   - [VALIDATION CHECKPOINT] Validate argon2 hash format
+   - [VALIDATION CHECKPOINT] Validate hash verification works correctly
+
+### 1.4 Role-Based Access Control (25 hours)
+**Files:** `sql/11_indexing_and_rls.sql`, `src/middleware/admin-auth.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate user ID format before role check
+- [VALIDATION] Validate role hierarchy (user < moderator < admin < owner)
+- [VALIDATION] Validate permission matrix lookup
+- [VALIDATION] Validate room membership exists before checking role
+- [VALIDATION] Validate global admin flag format
+
+**Implementation Steps:**
+1. Create role hierarchy: user → moderator → admin → owner
+   - [VALIDATION CHECKPOINT] Validate role enum values
+   - [VALIDATION CHECKPOINT] Validate role hierarchy comparison logic
+2. Add middleware for role checking
+   - [VALIDATION CHECKPOINT] Validate middleware extracts user ID correctly
+   - [VALIDATION CHECKPOINT] Validate role check returns correct boolean
+   - [VALIDATION CHECKPOINT] Validate 403 response on insufficient permissions
+3. Implement permission matrix
+   - [VALIDATION CHECKPOINT] Validate permission lookup by role
+   - [VALIDATION CHECKPOINT] Validate permission inheritance (admin has mod permissions)
+
+### 1.5 Audit Logging (15 hours)
+**Files:** `src/services/telemetry-service.ts`, `sql/migrations/2025-11-security-audit-logs.sql`
+
+**Validation Points:**
+- [VALIDATION] Validate audit event type enum
+- [VALIDATION] Validate user ID format in audit entries
+- [VALIDATION] Validate IP address format
+- [VALIDATION] Validate metadata JSON structure
+- [VALIDATION] Validate audit log entry before database insert
+
+**Implementation Steps:**
+1. Extend telemetry service for auth events
+   - [VALIDATION CHECKPOINT] Validate telemetry service accepts auth event types
+   - [VALIDATION CHECKPOINT] Validate event data structure matches schema
+2. Add comprehensive event types
+   - [VALIDATION CHECKPOINT] Validate event type enum values
+   - [VALIDATION CHECKPOINT] Validate all event types logged correctly
+3. Implement retention policies
+   - [VALIDATION CHECKPOINT] Validate retention period configuration
+   - [VALIDATION CHECKPOINT] Validate old logs deleted after retention period
+
+### 1.6 HTTPS/TLS Enforcement (5 hours)
+**Files:** `src/server/index.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate HSTS header configuration
+- [VALIDATION] Validate certificate chain in production
+- [VALIDATION] Validate TLS version (1.2+)
+- [VALIDATION] Validate redirect from HTTP to HTTPS
+
+**Implementation Steps:**
+1. Add HSTS headers (already configured)
+   - [VALIDATION CHECKPOINT] Validate HSTS header present in response
+   - [VALIDATION CHECKPOINT] Validate max-age value (31536000)
+2. Enforce HTTPS redirects
+   - [VALIDATION CHECKPOINT] Validate HTTP requests redirected to HTTPS
+   - [VALIDATION CHECKPOINT] Validate redirect status code (301/308)
+3. Add security headers
+   - [VALIDATION CHECKPOINT] Validate CSP header configuration
+   - [VALIDATION CHECKPOINT] Validate X-Frame-Options header
+
+### 1.7 Brute-force Protection (10 hours)
+**Dependencies:** Rate limiter middleware
+**Files:** `src/middleware/rate-limiter.ts`, new `src/middleware/brute-force-protection.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate login attempt count
+- [VALIDATION] Validate lockout duration
+- [VALIDATION] Validate unlock conditions
+- [VALIDATION] Validate CAPTCHA token if required
+- [VALIDATION] Validate account status before authentication
+
+**Implementation Steps:**
+1. Add login attempt tracking
+   - [VALIDATION CHECKPOINT] Validate attempt count incremented on failure
+   - [VALIDATION CHECKPOINT] Validate attempt count reset on success
+2. Implement account lockout after 5 failures
+   - [VALIDATION CHECKPOINT] Validate account locked after 5 failed attempts
+   - [VALIDATION CHECKPOINT] Validate lockout duration (15 minutes)
+3. Add CAPTCHA after 3 failures
+   - [VALIDATION CHECKPOINT] Validate CAPTCHA required after 3 failures
+   - [VALIDATION CHECKPOINT] Validate CAPTCHA token verification
+
+### 1.8 Privacy-by-Design (30 hours)
+**Files:** `sql/migrations/2025-01-27-api-keys-vault.sql`, `src/services/encryption-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate encryption key format
+- [VALIDATION] Validate PII field identification
+- [VALIDATION] Validate encrypted data format before storage
+- [VALIDATION] Validate decryption success after retrieval
+- [VALIDATION] Validate data minimization rules
+- [VALIDATION] Validate retention policy compliance
+
+**Implementation Steps:**
+1. Encrypt sensitive fields at rest (email, tokens, IPs)
+   - [VALIDATION CHECKPOINT] Validate encryption key retrieved from vault
+   - [VALIDATION CHECKPOINT] Validate encrypted data format (salt:iv:tag:data)
+   - [VALIDATION CHECKPOINT] Validate decryption returns original value
+2. Implement PII minimization
+   - [VALIDATION CHECKPOINT] Validate only necessary PII fields stored
+   - [VALIDATION CHECKPOINT] Validate PII fields identified correctly
+3. Add data retention policies
+   - [VALIDATION CHECKPOINT] Validate retention period configuration
+   - [VALIDATION CHECKPOINT] Validate data deleted after retention period
+
+### 1.9 Additional Security (20 hours)
+**Validation Points:**
+- [VALIDATION] Validate CSRF token on state-changing requests
+- [VALIDATION] Validate security header values
+- [VALIDATION] Validate origin header for CORS
+- [VALIDATION] Validate content-type for file uploads
+
+**Implementation Steps:**
+1. Implement CSRF protection
+   - [VALIDATION CHECKPOINT] Validate CSRF token generated on GET requests
+   - [VALIDATION CHECKPOINT] Validate CSRF token verified on POST/PUT/DELETE
+2. Add security headers (CSP, X-Frame-Options)
+   - [VALIDATION CHECKPOINT] Validate CSP header present and configured
+   - [VALIDATION CHECKPOINT] Validate X-Frame-Options: DENY
+3. Create security.txt file
+   - [VALIDATION CHECKPOINT] Validate security.txt accessible at /.well-known/security.txt
+   - [VALIDATION CHECKPOINT] Validate security contact information present
+
+## Phase 2: WebSocket & Messaging Guard Rails (100 hours)
+
+### 2.1 Message Rate Limiting (20 hours)
+**Files:** `src/middleware/ws-message-rate-limiter.ts`, `src/ws/handlers/messaging.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate user ID format before rate limit check
+- [VALIDATION] Validate room ID format
+- [VALIDATION] Validate rate limit response structure
+- [VALIDATION] Validate remaining count calculation
+- [VALIDATION] Validate reset time calculation
+
+**Implementation Steps:**
+1. Enforce 15 messages/30 seconds per user
+   - [VALIDATION CHECKPOINT] Validate rate limit check before message send
+   - [VALIDATION CHECKPOINT] Validate message count incremented correctly
+   - [VALIDATION CHECKPOINT] Validate 429 response when limit exceeded
+2. Add configurable limits by user tier
+   - [VALIDATION CHECKPOINT] Validate tier-based limit lookup
+   - [VALIDATION CHECKPOINT] Validate enterprise users get higher limits
+3. Implement sliding window algorithm
+   - [VALIDATION CHECKPOINT] Validate window resets correctly after 30 seconds
+   - [VALIDATION CHECKPOINT] Validate old entries removed from window
+
+### 2.2 Connection Health Checks (15 hours)
+**Status:** Partially implemented
+**Files:** `src/ws/gateway.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate ping interval configuration
+- [VALIDATION] Validate pong response timing
+- [VALIDATION] Validate connection alive timestamp
+- [VALIDATION] Validate idle timeout calculation
+- [VALIDATION] Validate reconnection backoff values
+
+**Implementation Steps:**
+1. Add configurable idle timeout (5 min)
+   - [VALIDATION CHECKPOINT] Validate timeout configuration (300 seconds)
+   - [VALIDATION CHECKPOINT] Validate connection closed after timeout
+2. Implement reconnection backoff
+   - [VALIDATION CHECKPOINT] Validate backoff delay increases exponentially
+   - [VALIDATION CHECKPOINT] Validate max backoff delay (30 seconds)
+3. Add connection quality metrics
+   - [VALIDATION CHECKPOINT] Validate ping/pong latency measured
+   - [VALIDATION CHECKPOINT] Validate connection quality score calculated
+
+### 2.3 Delivery Acknowledgements (10 hours)
+**Files:** `src/ws/handlers/messaging.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate message ID format before ack
+- [VALIDATION] Validate delivery timestamp format
+- [VALIDATION] Validate ack payload structure
+- [VALIDATION] Validate message was actually sent before ack
+
+**Implementation Steps:**
+1. Add ack system with message IDs
+   - [VALIDATION CHECKPOINT] Validate message ID generated (UUID)
+   - [VALIDATION CHECKPOINT] Validate ack received for sent message
+2. Track delivery status
+   - [VALIDATION CHECKPOINT] Validate delivery status stored (pending/delivered/failed)
+   - [VALIDATION CHECKPOINT] Validate status updated on ack receipt
+3. Add retry logic for failed deliveries
+   - [VALIDATION CHECKPOINT] Validate retry after timeout (5 seconds)
+   - [VALIDATION CHECKPOINT] Validate max retries (3 attempts)
+
+### 2.4 Error Handling Middleware (10 hours)
+**Files:** `src/middleware/error.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate error object structure
+- [VALIDATION] Validate error type classification
+- [VALIDATION] Validate error response format
+- [VALIDATION] Validate error logging metadata
+
+**Implementation Steps:**
+1. Enhance error middleware for WebSocket
+   - [VALIDATION CHECKPOINT] Validate error caught in middleware
+   - [VALIDATION CHECKPOINT] Validate error response sent to client
+2. Add error classification
+   - [VALIDATION CHECKPOINT] Validate error type identified (network/auth/validation)
+   - [VALIDATION CHECKPOINT] Validate appropriate error code returned
+3. Implement error recovery strategies
+   - [VALIDATION CHECKPOINT] Validate retry logic for transient errors
+   - [VALIDATION CHECKPOINT] Validate graceful degradation on persistent errors
+
+### 2.5 Moderation Hooks (25 hours)
+**Files:** `src/services/moderation.service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate message content before moderation scan
+- [VALIDATION] Validate toxicity score range (0-1)
+- [VALIDATION] Validate moderation API response structure
+- [VALIDATION] Validate threshold comparison
+- [VALIDATION] Validate flagging reason format
+
+**Implementation Steps:**
+1. Enhance DeepSeek integration
+   - [VALIDATION CHECKPOINT] Validate API request format
+   - [VALIDATION CHECKPOINT] Validate toxicity score returned (0-1)
+2. Add Perspective API integration
+   - [VALIDATION CHECKPOINT] Validate Perspective API key configured
+   - [VALIDATION CHECKPOINT] Validate attribute scores returned
+3. Implement threshold-based actions
+   - [VALIDATION CHECKPOINT] Validate warning sent at 0.6 threshold
+   - [VALIDATION CHECKPOINT] Validate message blocked at 0.8 threshold
+
+### 2.6 Flood/Spam Protection (20 hours)
+**Validation Points:**
+- [VALIDATION] Validate spam pattern detection
+- [VALIDATION] Validate repetition count
+- [VALIDATION] Validate mute duration
+- [VALIDATION] Validate ban reason format
+- [VALIDATION] Validate reputation score calculation
+
+**Implementation Steps:**
+1. Auto-mute on spam detection
+   - [VALIDATION CHECKPOINT] Validate spam pattern detected (repetition, frequency)
+   - [VALIDATION CHECKPOINT] Validate user muted for configured duration
+2. Implement temporary ban system
+   - [VALIDATION CHECKPOINT] Validate ban duration calculated (escalating)
+   - [VALIDATION CHECKPOINT] Validate user cannot send messages while banned
+3. Add reputation scoring
+   - [VALIDATION CHECKPOINT] Validate reputation decreases on violations
+   - [VALIDATION CHECKPOINT] Validate reputation increases over time with good behavior
+
+## Phase 3: Database & Privacy Protections (100 hours)
+
+### 3.1 Performance Indexes (10 hours)
+**Files:** `MISSING_INDEXES_REPORT.sql`
+
+**Validation Points:**
+- [VALIDATION] Validate index creation success
+- [VALIDATION] Validate index usage in query plans
+- [VALIDATION] Validate index size and performance
+- [VALIDATION] Validate index maintenance schedule
+
+**Implementation Steps:**
+1. Apply indexes: messages(sender_id, room_id, created_at)
+   - [VALIDATION CHECKPOINT] Validate index created successfully
+   - [VALIDATION CHECKPOINT] Validate index used in query plans
+2. Monitor index usage
+   - [VALIDATION CHECKPOINT] Validate index usage tracked in metrics
+   - [VALIDATION CHECKPOINT] Validate unused indexes identified
+3. Optimize slow queries
+   - [VALIDATION CHECKPOINT] Validate query execution time < 100ms
+   - [VALIDATION CHECKPOINT] Validate slow queries logged and analyzed
+
+### 3.2 Query Pagination (15 hours)
+**Files:** `src/shared/supabase-helpers.ts`, `src/services/query-optimization-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate cursor format (timestamp/UUID)
+- [VALIDATION] Validate limit value (1-100)
+- [VALIDATION] Validate pagination direction
+- [VALIDATION] Validate result set structure
+- [VALIDATION] Validate next/prev cursor calculation
+
+**Implementation Steps:**
+1. Add cursor-based pagination
+   - [VALIDATION CHECKPOINT] Validate cursor format (timestamp or UUID)
+   - [VALIDATION CHECKPOINT] Validate next/prev cursor calculated correctly
+2. Implement limit/offset fallback
+   - [VALIDATION CHECKPOINT] Validate limit/offset used when cursor unavailable
+   - [VALIDATION CHECKPOINT] Validate limit value (1-100) enforced
+3. Add pagination metadata
+   - [VALIDATION CHECKPOINT] Validate total count returned (if available)
+   - [VALIDATION CHECKPOINT] Validate has_more flag calculated correctly
+
+### 3.3 Message Archival (20 hours)
+**Files:** `src/services/message-archival-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate archive eligibility (age check)
+- [VALIDATION] Validate archive format before storage
+- [VALIDATION] Validate encryption before archival
+- [VALIDATION] Validate archive retrieval success
+- [VALIDATION] Validate archive integrity checksum
+
+**Implementation Steps:**
+1. Move messages > 90 days to cold storage
+   - [VALIDATION CHECKPOINT] Validate age calculation (created_at < now - 90 days)
+   - [VALIDATION CHECKPOINT] Validate messages moved to archive table
+2. Implement encrypted archives
+   - [VALIDATION CHECKPOINT] Validate archive encrypted before storage
+   - [VALIDATION CHECKPOINT] Validate archive decrypted on retrieval
+3. Add retrieval API
+   - [VALIDATION CHECKPOINT] Validate archive retrieved by message ID
+   - [VALIDATION CHECKPOINT] Validate archive integrity verified (checksum)
+
+### 3.4 Transaction Safety (10 hours)
+**Files:** `src/services/message-service.ts`, `src/middleware/database-transaction.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate transaction start
+- [VALIDATION] Validate each operation in transaction
+- [VALIDATION] Validate transaction commit success
+- [VALIDATION] Validate rollback on failure
+- [VALIDATION] Validate data consistency after transaction
+
+**Implementation Steps:**
+1. Wrap multi-step operations in transactions
+   - [VALIDATION CHECKPOINT] Validate transaction started before operations
+   - [VALIDATION CHECKPOINT] Validate all operations succeed or all rollback
+2. Add transaction retry logic
+   - [VALIDATION CHECKPOINT] Validate retry on transient errors (deadlock, timeout)
+   - [VALIDATION CHECKPOINT] Validate max retries (3 attempts)
+3. Implement deadlock detection
+   - [VALIDATION CHECKPOINT] Validate deadlock detected and logged
+   - [VALIDATION CHECKPOINT] Validate transaction retried after deadlock
+
+### 3.5 Monitoring Metrics (15 hours)
+**Files:** `src/services/telemetry-service.ts`, `src/services/monitoring-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate metric name format
+- [VALIDATION] Validate metric value type
+- [VALIDATION] Validate metric labels
+- [VALIDATION] Validate query duration measurement
+- [VALIDATION] Validate connection pool health metrics
+
+**Implementation Steps:**
+1. Add DB metrics to telemetry
+   - [VALIDATION CHECKPOINT] Validate query duration tracked
+   - [VALIDATION CHECKPOINT] Validate query count incremented
+2. Track slow queries
+   - [VALIDATION CHECKPOINT] Validate queries > 100ms logged
+   - [VALIDATION CHECKPOINT] Validate slow query details captured
+3. Monitor connection pool
+   - [VALIDATION CHECKPOINT] Validate active/idle connections tracked
+   - [VALIDATION CHECKPOINT] Validate pool exhaustion alerts configured
+
+### 3.6 Column Encryption (25 hours)
+**Files:** `src/services/encryption-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate encryption key format
+- [VALIDATION] Validate plaintext before encryption
+- [VALIDATION] Validate encrypted data format
+- [VALIDATION] Validate decryption success
+- [VALIDATION] Validate key rotation process
+
+**Implementation Steps:**
+1. Encrypt: emails, tokens, IP addresses
+   - [VALIDATION CHECKPOINT] Validate PII fields identified and encrypted
+   - [VALIDATION CHECKPOINT] Validate encrypted format stored (salt:iv:tag:data)
+2. Use Supabase Vault for key management
+   - [VALIDATION CHECKPOINT] Validate encryption key retrieved from vault
+   - [VALIDATION CHECKPOINT] Validate key rotation supported
+3. Implement transparent decryption
+   - [VALIDATION CHECKPOINT] Validate decryption on read (transparent to application)
+   - [VALIDATION CHECKPOINT] Validate decryption errors handled gracefully
+
+### 3.7 GDPR/CCPA Compliance (30 hours)
+**New endpoints:** `src/routes/compliance-routes.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate user identity before data export
+- [VALIDATION] Validate data export format (JSON)
+- [VALIDATION] Validate deletion request authorization
+- [VALIDATION] Validate consent record format
+- [VALIDATION] Validate data retention compliance
+- [VALIDATION] Validate anonymization process
+
+**Implementation Steps:**
+1. GET /api/users/{id}/data (export)
+   - [VALIDATION CHECKPOINT] Validate user authenticated and authorized
+   - [VALIDATION CHECKPOINT] Validate data export format (JSON)
+   - [VALIDATION CHECKPOINT] Validate all user data included
+2. DELETE /api/users/{id}/data (right to delete)
+   - [VALIDATION CHECKPOINT] Validate user authenticated and authorized
+   - [VALIDATION CHECKPOINT] Validate data deleted (soft delete with retention)
+   - [VALIDATION CHECKPOINT] Validate deletion confirmation returned
+3. POST /api/users/{id}/consent
+   - [VALIDATION CHECKPOINT] Validate consent record format
+   - [VALIDATION CHECKPOINT] Validate consent stored with timestamp
+   - [VALIDATION CHECKPOINT] Validate consent withdrawal supported
+
+## Phase 4: Sentiment & Vibe Analysis (60 hours)
+
+### 4.1 NLP Integration (20 hours)
+**Files:** `src/services/sentiment-analysis-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate text input format
+- [VALIDATION] Validate text length (max 10000 chars)
+- [VALIDATION] Validate NLP library response
+- [VALIDATION] Validate sentiment score range (-1 to 1)
+- [VALIDATION] Validate confidence score range (0 to 1)
+
+**Implementation Steps:**
+1. Replace placeholder with TextBlob/sentiment npm
+   - [VALIDATION CHECKPOINT] Validate sentiment package installed
+   - [VALIDATION CHECKPOINT] Validate sentiment analysis returns polarity (-1 to 1)
+2. Add error handling
+   - [VALIDATION CHECKPOINT] Validate errors caught and logged
+   - [VALIDATION CHECKPOINT] Validate fallback triggered on error
+3. Implement fallback
+   - [VALIDATION CHECKPOINT] Validate fallback returns neutral sentiment
+   - [VALIDATION CHECKPOINT] Validate fallback confidence set to 0
+
+### 4.2 Polarity Mapping (10 hours)
+**Validation Points:**
+- [VALIDATION] Validate polarity value range
+- [VALIDATION] Validate mood mapping (>0.6 happy, <-0.6 sad)
+- [VALIDATION] Validate confidence calculation
+- [VALIDATION] Validate mood enum values
+
+**Implementation Steps:**
+1. Map: >0.6 = happy, <-0.6 = sad, else neutral
+   - [VALIDATION CHECKPOINT] Validate polarity > 0.6 maps to 'happy'
+   - [VALIDATION CHECKPOINT] Validate polarity < -0.6 maps to 'sad'
+   - [VALIDATION CHECKPOINT] Validate -0.6 <= polarity <= 0.6 maps to 'neutral'
+2. Add confidence scores
+   - [VALIDATION CHECKPOINT] Validate confidence calculated (0 to 1)
+   - [VALIDATION CHECKPOINT] Validate confidence based on word count and score magnitude
+
+### 4.3 Result Caching (15 hours)
+**Validation Points:**
+- [VALIDATION] Validate cache key format
+- [VALIDATION] Validate cache TTL value
+- [VALIDATION] Validate cached result structure
+- [VALIDATION] Validate cache hit/miss metrics
+
+**Implementation Steps:**
+1. Cache in Redis with 1-hour TTL
+   - [VALIDATION CHECKPOINT] Validate cache key format (sentiment:{hash})
+   - [VALIDATION CHECKPOINT] Validate TTL set to 3600 seconds
+   - [VALIDATION CHECKPOINT] Validate cached result retrieved correctly
+2. Add cache warming for active conversations
+   - [VALIDATION CHECKPOINT] Validate active conversations identified
+   - [VALIDATION CHECKPOINT] Validate sentiment pre-computed for active conversations
+
+### 4.4 Error Fallback (5 hours)
+**Validation Points:**
+- [VALIDATION] Validate fallback trigger conditions
+- [VALIDATION] Validate fallback result structure
+- [VALIDATION] Validate error logging
+
+**Implementation Steps:**
+1. Return "unknown" on NLP failure
+   - [VALIDATION CHECKPOINT] Validate "unknown" mood returned on error
+   - [VALIDATION CHECKPOINT] Validate polarity set to 0 on error
+2. Log errors for monitoring
+   - [VALIDATION CHECKPOINT] Validate error logged with context
+   - [VALIDATION CHECKPOINT] Validate error metrics incremented
+
+### 4.5 Privacy-aware Logging (10 hours)
+**Validation Points:**
+- [VALIDATION] Validate sentiment score format
+- [VALIDATION] Validate no raw text in logs
+- [VALIDATION] Validate aggregated analytics format
+- [VALIDATION] Validate PII redaction
+
+**Implementation Steps:**
+1. Log sentiment scores without raw text
+   - [VALIDATION CHECKPOINT] Validate only scores logged (no message content)
+   - [VALIDATION CHECKPOINT] Validate PII redacted from logs
+2. Add aggregated analytics
+   - [VALIDATION CHECKPOINT] Validate sentiment aggregated by room/time
+   - [VALIDATION CHECKPOINT] Validate analytics available via API
+
+## Phase 5: Moderation & Safety (100 hours)
+
+### 5.1 Perspective API Integration (25 hours)
+**Files:** `src/services/perspective-api-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate API key format
+- [VALIDATION] Validate request payload structure
+- [VALIDATION] Validate API response structure
+- [VALIDATION] Validate toxicity score range
+- [VALIDATION] Validate attribute scores format
+
+**Implementation Steps:**
+1. Add API key configuration
+   - [VALIDATION CHECKPOINT] Validate API key stored securely (vault/env)
+   - [VALIDATION CHECKPOINT] Validate API key format validated
+2. Implement toxicity scoring
+   - [VALIDATION CHECKPOINT] Validate Perspective API request format
+   - [VALIDATION CHECKPOINT] Validate toxicity score returned (0-1)
+   - [VALIDATION CHECKPOINT] Validate attribute scores parsed correctly
+3. Add error handling
+   - [VALIDATION CHECKPOINT] Validate API errors caught and logged
+   - [VALIDATION CHECKPOINT] Validate fallback to DeepSeek on Perspective failure
+
+### 5.2 Configurable Thresholds (15 hours)
+**Validation Points:**
+- [VALIDATION] Validate threshold value range (0-1)
+- [VALIDATION] Validate threshold comparison logic
+- [VALIDATION] Validate per-room threshold override
+- [VALIDATION] Validate threshold update authorization
+
+**Implementation Steps:**
+1. Warning threshold: 0.6
+   - [VALIDATION CHECKPOINT] Validate warning sent when score > 0.6
+   - [VALIDATION CHECKPOINT] Validate threshold configurable per room
+2. Block threshold: 0.8
+   - [VALIDATION CHECKPOINT] Validate message blocked when score > 0.8
+   - [VALIDATION CHECKPOINT] Validate user notified of block
+3. Per-room custom thresholds
+   - [VALIDATION CHECKPOINT] Validate room-specific thresholds override defaults
+   - [VALIDATION CHECKPOINT] Validate threshold update requires admin permission
+
+### 5.3 Flagging System (20 hours)
+**Files:** `sql/migrations/2025-01-XX-flagged-messages.sql`, `src/services/message-flagging-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate message ID format
+- [VALIDATION] Validate flag reason enum
+- [VALIDATION] Validate toxicity score range
+- [VALIDATION] Validate flagged_by user ID
+- [VALIDATION] Validate flag status transitions
+
+**Implementation Steps:**
+1. Auto-flagging on toxicity
+   - [VALIDATION CHECKPOINT] Validate message flagged when score > threshold
+   - [VALIDATION CHECKPOINT] Validate flag reason stored ('toxicity')
+2. Manual flagging UI
+   - [VALIDATION CHECKPOINT] Validate users can flag messages
+   - [VALIDATION CHECKPOINT] Validate flag reason selected from enum
+3. Status tracking
+   - [VALIDATION CHECKPOINT] Validate flag status (pending/reviewed/resolved)
+   - [VALIDATION CHECKPOINT] Validate status transitions validated
+
+### 5.4 Admin Review Dashboard (20 hours)
+**New routes:** `src/routes/admin-moderation-routes.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate admin authorization
+- [VALIDATION] Validate flag ID format
+- [VALIDATION] Validate review action enum
+- [VALIDATION] Validate review notes format
+- [VALIDATION] Validate pagination parameters
+
+**Implementation Steps:**
+1. GET /api/admin/moderation/queue
+   - [VALIDATION CHECKPOINT] Validate admin authorization checked
+   - [VALIDATION CHECKPOINT] Validate pagination parameters validated
+   - [VALIDATION CHECKPOINT] Validate flagged messages returned ordered by priority
+2. POST /api/admin/moderation/review/{id}
+   - [VALIDATION CHECKPOINT] Validate flag ID format (UUID)
+   - [VALIDATION CHECKPOINT] Validate review action enum (approve/reject/escalate)
+   - [VALIDATION CHECKPOINT] Validate review notes format (max 1000 chars)
+3. GET /api/admin/moderation/stats
+   - [VALIDATION CHECKPOINT] Validate stats aggregated correctly
+   - [VALIDATION CHECKPOINT] Validate time range parameters validated
+
+### 5.5 Privacy Guards (15 hours)
+**Validation Points:**
+- [VALIDATION] Validate minimal metadata structure
+- [VALIDATION] Validate PII redaction rules
+- [VALIDATION] Validate retention limit compliance
+- [VALIDATION] Validate anonymization process
+
+**Implementation Steps:**
+1. Store minimal metadata with flags
+   - [VALIDATION CHECKPOINT] Validate only necessary fields stored (message_id, reason, score)
+   - [VALIDATION CHECKPOINT] Validate no message content stored in flag record
+2. Auto-redact PII in flagged content
+   - [VALIDATION CHECKPOINT] Validate PII patterns identified and redacted
+   - [VALIDATION CHECKPOINT] Validate redacted content shown to admins
+3. Implement retention limits
+   - [VALIDATION CHECKPOINT] Validate flags deleted after retention period (90 days)
+   - [VALIDATION CHECKPOINT] Validate retention policy configurable
+
+## Phase 6: Monitoring, Testing & Compliance (195 hours)
+
+### 6.1 Structured Logging (15 hours)
+**Files:** `src/middleware/structured-logging.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate request ID format (UUID)
+- [VALIDATION] Validate log entry structure
+- [VALIDATION] Validate timestamp format (ISO 8601)
+- [VALIDATION] Validate log level enum
+- [VALIDATION] Validate metadata JSON structure
+
+**Implementation Steps:**
+1. Add request IDs, correlation IDs
+   - [VALIDATION CHECKPOINT] Validate request ID generated (UUID) on each request
+   - [VALIDATION CHECKPOINT] Validate correlation ID propagated across services
+2. JSON log format
+   - [VALIDATION CHECKPOINT] Validate log entries are valid JSON
+   - [VALIDATION CHECKPOINT] Validate required fields present (timestamp, level, message, requestId)
+3. Log aggregation
+   - [VALIDATION CHECKPOINT] Validate logs sent to aggregation service
+   - [VALIDATION CHECKPOINT] Validate logs searchable by request ID
+
+### 6.2 Metrics Collection (25 hours)
+**Files:** `src/services/monitoring-service.ts`
+
+**Validation Points:**
+- [VALIDATION] Validate metric name format (Prometheus)
+- [VALIDATION] Validate metric value type
+- [VALIDATION] Validate label names and values
+- [VALIDATION] Validate histogram bucket configuration
+- [VALIDATION] Validate counter increment values
+
+**Implementation Steps:**
+1. Integrate Prometheus client
+   - [VALIDATION CHECKPOINT] Validate Prometheus client initialized
+   - [VALIDATION CHECKPOINT] Validate metrics endpoint exposed (/metrics)
+2. Add custom business metrics
+   - [VALIDATION CHECKPOINT] Validate rate limit metrics tracked
+   - [VALIDATION CHECKPOINT] Validate sentiment metrics tracked
+   - [VALIDATION CHECKPOINT] Validate moderation metrics tracked
+3. Create Grafana dashboards
+   - [VALIDATION CHECKPOINT] Validate dashboards display key metrics
+   - [VALIDATION CHECKPOINT] Validate alerts configured for critical metrics
+
+### 6.3 CI/CD Pipeline (20 hours)
+**Files:** `turbo.json`, `.github/workflows/`
+
+**Validation Points:**
+- [VALIDATION] Validate migration scripts before deploy
+- [VALIDATION] Validate test results (all pass)
+- [VALIDATION] Validate lint results (no errors)
+- [VALIDATION] Validate build success
+- [VALIDATION] Validate environment variable presence
+
+**Implementation Steps:**
+1. Update turbo.json
+   - [VALIDATION CHECKPOINT] Validate build pipeline configured
+   - [VALIDATION CHECKPOINT] Validate test pipeline configured
+2. Add GitHub Actions workflows
+   - [VALIDATION CHECKPOINT] Validate CI runs on PR
+   - [VALIDATION CHECKPOINT] Validate CD runs on merge to main
+3. Add deployment gates
+   - [VALIDATION CHECKPOINT] Validate tests must pass before deploy
+   - [VALIDATION CHECKPOINT] Validate migrations validated before deploy
+
+### 6.4 Error Alerting (10 hours)
+**Validation Points:**
+- [VALIDATION] Validate webhook URL format
+- [VALIDATION] Validate alert payload structure
+- [VALIDATION] Validate error threshold configuration
+- [VALIDATION] Validate alert rate limiting
+
+**Implementation Steps:**
+1. Slack webhook integration
+   - [VALIDATION CHECKPOINT] Validate webhook URL configured
+   - [VALIDATION CHECKPOINT] Validate alert payload format
+   - [VALIDATION CHECKPOINT] Validate alerts sent on error threshold exceeded
+2. Email alerts via SendGrid
+   - [VALIDATION CHECKPOINT] Validate SendGrid API key configured
+   - [VALIDATION CHECKPOINT] Validate email sent to configured recipients
+3. PagerDuty for critical issues
+   - [VALIDATION CHECKPOINT] Validate PagerDuty integration configured
+   - [VALIDATION CHECKPOINT] Validate critical alerts trigger PagerDuty incidents
+
+### 6.5 Testing Suite (30 hours)
+**Validation Points:**
+- [VALIDATION] Validate test case structure
+- [VALIDATION] Validate test coverage percentage
+- [VALIDATION] Validate mock data format
+- [VALIDATION] Validate test assertions
+- [VALIDATION] Validate integration test scenarios
+
+**Implementation Steps:**
+1. Unit tests: auth, rate limiting, sentiment
+   - [VALIDATION CHECKPOINT] Validate test coverage > 80%
+   - [VALIDATION CHECKPOINT] Validate all unit tests pass
+2. Integration tests: WebSocket flows
+   - [VALIDATION CHECKPOINT] Validate WebSocket connection tested
+   - [VALIDATION CHECKPOINT] Validate message flow tested end-to-end
+3. Load tests: 10k concurrent users
+   - [VALIDATION CHECKPOINT] Validate system handles 10k concurrent users
+   - [VALIDATION CHECKPOINT] Validate response times < 100ms under load
+
+### 6.6 Documentation (25 hours)
+**Validation Points:**
+- [VALIDATION] Validate API documentation completeness
+- [VALIDATION] Validate code examples accuracy
+- [VALIDATION] Validate configuration option descriptions
+- [VALIDATION] Validate security runbook accuracy
+
+**Implementation Steps:**
+1. Update README.md
+   - [VALIDATION CHECKPOINT] Validate setup instructions complete
+   - [VALIDATION CHECKPOINT] Validate environment variables documented
+2. API documentation
+   - [VALIDATION CHECKPOINT] Validate all endpoints documented
+   - [VALIDATION CHECKPOINT] Validate request/response examples provided
+3. Security runbook
+   - [VALIDATION CHECKPOINT] Validate incident response procedures documented
+   - [VALIDATION CHECKPOINT] Validate security contact information provided
+4. Privacy policy
+   - [VALIDATION CHECKPOINT] Validate privacy policy covers all data collection
+   - [VALIDATION CHECKPOINT] Validate GDPR/CCPA rights documented
+
+### 6.7 Privacy Compliance (70 hours)
+**Validation Points:**
+- [VALIDATION] Validate data inventory completeness
+- [VALIDATION] Validate consent record format
+- [VALIDATION] Validate privacy impact assessment structure
+- [VALIDATION] Validate compliance report accuracy
+- [VALIDATION] Validate data mapping accuracy
+
+**Implementation Steps:**
+1. Data inventory and mapping
+   - [VALIDATION CHECKPOINT] Validate all data types inventoried
+   - [VALIDATION CHECKPOINT] Validate data flows mapped
+2. Consent management system
+   - [VALIDATION CHECKPOINT] Validate consent stored with timestamp
+   - [VALIDATION CHECKPOINT] Validate consent withdrawal supported
+3. Privacy impact assessments
+   - [VALIDATION CHECKPOINT] Validate PIAs completed for new features
+   - [VALIDATION CHECKPOINT] Validate PIAs reviewed and approved
+4. Automated compliance reporting
+   - [VALIDATION CHECKPOINT] Validate compliance reports generated monthly
+   - [VALIDATION CHECKPOINT] Validate reports include data retention compliance
+
+## Validation Strategy Summary
+
+**Validation occurs at:**
+1. API entry points (request validation)
+2. Service function inputs (data validation)
+3. Database operations (pre/post validation)
+4. WebSocket messages (envelope validation)
+5. Data transformations (before/after validation)
+6. External API calls (request/response validation)
+7. Response formatting (output validation)
+8. Error handling (error structure validation)
+
+**Validation Tools:**
+- Zod schemas for type-safe validation
+- Incremental validation middleware
+- Database constraint validation
+- Runtime type checking
+
+**Validation Principles:**
+- Fail fast: Validate as early as possible
+- Fail safe: Never trust unvalidated data
+- Comprehensive: Validate at every boundary
+- Incremental: Validate as data flows through system
+- Logged: All validation failures are logged
+- Audited: Validation failures tracked for security
+

@@ -16,11 +16,11 @@ const router = Router();
 router.get('/status', async (req, res, next) => {
   try {
     telemetryHook('presence_status_start');
-    const result = await presenceService.getUserPresenceStatus(req.query.userId as string);
+    const result = await presenceService.getUserPresenceStatus(req.query.userId as string); // Silent fail: Redis down returns 'offline' (may be wrong)
     telemetryHook('presence_status_end');
     res.json(result);
   } catch (error) {
-    next(error);
+    next(error); // Error branch: Redis timeout not caught, hangs indefinitely
   }
 });
 

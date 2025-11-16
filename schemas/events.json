@@ -1,0 +1,11 @@
+{
+  "join_nda": {"userId":"string","timestamp":"number"},
+  "contribution_recorded": {"userId":"string","amount":"number","type":"string"},
+  "equity_distributed": {"recipient":"string","amount":"number"},
+  "governance_vote": {"proposalId":"string","vote":"boolean"},
+  "cost_split": {"total":"number","ratio":"number"},
+  "breakthrough": {"eventId":"string","impact":"string"},
+  "recording_privacy_update": {"userId":"string","tier":"string"},
+  "dispute_marker": {"id":"string","status":"string"}
+}
+

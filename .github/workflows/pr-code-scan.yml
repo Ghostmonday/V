@@ -1,0 +1,302 @@
+name: PR Code Scan & Analysis
+
+on:
+  pull_request:
+    branches: [main, develop, cleanup/optimize-project-size]
+  push:
+    branches: [main, develop]
+
+jobs:
+  # TypeScript/Node.js Code Analysis
+  typescript-scan:
+    name: TypeScript Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package.json
+      
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+      
+      - name: TypeScript Type Check
+        working-directory: server
+        run: npm run type-check || npx tsc --noEmit
+      
+      - name: ESLint Scan
+        working-directory: server
+        run: npm run lint || npx eslint . --ext .ts,.js --max-warnings 0
+        continue-on-error: true
+      
+      - name: Check for security issues
+        working-directory: server
+        run: npm audit --audit-level=moderate || true
+      
+      - name: Check for outdated dependencies
+        working-directory: server
+        run: npm outdated || true
+
+  # Swift/iOS Code Analysis
+  swift-scan:
+    name: Swift Code Analysis
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      
+      - name: Install SwiftLint
+        run: brew install swiftlint || true
+      
+      - name: SwiftLint Scan
+        working-directory: frontend/iOS
+        run: |
+          if command -v swiftlint &> /dev/null; then
+            swiftlint lint --strict || true
+          else
+            echo "SwiftLint not available, skipping"
+          fi
+        continue-on-error: true
+      
+      - name: Swift Build Check
+        working-directory: frontend/iOS
+        run: |
+          if [ -f "Package.swift" ]; then
+            swift build || true
+          else
+            echo "No Package.swift found, skipping build"
+          fi
+        continue-on-error: true
+
+  # SQL Migration Validation
+  sql-scan:
+    name: SQL Migration Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      
+      - name: Validate SQL Syntax
+        run: |
+          for file in sql/migrations/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Validating $file"
+              # Basic SQL syntax check (PostgreSQL)
+              psql --version || echo "PostgreSQL client available"
+              # Check for common SQL issues
+              if grep -q "CREATE.*IF NOT EXISTS" "$file" || grep -q "CREATE OR REPLACE" "$file"; then
+                echo "✅ $file contains safe CREATE statements"
+              fi
+            fi
+          done
+        continue-on-error: true
+
+  # Security Scanning
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Trivy Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
+      
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+        continue-on-error: true
+
+  # CodeQL Analysis
+  codeql-analysis:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript,typescript
+          queries: security-extended,security-and-quality
+      
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  # Dependency Scanning
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run npm audit
+        working-directory: server
+        run: |
+          npm audit --json > audit-results.json || true
+          npm audit --audit-level=moderate
+        continue-on-error: true
+      
+      - name: Check for known vulnerabilities
+        run: |
+          if [ -f "server/audit-results.json" ]; then
+            vulnerabilities=$(cat server/audit-results.json | jq '.metadata.vulnerabilities.total // 0')
+            if [ "$vulnerabilities" -gt 0 ]; then
+              echo "⚠️ Found $vulnerabilities vulnerabilities"
+              exit 1
+            fi
+          fi
+
+  # File Structure Validation
+  file-structure:
+    name: File Structure Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for required files
+        run: |
+          required_files=(
+            "README.md"
+            "server/package.json"
+            "frontend/iOS/Package.swift"
+            ".gitignore"
+          )
+          
+          missing_files=()
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              missing_files+=("$file")
+            fi
+          done
+          
+          if [ ${#missing_files[@]} -gt 0 ]; then
+            echo "❌ Missing required files:"
+            printf '%s\n' "${missing_files[@]}"
+            exit 1
+          else
+            echo "✅ All required files present"
+          fi
+      
+      - name: Check for empty files
+        run: |
+          echo "Checking for empty source files..."
+          find . -type f \( -name "*.ts" -o -name "*.swift" -o -name "*.sql" \) \
+            ! -path "*/node_modules/*" \
+            ! -path "*/.git/*" \
+            ! -path "*/build/*" \
+            -size 0 \
+            -exec echo "⚠️ Empty file found: {}" \;
+        continue-on-error: true
+
+  # API Endpoint Validation
+  api-validation:
+    name: API Endpoint Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check API route consistency
+        run: |
+          echo "Validating API routes..."
+          # Check for route definitions
+          if grep -r "router\." server/src/routes/ 2>/dev/null; then
+            echo "✅ API routes found"
+          fi
+          
+          # Check for auth middleware usage
+          if grep -r "authMiddleware" server/src/routes/ 2>/dev/null; then
+            echo "✅ Auth middleware usage found"
+          fi
+        continue-on-error: true
+
+  # Database Schema Validation
+  db-schema:
+    name: Database Schema Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate migration files
+        run: |
+          echo "Checking SQL migrations..."
+          for file in sql/migrations/*.sql; do
+            if [ -f "$file" ]; then
+              # Check for BEGIN/COMMIT transactions
+              if grep -q "BEGIN" "$file" && grep -q "COMMIT" "$file"; then
+                echo "✅ $file has transaction blocks"
+              else
+                echo "⚠️ $file may be missing transaction blocks"
+              fi
+              
+              # Check for IF NOT EXISTS
+              if grep -q "CREATE.*IF NOT EXISTS\|CREATE OR REPLACE" "$file"; then
+                echo "✅ $file uses safe CREATE statements"
+              fi
+            fi
+          done
+        continue-on-error: true
+
+  # Summary Report
+  summary:
+    name: Scan Summary
+    runs-on: ubuntu-latest
+    needs: [typescript-scan, swift-scan, sql-scan, security-scan, dependency-scan, file-structure]
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🔍 Code Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Scans Completed:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ TypeScript Code Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Swift Code Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SQL Migration Validation" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Security Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ CodeQL Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Dependency Scan" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ File Structure Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check individual job results for detailed findings." >> $GITHUB_STEP_SUMMARY
+

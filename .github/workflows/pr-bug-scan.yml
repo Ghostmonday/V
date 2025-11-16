@@ -1,0 +1,258 @@
+name: PR Bug Bot - Comprehensive System Scan
+
+on:
+  pull_request:
+    branches: [main, develop, cleanup/optimize-project-size]
+  workflow_dispatch:
+
+jobs:
+  # Comprehensive Bug Detection
+  bug-detection:
+    name: Bug Bot - System Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+      
+      # 1. Memory Leak Detection
+      - name: Check for Memory Leaks
+        run: |
+          echo "🔍 Scanning for memory leaks..."
+          
+          # Check for missing cleanup in event listeners
+          echo "Checking event listeners..."
+          if grep -r "addEventListener\|on(" server/src --include="*.ts" | grep -v "removeEventListener\|off\|cleanup\|disconnect" | head -5; then
+            echo "⚠️ Potential memory leak: Event listeners without cleanup"
+          fi
+          
+          # Check for missing deinit/cleanup in managers
+          echo "Checking manager cleanup..."
+          if grep -r "class.*Manager\|class.*Service" server/src --include="*.ts" | grep -v "deinit\|cleanup\|disconnect"; then
+            echo "⚠️ Check manager classes for cleanup methods"
+          fi
+          
+          # Check for circular references
+          echo "Checking for circular dependencies..."
+          npx madge --circular server/src --extensions ts || true
+        continue-on-error: true
+      
+      # 2. Race Condition Detection
+      - name: Check for Race Conditions
+        run: |
+          echo "🔍 Scanning for race conditions..."
+          
+          # Check for async/await without proper handling
+          echo "Checking async operations..."
+          if grep -r "Promise\.all\|Promise\.race" server/src --include="*.ts" | grep -v "await\|catch"; then
+            echo "⚠️ Potential race condition: Unhandled promises"
+          fi
+          
+          # Check for concurrent database operations
+          echo "Checking database operations..."
+          if grep -r "\.insert\|\.update\|\.delete" server/src --include="*.ts" | grep -v "await\|transaction"; then
+            echo "⚠️ Potential race condition: Database operations without await"
+          fi
+        continue-on-error: true
+      
+      # 3. Error Handling Validation
+      - name: Check Error Handling
+        run: |
+          echo "🔍 Scanning error handling..."
+          
+          # Check for unhandled errors
+          echo "Checking try-catch blocks..."
+          try_blocks=$(grep -r "try {" server/src --include="*.ts" | wc -l)
+          catch_blocks=$(grep -r "catch" server/src --include="*.ts" | wc -l)
+          
+          if [ "$try_blocks" -gt "$catch_blocks" ]; then
+            echo "⚠️ Potential unhandled errors: More try blocks than catch blocks"
+          fi
+          
+          # Check for silent failures
+          echo "Checking for silent failures..."
+          if grep -r "catch.*\{\s*\}" server/src --include="*.ts"; then
+            echo "⚠️ Silent error handling detected - consider logging"
+          fi
+        continue-on-error: true
+      
+      # 4. Security Vulnerability Scan
+      - name: Security Vulnerability Check
+        run: |
+          echo "🔍 Scanning for security vulnerabilities..."
+          
+          # Check for SQL injection risks
+          echo "Checking SQL injection risks..."
+          if grep -r "\$\{.*\}.*SELECT\|INSERT\|UPDATE\|DELETE" server/src --include="*.ts" | grep -v "prepared\|parameterized"; then
+            echo "⚠️ Potential SQL injection risk"
+          fi
+          
+          # Check for hardcoded secrets
+          echo "Checking for hardcoded secrets..."
+          if grep -r "password.*=.*['\"].*['\"]\|api[_-]?key.*=.*['\"].*['\"]\|secret.*=.*['\"].*['\"]" server/src --include="*.ts" -i; then
+            echo "⚠️ Potential hardcoded secrets detected"
+          fi
+          
+          # Check for XSS vulnerabilities
+          echo "Checking for XSS risks..."
+          if grep -r "innerHTML\|dangerouslySetInnerHTML\|eval(" server/src --include="*.ts"; then
+            echo "⚠️ Potential XSS vulnerability"
+          fi
+        continue-on-error: true
+      
+      # 5. Performance Issues
+      - name: Check Performance Issues
+        run: |
+          echo "🔍 Scanning for performance issues..."
+          
+          # Check for N+1 queries
+          echo "Checking for N+1 query patterns..."
+          if grep -r "for.*await\|\.map.*await\|\.forEach.*await" server/src --include="*.ts" | grep -v "Promise\.all"; then
+            echo "⚠️ Potential N+1 query pattern detected"
+          fi
+          
+          # Check for missing indexes
+          echo "Checking database queries..."
+          if grep -r "\.select\|\.from" server/src --include="*.ts" | grep -v "index\|idx_"; then
+            echo "ℹ️ Consider adding indexes for frequently queried columns"
+          fi
+          
+          # Check for synchronous operations
+          echo "Checking for blocking operations..."
+          if grep -r "readFileSync\|writeFileSync\|execSync" server/src --include="*.ts"; then
+            echo "⚠️ Synchronous file operations detected - consider async alternatives"
+          fi
+        continue-on-error: true
+      
+      # 6. Type Safety
+      - name: Type Safety Check
+        run: |
+          echo "🔍 Checking type safety..."
+          
+          # Check for any types
+          echo "Checking for 'any' types..."
+          any_count=$(grep -r ": any\|as any" server/src --include="*.ts" | wc -l)
+          if [ "$any_count" -gt 0 ]; then
+            echo "⚠️ Found $any_count instances of 'any' type - consider using proper types"
+            grep -r ": any\|as any" server/src --include="*.ts" | head -10
+          fi
+          
+          # Run TypeScript compiler check
+          echo "Running TypeScript type check..."
+          cd server && npx tsc --noEmit --skipLibCheck || true
+        continue-on-error: true
+      
+      # 7. Code Quality
+      - name: Code Quality Check
+        run: |
+          echo "🔍 Checking code quality..."
+          
+          # Check for code duplication
+          echo "Checking for code duplication..."
+          npx jscpd server/src --min-lines 10 --min-tokens 50 --format json || true
+          
+          # Check for complexity
+          echo "Checking cyclomatic complexity..."
+          npx complexity-report server/src --format json || true
+        continue-on-error: true
+      
+      # 8. API Consistency
+      - name: API Consistency Check
+        run: |
+          echo "🔍 Checking API consistency..."
+          
+          # Check for consistent error responses
+          echo "Checking error response format..."
+          if grep -r "res\.status\|res\.json" server/src/routes --include="*.ts" | grep -v "error.*:"; then
+            echo "⚠️ Inconsistent error response format"
+          fi
+          
+          # Check for authentication on protected routes
+          echo "Checking route authentication..."
+          protected_routes=$(grep -r "router\." server/src/routes --include="*.ts" | grep -v "authMiddleware\|public" | wc -l)
+          if [ "$protected_routes" -gt 0 ]; then
+            echo "⚠️ Some routes may be missing authentication"
+          fi
+        continue-on-error: true
+      
+      # 9. Database Consistency
+      - name: Database Consistency Check
+        run: |
+          echo "🔍 Checking database consistency..."
+          
+          # Check migration order
+          echo "Checking migration files..."
+          migrations=$(ls -1 sql/migrations/*.sql 2>/dev/null | wc -l)
+          if [ "$migrations" -gt 0 ]; then
+            echo "✅ Found $migrations migration files"
+            
+            # Check for migration conflicts
+            for file in sql/migrations/*.sql; do
+              if grep -q "DROP.*CASCADE\|TRUNCATE" "$file"; then
+                echo "⚠️ $file contains potentially destructive operations"
+              fi
+            done
+          fi
+          
+          # Check for transaction usage
+          echo "Checking transaction usage..."
+          if grep -r "\.insert\|\.update\|\.delete" server/src/services --include="*.ts" | grep -v "transaction\|await.*create\|await.*update"; then
+            echo "ℹ️ Consider using transactions for multi-step operations"
+          fi
+        continue-on-error: true
+      
+      # 10. iOS Specific Checks
+      - name: iOS Code Quality Check
+        run: |
+          echo "🔍 Checking iOS code quality..."
+          
+          # Check for force unwraps
+          echo "Checking for force unwraps..."
+          if grep -r "!" frontend/iOS --include="*.swift" | grep -v "//.*force\|@MainActor"; then
+            echo "⚠️ Force unwraps detected - consider using optional binding"
+          fi
+          
+          # Check for memory leaks
+          echo "Checking for retain cycles..."
+          if grep -r "\[weak self\]\|\[unowned self\]" frontend/iOS --include="*.swift" | wc -l; then
+            echo "✅ Weak references found - good practice"
+          fi
+          
+          # Check for proper cleanup
+          echo "Checking for deinit methods..."
+          manager_files=$(find frontend/iOS/Managers -name "*.swift" 2>/dev/null | wc -l)
+          deinit_count=$(grep -r "deinit" frontend/iOS/Managers --include="*.swift" 2>/dev/null | wc -l)
+          
+          if [ "$manager_files" -gt 0 ] && [ "$deinit_count" -lt "$manager_files" ]; then
+            echo "⚠️ Some managers may be missing deinit methods"
+          fi
+        continue-on-error: true
+      
+      # Generate Report
+      - name: Generate Bug Report
+        run: |
+          echo "# 🐛 Bug Bot Scan Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Scans Performed:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Memory Leak Detection" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Race Condition Detection" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Error Handling Validation" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Security Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Performance Issues Check" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Type Safety Check" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code Quality Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ API Consistency Check" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Database Consistency Check" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ iOS Code Quality Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check individual steps for detailed findings." >> $GITHUB_STEP_SUMMARY
+

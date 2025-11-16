@@ -1,0 +1,91 @@
+{
+  "identifier" : "Products",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "identifier" : "com.vibez.pro.monthly",
+      "localizations" : [
+        {
+          "description" : "Monthly subscription to VibeZ Pro with unlimited features",
+          "displayName" : "VibeZ Pro Monthly",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.vibez.pro.monthly",
+      "referenceName" : "Pro Monthly",
+      "type" : "SUBSCRIPTION"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : 0,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ],
+    "_storeKitErrorsEnabled" : false
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21482207",
+      "localizations" : [
+
+      ],
+      "name" : "VibeZ Pro",
+      "subscriptions" : [
+        "com.vibez.pro.monthly"
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
+

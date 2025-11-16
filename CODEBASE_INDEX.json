@@ -1,0 +1,3052 @@
+{
+  "generated": "2025-11-16T04:42:49.548Z",
+  "totalFiles": 359,
+  "totalLines": 79506,
+  "totalSize": 2590236,
+  "categories": {
+    "Other": 183,
+    "Database/SQL": 45,
+    "Backend Services": 58,
+    "Middleware": 22,
+    "Configuration": 6,
+    "API Routes": 31,
+    "TypeScript Types": 7,
+    "WebSocket": 7
+  },
+  "topFiles": [
+    {
+      "path": "package-lock.json",
+      "category": "Other",
+      "lines": 16134,
+      "size": 586961,
+      "lastModified": "2025-11-15T07:21:23.585Z",
+      "language": "JSON"
+    },
+    {
+      "path": "v-app/package-lock.json",
+      "category": "Other",
+      "lines": 7101,
+      "size": 251712,
+      "lastModified": "2025-11-15T12:36:07.743Z",
+      "language": "JSON"
+    },
+    {
+      "path": "server/package-lock.json",
+      "category": "Other",
+      "lines": 3673,
+      "size": 133217,
+      "lastModified": "2025-11-16T04:02:17.618Z",
+      "language": "JSON"
+    },
+    {
+      "path": "CODEBASE_INDEX.json",
+      "category": "Other",
+      "lines": 2995,
+      "size": 80966,
+      "lastModified": "2025-11-16T02:56:22.759Z",
+      "language": "JSON"
+    },
+    {
+      "path": "sql/archive/legacy/sinapse_complete.sql",
+      "category": "Database/SQL",
+      "lines": 1499,
+      "size": 44576,
+      "lastModified": "2025-11-15T18:15:28.178Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/DashboardView.swift",
+      "category": "Other",
+      "lines": 762,
+      "size": 27013,
+      "lastModified": "2025-11-15T18:15:28.172Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Services/UXTelemetryService.swift",
+      "category": "Other",
+      "lines": 719,
+      "size": 21454,
+      "lastModified": "2025-11-15T07:23:06.874Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/ux-telemetry-service.ts",
+      "category": "Backend Services",
+      "lines": 698,
+      "size": 19825,
+      "lastModified": "2025-11-15T07:21:23.802Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/telemetry-service.ts",
+      "category": "Backend Services",
+      "lines": 684,
+      "size": 15209,
+      "lastModified": "2025-11-15T18:15:28.184Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/ProgrammaticUIView.swift",
+      "category": "Other",
+      "lines": 680,
+      "size": 25369,
+      "lastModified": "2025-11-15T07:23:06.799Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/messages-controller.ts",
+      "category": "Backend Services",
+      "lines": 629,
+      "size": 22024,
+      "lastModified": "2025-11-15T18:15:28.183Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/archive/legacy/sinapse_complete_setup.sql",
+      "category": "Database/SQL",
+      "lines": 622,
+      "size": 21679,
+      "lastModified": "2025-11-15T18:15:28.179Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/12_verify_setup.sql",
+      "category": "Database/SQL",
+      "lines": 546,
+      "size": 16781,
+      "lastModified": "2025-11-15T07:22:21.438Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/11_indexing_and_rls.sql",
+      "category": "Database/SQL",
+      "lines": 498,
+      "size": 18075,
+      "lastModified": "2025-11-15T12:22:22.627Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-complete-setup.sql",
+      "category": "Database/SQL",
+      "lines": 492,
+      "size": 14462,
+      "lastModified": "2025-11-15T18:15:28.180Z",
+      "language": "SQL"
+    },
+    {
+      "path": "supabase-setup.sql",
+      "category": "Database/SQL",
+      "lines": 433,
+      "size": 14493,
+      "lastModified": "2025-11-15T12:22:22.630Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/shared/supabase-helpers.ts",
+      "category": "Other",
+      "lines": 417,
+      "size": 14252,
+      "lastModified": "2025-11-16T04:05:56.621Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "MISSING_INDEXES_REPORT.sql",
+      "category": "Database/SQL",
+      "lines": 412,
+      "size": 16169,
+      "lastModified": "2025-11-16T02:08:27.314Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-api-keys-vault.sql",
+      "category": "Database/SQL",
+      "lines": 402,
+      "size": 14372,
+      "lastModified": "2025-11-15T18:15:28.179Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/middleware/incremental-validation.ts",
+      "category": "Middleware",
+      "lines": 398,
+      "size": 9739,
+      "lastModified": "2025-11-16T03:58:01.706Z",
+      "language": "TypeScript"
+    }
+  ],
+  "files": [
+    {
+      "path": "package-lock.json",
+      "category": "Other",
+      "lines": 16134,
+      "size": 586961,
+      "lastModified": "2025-11-15T07:21:23.585Z",
+      "language": "JSON"
+    },
+    {
+      "path": "v-app/package-lock.json",
+      "category": "Other",
+      "lines": 7101,
+      "size": 251712,
+      "lastModified": "2025-11-15T12:36:07.743Z",
+      "language": "JSON"
+    },
+    {
+      "path": "server/package-lock.json",
+      "category": "Other",
+      "lines": 3673,
+      "size": 133217,
+      "lastModified": "2025-11-16T04:02:17.618Z",
+      "language": "JSON"
+    },
+    {
+      "path": "CODEBASE_INDEX.json",
+      "category": "Other",
+      "lines": 2995,
+      "size": 80966,
+      "lastModified": "2025-11-16T02:56:22.759Z",
+      "language": "JSON"
+    },
+    {
+      "path": "sql/archive/legacy/sinapse_complete.sql",
+      "category": "Database/SQL",
+      "lines": 1499,
+      "size": 44576,
+      "lastModified": "2025-11-15T18:15:28.178Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/DashboardView.swift",
+      "category": "Other",
+      "lines": 762,
+      "size": 27013,
+      "lastModified": "2025-11-15T18:15:28.172Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Services/UXTelemetryService.swift",
+      "category": "Other",
+      "lines": 719,
+      "size": 21454,
+      "lastModified": "2025-11-15T07:23:06.874Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/ux-telemetry-service.ts",
+      "category": "Backend Services",
+      "lines": 698,
+      "size": 19825,
+      "lastModified": "2025-11-15T07:21:23.802Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/telemetry-service.ts",
+      "category": "Backend Services",
+      "lines": 684,
+      "size": 15209,
+      "lastModified": "2025-11-15T18:15:28.184Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/ProgrammaticUIView.swift",
+      "category": "Other",
+      "lines": 680,
+      "size": 25369,
+      "lastModified": "2025-11-15T07:23:06.799Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/messages-controller.ts",
+      "category": "Backend Services",
+      "lines": 629,
+      "size": 22024,
+      "lastModified": "2025-11-15T18:15:28.183Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/archive/legacy/sinapse_complete_setup.sql",
+      "category": "Database/SQL",
+      "lines": 622,
+      "size": 21679,
+      "lastModified": "2025-11-15T18:15:28.179Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/12_verify_setup.sql",
+      "category": "Database/SQL",
+      "lines": 546,
+      "size": 16781,
+      "lastModified": "2025-11-15T07:22:21.438Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/11_indexing_and_rls.sql",
+      "category": "Database/SQL",
+      "lines": 498,
+      "size": 18075,
+      "lastModified": "2025-11-15T12:22:22.627Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-complete-setup.sql",
+      "category": "Database/SQL",
+      "lines": 492,
+      "size": 14462,
+      "lastModified": "2025-11-15T18:15:28.180Z",
+      "language": "SQL"
+    },
+    {
+      "path": "supabase-setup.sql",
+      "category": "Database/SQL",
+      "lines": 433,
+      "size": 14493,
+      "lastModified": "2025-11-15T12:22:22.630Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/shared/supabase-helpers.ts",
+      "category": "Other",
+      "lines": 417,
+      "size": 14252,
+      "lastModified": "2025-11-16T04:05:56.621Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "MISSING_INDEXES_REPORT.sql",
+      "category": "Database/SQL",
+      "lines": 412,
+      "size": 16169,
+      "lastModified": "2025-11-16T02:08:27.314Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-api-keys-vault.sql",
+      "category": "Database/SQL",
+      "lines": 402,
+      "size": 14372,
+      "lastModified": "2025-11-15T18:15:28.179Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/middleware/incremental-validation.ts",
+      "category": "Middleware",
+      "lines": 398,
+      "size": 9739,
+      "lastModified": "2025-11-16T03:58:01.706Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/config/llm-params.config.ts",
+      "category": "Configuration",
+      "lines": 394,
+      "size": 10309,
+      "lastModified": "2025-11-15T07:21:23.693Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/ux-telemetry-redaction.ts",
+      "category": "Backend Services",
+      "lines": 392,
+      "size": 9632,
+      "lastModified": "2025-11-15T07:21:23.760Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/livekit-service.ts",
+      "category": "Backend Services",
+      "lines": 380,
+      "size": 12324,
+      "lastModified": "2025-11-15T18:15:28.182Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/ViewModels/FirebaseAuthViewModel.swift",
+      "category": "Other",
+      "lines": 379,
+      "size": 9953,
+      "lastModified": "2025-11-15T18:15:28.171Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/DesignTokens.swift",
+      "category": "Other",
+      "lines": 366,
+      "size": 11360,
+      "lastModified": "2025-11-15T12:22:22.618Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/ProfileView.swift",
+      "category": "Other",
+      "lines": 361,
+      "size": 12959,
+      "lastModified": "2025-11-15T07:23:06.792Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/ux-telemetry-routes.ts",
+      "category": "API Routes",
+      "lines": 356,
+      "size": 9232,
+      "lastModified": "2025-11-15T07:21:23.736Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/AgoraRoomView.swift",
+      "category": "Other",
+      "lines": 356,
+      "size": 11202,
+      "lastModified": "2025-11-15T07:23:06.797Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Validation/DSValidation.swift",
+      "category": "Other",
+      "lines": 356,
+      "size": 10373,
+      "lastModified": "2025-11-15T07:23:06.688Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/Profile/PricingSheet.swift",
+      "category": "Other",
+      "lines": 343,
+      "size": 11253,
+      "lastModified": "2025-11-15T07:23:06.840Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/refresh-token-service.ts",
+      "category": "Backend Services",
+      "lines": 330,
+      "size": 9147,
+      "lastModified": "2025-11-16T03:56:59.667Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/02_compressor_functions.sql",
+      "category": "Database/SQL",
+      "lines": 330,
+      "size": 8448,
+      "lastModified": "2025-11-15T12:22:22.626Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/server/index.ts",
+      "category": "Other",
+      "lines": 329,
+      "size": 13207,
+      "lastModified": "2025-11-16T04:05:56.654Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/message-archival-service.ts",
+      "category": "Backend Services",
+      "lines": 325,
+      "size": 10605,
+      "lastModified": "2025-11-16T04:33:32.309Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/types/ux-telemetry.ts",
+      "category": "TypeScript Types",
+      "lines": 317,
+      "size": 8485,
+      "lastModified": "2025-11-15T07:21:23.686Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/ws/gateway.ts",
+      "category": "WebSocket",
+      "lines": 313,
+      "size": 11212,
+      "lastModified": "2025-11-16T04:33:32.340Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/brute-force-protection.ts",
+      "category": "Middleware",
+      "lines": 311,
+      "size": 9458,
+      "lastModified": "2025-11-16T04:05:56.612Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Managers/WebSocketManager.swift",
+      "category": "Other",
+      "lines": 309,
+      "size": 9891,
+      "lastModified": "2025-11-15T18:15:28.169Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/moderation.service.ts",
+      "category": "Backend Services",
+      "lines": 308,
+      "size": 8897,
+      "lastModified": "2025-11-16T01:07:06.593Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/test-supabase-schema.sql",
+      "category": "Database/SQL",
+      "lines": 306,
+      "size": 12582,
+      "lastModified": "2025-11-15T07:22:21.403Z",
+      "language": "SQL"
+    },
+    {
+      "path": "validate-setup.sql",
+      "category": "Database/SQL",
+      "lines": 305,
+      "size": 9315,
+      "lastModified": "2025-11-15T07:22:21.386Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/services/agora-service.ts",
+      "category": "Backend Services",
+      "lines": 302,
+      "size": 7926,
+      "lastModified": "2025-11-15T07:21:23.771Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Managers/AgoraRoomManager.swift",
+      "category": "Other",
+      "lines": 295,
+      "size": 9708,
+      "lastModified": "2025-11-15T07:23:06.701Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/SearchView.swift",
+      "category": "Other",
+      "lines": 289,
+      "size": 9932,
+      "lastModified": "2025-11-15T12:22:22.623Z",
+      "language": "Swift"
+    },
+    {
+      "path": "sql/01_sinapse_schema.sql",
+      "category": "Database/SQL",
+      "lines": 285,
+      "size": 11713,
+      "lastModified": "2025-11-15T18:15:28.177Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/migrations/2025-11-10-feature-enhancements.sql",
+      "category": "Database/SQL",
+      "lines": 284,
+      "size": 9969,
+      "lastModified": "2025-11-15T07:22:21.396Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/RoomListView.swift",
+      "category": "Other",
+      "lines": 284,
+      "size": 11326,
+      "lastModified": "2025-11-15T12:22:22.623Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Models/UXEventType.swift",
+      "category": "Other",
+      "lines": 278,
+      "size": 9924,
+      "lastModified": "2025-11-15T07:23:06.729Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/video/join.ts",
+      "category": "API Routes",
+      "lines": 277,
+      "size": 5960,
+      "lastModified": "2025-11-15T07:21:23.718Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/user-authentication-service.ts",
+      "category": "Backend Services",
+      "lines": 274,
+      "size": 9500,
+      "lastModified": "2025-11-16T04:05:56.647Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Molecular/DSMessageBubble.swift",
+      "category": "Other",
+      "lines": 273,
+      "size": 10130,
+      "lastModified": "2025-11-15T07:23:06.672Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/webhooks.ts",
+      "category": "Backend Services",
+      "lines": 270,
+      "size": 8917,
+      "lastModified": "2025-11-15T18:15:28.184Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/ChatInputView.swift",
+      "category": "Other",
+      "lines": 265,
+      "size": 9071,
+      "lastModified": "2025-11-15T12:22:22.621Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/middleware/database-transaction.ts",
+      "category": "Middleware",
+      "lines": 264,
+      "size": 7918,
+      "lastModified": "2025-11-16T04:33:32.309Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/message-service.ts",
+      "category": "Backend Services",
+      "lines": 259,
+      "size": 10320,
+      "lastModified": "2025-11-16T03:58:17.078Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Managers/SubscriptionManager.swift",
+      "category": "Other",
+      "lines": 256,
+      "size": 10397,
+      "lastModified": "2025-11-15T12:22:22.619Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/middleware/admin-auth.ts",
+      "category": "Middleware",
+      "lines": 255,
+      "size": 6845,
+      "lastModified": "2025-11-16T03:57:14.672Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/05_rls_policies.sql",
+      "category": "Database/SQL",
+      "lines": 252,
+      "size": 6358,
+      "lastModified": "2025-11-15T12:22:22.626Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Services/FirebaseAuthRepository.swift",
+      "category": "Other",
+      "lines": 251,
+      "size": 8270,
+      "lastModified": "2025-11-15T18:15:28.170Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/SwiftUIGenerated/DSBackgrounds.swift",
+      "category": "Other",
+      "lines": 246,
+      "size": 6944,
+      "lastModified": "2025-11-15T07:23:06.666Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/Auth/LoginView.swift",
+      "category": "Other",
+      "lines": 244,
+      "size": 6045,
+      "lastModified": "2025-11-15T18:15:28.172Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/OnboardingView.swift",
+      "category": "Other",
+      "lines": 243,
+      "size": 10326,
+      "lastModified": "2025-11-15T18:15:28.173Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Atomic/DSButton.swift",
+      "category": "Other",
+      "lines": 240,
+      "size": 6610,
+      "lastModified": "2025-11-15T07:23:06.675Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/FileUploadComponent.swift",
+      "category": "Other",
+      "lines": 235,
+      "size": 8759,
+      "lastModified": "2025-11-15T12:22:22.623Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/poll-service.ts",
+      "category": "Backend Services",
+      "lines": 231,
+      "size": 5209,
+      "lastModified": "2025-11-15T07:21:23.772Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/rate-limiter.ts",
+      "category": "Middleware",
+      "lines": 228,
+      "size": 8206,
+      "lastModified": "2025-11-15T17:00:27.982Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/message-delivery-service.ts",
+      "category": "Backend Services",
+      "lines": 225,
+      "size": 7206,
+      "lastModified": "2025-11-16T04:05:56.621Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-populate-api-keys.sql",
+      "category": "Database/SQL",
+      "lines": 221,
+      "size": 6799,
+      "lastModified": "2025-11-15T18:15:28.180Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/services/search-service.ts",
+      "category": "Backend Services",
+      "lines": 220,
+      "size": 5916,
+      "lastModified": "2025-11-15T18:15:28.183Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "scripts/audit-and-update-data-files.ts",
+      "category": "Other",
+      "lines": 220,
+      "size": 6522,
+      "lastModified": "2025-11-16T04:42:46.393Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/vibes/ownership-service.ts",
+      "category": "Backend Services",
+      "lines": 219,
+      "size": 5195,
+      "lastModified": "2025-11-15T21:22:25.452Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Managers/APIClient.swift",
+      "category": "Other",
+      "lines": 219,
+      "size": 7629,
+      "lastModified": "2025-11-15T18:15:28.169Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/api-keys-service.ts",
+      "category": "Backend Services",
+      "lines": 217,
+      "size": 5803,
+      "lastModified": "2025-11-15T07:21:23.785Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "scripts/generate-codebase-doc.ts",
+      "category": "Other",
+      "lines": 216,
+      "size": 7300,
+      "lastModified": "2025-11-16T02:56:46.917Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/ws/utils.ts",
+      "category": "WebSocket",
+      "lines": 215,
+      "size": 7059,
+      "lastModified": "2025-11-15T18:15:28.184Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Atomic/DSAvatar.swift",
+      "category": "Other",
+      "lines": 215,
+      "size": 6551,
+      "lastModified": "2025-11-15T07:23:06.678Z",
+      "language": "Swift"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-populate-only.sql",
+      "category": "Database/SQL",
+      "lines": 214,
+      "size": 6594,
+      "lastModified": "2025-11-15T18:15:28.180Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/routes/chat-room-config-routes.ts",
+      "category": "API Routes",
+      "lines": 208,
+      "size": 6437,
+      "lastModified": "2025-11-15T07:21:23.743Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Models/SubscriptionTier.swift",
+      "category": "Other",
+      "lines": 207,
+      "size": 6343,
+      "lastModified": "2025-11-15T12:22:22.619Z",
+      "language": "Swift"
+    },
+    {
+      "path": "sql/10_integrated_features.sql",
+      "category": "Database/SQL",
+      "lines": 206,
+      "size": 7662,
+      "lastModified": "2025-11-15T12:22:22.627Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/03_retention_policy.sql",
+      "category": "Database/SQL",
+      "lines": 205,
+      "size": 5705,
+      "lastModified": "2025-11-15T12:22:22.626Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Managers/LiveKitRoomManager.swift",
+      "category": "Other",
+      "lines": 205,
+      "size": 6173,
+      "lastModified": "2025-11-15T18:15:28.169Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/user-authentication-routes.ts",
+      "category": "API Routes",
+      "lines": 203,
+      "size": 6782,
+      "lastModified": "2025-11-16T04:05:56.647Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/PaywallView.swift",
+      "category": "Other",
+      "lines": 202,
+      "size": 6794,
+      "lastModified": "2025-11-15T12:22:22.622Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/ThreadView.swift",
+      "category": "Other",
+      "lines": 198,
+      "size": 6401,
+      "lastModified": "2025-11-15T07:23:06.837Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/partition-management-service.ts",
+      "category": "Backend Services",
+      "lines": 195,
+      "size": 6803,
+      "lastModified": "2025-11-15T07:21:23.763Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/circuit-breaker.ts",
+      "category": "Middleware",
+      "lines": 193,
+      "size": 6546,
+      "lastModified": "2025-11-15T07:21:23.668Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/message-queue.ts",
+      "category": "Backend Services",
+      "lines": 191,
+      "size": 7106,
+      "lastModified": "2025-11-15T07:21:23.805Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Onboarding/TierSelectionView.swift",
+      "category": "Other",
+      "lines": 191,
+      "size": 6627,
+      "lastModified": "2025-11-15T12:22:22.622Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/ViewModels/PresenceViewModel.swift",
+      "category": "Other",
+      "lines": 191,
+      "size": 7231,
+      "lastModified": "2025-11-15T17:00:27.982Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/encryption-service.ts",
+      "category": "Backend Services",
+      "lines": 190,
+      "size": 5414,
+      "lastModified": "2025-11-16T03:57:26.880Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "supabase/functions/join-room/index.ts",
+      "category": "Other",
+      "lines": 188,
+      "size": 5082,
+      "lastModified": "2025-11-15T12:22:22.630Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/vibes/card-generator.ts",
+      "category": "Backend Services",
+      "lines": 188,
+      "size": 5085,
+      "lastModified": "2025-11-15T21:27:16.632Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Organisms/DSRoomRow.swift",
+      "category": "Other",
+      "lines": 186,
+      "size": 6480,
+      "lastModified": "2025-11-15T07:23:06.685Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/workers/sin-worker.ts",
+      "category": "Other",
+      "lines": 183,
+      "size": 4936,
+      "lastModified": "2025-11-15T07:21:23.707Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "MISSING_INDEXES_APPLY_NOW.sql",
+      "category": "Database/SQL",
+      "lines": 183,
+      "size": 5712,
+      "lastModified": "2025-11-15T22:12:02.380Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/ws/handlers/messaging.ts",
+      "category": "WebSocket",
+      "lines": 182,
+      "size": 6854,
+      "lastModified": "2025-11-16T04:05:56.647Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/09_p0_features.sql",
+      "category": "Database/SQL",
+      "lines": 182,
+      "size": 6687,
+      "lastModified": "2025-11-15T12:22:22.626Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/services/read-receipts-service.ts",
+      "category": "Backend Services",
+      "lines": 180,
+      "size": 4489,
+      "lastModified": "2025-11-15T07:21:23.775Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/notifications-service.ts",
+      "category": "Backend Services",
+      "lines": 179,
+      "size": 5883,
+      "lastModified": "2025-11-15T07:21:23.754Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-11-12-subscriptions-usage.sql",
+      "category": "Database/SQL",
+      "lines": 177,
+      "size": 6673,
+      "lastModified": "2025-11-15T07:22:21.402Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/services/file-storage-service.ts",
+      "category": "Backend Services",
+      "lines": 176,
+      "size": 5436,
+      "lastModified": "2025-11-15T17:00:27.982Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/admin-routes.ts",
+      "category": "API Routes",
+      "lines": 175,
+      "size": 5899,
+      "lastModified": "2025-11-15T12:22:22.628Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/vibes/sentiment-service.ts",
+      "category": "Backend Services",
+      "lines": 173,
+      "size": 5454,
+      "lastModified": "2025-11-15T21:22:05.420Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/NicknameManagementView.swift",
+      "category": "Other",
+      "lines": 169,
+      "size": 4999,
+      "lastModified": "2025-11-15T12:22:22.622Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/room-service.ts",
+      "category": "Backend Services",
+      "lines": 164,
+      "size": 4048,
+      "lastModified": "2025-11-15T07:21:23.773Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-11-15-vibes-core-schema.sql",
+      "category": "Database/SQL",
+      "lines": 164,
+      "size": 7345,
+      "lastModified": "2025-11-15T21:21:47.558Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Molecular/DSTierCard.swift",
+      "category": "Other",
+      "lines": 163,
+      "size": 5929,
+      "lastModified": "2025-11-15T07:23:06.670Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/vibes/conversation-service.ts",
+      "category": "Backend Services",
+      "lines": 161,
+      "size": 4058,
+      "lastModified": "2025-11-15T21:28:24.527Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Atomic/DSPresenceOrb.swift",
+      "category": "Other",
+      "lines": 160,
+      "size": 4165,
+      "lastModified": "2025-11-15T07:23:06.677Z",
+      "language": "Swift"
+    },
+    {
+      "path": "sql/migrations/migrate-remaining-tables.sql",
+      "category": "Database/SQL",
+      "lines": 159,
+      "size": 6476,
+      "lastModified": "2025-11-15T07:22:21.394Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/ChatView.swift",
+      "category": "Other",
+      "lines": 159,
+      "size": 6308,
+      "lastModified": "2025-11-15T12:22:22.621Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/sentiment-analysis-service.ts",
+      "category": "Backend Services",
+      "lines": 158,
+      "size": 4718,
+      "lastModified": "2025-11-16T01:06:37.674Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Services/RollbackManager.swift",
+      "category": "Other",
+      "lines": 158,
+      "size": 5139,
+      "lastModified": "2025-11-15T12:22:22.619Z",
+      "language": "Swift"
+    },
+    {
+      "path": "sql/QUICK_VALIDATION.sql",
+      "category": "Database/SQL",
+      "lines": 156,
+      "size": 4362,
+      "lastModified": "2025-11-15T07:22:21.426Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Atomic/DSChip.swift",
+      "category": "Other",
+      "lines": 155,
+      "size": 4356,
+      "lastModified": "2025-11-15T07:23:06.680Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/room-routes.ts",
+      "category": "API Routes",
+      "lines": 154,
+      "size": 4570,
+      "lastModified": "2025-11-15T07:21:23.749Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Extensions/View+Performance.swift",
+      "category": "Other",
+      "lines": 151,
+      "size": 4870,
+      "lastModified": "2025-11-15T07:23:06.736Z",
+      "language": "Swift"
+    },
+    {
+      "path": "server/index.ts",
+      "category": "Other",
+      "lines": 150,
+      "size": 4077,
+      "lastModified": "2025-11-15T18:15:28.175Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/verify-supabase-schema.sql",
+      "category": "Database/SQL",
+      "lines": 149,
+      "size": 5555,
+      "lastModified": "2025-11-15T07:22:21.413Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/services/bot-invite-service.ts",
+      "category": "Backend Services",
+      "lines": 148,
+      "size": 3459,
+      "lastModified": "2025-11-15T07:21:23.786Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Animations/AnimationModifiers.swift",
+      "category": "Other",
+      "lines": 147,
+      "size": 4123,
+      "lastModified": "2025-11-15T07:23:06.834Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/OnboardingFlowView.swift",
+      "category": "Other",
+      "lines": 147,
+      "size": 4331,
+      "lastModified": "2025-11-15T12:22:22.622Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/vibes/analytics-service.ts",
+      "category": "Backend Services",
+      "lines": 146,
+      "size": 3895,
+      "lastModified": "2025-11-15T21:28:00.794Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/password-strength.ts",
+      "category": "Middleware",
+      "lines": 146,
+      "size": 4728,
+      "lastModified": "2025-11-16T04:05:56.621Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/jobs/vibes-card-generation-job.ts",
+      "category": "Other",
+      "lines": 146,
+      "size": 4645,
+      "lastModified": "2025-11-15T21:25:01.535Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/query-optimization-service.ts",
+      "category": "Backend Services",
+      "lines": 145,
+      "size": 4026,
+      "lastModified": "2025-11-16T04:33:32.309Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/voice-routes.ts",
+      "category": "API Routes",
+      "lines": 145,
+      "size": 4392,
+      "lastModified": "2025-11-15T07:21:23.740Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/08_enhanced_rls_policies.sql",
+      "category": "Database/SQL",
+      "lines": 145,
+      "size": 4085,
+      "lastModified": "2025-11-15T12:22:22.626Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/routes/message-routes.ts",
+      "category": "API Routes",
+      "lines": 143,
+      "size": 4093,
+      "lastModified": "2025-11-15T07:21:23.721Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/ws-message-rate-limiter.ts",
+      "category": "Middleware",
+      "lines": 143,
+      "size": 4035,
+      "lastModified": "2025-11-16T01:06:00.470Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Telemetry/Telemetry.swift",
+      "category": "Other",
+      "lines": 142,
+      "size": 4210,
+      "lastModified": "2025-11-15T07:23:06.746Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/entitlements.ts",
+      "category": "Backend Services",
+      "lines": 140,
+      "size": 3590,
+      "lastModified": "2025-11-15T07:21:23.777Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/message-flagging-service.ts",
+      "category": "Backend Services",
+      "lines": 137,
+      "size": 3324,
+      "lastModified": "2025-11-16T01:06:47.840Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "scripts/generate-codebase-index.ts",
+      "category": "Other",
+      "lines": 136,
+      "size": 4298,
+      "lastModified": "2025-11-16T02:56:46.917Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/config/db.js",
+      "category": "Configuration",
+      "lines": 135,
+      "size": 5222,
+      "lastModified": "2025-11-15T17:00:27.982Z",
+      "language": "JavaScript"
+    },
+    {
+      "path": "frontend/iOS/Services/ViewGenerator.swift",
+      "category": "Other",
+      "lines": 135,
+      "size": 4379,
+      "lastModified": "2025-11-15T07:23:06.865Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Molecular/DSEmptyState.swift",
+      "category": "Other",
+      "lines": 135,
+      "size": 3785,
+      "lastModified": "2025-11-15T07:23:06.673Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/jobs/partition-management-cron.ts",
+      "category": "Other",
+      "lines": 134,
+      "size": 4503,
+      "lastModified": "2025-11-15T18:15:28.182Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/AppIcon.appiconset/Contents.json",
+      "category": "Other",
+      "lines": 133,
+      "size": 2630,
+      "lastModified": "2025-11-15T07:21:23.049Z",
+      "language": "JSON"
+    },
+    {
+      "path": "src/ws/handlers/reactions-threads.ts",
+      "category": "WebSocket",
+      "lines": 132,
+      "size": 3908,
+      "lastModified": "2025-11-15T07:21:23.815Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/usageMeter.ts",
+      "category": "Backend Services",
+      "lines": 132,
+      "size": 3728,
+      "lastModified": "2025-11-15T07:21:23.789Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/monitoring-service.ts",
+      "category": "Backend Services",
+      "lines": 132,
+      "size": 3651,
+      "lastModified": "2025-11-16T01:07:33.165Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/MessageBubbleView.swift",
+      "category": "Other",
+      "lines": 131,
+      "size": 4593,
+      "lastModified": "2025-11-15T12:22:22.622Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Organisms/DSChatComposer.swift",
+      "category": "Other",
+      "lines": 131,
+      "size": 4516,
+      "lastModified": "2025-11-15T07:23:06.683Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/compression-service.ts",
+      "category": "Backend Services",
+      "lines": 130,
+      "size": 3878,
+      "lastModified": "2025-11-15T07:21:23.795Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/vibes/rarity-engine.ts",
+      "category": "Backend Services",
+      "lines": 129,
+      "size": 4108,
+      "lastModified": "2025-11-15T21:28:40.379Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/error-alerting.ts",
+      "category": "Middleware",
+      "lines": 129,
+      "size": 3313,
+      "lastModified": "2025-11-16T01:07:59.270Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/agora-routes.ts",
+      "category": "API Routes",
+      "lines": 128,
+      "size": 3722,
+      "lastModified": "2025-11-15T07:21:23.725Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/types/vibes.types.ts",
+      "category": "TypeScript Types",
+      "lines": 127,
+      "size": 2848,
+      "lastModified": "2025-11-15T21:26:01.299Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Tests/PresenceViewModelTests.swift",
+      "category": "Other",
+      "lines": 127,
+      "size": 4825,
+      "lastModified": "2025-11-15T12:22:22.620Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/read-receipts-routes.ts",
+      "category": "API Routes",
+      "lines": 126,
+      "size": 3760,
+      "lastModified": "2025-11-15T07:21:23.742Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/SubscriptionView.swift",
+      "category": "Other",
+      "lines": 125,
+      "size": 3829,
+      "lastModified": "2025-11-15T12:22:22.623Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Molecular/DSSearchField.swift",
+      "category": "Other",
+      "lines": 125,
+      "size": 4275,
+      "lastModified": "2025-11-15T07:23:06.668Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/vibes/museum-service.ts",
+      "category": "Backend Services",
+      "lines": 123,
+      "size": 2881,
+      "lastModified": "2025-11-15T21:22:29.161Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/__tests__/message-service.test.ts",
+      "category": "Backend Services",
+      "lines": 122,
+      "size": 4016,
+      "lastModified": "2025-11-15T07:21:23.788Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/perspective-api-service.ts",
+      "category": "Backend Services",
+      "lines": 121,
+      "size": 3097,
+      "lastModified": "2025-11-16T01:07:13.127Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/apple-iap-service.ts",
+      "category": "Backend Services",
+      "lines": 121,
+      "size": 4290,
+      "lastModified": "2025-11-15T12:22:22.629Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/migrate-subscription-support.sql",
+      "category": "Database/SQL",
+      "lines": 120,
+      "size": 4921,
+      "lastModified": "2025-11-15T07:22:21.416Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/AutonomousValidationLabel.swift",
+      "category": "Other",
+      "lines": 120,
+      "size": 4490,
+      "lastModified": "2025-11-15T07:23:06.829Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/config/vibes.config.ts",
+      "category": "Configuration",
+      "lines": 119,
+      "size": 3253,
+      "lastModified": "2025-11-15T21:21:51.515Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Onboarding/RoomTierView.swift",
+      "category": "Other",
+      "lines": 117,
+      "size": 3233,
+      "lastModified": "2025-11-15T07:23:06.857Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/middleware/ws-rate-limiter.ts",
+      "category": "Middleware",
+      "lines": 116,
+      "size": 3196,
+      "lastModified": "2025-11-15T07:21:23.678Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "packages/core/src/config/index.ts",
+      "category": "Configuration",
+      "lines": 116,
+      "size": 3254,
+      "lastModified": "2025-11-15T12:22:22.624Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Services/ABTestManager.swift",
+      "category": "Other",
+      "lines": 116,
+      "size": 4096,
+      "lastModified": "2025-11-15T07:23:06.868Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Tests/WebSocketManagerTests.swift",
+      "category": "Other",
+      "lines": 114,
+      "size": 3370,
+      "lastModified": "2025-11-15T12:22:22.620Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/nickname-service.ts",
+      "category": "Backend Services",
+      "lines": 113,
+      "size": 2611,
+      "lastModified": "2025-11-15T07:21:23.791Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/refresh-token-routes.ts",
+      "category": "API Routes",
+      "lines": 113,
+      "size": 3542,
+      "lastModified": "2025-11-16T04:05:56.612Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/06_partition_management.sql",
+      "category": "Database/SQL",
+      "lines": 112,
+      "size": 3643,
+      "lastModified": "2025-11-15T12:22:22.626Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/SettingsView.swift",
+      "category": "Other",
+      "lines": 112,
+      "size": 4447,
+      "lastModified": "2025-11-15T07:23:06.789Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/admin-moderation-routes.ts",
+      "category": "API Routes",
+      "lines": 109,
+      "size": 3264,
+      "lastModified": "2025-11-16T01:06:59.988Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/ws/handlers/vibes-cards.ts",
+      "category": "WebSocket",
+      "lines": 108,
+      "size": 2969,
+      "lastModified": "2025-11-15T21:25:25.563Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/vibes/card-routes.ts",
+      "category": "API Routes",
+      "lines": 107,
+      "size": 2690,
+      "lastModified": "2025-11-15T21:27:30.436Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/ws/handlers/read-receipts.ts",
+      "category": "WebSocket",
+      "lines": 106,
+      "size": 2935,
+      "lastModified": "2025-11-15T07:21:23.812Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/vibes/conversation-routes.ts",
+      "category": "API Routes",
+      "lines": 106,
+      "size": 2735,
+      "lastModified": "2025-11-15T21:24:31.247Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/file-upload-security.ts",
+      "category": "Middleware",
+      "lines": 106,
+      "size": 3095,
+      "lastModified": "2025-11-15T07:21:23.666Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/auth.ts",
+      "category": "Middleware",
+      "lines": 106,
+      "size": 3281,
+      "lastModified": "2025-11-15T12:22:22.628Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/pinned-items-service.ts",
+      "category": "Backend Services",
+      "lines": 105,
+      "size": 2088,
+      "lastModified": "2025-11-15T07:21:23.783Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/__tests__/auth.test.ts",
+      "category": "Middleware",
+      "lines": 105,
+      "size": 3302,
+      "lastModified": "2025-11-15T07:21:23.674Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "supabase/functions/api-key-vault/index.ts",
+      "category": "Other",
+      "lines": 104,
+      "size": 3180,
+      "lastModified": "2025-11-15T12:22:22.630Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/structured-logging.ts",
+      "category": "Middleware",
+      "lines": 104,
+      "size": 2493,
+      "lastModified": "2025-11-16T01:08:55.330Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/e2e-encryption.ts",
+      "category": "Backend Services",
+      "lines": 100,
+      "size": 2869,
+      "lastModified": "2025-11-15T07:21:23.804Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-01-XX-room-member-count-trigger.sql",
+      "category": "Database/SQL",
+      "lines": 100,
+      "size": 3071,
+      "lastModified": "2025-11-15T18:15:28.181Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/VibeZApp.swift",
+      "category": "Other",
+      "lines": 100,
+      "size": 4955,
+      "lastModified": "2025-11-15T18:15:28.171Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Tests/DashboardTelemetryTests.swift",
+      "category": "Other",
+      "lines": 100,
+      "size": 3087,
+      "lastModified": "2025-11-15T12:22:22.620Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/subscription-service.ts",
+      "category": "Backend Services",
+      "lines": 99,
+      "size": 3830,
+      "lastModified": "2025-11-15T17:00:27.982Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-test-retrieval.sql",
+      "category": "Database/SQL",
+      "lines": 99,
+      "size": 3627,
+      "lastModified": "2025-11-15T07:22:21.400Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/routes/subscription-routes.ts",
+      "category": "API Routes",
+      "lines": 97,
+      "size": 2552,
+      "lastModified": "2025-11-15T07:21:23.724Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/RoomSettingsView.swift",
+      "category": "Other",
+      "lines": 95,
+      "size": 3181,
+      "lastModified": "2025-11-15T07:23:06.805Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/presence-service.ts",
+      "category": "Backend Services",
+      "lines": 94,
+      "size": 3330,
+      "lastModified": "2025-11-15T18:15:28.183Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/search-routes.ts",
+      "category": "API Routes",
+      "lines": 94,
+      "size": 2801,
+      "lastModified": "2025-11-15T07:21:23.747Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/ErrorRecoveryView.swift",
+      "category": "Other",
+      "lines": 94,
+      "size": 2998,
+      "lastModified": "2025-11-15T12:22:22.623Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/vibes/validation.ts",
+      "category": "Backend Services",
+      "lines": 93,
+      "size": 2337,
+      "lastModified": "2025-11-15T21:27:42.540Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/VideoTileView.swift",
+      "category": "Other",
+      "lines": 93,
+      "size": 2481,
+      "lastModified": "2025-11-15T07:23:06.831Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/bandwidth-service.ts",
+      "category": "Backend Services",
+      "lines": 92,
+      "size": 2282,
+      "lastModified": "2025-11-15T07:21:23.794Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Services/AuthService.swift",
+      "category": "Other",
+      "lines": 92,
+      "size": 2909,
+      "lastModified": "2025-11-15T07:23:06.871Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/usage-service.ts",
+      "category": "Backend Services",
+      "lines": 91,
+      "size": 2566,
+      "lastModified": "2025-11-15T07:21:23.757Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/AutonomousLabel.swift",
+      "category": "Other",
+      "lines": 91,
+      "size": 3276,
+      "lastModified": "2025-11-15T07:23:06.827Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/PresenceOrbView.swift",
+      "category": "Other",
+      "lines": 91,
+      "size": 2518,
+      "lastModified": "2025-11-15T07:23:06.804Z",
+      "language": "Swift"
+    },
+    {
+      "path": "scripts/clean-production.js",
+      "category": "Other",
+      "lines": 90,
+      "size": 2636,
+      "lastModified": "2025-11-15T07:21:23.592Z",
+      "language": "JavaScript"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-quick-populate-keys.sql",
+      "category": "Database/SQL",
+      "lines": 89,
+      "size": 4001,
+      "lastModified": "2025-11-15T18:15:28.181Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/migrations/2025-01-XX-add-performance-indexes.sql",
+      "category": "Database/SQL",
+      "lines": 88,
+      "size": 3071,
+      "lastModified": "2025-11-15T18:15:28.181Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/types/message.types.ts",
+      "category": "TypeScript Types",
+      "lines": 87,
+      "size": 1624,
+      "lastModified": "2025-11-15T07:21:23.692Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/services/vibes/query-helpers.ts",
+      "category": "Backend Services",
+      "lines": 87,
+      "size": 1852,
+      "lastModified": "2025-11-15T21:27:47.182Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/QuickJumpBar.swift",
+      "category": "Other",
+      "lines": 85,
+      "size": 2509,
+      "lastModified": "2025-11-15T12:22:22.623Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/CreateRoomSheet.swift",
+      "category": "Other",
+      "lines": 84,
+      "size": 2561,
+      "lastModified": "2025-11-15T07:23:06.859Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/utils/prompt-sanitizer.ts",
+      "category": "Other",
+      "lines": 83,
+      "size": 2351,
+      "lastModified": "2025-11-15T07:21:23.703Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "packages/core/src/validation/index.ts",
+      "category": "Other",
+      "lines": 83,
+      "size": 2134,
+      "lastModified": "2025-11-15T07:21:23.624Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Models/User.swift",
+      "category": "Other",
+      "lines": 83,
+      "size": 2960,
+      "lastModified": "2025-11-15T18:15:28.170Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/telemetry/index.ts",
+      "category": "Other",
+      "lines": 82,
+      "size": 2058,
+      "lastModified": "2025-11-15T17:00:27.982Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/pinned-routes.ts",
+      "category": "API Routes",
+      "lines": 81,
+      "size": 2199,
+      "lastModified": "2025-11-15T07:21:23.731Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/input-validation.ts",
+      "category": "Middleware",
+      "lines": 80,
+      "size": 2568,
+      "lastModified": "2025-11-15T17:00:28.002Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Modifiers/ButtonStateModifier.swift",
+      "category": "Other",
+      "lines": 80,
+      "size": 2047,
+      "lastModified": "2025-11-15T07:23:06.811Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/Auth/SocialLoginsView.swift",
+      "category": "Other",
+      "lines": 78,
+      "size": 1722,
+      "lastModified": "2025-11-15T18:15:28.172Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/LoadingSkeleton.swift",
+      "category": "Other",
+      "lines": 77,
+      "size": 2081,
+      "lastModified": "2025-11-15T07:23:06.821Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/file-storage-routes.ts",
+      "category": "API Routes",
+      "lines": 76,
+      "size": 2307,
+      "lastModified": "2025-11-15T07:21:23.717Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/DesignSystem/Components/Atomic/DSDivider.swift",
+      "category": "Other",
+      "lines": 75,
+      "size": 1898,
+      "lastModified": "2025-11-15T07:23:06.681Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/reactions-routes.ts",
+      "category": "API Routes",
+      "lines": 74,
+      "size": 2298,
+      "lastModified": "2025-11-15T07:21:23.730Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/archive/legacy/init-db.sql",
+      "category": "Database/SQL",
+      "lines": 74,
+      "size": 1711,
+      "lastModified": "2025-11-15T18:15:28.177Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/HostingGuideView.swift",
+      "category": "Other",
+      "lines": 74,
+      "size": 2302,
+      "lastModified": "2025-11-15T07:23:06.851Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/middleware/moderation.ts",
+      "category": "Middleware",
+      "lines": 73,
+      "size": 2827,
+      "lastModified": "2025-11-15T07:21:23.679Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/PresenceIndicatorView.swift",
+      "category": "Other",
+      "lines": 73,
+      "size": 1871,
+      "lastModified": "2025-11-15T07:23:06.835Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/utils/vibes-helpers.ts",
+      "category": "Other",
+      "lines": 71,
+      "size": 1795,
+      "lastModified": "2025-11-15T21:26:40.974Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Models/Room.swift",
+      "category": "Other",
+      "lines": 70,
+      "size": 1850,
+      "lastModified": "2025-11-15T07:23:06.727Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/vibes/error-handler.ts",
+      "category": "Backend Services",
+      "lines": 69,
+      "size": 1776,
+      "lastModified": "2025-11-15T21:27:04.577Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Managers/AppleAuthHelper.swift",
+      "category": "Other",
+      "lines": 68,
+      "size": 2566,
+      "lastModified": "2025-11-15T07:23:06.709Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/livekit-token-service.ts",
+      "category": "Backend Services",
+      "lines": 67,
+      "size": 1964,
+      "lastModified": "2025-11-15T07:21:23.778Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Modifiers/InputStateModifier.swift",
+      "category": "Other",
+      "lines": 67,
+      "size": 1647,
+      "lastModified": "2025-11-15T07:23:06.808Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Tests/DashboardViewTests.swift",
+      "category": "Other",
+      "lines": 67,
+      "size": 2103,
+      "lastModified": "2025-11-15T12:22:22.620Z",
+      "language": "Swift"
+    },
+    {
+      "path": "v-app/app/page.tsx",
+      "category": "Other",
+      "lines": 66,
+      "size": 2076,
+      "lastModified": "2025-11-15T12:35:36.230Z",
+      "language": "TypeScript React"
+    },
+    {
+      "path": "src/jobs/expire-temporary-rooms.ts",
+      "category": "Other",
+      "lines": 66,
+      "size": 1784,
+      "lastModified": "2025-11-15T07:21:23.712Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "quick-validate.sql",
+      "category": "Database/SQL",
+      "lines": 66,
+      "size": 2376,
+      "lastModified": "2025-11-15T07:22:21.111Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Services/RoomService.swift",
+      "category": "Other",
+      "lines": 66,
+      "size": 1891,
+      "lastModified": "2025-11-15T18:15:28.170Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/nicknames-routes.ts",
+      "category": "API Routes",
+      "lines": 64,
+      "size": 1801,
+      "lastModified": "2025-11-15T07:21:23.713Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-01-27-fix-category-function.sql",
+      "category": "Database/SQL",
+      "lines": 63,
+      "size": 2006,
+      "lastModified": "2025-11-15T07:22:21.409Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/ReadReceiptIndicator.swift",
+      "category": "Other",
+      "lines": 63,
+      "size": 1815,
+      "lastModified": "2025-11-15T07:23:06.824Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/vibes/constants.ts",
+      "category": "Backend Services",
+      "lines": 62,
+      "size": 1303,
+      "lastModified": "2025-11-15T21:28:17.889Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/vibes/admin-routes.ts",
+      "category": "API Routes",
+      "lines": 62,
+      "size": 1685,
+      "lastModified": "2025-11-15T21:28:07.088Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/entitlements-routes.ts",
+      "category": "API Routes",
+      "lines": 61,
+      "size": 1633,
+      "lastModified": "2025-11-15T07:21:23.734Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-01-XX-refresh-tokens.sql",
+      "category": "Database/SQL",
+      "lines": 61,
+      "size": 2313,
+      "lastModified": "2025-11-16T01:05:41.952Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Models/Message.swift",
+      "category": "Other",
+      "lines": 61,
+      "size": 1499,
+      "lastModified": "2025-11-15T07:23:06.724Z",
+      "language": "Swift"
+    },
+    {
+      "path": "apps/api/package.json",
+      "category": "Other",
+      "lines": 60,
+      "size": 1521,
+      "lastModified": "2025-11-15T18:15:28.166Z",
+      "language": "JSON"
+    },
+    {
+      "path": "src/services/vibes/__tests__/rarity-engine.test.ts",
+      "category": "Backend Services",
+      "lines": 59,
+      "size": 1972,
+      "lastModified": "2025-11-15T21:26:14.451Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Enums/FirebaseAuthError.swift",
+      "category": "Other",
+      "lines": 59,
+      "size": 1967,
+      "lastModified": "2025-11-15T18:15:28.168Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/vibes/museum-routes.ts",
+      "category": "API Routes",
+      "lines": 58,
+      "size": 1437,
+      "lastModified": "2025-11-15T21:24:39.200Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/config/redis-pubsub.ts",
+      "category": "Configuration",
+      "lines": 57,
+      "size": 2025,
+      "lastModified": "2025-11-15T07:21:23.698Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Extensions/String+Firebase.swift",
+      "category": "Other",
+      "lines": 54,
+      "size": 1429,
+      "lastModified": "2025-11-15T18:15:28.168Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/middleware/subscription-gate.ts",
+      "category": "Middleware",
+      "lines": 53,
+      "size": 1516,
+      "lastModified": "2025-11-15T07:21:23.664Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/bandwidth-routes.ts",
+      "category": "API Routes",
+      "lines": 51,
+      "size": 1398,
+      "lastModified": "2025-11-15T07:21:23.728Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/functions/compression.sql",
+      "category": "Database/SQL",
+      "lines": 51,
+      "size": 1646,
+      "lastModified": "2025-11-15T07:22:21.430Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Modifiers/FormStateModifier.swift",
+      "category": "Other",
+      "lines": 51,
+      "size": 1375,
+      "lastModified": "2025-11-15T07:23:06.813Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Modifiers/PresenceModifier.swift",
+      "category": "Other",
+      "lines": 50,
+      "size": 1224,
+      "lastModified": "2025-11-15T07:23:06.810Z",
+      "language": "Swift"
+    },
+    {
+      "path": "sql/migrations/2025-11-security-audit-logs.sql",
+      "category": "Database/SQL",
+      "lines": 49,
+      "size": 1634,
+      "lastModified": "2025-11-15T07:22:21.397Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/ToastView.swift",
+      "category": "Other",
+      "lines": 48,
+      "size": 1313,
+      "lastModified": "2025-11-15T07:23:06.815Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/ViewModels/RoomViewModel.swift",
+      "category": "Other",
+      "lines": 48,
+      "size": 1710,
+      "lastModified": "2025-11-15T18:15:28.171Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/apple-jwks-verifier.ts",
+      "category": "Backend Services",
+      "lines": 47,
+      "size": 1700,
+      "lastModified": "2025-11-15T07:21:23.751Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/iap-routes.ts",
+      "category": "API Routes",
+      "lines": 47,
+      "size": 1529,
+      "lastModified": "2025-11-15T07:21:23.715Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/migrations/2025-01-add-moderation-tables.sql",
+      "category": "Database/SQL",
+      "lines": 47,
+      "size": 1709,
+      "lastModified": "2025-11-15T07:22:21.399Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/GlobalStyles.swift",
+      "category": "Other",
+      "lines": 47,
+      "size": 1161,
+      "lastModified": "2025-11-15T12:22:22.623Z",
+      "language": "Swift"
+    },
+    {
+      "path": "package.json",
+      "category": "Other",
+      "lines": 46,
+      "size": 1340,
+      "lastModified": "2025-11-15T07:21:23.587Z",
+      "language": "JSON"
+    },
+    {
+      "path": "src/shared/logger.ts",
+      "category": "Other",
+      "lines": 45,
+      "size": 1645,
+      "lastModified": "2025-11-15T18:15:28.184Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/vibes-auth.ts",
+      "category": "Middleware",
+      "lines": 45,
+      "size": 1181,
+      "lastModified": "2025-11-15T21:26:45.178Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/EmojiPickerView.swift",
+      "category": "Other",
+      "lines": 45,
+      "size": 1159,
+      "lastModified": "2025-11-15T07:23:06.826Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Extensions/View+Accessibility.swift",
+      "category": "Other",
+      "lines": 45,
+      "size": 1592,
+      "lastModified": "2025-11-15T07:23:06.734Z",
+      "language": "Swift"
+    },
+    {
+      "path": "v-app/app/rooms/[id]/page.tsx",
+      "category": "Other",
+      "lines": 44,
+      "size": 1313,
+      "lastModified": "2025-11-15T12:36:26.035Z",
+      "language": "TypeScript React"
+    },
+    {
+      "path": "src/middleware/age-verification.ts",
+      "category": "Middleware",
+      "lines": 44,
+      "size": 1276,
+      "lastModified": "2025-11-15T07:21:23.672Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "server/package.json",
+      "category": "Other",
+      "lines": 44,
+      "size": 1208,
+      "lastModified": "2025-11-16T04:02:17.585Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Views/Onboarding/WelcomeView.swift",
+      "category": "Other",
+      "lines": 44,
+      "size": 1244,
+      "lastModified": "2025-11-15T12:22:22.622Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/MainTabView.swift",
+      "category": "Other",
+      "lines": 44,
+      "size": 1213,
+      "lastModified": "2025-11-15T18:15:28.173Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Services/MessageService.swift",
+      "category": "Other",
+      "lines": 44,
+      "size": 1590,
+      "lastModified": "2025-11-15T07:23:06.876Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Managers/GoogleAuthHelper.swift",
+      "category": "Other",
+      "lines": 44,
+      "size": 1655,
+      "lastModified": "2025-11-15T07:23:06.711Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/services/config-service.ts",
+      "category": "Backend Services",
+      "lines": 43,
+      "size": 1579,
+      "lastModified": "2025-11-15T07:21:23.755Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/server/utils/config.ts",
+      "category": "Other",
+      "lines": 43,
+      "size": 1243,
+      "lastModified": "2025-11-15T12:22:22.628Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/presence-routes.ts",
+      "category": "API Routes",
+      "lines": 43,
+      "size": 1139,
+      "lastModified": "2025-11-15T07:21:23.733Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/routes/config-routes.ts",
+      "category": "API Routes",
+      "lines": 43,
+      "size": 999,
+      "lastModified": "2025-11-15T07:21:23.737Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/LoadingView.swift",
+      "category": "Other",
+      "lines": 43,
+      "size": 768,
+      "lastModified": "2025-11-15T18:15:28.173Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Package.swift",
+      "category": "Other",
+      "lines": 43,
+      "size": 1215,
+      "lastModified": "2025-11-15T18:15:28.170Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/threads-routes.ts",
+      "category": "API Routes",
+      "lines": 41,
+      "size": 1216,
+      "lastModified": "2025-11-15T07:21:23.739Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/functions/batch_fetch.sql",
+      "category": "Database/SQL",
+      "lines": 41,
+      "size": 918,
+      "lastModified": "2025-11-15T07:22:21.432Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/SinapseGlow.colorSet/Contents.json",
+      "category": "Other",
+      "lines": 41,
+      "size": 723,
+      "lastModified": "2025-11-15T07:21:23.046Z",
+      "language": "JSON"
+    },
+    {
+      "path": "src/services/vibes/card-lifecycle-hook.ts",
+      "category": "Backend Services",
+      "lines": 40,
+      "size": 1223,
+      "lastModified": "2025-11-15T21:25:40.622Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "server/.eslintrc.json",
+      "category": "Other",
+      "lines": 40,
+      "size": 1008,
+      "lastModified": "2025-11-15T18:15:28.175Z",
+      "language": "JSON"
+    },
+    {
+      "path": ".eslintrc.json",
+      "category": "Other",
+      "lines": 40,
+      "size": 1008,
+      "lastModified": "2025-11-15T07:21:23.662Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/SinapseGoldDark.colorSet/Contents.json",
+      "category": "Other",
+      "lines": 39,
+      "size": 696,
+      "lastModified": "2025-11-15T07:21:23.055Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/SinapseGold.colorSet/Contents.json",
+      "category": "Other",
+      "lines": 39,
+      "size": 696,
+      "lastModified": "2025-11-15T07:21:23.030Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/SinapseDeep.colorSet/Contents.json",
+      "category": "Other",
+      "lines": 39,
+      "size": 696,
+      "lastModified": "2025-11-15T07:21:23.051Z",
+      "language": "JSON"
+    },
+    {
+      "path": "sql/migrations/2025-01-add-rooms-tier-moderation.sql",
+      "category": "Database/SQL",
+      "lines": 36,
+      "size": 1560,
+      "lastModified": "2025-11-15T12:22:22.628Z",
+      "language": "SQL"
+    },
+    {
+      "path": "v-app/tsconfig.json",
+      "category": "Other",
+      "lines": 34,
+      "size": 666,
+      "lastModified": "2025-11-15T12:35:36.230Z",
+      "language": "JSON"
+    },
+    {
+      "path": "sql/migrations/2025-01-XX-flagged-messages.sql",
+      "category": "Database/SQL",
+      "lines": 34,
+      "size": 1650,
+      "lastModified": "2025-11-16T01:06:50.534Z",
+      "language": "SQL"
+    },
+    {
+      "path": "sql/migrations/2025-11-create-rooms-table.sql",
+      "category": "Database/SQL",
+      "lines": 33,
+      "size": 1319,
+      "lastModified": "2025-11-15T07:22:21.410Z",
+      "language": "SQL"
+    },
+    {
+      "path": "frontend/iOS/Views/Shared/Components/LoadingSpinner.swift",
+      "category": "Other",
+      "lines": 33,
+      "size": 836,
+      "lastModified": "2025-11-15T07:23:06.818Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Extensions/Color+Extensions.swift",
+      "category": "Other",
+      "lines": 33,
+      "size": 1145,
+      "lastModified": "2025-11-15T12:22:22.618Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/middleware/error.ts",
+      "category": "Middleware",
+      "lines": 31,
+      "size": 1165,
+      "lastModified": "2025-11-15T07:21:23.681Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "turbo.json",
+      "category": "Other",
+      "lines": 29,
+      "size": 545,
+      "lastModified": "2025-11-15T07:21:23.244Z",
+      "language": "JSON"
+    },
+    {
+      "path": "vitest.config.ts",
+      "category": "Other",
+      "lines": 28,
+      "size": 590,
+      "lastModified": "2025-11-15T07:21:23.657Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "v-app/package.json",
+      "category": "Other",
+      "lines": 28,
+      "size": 593,
+      "lastModified": "2025-11-15T12:36:07.702Z",
+      "language": "JSON"
+    },
+    {
+      "path": "src/routes/telemetry-routes.ts",
+      "category": "API Routes",
+      "lines": 28,
+      "size": 620,
+      "lastModified": "2025-11-15T07:21:23.744Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/ws/handlers/presence.ts",
+      "category": "WebSocket",
+      "lines": 27,
+      "size": 1059,
+      "lastModified": "2025-11-15T07:21:23.813Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/LaunchImage.imageset/Contents.json",
+      "category": "Other",
+      "lines": 27,
+      "size": 461,
+      "lastModified": "2025-11-15T07:21:23.032Z",
+      "language": "JSON"
+    },
+    {
+      "path": "sql/migrations/2025-01-28-add-age-verification.sql",
+      "category": "Database/SQL",
+      "lines": 26,
+      "size": 808,
+      "lastModified": "2025-11-15T07:22:21.415Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/services/vibes/__tests__/conversation-service.test.ts",
+      "category": "Backend Services",
+      "lines": 25,
+      "size": 647,
+      "lastModified": "2025-11-15T21:26:11.095Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "v-app/app/rooms/page.tsx",
+      "category": "Other",
+      "lines": 24,
+      "size": 682,
+      "lastModified": "2025-11-15T12:36:23.379Z",
+      "language": "TypeScript React"
+    },
+    {
+      "path": "frontend/iOS/Managers/MessageManager.swift",
+      "category": "Other",
+      "lines": 24,
+      "size": 725,
+      "lastModified": "2025-11-15T07:23:06.699Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Managers/AIReasoner.swift",
+      "category": "Other",
+      "lines": 24,
+      "size": 621,
+      "lastModified": "2025-11-15T07:23:06.696Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Images/Voice/VoicePresenceWaveform.imageset/Contents.json",
+      "category": "Other",
+      "lines": 24,
+      "size": 422,
+      "lastModified": "2025-11-15T07:21:23.039Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Images/Tiers/TierCardStarter.imageset/Contents.json",
+      "category": "Other",
+      "lines": 24,
+      "size": 404,
+      "lastModified": "2025-11-15T07:21:23.034Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Images/Tiers/TierCardPro.imageset/Contents.json",
+      "category": "Other",
+      "lines": 24,
+      "size": 392,
+      "lastModified": "2025-11-15T07:21:23.036Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Images/Tiers/TierCardEnterprise.imageset/Contents.json",
+      "category": "Other",
+      "lines": 24,
+      "size": 413,
+      "lastModified": "2025-11-15T07:21:23.038Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Images/Hero/WelcomeHero.imageset/Contents.json",
+      "category": "Other",
+      "lines": 24,
+      "size": 392,
+      "lastModified": "2025-11-15T07:21:23.043Z",
+      "language": "JSON"
+    },
+    {
+      "path": "packages/ai-mod/package.json",
+      "category": "Other",
+      "lines": 23,
+      "size": 417,
+      "lastModified": "2025-11-15T18:15:28.173Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Services/SystemService.swift",
+      "category": "Other",
+      "lines": 23,
+      "size": 772,
+      "lastModified": "2025-11-15T07:23:06.862Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Images/Paywall/PaywallHero.imageset/Contents.json",
+      "category": "Other",
+      "lines": 23,
+      "size": 391,
+      "lastModified": "2025-11-15T07:21:23.045Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Images/Marketing/AppIconMarketing.imageset/Contents.json",
+      "category": "Other",
+      "lines": 23,
+      "size": 404,
+      "lastModified": "2025-11-15T07:21:23.041Z",
+      "language": "JSON"
+    },
+    {
+      "path": "packages/supabase/package.json",
+      "category": "Other",
+      "lines": 22,
+      "size": 411,
+      "lastModified": "2025-11-15T18:15:28.174Z",
+      "language": "JSON"
+    },
+    {
+      "path": "packages/core/package.json",
+      "category": "Other",
+      "lines": 22,
+      "size": 390,
+      "lastModified": "2025-11-15T18:15:28.173Z",
+      "language": "JSON"
+    },
+    {
+      "path": "v-app/app/api/rooms/route.ts",
+      "category": "Other",
+      "lines": 21,
+      "size": 575,
+      "lastModified": "2025-11-15T12:39:54.709Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "sql/07_healing_logs.sql",
+      "category": "Database/SQL",
+      "lines": 21,
+      "size": 996,
+      "lastModified": "2025-11-15T07:22:21.390Z",
+      "language": "SQL"
+    },
+    {
+      "path": "src/middleware/cache.ts",
+      "category": "Middleware",
+      "lines": 20,
+      "size": 620,
+      "lastModified": "2025-11-15T07:21:23.675Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Models/AILog.swift",
+      "category": "Other",
+      "lines": 20,
+      "size": 344,
+      "lastModified": "2025-11-15T07:23:06.730Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Managers/RoomManager.swift",
+      "category": "Other",
+      "lines": 20,
+      "size": 518,
+      "lastModified": "2025-11-15T07:23:06.706Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Extensions/View+Extensions.swift",
+      "category": "Other",
+      "lines": 20,
+      "size": 470,
+      "lastModified": "2025-11-15T18:15:28.168Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/health-routes.ts",
+      "category": "API Routes",
+      "lines": 19,
+      "size": 498,
+      "lastModified": "2025-11-15T07:21:23.720Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Models/TelemetryMetric.swift",
+      "category": "Other",
+      "lines": 19,
+      "size": 372,
+      "lastModified": "2025-11-15T07:23:06.722Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/routes/notify-routes.ts",
+      "category": "API Routes",
+      "lines": 18,
+      "size": 505,
+      "lastModified": "2025-11-15T07:21:23.722Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "server/tsconfig.json",
+      "category": "Other",
+      "lines": 18,
+      "size": 398,
+      "lastModified": "2025-11-15T12:36:37.336Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/ViewModels/EmotionalAIViewModel.swift",
+      "category": "Other",
+      "lines": 18,
+      "size": 580,
+      "lastModified": "2025-11-15T07:23:06.661Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/types/auth.types.ts",
+      "category": "TypeScript Types",
+      "lines": 17,
+      "size": 288,
+      "lastModified": "2025-11-15T07:21:23.690Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Managers/SystemMonitor.swift",
+      "category": "Other",
+      "lines": 17,
+      "size": 524,
+      "lastModified": "2025-11-15T07:23:06.705Z",
+      "language": "Swift"
+    },
+    {
+      "path": "tsconfig.json",
+      "category": "Other",
+      "lines": 16,
+      "size": 383,
+      "lastModified": "2025-11-15T07:21:23.638Z",
+      "language": "JSON"
+    },
+    {
+      "path": "src/types/compression.d.ts",
+      "category": "TypeScript Types",
+      "lines": 16,
+      "size": 479,
+      "lastModified": "2025-11-15T07:21:23.688Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/types/generated_types.ts",
+      "category": "TypeScript Types",
+      "lines": 15,
+      "size": 701,
+      "lastModified": "2025-11-15T07:21:23.685Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/types/livekit.d.ts",
+      "category": "TypeScript Types",
+      "lines": 14,
+      "size": 402,
+      "lastModified": "2025-11-15T07:21:23.689Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Components/MoodGradient.swift",
+      "category": "Other",
+      "lines": 14,
+      "size": 288,
+      "lastModified": "2025-11-15T07:23:06.743Z",
+      "language": "Swift"
+    },
+    {
+      "path": "v-app/app/api/rooms/[id]/messages/route.ts",
+      "category": "Other",
+      "lines": 13,
+      "size": 346,
+      "lastModified": "2025-11-15T12:39:54.709Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "v-app/app/api/messaging/route.ts",
+      "category": "Other",
+      "lines": 13,
+      "size": 402,
+      "lastModified": "2025-11-15T12:39:54.709Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/middleware/telemetry.ts",
+      "category": "Middleware",
+      "lines": 13,
+      "size": 424,
+      "lastModified": "2025-11-15T07:21:23.669Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Enums/LoginOption.swift",
+      "category": "Other",
+      "lines": 13,
+      "size": 192,
+      "lastModified": "2025-11-15T18:15:28.168Z",
+      "language": "Swift"
+    },
+    {
+      "path": "v-app/app/layout.tsx",
+      "category": "Other",
+      "lines": 12,
+      "size": 282,
+      "lastModified": "2025-11-15T12:36:19.858Z",
+      "language": "TypeScript React"
+    },
+    {
+      "path": "frontend/iOS/Managers/Constants.swift",
+      "category": "Other",
+      "lines": 12,
+      "size": 319,
+      "lastModified": "2025-11-15T12:22:22.619Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Enums/AuthState.swift",
+      "category": "Other",
+      "lines": 12,
+      "size": 125,
+      "lastModified": "2025-11-15T18:15:28.167Z",
+      "language": "Swift"
+    },
+    {
+      "path": "schemas/events.json",
+      "category": "Other",
+      "lines": 11,
+      "size": 504,
+      "lastModified": "2025-11-15T07:21:23.571Z",
+      "language": "JSON"
+    },
+    {
+      "path": ".prettierrc.json",
+      "category": "Other",
+      "lines": 11,
+      "size": 175,
+      "lastModified": "2025-11-15T07:21:23.580Z",
+      "language": "JSON"
+    },
+    {
+      "path": "frontend/iOS/Services/IAPService.swift",
+      "category": "Other",
+      "lines": 10,
+      "size": 323,
+      "lastModified": "2025-11-15T07:23:06.867Z",
+      "language": "Swift"
+    },
+    {
+      "path": "src/config/db.d.ts",
+      "category": "Configuration",
+      "lines": 9,
+      "size": 273,
+      "lastModified": "2025-11-15T07:21:23.695Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Views/VoiceView.swift",
+      "category": "Other",
+      "lines": 8,
+      "size": 117,
+      "lastModified": "2025-11-15T07:23:06.807Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/VoiceVideoPanelView.swift",
+      "category": "Other",
+      "lines": 8,
+      "size": 106,
+      "lastModified": "2025-11-15T07:23:06.787Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Views/VoiceRoomView.swift",
+      "category": "Other",
+      "lines": 8,
+      "size": 100,
+      "lastModified": "2025-11-15T17:00:27.982Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Models/IAPReceipt.swift",
+      "category": "Other",
+      "lines": 8,
+      "size": 137,
+      "lastModified": "2025-11-15T07:23:06.719Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Components/VoiceOrb.swift",
+      "category": "Other",
+      "lines": 8,
+      "size": 95,
+      "lastModified": "2025-11-15T07:23:06.740Z",
+      "language": "Swift"
+    },
+    {
+      "path": "v-app/next.config.ts",
+      "category": "Other",
+      "lines": 7,
+      "size": 133,
+      "lastModified": "2025-11-15T12:35:36.230Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "src/shared/supabase-client.ts",
+      "category": "Other",
+      "lines": 7,
+      "size": 186,
+      "lastModified": "2025-11-15T11:06:35.731Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "scripts/dev/validate-openapi.ts",
+      "category": "Other",
+      "lines": 7,
+      "size": 157,
+      "lastModified": "2025-11-15T07:21:23.602Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "v-app/next-env.d.ts",
+      "category": "Other",
+      "lines": 6,
+      "size": 247,
+      "lastModified": "2025-11-15T12:35:36.229Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": "frontend/iOS/Services/AIService.swift",
+      "category": "Other",
+      "lines": 6,
+      "size": 74,
+      "lastModified": "2025-11-15T07:23:06.864Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Managers/SpeechManager.swift",
+      "category": "Other",
+      "lines": 6,
+      "size": 78,
+      "lastModified": "2025-11-15T07:23:06.698Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Managers/DeepSeekClient.swift",
+      "category": "Other",
+      "lines": 6,
+      "size": 79,
+      "lastModified": "2025-11-15T07:23:06.703Z",
+      "language": "Swift"
+    },
+    {
+      "path": "frontend/iOS/Assets.xcassets/Contents.json",
+      "category": "Other",
+      "lines": 6,
+      "size": 63,
+      "lastModified": "2025-11-15T07:21:23.053Z",
+      "language": "JSON"
+    },
+    {
+      "path": "packages/core/src/index.ts",
+      "category": "Other",
+      "lines": 2,
+      "size": 56,
+      "lastModified": "2025-11-15T07:21:23.622Z",
+      "language": "TypeScript"
+    },
+    {
+      "path": ".cursor/settings.json",
+      "category": "Other",
+      "lines": 1,
+      "size": 55,
+      "lastModified": "2025-11-15T07:21:22.835Z",
+      "language": "JSON"
+    }
+  ]
+}

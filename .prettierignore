@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+*.log
+package-lock.json
+frontend/iOS/build/
+frontend/iOS/.swiftpm/
+*.xcuserstate
+.DS_Store
+

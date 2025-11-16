@@ -1,0 +1,204 @@
+name: UI State Tests & Telemetry Validation
+
+on:
+  pull_request:
+    paths:
+      - 'src/components/**'
+      - 'src/types/ui-states.ts'
+      - 'src/types/connectors.ts'
+      - 'src/telemetry/ux/**'
+      - 'src/composables/useUXTelemetry.ts'
+  push:
+    branches:
+      - main
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run unit tests
+        run: npm test -- src/components/__tests__/ --coverage
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: unit
+  
+  telemetry-tests:
+    name: Telemetry Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run telemetry tests
+        run: npm test -- --testPathPattern=telemetry
+      
+      - name: Verify no PII in test data
+        run: npm test -- src/telemetry/ux/__tests__/privacy.test.ts
+  
+  visual-regression:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Required for Chromatic
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Storybook
+        run: npm run storybook:build || echo "Storybook not configured yet"
+      
+      - name: Run Chromatic
+        uses: chromaui/action@v1
+        with:
+          projectToken: ${{ secrets.CHROMATIC_TOKEN }}
+          exitZeroOnChanges: false # Fail on visual changes
+        continue-on-error: true # Don't block until Storybook is set up
+  
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run E2E tests
+        run: npm run test:e2e || echo "E2E tests not configured yet"
+        continue-on-error: true # Don't block until E2E is set up
+  
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+      
+      - name: Type check
+        working-directory: server
+        run: npm run typecheck || npx tsc --noEmit
+      
+      - name: Lint
+        working-directory: server
+        run: npm run lint || echo "Linter not configured"
+        continue-on-error: true
+  
+  state-matrix-validation:
+    name: Validate State Matrix Coverage
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Check state matrix exists
+        run: test -f tests/state-matrix.md
+      
+      - name: Verify component state enums
+        run: |
+          grep -q "ButtonState" src/types/ui-states.ts
+          grep -q "InputState" src/types/ui-states.ts
+          grep -q "FormState" src/types/ui-states.ts
+      
+      - name: Verify ProgrammaticUI uses enums
+        run: |
+          grep -q "ButtonState" src/components/ProgrammaticUI.vue
+          grep -q "InputState" src/components/ProgrammaticUI.vue
+          grep -q "FormState" src/components/ProgrammaticUI.vue
+  
+  telemetry-system-validation:
+    name: Validate UX Telemetry System
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Verify UX telemetry SDK exists
+        run: test -f src/telemetry/ux/client-sdk.ts
+      
+      - name: Verify UX telemetry types exist
+        run: test -f src/types/ux-telemetry.ts
+      
+      - name: Verify UX telemetry routes exist
+        run: test -f src/routes/ux-telemetry-routes.ts
+      
+      - name: Verify UX telemetry service exists
+        run: test -f src/services/ux-telemetry-service.ts
+      
+      - name: Verify PII redaction exists
+        run: test -f src/services/ux-telemetry-redaction.ts
+      
+      - name: Verify LLM observer exists
+        run: test -f src/llm-observer/watchdog.ts
+      
+      - name: Verify strategy templates exist
+        run: |
+          test -f src/llm-observer/strategies/message-rollback-strategy.json
+          test -f src/llm-observer/strategies/validation-error-strategy.json
+      
+      - name: Check for separation from system telemetry
+        run: |
+          grep -q "ux_telemetry" sql/17_ux_telemetry_schema.sql
+          grep -q "separate from system telemetry" sql/17_ux_telemetry_schema.sql
+
+# Require all critical tests to pass before merge
+# Visual regression and E2E are informational until fully configured
+

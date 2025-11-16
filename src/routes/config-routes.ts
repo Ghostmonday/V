@@ -16,11 +16,11 @@ const router = Router();
 router.get('/', async (req, res, next) => {
   try {
     telemetryHook('config_get_start');
-    const config = await configService.getAllConfiguration();
+    const config = await configService.getAllConfiguration(); // No timeout - can hang if DB slow
     telemetryHook('config_get_end');
     res.json(config);
   } catch (error) {
-    next(error);
+    next(error); // Error branch: DB timeout not caught
   }
 });
 

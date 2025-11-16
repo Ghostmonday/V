@@ -11,18 +11,18 @@ import { logError } from '../shared/logger.js';
  */
 export async function getAllConfiguration(): Promise<Record<string, any>> {
   try {
-    const configRecords = await findMany<{ key: string; value: any }>('config');
+    const configRecords = await findMany<{ key: string; value: any }>('config'); // No timeout - can hang if DB slow
 
     // Convert array to object for easier access
     const configurationObject: Record<string, any> = {};
     configRecords.forEach((record) => {
-      configurationObject[record.key] = record.value;
+      configurationObject[record.key] = record.value; // Race: config can change between query and return
     });
 
     return configurationObject;
   } catch (error: any) {
     logError('Failed to retrieve configuration', error);
-    throw new Error(error.message || 'Failed to get configuration');
+    throw new Error(error.message || 'Failed to get configuration'); // Error branch: DB timeout not caught
   }
 }
 
@@ -33,11 +33,11 @@ export async function getAllConfiguration(): Promise<Record<string, any>> {
 export async function updateConfiguration(configurationUpdates: Record<string, any>): Promise<void> {
   try {
     for (const [key, value] of Object.entries(configurationUpdates)) {
-      await upsert('config', { key, value }, 'key');
+      await upsert('config', { key, value }, 'key'); // Race: concurrent updates can overwrite each other
     }
   } catch (error: any) {
     logError('Failed to update configuration', error);
-    throw new Error(error.message || 'Failed to update configuration');
+    throw new Error(error.message || 'Failed to update configuration'); // Error branch: partial updates not rolled back
   }
 }
 
