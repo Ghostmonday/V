@@ -1,0 +1,49 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Coverage
+coverage/
+*.gcda
+*.gcno
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Archive directories
+docs/archive/
+scripts/archive/
+
+# Validation results (can be regenerated)
+validation-results-*.json
+
