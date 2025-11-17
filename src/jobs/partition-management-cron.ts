@@ -10,6 +10,12 @@
  */
 
 import { rotatePartition, runAllCleanup } from '../services/partition-management-service.js';
+import { loadPartitionMetadata } from '../services/partition-management-service.js';
+import { 
+  updatePartitionSize, 
+  calculateDynamicThresholds,
+  getPartitionHealthSummary 
+} from '../services/partition-monitoring-service.js';
 import { logInfo, logError } from '../shared/logger.js';
 import { getRedisClient } from '../config/db.ts';
 
@@ -59,6 +65,7 @@ async function releaseLock(): Promise<void> {
 
 /**
  * Run partition management tasks with distributed locking
+ * Phase 9.3: Enhanced with dynamic thresholds and monitoring
  */
 export async function runPartitionManagement(): Promise<void> {
   // Acquire distributed lock to prevent concurrent execution
@@ -71,17 +78,39 @@ export async function runPartitionManagement(): Promise<void> {
   try {
     logInfo('Starting partition management cron job');
     
+    // Step 0: Calculate dynamic thresholds based on current load
+    const dynamicThresholds = await calculateDynamicThresholds();
+    logInfo('Dynamic thresholds calculated', dynamicThresholds);
+    
     // Step 1: Rotate partition (create new partition for current month)
+    // Use dynamic threshold to determine if partition should be created
     const rotateResult = await rotatePartition();
     
     if (rotateResult.success) {
       logInfo('Partition rotation completed', { partitionName: rotateResult.partitionName });
+      
+      // Update partition size metrics for new partition
+      await updatePartitionSize(
+        rotateResult.partitionName?.replace('logs_compressed_', '').replace(/(\d{4})(\d{2})/, '$1_$2') || '',
+        0, // New partition has no data yet
+        0
+      );
     } else {
       logError('Partition rotation failed', new Error(rotateResult.error || 'Unknown error'));
       // Continue with cleanup even if rotation fails
     }
     
-    // Step 2: Clean up old partitions
+    // Step 2: Update partition size metrics for all partitions
+    const partitions = await loadPartitionMetadata();
+    for (const partition of partitions) {
+      await updatePartitionSize(
+        partition.partition_month,
+        partition.size_bytes || 0,
+        partition.row_count || 0
+      );
+    }
+    
+    // Step 3: Clean up old partitions
     const oldestPartitionMonth = getOldestPartitionMonth();
     const cleanupResult = await runAllCleanup(oldestPartitionMonth);
     
@@ -94,10 +123,17 @@ export async function runPartitionManagement(): Promise<void> {
       logError('Partition cleanup had errors', new Error(cleanupResult.errors.join('; ')));
     }
     
+    // Step 4: Get partition health summary
+    const healthSummary = await getPartitionHealthSummary();
+    logInfo('Partition health summary', healthSummary);
+    
     logInfo('Partition management cron job completed', {
       rotationSuccess: rotateResult.success,
       cleanupDropped: cleanupResult.dropped,
-      cleanupErrors: cleanupResult.errors.length
+      cleanupErrors: cleanupResult.errors.length,
+      healthyPartitions: healthSummary.healthyPartitions,
+      unhealthyPartitions: healthSummary.unhealthyPartitions,
+      totalAlerts: healthSummary.totalAlerts
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

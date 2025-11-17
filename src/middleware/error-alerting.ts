@@ -56,23 +56,33 @@ async function sendSlackAlert(message: string, metadata?: Record<string, any>): 
 }
 
 /**
- * Send alert via email (using SendGrid or similar)
+ * Send alert via email (using SendGrid)
+ * Phase 6.3: Enhanced email alerting
  */
-async function sendEmailAlert(subject: string, message: string): Promise<void> {
+async function sendEmailAlert(subject: string, message: string, html?: string): Promise<void> {
   if (!alertConfig.emailApiKey || !alertConfig.emailTo) {
     return;
   }
 
   try {
-    // Example: SendGrid API
+    // SendGrid API v3
+    const emailData: any = {
+      personalizations: [{ to: [{ email: alertConfig.emailTo }] }],
+      from: { email: process.env.ALERT_FROM_EMAIL || 'alerts@vibez.app', name: 'VibeZ Alerts' },
+      subject,
+      content: [
+        { type: 'text/plain', value: message },
+      ],
+    };
+
+    // Add HTML content if provided
+    if (html) {
+      emailData.content.push({ type: 'text/html', value: html });
+    }
+
     await axios.post(
       'https://api.sendgrid.com/v3/mail/send',
-      {
-        personalizations: [{ to: [{ email: alertConfig.emailTo }] }],
-        from: { email: 'alerts@vibez.app' },
-        subject,
-        content: [{ type: 'text/plain', value: message }],
-      },
+      emailData,
       {
         headers: {
           Authorization: `Bearer ${alertConfig.emailApiKey}`,
@@ -86,7 +96,46 @@ async function sendEmailAlert(subject: string, message: string): Promise<void> {
 }
 
 /**
+ * Send alert to PagerDuty
+ * Phase 6.3: PagerDuty integration for critical issues
+ */
+async function sendPagerDutyAlert(
+  summary: string,
+  severity: 'critical' | 'error' | 'warning',
+  details: Record<string, any>
+): Promise<void> {
+  const pagerDutyKey = process.env.PAGERDUTY_INTEGRATION_KEY;
+  if (!pagerDutyKey) {
+    return;
+  }
+
+  try {
+    await axios.post(
+      'https://events.pagerduty.com/v2/enqueue',
+      {
+        routing_key: pagerDutyKey,
+        event_action: severity === 'critical' ? 'trigger' : 'acknowledge',
+        payload: {
+          summary,
+          severity: severity === 'critical' ? 'critical' : severity === 'error' ? 'error' : 'warning',
+          source: 'vibez-api',
+          custom_details: details,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  } catch (error: any) {
+    logError('Failed to send PagerDuty alert', error);
+  }
+}
+
+/**
  * Alert on critical error
+ * Phase 6.3: Enhanced with PagerDuty for critical issues
  */
 export async function alertOnError(
   error: Error,
@@ -95,26 +144,50 @@ export async function alertOnError(
     endpoint?: string;
     userId?: string;
     metadata?: Record<string, any>;
+    severity?: 'critical' | 'error' | 'warning';
   }
 ): Promise<void> {
   const errorKey = `${context.type}:${context.endpoint || 'unknown'}`;
   const count = (errorCounts.get(errorKey) || 0) + 1;
   errorCounts.set(errorKey, count);
 
-  // Only alert if error rate exceeds threshold
-  if (count >= (alertConfig.alertThreshold || 10)) {
+  const severity = context.severity || (context.type === 'db' ? 'critical' : 'error');
+  const shouldAlert = count >= (alertConfig.alertThreshold || 10) || severity === 'critical';
+
+  if (shouldAlert) {
     const message = `High error rate detected: ${errorKey} (${count} errors/min)`;
     const metadata = {
       error: error.message,
       stack: error.stack,
       ...context.metadata,
+      count,
+      severity,
     };
 
+    // Format HTML email
+    const htmlEmail = `
+      <h2>VibeZ Alert: ${context.type} Error</h2>
+      <p><strong>Message:</strong> ${message}</p>
+      <p><strong>Severity:</strong> ${severity}</p>
+      <pre>${JSON.stringify(metadata, null, 2)}</pre>
+    `;
+
     // Send alerts (non-blocking)
-    Promise.all([
+    const alertPromises = [
       sendSlackAlert(message, metadata),
-      sendEmailAlert(`VibeZ Alert: ${context.type} Error`, `${message}\n\n${JSON.stringify(metadata, null, 2)}`),
-    ]).catch(err => {
+      sendEmailAlert(
+        `VibeZ Alert: ${context.type} Error (${severity})`,
+        `${message}\n\n${JSON.stringify(metadata, null, 2)}`,
+        htmlEmail
+      ),
+    ];
+
+    // Send PagerDuty alert for critical issues
+    if (severity === 'critical') {
+      alertPromises.push(sendPagerDutyAlert(message, severity, metadata));
+    }
+
+    Promise.all(alertPromises).catch(err => {
       logError('Failed to send alerts', err);
     });
   }

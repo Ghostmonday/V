@@ -45,6 +45,12 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
       subscriptions: [],
       telemetry: null,
       auditLogs: [],
+      conversations: [],
+      conversationParticipants: [],
+      cards: [],
+      cardOwnerships: [],
+      cardEvents: [],
+      boosts: [],
     };
 
     // Get user profile
@@ -148,11 +154,82 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
       userData.auditLogs = auditLogs;
     }
 
+    // Get conversations created by user
+    const { data: conversations } = await supabase
+      .from('conversations')
+      .select('id, created_at, updated_at, last_message_at, message_count, is_group, metadata')
+      .eq('created_by', id)
+      .order('created_at', { ascending: false });
+
+    if (conversations) {
+      userData.conversations = conversations;
+    }
+
+    // Get conversation participants
+    const { data: conversationParticipants } = await supabase
+      .from('conversation_participants')
+      .select('conversation_id, joined_at, last_read_at')
+      .eq('user_id', id)
+      .order('joined_at', { ascending: false });
+
+    if (conversationParticipants) {
+      userData.conversationParticipants = conversationParticipants;
+    }
+
+    // Get cards owned by user (via card_ownerships)
+    const { data: cardOwnerships } = await supabase
+      .from('card_ownerships')
+      .select('card_id, acquired_at, acquisition_type, claim_deadline, previous_owner_id')
+      .eq('owner_id', id)
+      .order('acquired_at', { ascending: false });
+
+    if (cardOwnerships) {
+      userData.cardOwnerships = cardOwnerships;
+
+      // Get card details for owned cards
+      const cardIds = cardOwnerships.map(co => co.card_id);
+      if (cardIds.length > 0) {
+        const { data: cards } = await supabase
+          .from('cards')
+          .select('id, conversation_id, artwork_url, frame_style, title, caption, metadata, rarity_data, ipfs_cid, arweave_txid, created_at, generated_at, is_burned, burned_at')
+          .in('id', cardIds);
+
+        if (cards) {
+          userData.cards = cards;
+        }
+      }
+    }
+
+    // Get card events for user
+    const { data: cardEvents } = await supabase
+      .from('card_events')
+      .select('card_id, event_type, metadata, created_at')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false })
+      .limit(1000);
+
+    if (cardEvents) {
+      userData.cardEvents = cardEvents;
+    }
+
+    // Get boosts/transactions
+    const { data: boosts } = await supabase
+      .from('boosts')
+      .select('id, conversation_id, boost_type, amount_paid, payment_provider, payment_id, metadata, created_at')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false });
+
+    if (boosts) {
+      userData.boosts = boosts;
+    }
+
     // Log export event
     await logAudit('user_data_exported', id, {
       exportedAt: userData.exportedAt,
       messageCount: userData.messages.length,
       roomCount: userData.rooms.length,
+      cardCount: userData.cards.length,
+      conversationCount: userData.conversations.length,
     });
 
     res.json({
@@ -171,6 +248,7 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
 /**
  * DELETE /api/users/:id/data
  * Delete all user data (GDPR right to erasure)
+ * Uses soft delete with retention period for compliance
  */
 router.delete('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -190,81 +268,21 @@ router.delete('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res
       requestedAt: new Date().toISOString(),
     });
 
-    // Delete user data in order (respecting foreign key constraints)
-    const deletionResults: Record<string, number> = {};
+    // Use soft delete service with retention period
+    const { softDeleteUserData } = await import('../services/data-deletion-service.js');
+    const result = await softDeleteUserData(id, 'user_request');
 
-    // Delete messages (soft delete: anonymize instead of hard delete for data integrity)
-    const { count: messageCount } = await supabase
-      .from('messages')
-      .update({ 
-        sender_id: '00000000-0000-0000-0000-000000000000', // System/anonymous user
-        content: '[deleted]',
-      })
-      .eq('sender_id', id);
-
-    deletionResults.messages = messageCount || 0;
-
-    // Delete room memberships
-    const { count: membershipCount } = await supabase
-      .from('room_memberships')
-      .delete()
-      .eq('user_id', id);
-
-    deletionResults.memberships = membershipCount || 0;
-
-    // Delete files (metadata only - actual files may remain in storage)
-    const { count: fileCount } = await supabase
-      .from('files')
-      .delete()
-      .eq('user_id', id);
-
-    deletionResults.files = fileCount || 0;
-
-    // Delete subscriptions
-    const { count: subscriptionCount } = await supabase
-      .from('subscriptions')
-      .delete()
-      .eq('user_id', id);
-
-    deletionResults.subscriptions = subscriptionCount || 0;
-
-    // Delete UX telemetry
-    try {
-      const { deleteUserTelemetry } = await import('../services/ux-telemetry-service.js');
-      const telemetryDeleted = await deleteUserTelemetry(id);
-      deletionResults.telemetry = telemetryDeleted;
-    } catch (error: any) {
-      logError('Failed to delete telemetry', error);
-      deletionResults.telemetry = 0;
+    if (!result.success) {
+      logError('Soft delete had errors', new Error(result.errors.join('; ')));
     }
-
-    // Anonymize user profile (don't delete for referential integrity)
-    const { error: userError } = await supabase
-      .from('users')
-      .update({
-        email: `deleted_${id}@deleted.local`,
-        metadata: { deleted: true, deletedAt: new Date().toISOString() },
-      })
-      .eq('id', id);
-
-    if (userError) {
-      logError('Failed to anonymize user', userError);
-    }
-
-    // Log deletion completion
-    await logAudit('user_data_deleted', id, {
-      deletedAt: new Date().toISOString(),
-      deletionResults,
-    });
-
-    logInfo(`User data deleted for user ${id}`, { deletionResults });
 
     res.json({
-      success: true,
+      success: result.success,
       userId: id,
       deletedAt: new Date().toISOString(),
-      deletionResults,
-      note: 'User profile anonymized. Some data may be retained for legal/compliance purposes.',
+      retentionUntil: result.retentionUntil,
+      errors: result.errors,
+      note: 'Your data has been soft-deleted and will be permanently removed after the retention period. Some anonymized data may be retained for legal/compliance purposes.',
     });
   } catch (error: any) {
     logError('Failed to delete user data', error);
@@ -278,12 +296,15 @@ router.delete('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res
 /**
  * POST /api/users/:id/consent
  * Update user consent preferences (GDPR consent management)
+ * Stores consent records with audit trail
  */
 router.post('/:id/consent', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const authenticatedUserId = req.user?.userId;
-    const { marketing, analytics, required } = req.body;
+    const { marketing, analytics, required, cookies, third_party, consent_version } = req.body;
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
 
     // Ensure user can only update their own consent
     if (authenticatedUserId !== id) {
@@ -293,8 +314,49 @@ router.post('/:id/consent', authMiddleware, async (req: AuthenticatedRequest, re
       });
     }
 
-    // Update consent preferences
-    const { error } = await supabase
+    const consentVersion = consent_version || '1.0';
+    const consentRecords: Array<{ consent_type: string; granted: boolean }> = [];
+
+    // Create consent records for each consent type
+    if (marketing !== undefined) {
+      consentRecords.push({ consent_type: 'marketing', granted: marketing });
+    }
+    if (analytics !== undefined) {
+      consentRecords.push({ consent_type: 'analytics', granted: analytics });
+    }
+    if (required !== undefined) {
+      consentRecords.push({ consent_type: 'required', granted: required });
+    }
+    if (cookies !== undefined) {
+      consentRecords.push({ consent_type: 'cookies', granted: cookies });
+    }
+    if (third_party !== undefined) {
+      consentRecords.push({ consent_type: 'third_party', granted: third_party });
+    }
+
+    // Insert consent records
+    const recordsToInsert = consentRecords.map(record => ({
+      user_id: id,
+      consent_type: record.consent_type,
+      granted: record.granted,
+      consent_version: consentVersion,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      metadata: {
+        updatedAt: new Date().toISOString(),
+      },
+    }));
+
+    const { error: consentError } = await supabase
+      .from('consent_records')
+      .insert(recordsToInsert);
+
+    if (consentError) {
+      throw consentError;
+    }
+
+    // Also update user metadata for backward compatibility
+    const { error: userError } = await supabase
       .from('users')
       .update({
         metadata: {
@@ -302,14 +364,17 @@ router.post('/:id/consent', authMiddleware, async (req: AuthenticatedRequest, re
             marketing: marketing ?? false,
             analytics: analytics ?? false,
             required: required ?? true, // Required consent cannot be false
+            cookies: cookies ?? false,
+            third_party: third_party ?? false,
             updatedAt: new Date().toISOString(),
+            consentVersion,
           },
         },
       })
       .eq('id', id);
 
-    if (error) {
-      throw error;
+    if (userError) {
+      logError('Failed to update user metadata', userError);
     }
 
     // Log consent update
@@ -317,6 +382,9 @@ router.post('/:id/consent', authMiddleware, async (req: AuthenticatedRequest, re
       marketing,
       analytics,
       required,
+      cookies,
+      third_party,
+      consentVersion,
       updatedAt: new Date().toISOString(),
     });
 
@@ -327,13 +395,152 @@ router.post('/:id/consent', authMiddleware, async (req: AuthenticatedRequest, re
         marketing,
         analytics,
         required,
+        cookies,
+        third_party,
       },
+      consentVersion,
     });
   } catch (error: any) {
     logError('Failed to update consent', error);
     res.status(500).json({
       success: false,
       error: 'Failed to update consent preferences',
+    });
+  }
+});
+
+/**
+ * GET /api/users/:id/consent
+ * Get user consent history (GDPR consent management)
+ */
+router.get('/:id/consent', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const authenticatedUserId = req.user?.userId;
+
+    // Ensure user can only view their own consent
+    if (authenticatedUserId !== id) {
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden: You can only view your own consent records',
+      });
+    }
+
+    // Get consent records
+    const { data: consentRecords, error } = await supabase
+      .from('consent_records')
+      .select('*')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    // Get current consent from user metadata
+    const { data: user } = await supabase
+      .from('users')
+      .select('metadata')
+      .eq('id', id)
+      .single();
+
+    res.json({
+      success: true,
+      userId: id,
+      currentConsent: user?.metadata?.consent || null,
+      consentHistory: consentRecords || [],
+    });
+  } catch (error: any) {
+    logError('Failed to get consent records', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get consent records',
+    });
+  }
+});
+
+/**
+ * DELETE /api/users/:id/consent/:type
+ * Withdraw consent (GDPR consent management)
+ */
+router.delete('/:id/consent/:type', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id, type } = req.params;
+    const authenticatedUserId = req.user?.userId;
+
+    // Ensure user can only withdraw their own consent
+    if (authenticatedUserId !== id) {
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden: You can only withdraw your own consent',
+      });
+    }
+
+    // Required consent cannot be withdrawn
+    if (type === 'required') {
+      return res.status(400).json({
+        success: false,
+        error: 'Required consent cannot be withdrawn',
+      });
+    }
+
+    // Mark consent as withdrawn
+    const { error } = await supabase
+      .from('consent_records')
+      .update({
+        withdrawn_at: new Date().toISOString(),
+        granted: false,
+      })
+      .eq('user_id', id)
+      .eq('consent_type', type)
+      .is('withdrawn_at', null); // Only update if not already withdrawn
+
+    if (error) {
+      throw error;
+    }
+
+    // Update user metadata
+    const { data: user } = await supabase
+      .from('users')
+      .select('metadata')
+      .eq('id', id)
+      .single();
+
+    if (user?.metadata?.consent) {
+      const updatedConsent = {
+        ...user.metadata.consent,
+        [type]: false,
+        withdrawnAt: new Date().toISOString(),
+      };
+
+      await supabase
+        .from('users')
+        .update({
+          metadata: {
+            ...user.metadata,
+            consent: updatedConsent,
+          },
+        })
+        .eq('id', id);
+    }
+
+    // Log consent withdrawal
+    await logAudit('user_consent_withdrawn', id, {
+      consentType: type,
+      withdrawnAt: new Date().toISOString(),
+    });
+
+    res.json({
+      success: true,
+      userId: id,
+      consentType: type,
+      withdrawnAt: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    logError('Failed to withdraw consent', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to withdraw consent',
     });
   }
 });

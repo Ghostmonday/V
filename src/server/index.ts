@@ -25,6 +25,7 @@ import configRoutes from '../routes/config-routes.js';
 import telemetryRoutes from '../routes/telemetry-routes.js';
 import adminRoutes from '../routes/admin-routes.js';
 import adminModerationRoutes from '../routes/admin-moderation-routes.js';
+import moderationRoutes from '../routes/moderation-routes.js';
 import voiceRoutes from '../routes/voice-routes.js';
 import subscriptionRoutes from '../routes/subscription-routes.js';
 import entitlementsRoutes from '../routes/entitlements-routes.js';
@@ -47,6 +48,7 @@ import vibesMuseumRoutes from '../routes/vibes/museum-routes.js';
 import userDataRoutes from '../routes/user-data-routes.js';
 import { telemetryMiddleware } from './middleware/telemetry.js';
 import { errorMiddleware } from './middleware/error.js';
+import { structuredLogging } from '../middleware/structured-logging.js';
 import { rateLimit, ipRateLimit } from '../middleware/rate-limiter.js';
 import rateLimiter from '../middleware/rate-limiter.js'; // Simple default rate limiter
 import { sanitizeInput } from '../middleware/input-validation.js';
@@ -135,6 +137,9 @@ app.use(helmet({
   xssFilter: true, // Enable XSS filter
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
+
+// Phase 6.1: Structured logging middleware (after security, before routes)
+app.use(structuredLogging);
 
 // Health endpoint - must be public (before rate limiting and auth)
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
@@ -238,6 +243,7 @@ app.use('/config', configRoutes);
 app.use('/telemetry', telemetryRoutes);
 app.use('/admin', adminRoutes);
 app.use('/admin/moderation', adminModerationRoutes);
+app.use('/api/moderation', moderationRoutes); // User-facing moderation endpoints
 app.use('/voice', voiceRoutes);
 app.use('/subscription', subscriptionRoutes);
 app.use('/entitlements', entitlementsRoutes);
@@ -338,8 +344,17 @@ const cardGenerationPromise = vibesConfig.cardGenerationEnabled
     })
   : Promise.resolve();
 
+// Phase 8: Data retention cron job (if enabled) - parallel import
+const dataRetentionPromise = process.env.ENABLE_DATA_RETENTION !== 'false'
+  ? import('../jobs/data-retention-cron.js').then(() => {
+      logInfo('Data retention cron job loaded (auto-scheduled)');
+    }).catch(err => {
+      logError('Failed to load data retention cron job', err);
+    })
+  : Promise.resolve();
+
 // Wait for all jobs to load in parallel
-await Promise.all([partitionManagementPromise, expireRoomsPromise, cardGenerationPromise]);
+await Promise.all([partitionManagementPromise, expireRoomsPromise, cardGenerationPromise, dataRetentionPromise]);
 
 // Health endpoint already defined above (before rate limiting)
 

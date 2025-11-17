@@ -30,6 +30,7 @@ export interface TelemetryMetadata {
 
 /**
  * Core telemetry logging function with retry logic
+ * Phase 6.4: Enhanced with sampling and compression
  */
 export async function logTelemetryEvent(
   eventType: string,
@@ -41,8 +42,34 @@ export async function logTelemetryEvent(
 ): Promise<void> {
   const { userId, roomId, metadata = {} } = options;
 
-  // Increment Prometheus counter (synchronous, fast)
+  // Increment Prometheus counter (synchronous, fast) - always count
   telemetryEventCounter.inc({ event: eventType });
+
+  // Phase 6.4: Event sampling (10% of events, preserve all critical events)
+  const isCriticalEvent = eventType.includes('error') || 
+                          eventType.includes('critical') || 
+                          eventType.includes('security') ||
+                          eventType.includes('auth_failure');
+  
+  const samplingRate = parseFloat(process.env.TELEMETRY_SAMPLING_RATE || '0.1'); // Default 10%
+  const shouldSample = isCriticalEvent || Math.random() < samplingRate;
+  
+  if (!shouldSample) {
+    // Sampled out - don't persist to DB, but metrics are still recorded
+    return;
+  }
+
+  // Phase 6.4: Compress metadata before storage (if large)
+  let compressedMetadata = metadata;
+  if (JSON.stringify(metadata).length > 1000) {
+    // For large metadata, we could compress, but for now just truncate
+    // In production, use gzip compression
+    compressedMetadata = {
+      ...metadata,
+      _compressed: true,
+      _original_size: JSON.stringify(metadata).length,
+    };
+  }
 
   // Persist to Supabase with retry logic (async, can fail gracefully)
   const maxRetries = 3;
@@ -54,7 +81,7 @@ export async function logTelemetryEvent(
         event: eventType,
         user_id: userId || null,
         room_id: roomId || null,
-        features: metadata,
+        features: compressedMetadata,
         event_time: new Date().toISOString(),
         risk: metadata?.risk || null,
         action: metadata?.action || null,

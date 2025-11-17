@@ -1,0 +1,104 @@
+# Artillery Load Testing Configuration
+# Tests 10k concurrent users and 10k messages/sec throughput
+#
+# Install Artillery: npm install -g artillery
+# Run: artillery run scripts/load-test/artillery-config.yml
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Ramp up to 10k concurrent users
+    - duration: 120
+      arrivalRate: 50
+      name: "Ramp up to 1k users"
+    - duration: 300
+      arrivalRate: 100
+      name: "Ramp up to 5k users"
+    - duration: 600
+      arrivalRate: 200
+      name: "Ramp up to 10k users"
+    - duration: 600
+      arrivalRate: 200
+      name: "Sustain 10k users"
+    - duration: 300
+      arrivalRate: 0
+      name: "Ramp down"
+  processor: "./artillery-processor.js"
+  variables:
+    baseUrl: "http://localhost:3000"
+  plugins:
+    expect: {}
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  # Authentication flow
+  - name: "Login and send messages"
+    weight: 100
+    flow:
+      # Login
+      - post:
+          url: "/auth/login"
+          json:
+            email: "loadtest{{ $randomInt(1, 100) }}@example.com"
+            password: "password123"
+          capture:
+            - json: "$.accessToken"
+              as: "accessToken"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: accessToken
+
+      # Send messages (10k messages/sec target)
+      - loop:
+          - post:
+              url: "/api/messages"
+              headers:
+                Authorization: "Bearer {{ accessToken }}"
+              json:
+                roomId: "room-{{ $randomInt(1, 100) }}"
+                content: "Load test message {{ $randomInt(1, 1000000) }}"
+              expect:
+                - statusCode: [200, 201]
+          count: 60
+          think: 1 # 1 second between messages = 1 msg/sec per user = 10k msg/sec at 10k users
+
+  # WebSocket connection test
+  - name: "WebSocket connection"
+    weight: 10
+    engine: ws
+    flow:
+      - connect:
+          url: "ws://localhost:3000/ws?userId=user-{{ $randomInt(1, 1000) }}&token=test-token"
+      - send:
+          message: '{"type":"message","payload":{"roomId":"room-123","content":"Hello"}}'
+      - think: 5
+      - close
+
+  # Health check
+  - name: "Health check"
+    weight: 1
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+
+# Metrics and thresholds
+metrics:
+  - name: "message_latency"
+    unit: "ms"
+    threshold:
+      p95: 100
+      p99: 200
+  - name: "http.request.duration"
+    unit: "ms"
+    threshold:
+      p95: 200
+      p99: 500
+  - name: "http.errors"
+    threshold:
+      rate: 0.01 # Error rate < 1%
+

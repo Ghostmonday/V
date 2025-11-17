@@ -25,8 +25,8 @@ export async function scanForToxicity(
   userId?: string
 ): Promise<{ score: number; isToxic: boolean; suggestion: string }> {
   try {
-    // Get configurable thresholds
-    const thresholds = await getModerationThresholds();
+    // Get configurable thresholds (with room-specific override if available)
+    const thresholds = await getModerationThresholds(roomId);
     const warnThreshold = thresholds.warn; // Default: 0.6
     const blockThreshold = thresholds.block; // Default: 0.8
 
@@ -55,7 +55,7 @@ export async function scanForToxicity(
           userId,
           'toxicity',
           score,
-          'system',
+          null, // null = system flag
           { 
             source: 'perspective_api',
             perspectiveScores: {
@@ -147,7 +147,7 @@ Respond with JSON only: {"score": 0-1, "isToxic": true/false, "suggestion": "bri
         userId,
         'toxicity',
         score,
-        'system',
+        null, // null = system flag
         { source: 'deepseek_moderation' }
       );
     }

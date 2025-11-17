@@ -31,10 +31,13 @@ export async function flagMessage(
   userId: string,
   reason: string,
   score: number,
-  flaggedBy: string = 'system',
+  flaggedBy: string | null = null, // null = system flag, UUID = user flag
   metadata: Record<string, any> = {}
 ): Promise<FlaggedMessage | null> {
   try {
+    // Convert 'system' string to null for database
+    const flaggedByValue = flaggedBy === 'system' ? null : flaggedBy;
+    
     const { data, error } = await supabase
       .from('flagged_messages')
       .insert({
@@ -43,7 +46,7 @@ export async function flagMessage(
         user_id: userId,
         reason,
         score,
-        flagged_by: flaggedBy,
+        flagged_by: flaggedByValue, // null for system flags, UUID for user flags
         status: 'pending',
         metadata,
       })
@@ -54,7 +57,7 @@ export async function flagMessage(
       throw error;
     }
 
-    logInfo(`Message flagged: ${messageId} by ${flaggedBy} for ${reason}`);
+    logInfo(`Message flagged: ${messageId} by ${flaggedByValue || 'system'} for ${reason}`);
     return data as FlaggedMessage;
   } catch (error: any) {
     logError('Failed to flag message', error);

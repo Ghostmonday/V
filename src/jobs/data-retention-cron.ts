@@ -15,10 +15,14 @@ import { supabase } from '../config/db.ts';
 import { getRedisClient } from '../config/db.ts';
 import { logInfo, logError } from '../shared/logger.js';
 import { getDefaultTTL } from '../services/DatabaseService.js';
+import { anonymizeUserPII } from '../services/data-deletion-service.js';
 
 const redis = getRedisClient();
 const LOCK_KEY = 'data_retention_lock';
 const LOCK_TTL = 3600; // 1 hour lock timeout
+
+// Default retention period for users (used in anonymization)
+const DEFAULT_RETENTION_DAYS = parseInt(process.env.RETENTION_USERS_DAYS || '30', 10);
 
 /**
  * Acquire distributed lock for data retention job
@@ -54,8 +58,8 @@ async function deleteExpiredMessages(): Promise<{ deleted: number; errors: strin
   let deleted = 0;
 
   try {
-    // Get default TTL for messages (30 days)
-    const ttlDays = getDefaultTTL('messages') || 30;
+    // Get configurable retention period for messages
+    const ttlDays = getRetentionPeriod('messages');
     const cutoffDate = new Date(Date.now() - ttlDays * 24 * 60 * 60 * 1000);
 
     // Delete messages older than TTL, but exclude:
@@ -143,8 +147,8 @@ async function cleanupEphemeralData(): Promise<{ deleted: number; errors: string
   let deleted = 0;
 
   try {
-    const ttlHours = 1;
-    const cutoffDate = new Date(Date.now() - ttlHours * 60 * 60 * 1000);
+    const ttlDays = getRetentionPeriod('ephemeral');
+    const cutoffDate = new Date(Date.now() - ttlDays * 24 * 60 * 60 * 1000);
 
     // Clean up typing indicators (if stored in database)
     // Note: Typing indicators might be Redis-only, adjust based on implementation
@@ -190,7 +194,7 @@ async function deleteExpiredTemporaryRooms(): Promise<{ deleted: number; errors:
   let deleted = 0;
 
   try {
-    const ttlDays = getDefaultTTL('temporary_rooms') || 7;
+    const ttlDays = getRetentionPeriod('temporary_rooms');
     const cutoffDate = new Date(Date.now() - ttlDays * 24 * 60 * 60 * 1000);
 
     const { data: expiredRooms, error: fetchError } = await supabase
@@ -232,6 +236,74 @@ async function deleteExpiredTemporaryRooms(): Promise<{ deleted: number; errors:
 }
 
 /**
+ * Anonymize user PII for users past retention period
+ * Called after retention period expires
+ */
+async function anonymizeExpiredUsers(): Promise<{ anonymized: number; errors: string[] }> {
+  const errors: string[] = [];
+  let anonymized = 0;
+
+  try {
+    // Find users ready for anonymization (deleted but not yet anonymized)
+    const { data: usersToAnonymize, error: fetchError } = await supabase
+      .from('deleted_users')
+      .select('user_id, deleted_at')
+      .is('anonymized_at', null)
+      .lt('deleted_at', new Date(Date.now() - DEFAULT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString())
+      .limit(100); // Process in batches
+
+    if (fetchError) {
+      errors.push(`Failed to fetch users for anonymization: ${fetchError.message}`);
+      return { anonymized, errors };
+    }
+
+    if (!usersToAnonymize || usersToAnonymize.length === 0) {
+      logInfo('No users ready for anonymization');
+      return { anonymized, errors };
+    }
+
+    // Anonymize each user
+    for (const user of usersToAnonymize) {
+      try {
+        const success = await anonymizeUserPII(user.user_id);
+        if (success) {
+          anonymized++;
+        } else {
+          errors.push(`Failed to anonymize user ${user.user_id}`);
+        }
+      } catch (error: any) {
+        errors.push(`Error anonymizing user ${user.user_id}: ${error.message}`);
+      }
+    }
+
+    logInfo(`Anonymized ${anonymized} users`);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    errors.push(`Error in anonymizeExpiredUsers: ${errorMessage}`);
+    logError('Error anonymizing expired users', error instanceof Error ? error : new Error(errorMessage));
+  }
+
+  return { anonymized, errors };
+}
+
+/**
+ * Get configurable retention period for data type
+ */
+function getRetentionPeriod(dataType: string): number {
+  // Default retention periods (in days)
+  const retentionPeriods: Record<string, number> = {
+    messages: parseInt(process.env.RETENTION_MESSAGES_DAYS || '90', 10),
+    users: parseInt(process.env.RETENTION_USERS_DAYS || '30', 10),
+    telemetry: parseInt(process.env.RETENTION_TELEMETRY_DAYS || '365', 10),
+    audit_logs: parseInt(process.env.RETENTION_AUDIT_LOGS_DAYS || '2555', 10), // 7 years
+    temporary_rooms: parseInt(process.env.RETENTION_TEMPORARY_ROOMS_DAYS || '7', 10),
+    ephemeral: parseInt(process.env.RETENTION_EPHEMERAL_HOURS || '1', 10) / 24, // Convert hours to days
+  };
+
+  return retentionPeriods[dataType] || 30; // Default 30 days
+}
+
+/**
  * Run data retention cleanup with distributed locking
  */
 export async function runDataRetentionCleanup(): Promise<void> {
@@ -246,10 +318,11 @@ export async function runDataRetentionCleanup(): Promise<void> {
     logInfo('Starting data retention cleanup cron job');
 
     // Run cleanup tasks
-    const [messagesResult, ephemeralResult, roomsResult] = await Promise.all([
+    const [messagesResult, ephemeralResult, roomsResult, anonymizationResult] = await Promise.all([
       deleteExpiredMessages(),
       cleanupEphemeralData(),
       deleteExpiredTemporaryRooms(),
+      anonymizeExpiredUsers(),
     ]);
 
     const totalDeleted = messagesResult.deleted + ephemeralResult.deleted + roomsResult.deleted;
@@ -257,12 +330,14 @@ export async function runDataRetentionCleanup(): Promise<void> {
       ...messagesResult.errors,
       ...ephemeralResult.errors,
       ...roomsResult.errors,
+      ...anonymizationResult.errors,
     ];
 
     logInfo('Data retention cleanup completed', {
       messagesDeleted: messagesResult.deleted,
       ephemeralDeleted: ephemeralResult.deleted,
       roomsDeleted: roomsResult.deleted,
+      usersAnonymized: anonymizationResult.anonymized,
       totalDeleted,
       errors: allErrors.length,
     });

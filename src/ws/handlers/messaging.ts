@@ -14,9 +14,10 @@ import { getRedisClient } from '../../config/db.ts';
 import { broadcastToRoom } from '../utils.js';
 import { checkMessageRateLimit } from '../../middleware/ws-message-rate-limiter.js';
 import { scanForToxicity } from '../../services/moderation.service.js';
-import { logError } from '../../shared/logger.js';
+import { logError, logInfo } from '../../shared/logger.js';
 import { validateWSMessage } from '../../middleware/incremental-validation.js';
 import { isEncryptedPayload, isE2ERoom } from '../../services/e2e-encryption.js';
+import { publishToStream, routeToModeration } from '../../config/redis-streams.js';
 import { z } from 'zod';
 
 const redis = getRedisClient();
@@ -172,6 +173,28 @@ export async function handleMessaging(ws: WebSocket & { userId?: string }, envel
       });
     }
 
+    // Phase 9.2: Publish to Redis Stream for message routing and archival
+    try {
+      await publishToStream(roomId, {
+        message_id: messageId,
+        ...broadcastPayload,
+        stream_timestamp: Date.now()
+      });
+      
+      // Route to moderation stream if needed
+      if (userId && messageContent) {
+        await routeToModeration(roomId, messageId, {
+          content: messageContent,
+          sender_id: userId
+        }).catch(err => {
+          logError('Failed to route to moderation stream', err);
+        });
+      }
+    } catch (streamError) {
+      // Non-critical: log but don't block message broadcast
+      logError('Failed to publish to Redis Stream', streamError instanceof Error ? streamError : new Error(String(streamError)));
+    }
+    
     // Broadcast message to room using optimized WebSocket utility
     // Uses direct WebSocket broadcast for efficiency, falls back to Redis pub/sub
     broadcastToRoom(

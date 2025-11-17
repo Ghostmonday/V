@@ -4,7 +4,12 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/__tests__/**/*.test.ts', 'src/**/__tests__/**/*.spec.ts'],
+    include: [
+      'src/**/__tests__/**/*.test.ts',
+      'src/**/__tests__/**/*.spec.ts',
+      'src/tests/**/*.test.ts',
+      'src/tests/**/*.spec.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -14,13 +19,14 @@ export default defineConfig({
         '**/*.test.ts',
         '**/*.spec.ts',
         '**/__tests__/**',
+        'src/tests/**',
         'coverage/',
       ],
       thresholds: {
-        lines: 60,
-        functions: 60,
-        branches: 60,
-        statements: 60,
+        lines: 80, // Phase 7 target: >80% coverage for core services
+        functions: 80,
+        branches: 80,
+        statements: 80,
       },
     },
   },

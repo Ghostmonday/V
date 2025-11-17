@@ -46,6 +46,19 @@ export const toxicityScoreHistogram = new client.Histogram({
   buckets: [0, 0.3, 0.5, 0.7, 0.9, 1.0],
 });
 
+// Phase 6.2: Card generation metrics
+export const cardGenerationCounter = new client.Counter({
+  name: 'vibes_card_generation_total',
+  help: 'Total VIBES card generations',
+  labelNames: ['status'], // status: 'success', 'failed', 'cached'
+});
+
+export const cardGenerationDuration = new client.Histogram({
+  name: 'vibes_card_generation_duration_seconds',
+  help: 'VIBES card generation duration',
+  buckets: [0.5, 1, 2, 5, 10, 30],
+});
+
 // Error metrics
 export const errorCounter = new client.Counter({
   name: 'errors_total',
@@ -128,5 +141,15 @@ export function updateWebSocketConnections(count: number): void {
  */
 export function recordDatabaseQuery(table: string, operation: string, duration: number): void {
   databaseQueryDuration.observe({ table, operation }, duration / 1000);
+}
+
+/**
+ * Record card generation (Phase 6.2)
+ */
+export function recordCardGeneration(status: 'success' | 'failed' | 'cached', duration?: number): void {
+  cardGenerationCounter.inc({ status });
+  if (duration !== undefined) {
+    cardGenerationDuration.observe(duration / 1000);
+  }
 }
 

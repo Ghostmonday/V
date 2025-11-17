@@ -85,13 +85,32 @@ export async function analyzeWithPerspective(text: string): Promise<PerspectiveR
 }
 
 /**
- * Get configurable threshold from system config
+ * Get configurable threshold from system config or room-specific override
+ * Phase 5.2: Supports per-room custom thresholds
  */
-export async function getModerationThresholds(): Promise<{
+export async function getModerationThresholds(roomId?: string): Promise<{
   warn: number;
   block: number;
 }> {
   try {
+    // Check for room-specific thresholds first (if roomId provided)
+    if (roomId) {
+      const { data: roomThresholds } = await supabase
+        .from('room_moderation_thresholds')
+        .select('warn_threshold, block_threshold, enabled')
+        .eq('room_id', roomId)
+        .eq('enabled', true)
+        .single();
+
+      if (roomThresholds) {
+        return {
+          warn: roomThresholds.warn_threshold || 0.6,
+          block: roomThresholds.block_threshold || 0.8,
+        };
+      }
+    }
+
+    // Fall back to system-wide thresholds
     const { data } = await supabase
       .from('system_config')
       .select('value')
