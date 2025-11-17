@@ -85,7 +85,7 @@ jobs:
         run: npm run storybook:build || echo "Storybook not configured yet"
       
       - name: Run Chromatic
-        uses: chromaui/action@v1
+        uses: chromaui/action@v13
         with:
           projectToken: ${{ secrets.CHROMATIC_TOKEN }}
           exitZeroOnChanges: false # Fail on visual changes
