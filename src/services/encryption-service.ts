@@ -8,8 +8,9 @@ import crypto from 'crypto';
 import { supabase } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 import { getApiKey } from './api-keys-service.js';
+import { getOptimalEncryptionAlgorithm, encryptWithHardwareAcceleration, decryptWithHardwareAcceleration } from './hardware-accelerated-encryption.js';
 
-const ALGORITHM = 'aes-256-gcm';
+const ALGORITHM = 'aes-256-gcm'; // Default, will use hardware-accelerated if available
 const IV_LENGTH = 16;
 const SALT_LENGTH = 64;
 const TAG_LENGTH = 16;
@@ -42,6 +43,7 @@ async function getEncryptionKey(): Promise<Buffer> {
 
 /**
  * Encrypt sensitive data
+ * Uses hardware-accelerated encryption when available
  */
 export async function encryptField(value: string): Promise<string> {
   if (!value || typeof value !== 'string') {
@@ -50,29 +52,42 @@ export async function encryptField(value: string): Promise<string> {
 
   try {
     const key = await getEncryptionKey();
-    const iv = crypto.randomBytes(IV_LENGTH);
     const salt = crypto.randomBytes(SALT_LENGTH);
     
     // Derive key from master key and salt
     const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
     
-    const cipher = crypto.createCipheriv(ALGORITHM, derivedKey, iv);
+    // Use hardware-accelerated encryption if available
+    const { encrypted, iv, authTag, algorithm } = await encryptWithHardwareAcceleration(
+      value,
+      derivedKey
+    );
     
-    let encrypted = cipher.update(value, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    
-    const authTag = cipher.getAuthTag();
-    
-    // Combine: salt:iv:authTag:encrypted
-    return `${salt.toString('hex')}:${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
+    // Combine: salt:iv:authTag:encrypted:algorithm
+    return `${salt.toString('hex')}:${iv.toString('hex')}:${authTag?.toString('hex') || ''}:${encrypted.toString('hex')}:${algorithm}`;
   } catch (error: any) {
     logError('Encryption failed', error);
-    throw new Error('Failed to encrypt sensitive data');
+    // Fallback to software encryption
+    try {
+      const key = await getEncryptionKey();
+      const iv = crypto.randomBytes(IV_LENGTH);
+      const salt = crypto.randomBytes(SALT_LENGTH);
+      const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
+      const cipher = crypto.createCipheriv(ALGORITHM, derivedKey, iv);
+      let encrypted = cipher.update(value, 'utf8', 'hex');
+      encrypted += cipher.final('hex');
+      const authTag = cipher.getAuthTag();
+      return `${salt.toString('hex')}:${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}:${ALGORITHM}`;
+    } catch (fallbackError: any) {
+      logError('Fallback encryption also failed', fallbackError);
+      throw new Error('Failed to encrypt sensitive data');
+    }
   }
 }
 
 /**
  * Decrypt sensitive data
+ * Uses hardware-accelerated decryption when available
  */
 export async function decryptField(encryptedValue: string): Promise<string> {
   if (!encryptedValue || typeof encryptedValue !== 'string') {
@@ -87,22 +102,45 @@ export async function decryptField(encryptedValue: string): Promise<string> {
 
   try {
     const parts = encryptedValue.split(':');
-    if (parts.length !== 4) {
+    // Support both old format (4 parts) and new format (5 parts with algorithm)
+    if (parts.length < 4 || parts.length > 5) {
       throw new Error('Invalid encrypted format');
     }
 
-    const [saltHex, ivHex, authTagHex, encrypted] = parts;
+    const [saltHex, ivHex, authTagHex, encryptedHex, algorithm] = parts;
     const salt = Buffer.from(saltHex, 'hex');
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
+    const encrypted = Buffer.from(encryptedHex, 'hex');
     
     const key = await getEncryptionKey();
     const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
     
-    const decipher = crypto.createDecipheriv(ALGORITHM, derivedKey, iv);
-    decipher.setAuthTag(authTag);
+    // Use hardware-accelerated decryption if algorithm supports it
+    if (algorithm && algorithm.includes('gcm')) {
+      try {
+        const decrypted = await decryptWithHardwareAcceleration(
+          encrypted,
+          derivedKey,
+          iv,
+          authTag,
+          algorithm
+        );
+        return decrypted.toString('utf8');
+      } catch (hwError) {
+        // Fallback to software decryption
+        logError('Hardware decryption failed, using software fallback', hwError);
+      }
+    }
     
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    // Software decryption (fallback or legacy format)
+    const algo = algorithm || ALGORITHM;
+    const decipher = crypto.createDecipheriv(algo, derivedKey, iv);
+    if (authTag.length > 0) {
+      decipher.setAuthTag(authTag);
+    }
+    
+    let decrypted = decipher.update(encrypted, null, 'utf8');
     decrypted += decipher.final('utf8');
     
     return decrypted;

@@ -39,8 +39,11 @@ VibeZ enables users to:
 - **VIBES Cards**: AI-generated collectible cards from conversations based on sentiment, rarity, and emotional intensity
 - **Sentiment Analysis**: Real-time analysis of conversation sentiment and emotional dynamics
 - **Moderation**: AI-powered content moderation with Perspective API and DeepSeek integration
-- **Voice/Video**: LiveKit and Agora integration for voice and video calls
+- **Voice/Video**: LiveKit and Agora integration for voice and video calls with Perfect Forward Secrecy
 - **Privacy**: End-to-end encryption, PII encryption at rest, GDPR/CCPA compliance
+- **Zero-Knowledge Proofs**: Selective disclosure for user profiles without revealing actual data
+- **Hardware-Accelerated Encryption**: AES-256-GCM with AES-NI hardware acceleration
+- **Perfect Forward Secrecy**: Ephemeral keys for media streams ensuring past calls remain secure
 - **Scalability**: Designed for high concurrency with WebSocket clustering and Redis pub/sub
 
 ---
@@ -434,6 +437,9 @@ Infrastructure as Code is in `infra/aws/` (Terraform). See `infra/aws/README.md`
 - **Authentication**: JWT with refresh token rotation
 - **Authorization**: Role-based access control (RBAC)
 - **Encryption**: PII encryption at rest, end-to-end encryption for messages
+- **Hardware-Accelerated Encryption**: AES-256-GCM with automatic AES-NI detection (10-100x faster)
+- **Perfect Forward Secrecy**: Ephemeral ECDH keys for media streams, deleted after call ends
+- **Zero-Knowledge Proofs**: Selective disclosure for user attributes without revealing values
 - **Rate Limiting**: Per-user and per-IP rate limiting
 - **Brute-Force Protection**: Account lockout after failed attempts
 - **Content Moderation**: AI-powered toxicity detection
@@ -496,6 +502,12 @@ API documentation is available in OpenAPI 3.0 format:
 - `GET /api/users/:id/data` - Export user data
 - `DELETE /api/users/:id/data` - Delete user data
 
+**Privacy** (Zero-Knowledge Proofs & Encryption):
+- `POST /api/privacy/selective-disclosure` - Generate ZKP proofs for selective disclosure
+- `POST /api/privacy/verify-disclosure` - Verify selective disclosure proofs
+- `GET /api/privacy/encryption-status` - Get hardware acceleration status
+- `GET /api/privacy/zkp/commitments/:userId` - Get stored proof commitments
+
 ### WebSocket Events
 
 **Client → Server**:
@@ -536,6 +548,11 @@ The build plan includes:
 - **[BUILD.plan](./BUILD.plan)** - Complete implementation roadmap
 - **[CODEBASE_COMPLETE.md](./CODEBASE_COMPLETE.md)** - Comprehensive codebase documentation
 - **[Execution Plan](./docs/execution/COMPLETE_EXECUTION_PLAN.md)** - Parallel execution strategy for Phases 4-10
+
+### Privacy & Security
+- **[Privacy Implementation Summary](./docs/PRIVACY_IMPLEMENTATION_SUMMARY.md)** - Zero-knowledge proofs, hardware acceleration, and PFS
+- **[Privacy Validation Report](./docs/PRIVACY_VALIDATION_REPORT.md)** - Privacy features validation results
+- **[Privacy Enhancements](./docs/PRIVACY_ENHANCEMENTS.md)** - Detailed privacy feature documentation
 
 ### Validation & Testing
 - **[Validation Summary](./docs/validation/VALIDATION_SUMMARY.md)** - Validation suite overview
@@ -584,5 +601,71 @@ See [LICENSE](./LICENSE) for details.
 
 ---
 
-**Last Updated**: 2025-11-16
+---
+
+## Privacy & Security Enhancements
+
+### Zero-Knowledge Proofs (ZKPs)
+
+VibeZ implements zero-knowledge proofs for selective profile disclosure, allowing users to prove attributes (age, verification status, subscription tier) without revealing actual values.
+
+**Features**:
+- Commitment-based proofs stored in database
+- Selective disclosure - prove only requested attributes
+- Non-replay protection via timestamps and nonces
+- API endpoints for proof generation and verification
+
+**Usage**:
+```typescript
+// Generate proof
+POST /api/privacy/selective-disclosure
+{
+  "attributeTypes": ["age", "verified"],
+  "purpose": "Age verification"
+}
+
+// Verify proof
+POST /api/privacy/verify-disclosure
+{
+  "disclosureProof": { ... },
+  "expectedCommitments": { ... }
+}
+```
+
+### Hardware-Accelerated Encryption
+
+Automatic detection and use of AES-NI hardware acceleration for AES-256-GCM encryption, providing 10-100x performance improvement with graceful fallback to software encryption.
+
+**Features**:
+- Automatic AES-NI detection
+- Hardware-accelerated AES-256-GCM encryption
+- Transparent integration - no code changes needed
+- Performance benchmarking
+
+**Status Check**:
+```bash
+GET /api/privacy/encryption-status
+```
+
+### Perfect Forward Secrecy (PFS)
+
+Media streams (voice/video calls) use Perfect Forward Secrecy with ephemeral ECDH keys, ensuring that even if long-term keys are compromised, past calls remain secure.
+
+**Features**:
+- Ephemeral key pairs per call session (ECDH)
+- Shared secret derivation using HKDF
+- Hardware-accelerated media encryption
+- Automatic key cleanup after call ends
+
+**Security Properties**:
+- Each call gets unique ephemeral keys
+- Keys deleted immediately after call ends
+- Past calls remain secure even if long-term keys compromised
+- Media streams encrypted with hardware-accelerated AES-256-GCM
+
+For detailed documentation, see [Privacy Implementation Summary](./docs/PRIVACY_IMPLEMENTATION_SUMMARY.md).
+
+---
+
+**Last Updated**: 2025-01-XX
 

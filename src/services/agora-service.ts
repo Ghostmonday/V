@@ -45,6 +45,12 @@ export interface RoomState {
 
 /**
  * Generate Agora RTC token for joining a room
+ * Note: Agora uses WebRTC which provides Perfect Forward Secrecy by default
+ * via DTLS-SRTP with ephemeral keys. This function generates the auth token.
+ * 
+ * For PFS, ensure WebRTC is configured with:
+ * - DTLS-SRTP (default in Agora)
+ * - Ephemeral key exchange (handled by WebRTC protocol)
  */
 export function generateAgoraToken(
   channelName: string,
@@ -67,6 +73,14 @@ export function generateAgoraToken(
     role,
     privilegeExpireTime
   );
+
+  // Note: Agora WebRTC automatically uses Perfect Forward Secrecy via DTLS-SRTP
+  // Each media stream uses ephemeral keys that are discarded after the call
+  logInfo('Agora token generated (PFS via WebRTC DTLS-SRTP)', {
+    channelName,
+    uid,
+    role,
+  });
 
   return token;
 }

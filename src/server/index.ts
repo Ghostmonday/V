@@ -46,6 +46,7 @@ import vibesConversationRoutes from '../routes/vibes/conversation-routes.js';
 import vibesCardRoutes from '../routes/vibes/card-routes.js';
 import vibesMuseumRoutes from '../routes/vibes/museum-routes.js';
 import userDataRoutes from '../routes/user-data-routes.js';
+import privacyRoutes from '../routes/privacy-routes.js';
 import { telemetryMiddleware } from './middleware/telemetry.js';
 import { errorMiddleware } from './middleware/error.js';
 import { structuredLogging } from '../middleware/structured-logging.js';
@@ -256,6 +257,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/threads', threadsRoutes);
 app.use('/api/ux-telemetry', uxTelemetryRoutes); // UX Telemetry (separate from system telemetry)
 app.use('/api/users', userDataRoutes); // GDPR user data endpoints
+app.use('/api/privacy', privacyRoutes); // Privacy & ZKP endpoints
 app.use('/api/read-receipts', readReceiptsRoutes); // Read receipts endpoints
 app.use('/api/nicknames', nicknamesRoutes); // Nicknames endpoints
 app.use('/api/pinned', pinnedRoutes); // Pinned items endpoints

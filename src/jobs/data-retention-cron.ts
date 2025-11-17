@@ -16,6 +16,7 @@ import { getRedisClient } from '../config/db.ts';
 import { logInfo, logError } from '../shared/logger.js';
 import { getDefaultTTL } from '../services/DatabaseService.js';
 import { anonymizeUserPII } from '../services/data-deletion-service.js';
+import { cleanupExpiredPFSSessions } from '../services/pfs-media-service.js';
 
 const redis = getRedisClient();
 const LOCK_KEY = 'data_retention_lock';
@@ -318,11 +319,12 @@ export async function runDataRetentionCleanup(): Promise<void> {
     logInfo('Starting data retention cleanup cron job');
 
     // Run cleanup tasks
-    const [messagesResult, ephemeralResult, roomsResult, anonymizationResult] = await Promise.all([
+    const [messagesResult, ephemeralResult, roomsResult, anonymizationResult, pfsCleanupCount] = await Promise.all([
       deleteExpiredMessages(),
       cleanupEphemeralData(),
       deleteExpiredTemporaryRooms(),
       anonymizeExpiredUsers(),
+      cleanupExpiredPFSSessions(), // Cleanup expired PFS call sessions
     ]);
 
     const totalDeleted = messagesResult.deleted + ephemeralResult.deleted + roomsResult.deleted;
@@ -338,6 +340,7 @@ export async function runDataRetentionCleanup(): Promise<void> {
       ephemeralDeleted: ephemeralResult.deleted,
       roomsDeleted: roomsResult.deleted,
       usersAnonymized: anonymizationResult.anonymized,
+      pfsSessionsCleaned: pfsCleanupCount,
       totalDeleted,
       errors: allErrors.length,
     });
