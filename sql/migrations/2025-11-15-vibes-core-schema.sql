@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS card_ownerships (
   card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
   owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   acquired_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  acquisition_type TEXT NOT NULL CHECK (acquisition_type IN ('claimed', 'defaulted', 'traded', 'purchased')),
+  acquisition_type TEXT NOT NULL CHECK (acquisition_type IN ('claimed', 'defaulted', 'purchased')),
   claim_deadline TIMESTAMPTZ,
   previous_owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
   UNIQUE(card_id, owner_id)
@@ -114,7 +114,7 @@ CREATE INDEX IF NOT EXISTS idx_ownership_card ON card_ownerships(card_id);
 CREATE TABLE IF NOT EXISTS card_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
-  event_type TEXT NOT NULL CHECK (event_type IN ('generated', 'offered', 'claimed', 'declined', 'defaulted', 'traded', 'burned', 'printed')),
+  event_type TEXT NOT NULL CHECK (event_type IN ('generated', 'offered', 'claimed', 'declined', 'defaulted', 'burned', 'printed')),
   user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   metadata JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
