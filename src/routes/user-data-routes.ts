@@ -191,7 +191,7 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
       if (cardIds.length > 0) {
         const { data: cards } = await supabase
           .from('cards')
-          .select('id, conversation_id, artwork_url, frame_style, title, caption, metadata, rarity_data, ipfs_cid, arweave_txid, created_at, generated_at, is_burned, burned_at')
+          .select('id, conversation_id, artwork_url, frame_style, title, caption, metadata, rarity_data, created_at, generated_at, is_burned, burned_at')
           .in('id', cardIds);
 
         if (cards) {

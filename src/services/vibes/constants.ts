@@ -55,7 +55,6 @@ export const VIBES_CONSTANTS = {
     'claimed',
     'declined',
     'defaulted',
-    'traded',
     'burned',
     'printed',
   ] as const,

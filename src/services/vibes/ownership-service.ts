@@ -13,7 +13,7 @@ export interface CardOwnership {
   card_id: string;
   owner_id: string;
   acquired_at: Date;
-  acquisition_type: 'claimed' | 'defaulted' | 'traded' | 'purchased';
+  acquisition_type: 'claimed' | 'defaulted' | 'purchased';
   claim_deadline: Date | null;
   previous_owner_id: string | null;
 }

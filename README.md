@@ -2,7 +2,7 @@
 
 **Real-time communication platform with AI-powered sentiment analysis and collectible card generation**
 
-VibeZ is an enterprise-grade real-time messaging platform that transforms conversations into collectible digital cards. Built with TypeScript, Express, WebSockets, and Supabase, VibeZ combines real-time communication with AI-powered sentiment analysis to create unique, tradeable digital artifacts from meaningful conversations.
+VibeZ is an enterprise-grade real-time messaging platform that transforms conversations into collectible digital cards. Built with TypeScript, Express, WebSockets, and Supabase, VibeZ combines real-time communication with AI-powered sentiment analysis to create unique digital artifacts from meaningful conversations.
 
 ---
 

@@ -64,8 +64,6 @@ export interface Card {
   caption: string | null;
   metadata: Record<string, any>;
   rarity_data: Record<string, any>;
-  ipfs_cid: string | null;
-  arweave_txid: string | null;
   created_at: Date;
   generated_at: Date | null;
   is_burned: boolean;
@@ -73,7 +71,7 @@ export interface Card {
 }
 
 // Ownership Types
-export type AcquisitionType = 'claimed' | 'defaulted' | 'traded' | 'purchased';
+export type AcquisitionType = 'claimed' | 'defaulted' | 'purchased';
 
 export interface CardOwnership {
   id: string;

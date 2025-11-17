@@ -26,8 +26,6 @@ export interface VIBESConfig {
   sentimentApiUrl?: string;
 
   // Storage
-  ipfsGatewayUrl: string;
-  arweaveGatewayUrl: string;
   s3Bucket?: string;
   awsAccessKeyId?: string;
   awsSecretAccessKey?: string;
@@ -40,9 +38,7 @@ export interface VIBESConfig {
   // Features
   features: {
     voiceMessages: boolean;
-    tradingEnabled: boolean;
     printToBurn: boolean;
-    decentralizedStorage: boolean;
   };
 }
 
@@ -87,8 +83,6 @@ export const vibesConfig: VIBESConfig = {
   sentimentApiUrl: process.env.SENTIMENT_API_URL,
 
   // Storage
-  ipfsGatewayUrl: getEnv('IPFS_GATEWAY_URL', 'https://ipfs.io'),
-  arweaveGatewayUrl: getEnv('ARWEAVE_GATEWAY_URL', 'https://arweave.net'),
   s3Bucket: process.env.AWS_BUCKET,
   awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -101,9 +95,7 @@ export const vibesConfig: VIBESConfig = {
   // Features
   features: {
     voiceMessages: getBooleanEnv('FEATURE_VOICE_MESSAGES', false),
-    tradingEnabled: getBooleanEnv('FEATURE_TRADING_ENABLED', false),
     printToBurn: getBooleanEnv('FEATURE_PRINT_TO_BURN', false),
-    decentralizedStorage: getBooleanEnv('FEATURE_DECENTRALIZED_STORAGE', false),
   },
 };
 
