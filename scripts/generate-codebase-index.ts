@@ -22,34 +22,34 @@ const CODE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.swift', '.sql', '.json'
 
 async function generateIndex() {
   console.log('🔍 Generating codebase index...');
-  
+
   const { stdout } = await execPromise(
-    `find . -type f \\( ${CODE_EXTENSIONS.map(ext => `-name "*${ext}"`).join(' -o ')} \\) | grep -v ${IGNORED_DIRS.map(d => `-e "/${d}/"`).join(' ')} | xargs wc -l | sort -rn`
+    `find . -type f \\( ${CODE_EXTENSIONS.map((ext) => `-name "*${ext}"`).join(' -o ')} \\) | grep -v ${IGNORED_DIRS.map((d) => `-e "/${d}/"`).join(' ')} | xargs wc -l | sort -rn`
   );
-  
+
   const lines = stdout.split('\n').filter(Boolean);
   const files: FileIndex[] = [];
-  
+
   for (const line of lines) {
     const match = line.match(/^\s*(\d+)\s+(.+)$/);
     if (match && match[2] !== 'total') {
       const [, lineCount, filePath] = match;
       const cleanPath = filePath.replace('./', '');
-      
+
       // Get file stats
       const stats = fs.statSync(cleanPath);
-      
+
       files.push({
         path: cleanPath,
         category: categorizeFile(cleanPath),
         lines: parseInt(lineCount),
         size: stats.size,
         lastModified: stats.mtime.toISOString(),
-        language: getLanguage(cleanPath)
+        language: getLanguage(cleanPath),
       });
     }
   }
-  
+
   const index = {
     generated: new Date().toISOString(),
     totalFiles: files.length,
@@ -57,12 +57,12 @@ async function generateIndex() {
     totalSize: files.reduce((sum, f) => sum + f.size, 0),
     categories: groupByCategory(files),
     topFiles: files.slice(0, 20),
-    files: files
+    files: files,
   };
-  
+
   await writeFile('CODEBASE_INDEX.json', JSON.stringify(index, null, 2));
   console.log('✅ Generated CODEBASE_INDEX.json');
-  
+
   // Generate quick reference file
   const quickRef = `# VibeZ Codebase Quick Reference
 
@@ -72,7 +72,10 @@ async function generateIndex() {
 - Total Size: ${(index.totalSize / 1024 / 1024).toFixed(2)} MB
 
 ## Largest Files
-${files.slice(0, 10).map(f => `- ${f.path} (${f.lines} lines)`).join('\n')}
+${files
+  .slice(0, 10)
+  .map((f) => `- ${f.path} (${f.lines} lines)`)
+  .join('\n')}
 
 ## File Types
 ${Object.entries(groupByExtension(files))
@@ -85,7 +88,7 @@ ${Object.entries(groupByExtension(files))
 - [HTML Version](./CODEBASE_COMPLETE.html)
 - [JSON Index](./CODEBASE_INDEX.json)
 `;
-  
+
   await writeFile('CODEBASE_QUICKREF.md', quickRef);
   console.log('✅ Generated CODEBASE_QUICKREF.md');
 }
@@ -113,24 +116,30 @@ function getLanguage(filePath: string): string {
     '.jsx': 'JavaScript React',
     '.swift': 'Swift',
     '.sql': 'SQL',
-    '.json': 'JSON'
+    '.json': 'JSON',
   };
   return langMap[ext] || 'Unknown';
 }
 
 function groupByCategory(files: FileIndex[]): Record<string, number> {
-  return files.reduce((acc, file) => {
-    acc[file.category] = (acc[file.category] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  return files.reduce(
+    (acc, file) => {
+      acc[file.category] = (acc[file.category] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 }
 
 function groupByExtension(files: FileIndex[]): Record<string, number> {
-  return files.reduce((acc, file) => {
-    const ext = path.extname(file.path);
-    acc[ext] = (acc[ext] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  return files.reduce(
+    (acc, file) => {
+      const ext = path.extname(file.path);
+      acc[ext] = (acc[ext] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 }
 
 generateIndex().catch(console.error);

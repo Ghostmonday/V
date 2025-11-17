@@ -4,4 +4,3 @@
  */
 
 console.log('OpenAPI validation passed (stub).');
-

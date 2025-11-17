@@ -15,7 +15,7 @@ const ALLOWED_MIME_TYPES = [
   'image/webp',
   'application/pdf',
   'text/plain',
-  'application/json'
+  'application/json',
 ];
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB default
@@ -36,7 +36,7 @@ export const fileUploadSecurity = (req: Request, res: Response, next: NextFuncti
     logInfo('File upload rejected', `Invalid MIME type: ${mimeType}`);
     return res.status(400).json({
       error: 'Invalid file type',
-      allowedTypes: ALLOWED_MIME_TYPES
+      allowedTypes: ALLOWED_MIME_TYPES,
     });
   }
 
@@ -53,13 +53,13 @@ export const fileUploadSecurity = (req: Request, res: Response, next: NextFuncti
     return res.status(400).json({
       error: 'File too large',
       maxSize: maxSize,
-      fileSize: fileSize
+      fileSize: fileSize,
     });
   }
 
   // Basic content validation (check file signature/magic bytes)
   // TODO: Add virus scanning integration (ClamAV or cloud service)
-  
+
   next();
 };
 
@@ -103,4 +103,3 @@ export const fileUploadModeration = async (req: Request, res: Response, next: Ne
     next();
   }
 };
-

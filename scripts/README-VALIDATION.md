@@ -25,6 +25,7 @@ cat validation-results-phases-1-3.json
 ## What Gets Validated
 
 ### Phase 1: Security & Authentication
+
 - ✅ Refresh token rotation and security
 - ✅ Password hashing (no plaintext)
 - ✅ Role-based access control (RBAC)
@@ -32,12 +33,14 @@ cat validation-results-phases-1-3.json
 - ✅ HTTPS/TLS enforcement
 
 ### Phase 2: WebSocket & Messaging
+
 - ✅ Message rate limiting
 - ✅ Connection health & scaling
 - ✅ Delivery acknowledgements
 - ✅ WebSocket scaling (Redis pub/sub)
 
 ### Phase 3: Database & Performance
+
 - ✅ Performance indexes
 - ✅ Query pagination
 - ✅ Message archival
@@ -46,6 +49,7 @@ cat validation-results-phases-1-3.json
 ## Output
 
 The validation script generates:
+
 - **Console output**: Real-time test results with ✅/❌ indicators
 - **JSON report**: `validation-results-phases-1-3.json` with detailed results
 - **SQL output**: Database validation results in console
@@ -53,20 +57,26 @@ The validation script generates:
 ## Troubleshooting
 
 ### TypeScript Errors
+
 If you see TypeScript errors about Node.js types, they won't prevent execution. The script uses `tsx` which handles types at runtime. To fix:
+
 ```bash
 npm install --save-dev @types/node
 ```
 
 ### Database Connection
+
 Ensure your database connection is configured:
+
 ```bash
 export DATABASE_URL="postgresql://user:pass@host:5432/dbname"
 # Or use Supabase connection string
 ```
 
 ### Redis Connection
+
 Ensure Redis is running:
+
 ```bash
 redis-cli ping
 # Should return: PONG
@@ -75,6 +85,7 @@ redis-cli ping
 ## Manual Validation
 
 For comprehensive validation, see `VALIDATION_CHECKLIST.md` in the root directory. It includes:
+
 - Manual test procedures
 - API endpoint testing
 - WebSocket testing
@@ -83,8 +94,8 @@ For comprehensive validation, see `VALIDATION_CHECKLIST.md` in the root director
 ## Next Steps
 
 After validation:
+
 1. Review any failed tests
 2. Fix issues and re-run validation
 3. Update BUILD.plan with completion status
 4. Proceed to Phase 4 (AI & VIBES Features)
-

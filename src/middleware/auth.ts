@@ -19,10 +19,10 @@ const SECRET_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 async function getCachedJwtSecret(): Promise<string> {
   const now = Date.now();
-  if (cachedJwtSecret && (now - secretCacheTime) < SECRET_CACHE_TTL) {
+  if (cachedJwtSecret && now - secretCacheTime < SECRET_CACHE_TTL) {
     return cachedJwtSecret;
   }
-  
+
   cachedJwtSecret = await getJwtSecret();
   secretCacheTime = now;
   return cachedJwtSecret;
@@ -44,19 +44,23 @@ declare global {
 }
 
 // Named export (existing usage)
-export const authMiddleware = async (req: AuthenticatedRequest | Request, res: Response, next: NextFunction) => {
+export const authMiddleware = async (
+  req: AuthenticatedRequest | Request,
+  res: Response,
+  next: NextFunction
+) => {
   const header = req.headers.authorization;
-  
+
   // NEW: Optional auth - if no header, allow request through
   if (!header) {
     return next(); // Routes must check req.user if auth is required
   }
-  
+
   const token = header.split(' ')[1];
   if (!token) {
     return next(); // Optional auth - allow through
   }
-  
+
   try {
     // Try vault first (existing behavior)
     let jwtSecret: string;
@@ -70,14 +74,17 @@ export const authMiddleware = async (req: AuthenticatedRequest | Request, res: R
         return res.status(500).json({ error: 'Server configuration error' });
       }
     }
-    
+
     if (!jwtSecret) {
       Sentry.captureMessage('JWT secret not found in vault', 'error');
       return res.status(500).json({ error: 'Server configuration error' });
     }
-    
-    const decoded = jwt.verify(token, jwtSecret) as User | AuthenticatedUser | { id?: string; userId?: string; tier?: string; handle?: string };
-    
+
+    const decoded = jwt.verify(token, jwtSecret) as
+      | User
+      | AuthenticatedUser
+      | { id?: string; userId?: string; tier?: string; handle?: string };
+
     // Normalize user object - support both 'id' and 'userId' formats
     if ('id' in decoded && decoded.id) {
       // New format: { id, tier?, handle? }
@@ -89,14 +96,14 @@ export const authMiddleware = async (req: AuthenticatedRequest | Request, res: R
       // Fallback: try to extract id from either format
       req.user = decoded as AuthenticatedUser | User;
     }
-    
+
     next();
   } catch (err) {
     // JWT expired/invalid - return 401
     Sentry.addBreadcrumb({
       message: 'JWT verification failed',
       level: 'warning',
-      data: { error: err instanceof Error ? err.message : String(err) }
+      data: { error: err instanceof Error ? err.message : String(err) },
     });
     res.status(401).json({ error: 'Invalid token' });
   }

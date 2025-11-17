@@ -43,7 +43,7 @@ export class CircuitBreaker {
 
   /**
    * Execute a function with circuit breaker protection
-   * 
+   *
    * Implements three-state circuit breaker pattern:
    * - CLOSED: Normal operation, requests pass through
    * - OPEN: Service failing, requests rejected immediately
@@ -114,11 +114,11 @@ export class CircuitBreaker {
    */
   private onFailure(): void {
     const now = Date.now();
-    
+
     // Record this failure timestamp
     this.failureTimes.push(now);
     this.lastFailureTime = now;
-    
+
     // Update failure count (only failures within monitoring window count)
     this.failureCount = this.failureTimes.length;
 
@@ -190,4 +190,3 @@ export const s3CircuitBreaker = new CircuitBreaker('s3', {
   failureThreshold: 5,
   timeout: 60000, // 1 minute
 });
-

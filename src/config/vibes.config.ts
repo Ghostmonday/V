@@ -11,32 +11,32 @@ export interface VIBESConfig {
   // Server
   port: number;
   nodeEnv: string;
-  
+
   // Database
   databaseUrl: string;
   supabaseUrl: string;
   supabaseKey: string;
-  
+
   // Redis
   redisUrl?: string;
-  
+
   // AI Services
   openaiApiKey?: string;
   dalleApiKey?: string;
   sentimentApiUrl?: string;
-  
+
   // Storage
   ipfsGatewayUrl: string;
   arweaveGatewayUrl: string;
   s3Bucket?: string;
   awsAccessKeyId?: string;
   awsSecretAccessKey?: string;
-  
+
   // VIBES Specific
   founderVaultAddress?: string;
   claimDeadlineMinutes: number;
   cardGenerationEnabled: boolean;
-  
+
   // Features
   features: {
     voiceMessages: boolean;
@@ -72,32 +72,32 @@ export const vibesConfig: VIBESConfig = {
   // Server
   port: getNumberEnv('PORT', 3000),
   nodeEnv: getEnv('NODE_ENV', 'development'),
-  
+
   // Database
   databaseUrl: getEnv('DATABASE_URL'),
   supabaseUrl: getEnv('NEXT_PUBLIC_SUPABASE_URL') || getEnv('SUPABASE_URL'),
   supabaseKey: getEnv('SUPABASE_SERVICE_ROLE_KEY') || getEnv('SUPABASE_KEY'),
-  
+
   // Redis (optional)
   redisUrl: process.env.REDIS_URL,
-  
+
   // AI Services
   openaiApiKey: process.env.OPENAI_API_KEY,
   dalleApiKey: process.env.DALL_E_API_KEY,
   sentimentApiUrl: process.env.SENTIMENT_API_URL,
-  
+
   // Storage
   ipfsGatewayUrl: getEnv('IPFS_GATEWAY_URL', 'https://ipfs.io'),
   arweaveGatewayUrl: getEnv('ARWEAVE_GATEWAY_URL', 'https://arweave.net'),
   s3Bucket: process.env.AWS_BUCKET,
   awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  
+
   // VIBES Specific
   founderVaultAddress: process.env.FOUNDER_VAULT_ADDRESS,
   claimDeadlineMinutes: getNumberEnv('CLAIM_DEADLINE_MINUTES', 15),
   cardGenerationEnabled: getBooleanEnv('CARD_GENERATION_ENABLED', true),
-  
+
   // Features
   features: {
     voiceMessages: getBooleanEnv('FEATURE_VOICE_MESSAGES', false),

@@ -1,10 +1,10 @@
 /**
  * LLM Parameters Configuration
  * Centralized configuration for all LLM-controlled parameters
- * 
+ *
  * Control Types:
  * - UI: User can modify via interface
- * - AGENT: LLM agent can modify autonomously  
+ * - AGENT: LLM agent can modify autonomously
  * - MANUAL: Requires manual code/env override
  * - HYBRID: Multiple control methods available
  */
@@ -13,7 +13,7 @@ export enum ControlType {
   UI = 'UI',
   AGENT = 'AGENT',
   MANUAL = 'MANUAL',
-  HYBRID = 'HYBRID'
+  HYBRID = 'HYBRID',
 }
 
 export enum ParameterCategory {
@@ -25,7 +25,7 @@ export enum ParameterCategory {
   PERFORMANCE = 'PERFORMANCE',
   AUTOMATION = 'AUTOMATION',
   SEARCH = 'SEARCH',
-  MAINTENANCE = 'MAINTENANCE'
+  MAINTENANCE = 'MAINTENANCE',
 }
 
 export interface LLMParameter<T = any> {
@@ -155,13 +155,13 @@ export const LLM_PARAMS_DEFAULT: {
       automation: 'deepseek-chat',
       optimizer: 'gpt-4',
       assistants: 'gpt-4',
-      embeddings: 'text-embedding-3-small'
+      embeddings: 'text-embedding-3-small',
     },
     controlType: ControlType.HYBRID,
     metadata: {
       adjustableBy: ['user', 'agent', 'environment'],
-      requiresRestart: false
-    }
+      requiresRestart: false,
+    },
   },
 
   temperature: {
@@ -174,17 +174,17 @@ export const LLM_PARAMS_DEFAULT: {
       prediction: 0.0,
       automation: 0.3,
       assistants: 0.7,
-      optimizer: 0.0
+      optimizer: 0.0,
     },
     minValue: { reasoning: 0, prediction: 0, automation: 0, assistants: 0, optimizer: 0 },
     maxValue: { reasoning: 2, prediction: 2, automation: 2, assistants: 2, optimizer: 2 },
     controlType: ControlType.HYBRID,
     validator: (value: TemperatureConfig) => {
-      return Object.values(value).every(v => v >= 0 && v <= 2);
+      return Object.values(value).every((v) => v >= 0 && v <= 2);
     },
     metadata: {
-      adjustableBy: ['user', 'agent']
-    }
+      adjustableBy: ['user', 'agent'],
+    },
   },
 
   tokens: {
@@ -199,19 +199,21 @@ export const LLM_PARAMS_DEFAULT: {
       maxTokensOptimizer: 800,
       costPer1k: 0.0001,
       dailySpendLimit: 25,
-      warningThreshold: 22.5
+      warningThreshold: 22.5,
     },
     unit: 'tokens/dollars',
     controlType: ControlType.AGENT,
     validator: (value: TokenConfig) => {
-      return value.dailySpendLimit > 0 && 
-             value.warningThreshold < value.dailySpendLimit &&
-             Object.values(value).every(v => typeof v === 'number' && v >= 0);
+      return (
+        value.dailySpendLimit > 0 &&
+        value.warningThreshold < value.dailySpendLimit &&
+        Object.values(value).every((v) => typeof v === 'number' && v >= 0)
+      );
     },
     metadata: {
       adjustableBy: ['agent'],
-      criticalParam: true
-    }
+      criticalParam: true,
+    },
   },
 
   rateLimits: {
@@ -226,19 +228,21 @@ export const LLM_PARAMS_DEFAULT: {
       warningThreshold: 90,
       errorBackoffMs: 300000,
       analysisTimeoutMs: 30000,
-      heartbeatTimeoutMs: 30000
+      heartbeatTimeoutMs: 30000,
     },
     unit: 'calls/ms',
     controlType: ControlType.AGENT,
     validator: (value: RateLimitConfig) => {
-      return value.maxCallsPerHour > 0 &&
-             value.windowMs > 0 &&
-             value.warningThreshold < value.hourlyLimit;
+      return (
+        value.maxCallsPerHour > 0 &&
+        value.windowMs > 0 &&
+        value.warningThreshold < value.hourlyLimit
+      );
     },
     metadata: {
       adjustableBy: ['agent'],
-      criticalParam: true
-    }
+      criticalParam: true,
+    },
   },
 
   moderation: {
@@ -256,36 +260,52 @@ export const LLM_PARAMS_DEFAULT: {
         adult: 0.0,
         probationMultiplier: 0.5,
         toxicityHigh: 0.8,
-        toxicityModerate: 0.6
+        toxicityModerate: 0.6,
       },
       maxRepetition: 20,
-      maxContentLength: 50000
+      maxContentLength: 50000,
     },
-    minValue: { 
+    minValue: {
       thresholds: {
-        default: 0, illegal: 0, threat: 0, pii: 0, hate: 0, 
-        adult: 0, probationMultiplier: 0, toxicityHigh: 0, toxicityModerate: 0
+        default: 0,
+        illegal: 0,
+        threat: 0,
+        pii: 0,
+        hate: 0,
+        adult: 0,
+        probationMultiplier: 0,
+        toxicityHigh: 0,
+        toxicityModerate: 0,
       },
       maxRepetition: 1,
-      maxContentLength: 100
+      maxContentLength: 100,
     },
     maxValue: {
       thresholds: {
-        default: 1, illegal: 1, threat: 1, pii: 1, hate: 1,
-        adult: 1, probationMultiplier: 1, toxicityHigh: 1, toxicityModerate: 1
+        default: 1,
+        illegal: 1,
+        threat: 1,
+        pii: 1,
+        hate: 1,
+        adult: 1,
+        probationMultiplier: 1,
+        toxicityHigh: 1,
+        toxicityModerate: 1,
       },
       maxRepetition: 100,
-      maxContentLength: 100000
+      maxContentLength: 100000,
     },
     controlType: ControlType.AGENT,
     validator: (value: ModerationConfig) => {
-      return Object.values(value.thresholds).every(v => v >= 0 && v <= 1) &&
-             value.maxRepetition > 0 &&
-             value.maxContentLength > 0;
+      return (
+        Object.values(value.thresholds).every((v) => v >= 0 && v <= 1) &&
+        value.maxRepetition > 0 &&
+        value.maxContentLength > 0
+      );
     },
     metadata: {
-      adjustableBy: ['agent']
-    }
+      adjustableBy: ['agent'],
+    },
   },
 
   performance: {
@@ -297,19 +317,21 @@ export const LLM_PARAMS_DEFAULT: {
       latencyMax: 200,
       latencyMin: 0,
       errorRateMax: 10,
-      errorRateMin: 0
+      errorRateMin: 0,
     },
     unit: 'ms/%',
     controlType: ControlType.AGENT,
     validator: (value: PerformanceConfig) => {
-      return value.latencyMax > value.latencyMin &&
-             value.errorRateMax > value.errorRateMin &&
-             value.errorRateMax <= 100;
+      return (
+        value.latencyMax > value.latencyMin &&
+        value.errorRateMax > value.errorRateMin &&
+        value.errorRateMax <= 100
+      );
     },
     metadata: {
       adjustableBy: ['agent'],
-      criticalParam: true
-    }
+      criticalParam: true,
+    },
   },
 
   automation: {
@@ -321,18 +343,18 @@ export const LLM_PARAMS_DEFAULT: {
       rateLimits: {
         global: 100,
         ip: 1000,
-        user: 100
+        user: 100,
       },
       cacheTTLs: {
         l1: 60000,
-        l2: 300000
-      }
+        l2: 300000,
+      },
     },
     unit: 'requests/ms',
     controlType: ControlType.AGENT,
     metadata: {
-      adjustableBy: ['agent']
-    }
+      adjustableBy: ['agent'],
+    },
   },
 
   search: {
@@ -342,18 +364,17 @@ export const LLM_PARAMS_DEFAULT: {
     description: 'Vector similarity search configuration',
     defaultValue: {
       matchThreshold: 0.78,
-      matchCount: 10
+      matchCount: 10,
     },
     minValue: { matchThreshold: 0.1, matchCount: 1 },
     maxValue: { matchThreshold: 1.0, matchCount: 100 },
     controlType: ControlType.HYBRID,
     validator: (value: SearchConfig) => {
-      return value.matchThreshold > 0 && value.matchThreshold <= 1 &&
-             value.matchCount > 0;
+      return value.matchThreshold > 0 && value.matchThreshold <= 1 && value.matchCount > 0;
     },
     metadata: {
-      adjustableBy: ['user', 'agent']
-    }
+      adjustableBy: ['user', 'agent'],
+    },
   },
 
   maintenance: {
@@ -364,21 +385,25 @@ export const LLM_PARAMS_DEFAULT: {
     defaultValue: {
       windowStartHour: 3,
       windowEndHour: 5,
-      timezone: 'UTC'
+      timezone: 'UTC',
     },
     minValue: { windowStartHour: 0, windowEndHour: 0, timezone: '' },
     maxValue: { windowStartHour: 23, windowEndHour: 23, timezone: '' },
     controlType: ControlType.MANUAL,
     validator: (value: MaintenanceConfig) => {
-      return value.windowStartHour >= 0 && value.windowStartHour <= 23 &&
-             value.windowEndHour >= 0 && value.windowEndHour <= 23;
+      return (
+        value.windowStartHour >= 0 &&
+        value.windowStartHour <= 23 &&
+        value.windowEndHour >= 0 &&
+        value.windowEndHour <= 23
+      );
     },
     metadata: {
       adjustableBy: ['manual'],
       criticalParam: true,
-      requiresRestart: true
-    }
-  }
+      requiresRestart: true,
+    },
+  },
 };
 
 // Type helpers for parameter access

@@ -36,43 +36,30 @@ const securityChecks = {
     /(password|secret|key|token)\s*=\s*['"][^'"]+['"]/gi,
     /(api[_-]?key|api[_-]?secret)\s*=\s*['"][^'"]+['"]/gi,
   ],
-  
+
   // Check for weak encryption (but not words containing these as substrings)
-  weakEncryption: [
-    /\bmd5\b|\bsha1\b|\bdes\b(?!\w)|\brc4\b/gi,
-  ],
-  
+  weakEncryption: [/\bmd5\b|\bsha1\b|\bdes\b(?!\w)|\brc4\b/gi],
+
   // Check for SQL injection risks
-  sqlInjection: [
-    /\$\{.*\}\s*\+.*sql/i,
-    /query\(.*\+.*\)/i,
-  ],
-  
+  sqlInjection: [/\$\{.*\}\s*\+.*sql/i, /query\(.*\+.*\)/i],
+
   // Check for missing input validation
-  missingValidation: [
-    /req\.(body|params|query)\.[\w]+(?!.*(validate|sanitize|zod|z\.))/i,
-  ],
-  
+  missingValidation: [/req\.(body|params|query)\.[\w]+(?!.*(validate|sanitize|zod|z\.))/i],
+
   // Check for missing error handling
-  missingErrorHandling: [
-    /await\s+\w+\([^)]*\)(?!.*catch)/i,
-  ],
-  
+  missingErrorHandling: [/await\s+\w+\([^)]*\)(?!.*catch)/i],
+
   // Check for exposed secrets in logs (but not safe patterns)
   exposedSecrets: [
     /log(Info|Error|Warning|Debug).*['"](password|secret|key|token)\s*[:=][^'"]*['"]/gi,
     /console\.(log|error|warn).*['"](password|secret|key|token)\s*[:=][^'"]*['"]/gi,
   ],
-  
+
   // Check for weak random number generation
-  weakRandom: [
-    /Math\.random\(\)/g,
-  ],
-  
+  weakRandom: [/Math\.random\(\)/g],
+
   // Check for missing rate limiting
-  missingRateLimit: [
-    /router\.(get|post|put|delete)\([^,]+,\s*(?!.*rateLimit|rate[_-]?limit)/i,
-  ],
+  missingRateLimit: [/router\.(get|post|put|delete)\([^,]+,\s*(?!.*rateLimit|rate[_-]?limit)/i],
 };
 
 function auditFile(filePath: string): void {
@@ -91,7 +78,7 @@ function auditFile(filePath: string): void {
     const lines = content.split('\n');
 
     // Check for hardcoded secrets
-    securityChecks.hardcodedSecrets.forEach(pattern => {
+    securityChecks.hardcodedSecrets.forEach((pattern) => {
       // Ensure global flag for matchAll
       const flags = pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g';
       const globalPattern = new RegExp(pattern.source, flags);
@@ -100,7 +87,12 @@ function auditFile(filePath: string): void {
         const lineNum = content.substring(0, match.index).split('\n').length;
         // Skip if it's a comment or string assignment to a variable
         const line = lines[lineNum - 1];
-        if (line && (line.trim().startsWith('//') || line.includes('process.env') || line.includes('getApiKey'))) {
+        if (
+          line &&
+          (line.trim().startsWith('//') ||
+            line.includes('process.env') ||
+            line.includes('getApiKey'))
+        ) {
           continue;
         }
         issues.push({
@@ -114,7 +106,7 @@ function auditFile(filePath: string): void {
     });
 
     // Check for weak encryption (only actual algorithm names, not substrings)
-    securityChecks.weakEncryption.forEach(pattern => {
+    securityChecks.weakEncryption.forEach((pattern) => {
       const flags = pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g';
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
@@ -122,7 +114,10 @@ function auditFile(filePath: string): void {
         const lineNum = content.substring(0, match.index).split('\n').length;
         const line = lines[lineNum - 1];
         // Skip if it's in a comment or variable name
-        if (line && (line.trim().startsWith('//') || line.includes('decipher') || line.includes('decrypt'))) {
+        if (
+          line &&
+          (line.trim().startsWith('//') || line.includes('decipher') || line.includes('decrypt'))
+        ) {
           continue;
         }
         issues.push({
@@ -136,7 +131,7 @@ function auditFile(filePath: string): void {
     });
 
     // Check for SQL injection risks
-    securityChecks.sqlInjection.forEach(pattern => {
+    securityChecks.sqlInjection.forEach((pattern) => {
       const flags = pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g';
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
@@ -153,7 +148,7 @@ function auditFile(filePath: string): void {
     });
 
     // Check for exposed secrets in logs
-    securityChecks.exposedSecrets.forEach(pattern => {
+    securityChecks.exposedSecrets.forEach((pattern) => {
       const flags = pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g';
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
@@ -161,14 +156,15 @@ function auditFile(filePath: string): void {
         const lineNum = content.substring(0, match.index).split('\n').length;
         const line = lines[lineNum - 1];
         // Skip if it's redacted, hashed, or partial (not exposing actual secret)
-        if (line && (
-          line.includes('redact') || 
-          line.includes('hash') || 
-          line.includes('substring') ||
-          line.includes('keyIdHash') ||
-          line.includes('Partial hash') ||
-          line.includes('not the actual')
-        )) {
+        if (
+          line &&
+          (line.includes('redact') ||
+            line.includes('hash') ||
+            line.includes('substring') ||
+            line.includes('keyIdHash') ||
+            line.includes('Partial hash') ||
+            line.includes('not the actual'))
+        ) {
           continue;
         }
         issues.push({
@@ -182,7 +178,7 @@ function auditFile(filePath: string): void {
     });
 
     // Check for weak random number generation
-    securityChecks.weakRandom.forEach(pattern => {
+    securityChecks.weakRandom.forEach((pattern) => {
       const flags = pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g';
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
@@ -207,7 +203,7 @@ function auditFile(filePath: string): void {
     if (filePath.includes('routes')) {
       const hasSanitization = /sanitize|zod|z\./i.test(content);
       const hasRateLimit = /rateLimit|rate[_-]?limit/i.test(content);
-      
+
       if (!hasSanitization) {
         issues.push({
           severity: 'high',
@@ -216,7 +212,7 @@ function auditFile(filePath: string): void {
           recommendation: 'Add input sanitization using sanitized schemas',
         });
       }
-      
+
       if (!hasRateLimit) {
         issues.push({
           severity: 'medium',
@@ -231,7 +227,7 @@ function auditFile(filePath: string): void {
     if (filePath.includes('encryption') || filePath.includes('pfs')) {
       const hasErrorHandling = /try\s*\{[\s\S]*catch/i.test(content);
       const hasFallback = /fallback|catch.*fallback/i.test(content);
-      
+
       if (!hasErrorHandling) {
         issues.push({
           severity: 'high',
@@ -240,7 +236,7 @@ function auditFile(filePath: string): void {
           recommendation: 'Add try-catch blocks and error handling',
         });
       }
-      
+
       if (!hasFallback && filePath.includes('hardware')) {
         issues.push({
           severity: 'medium',
@@ -276,7 +272,6 @@ function auditFile(filePath: string): void {
         });
       }
     }
-
   } catch (error: any) {
     issues.push({
       severity: 'high',
@@ -290,7 +285,7 @@ function auditFile(filePath: string): void {
 // Run audit
 console.log('🔒 Starting Security Audit for Privacy Features...\n');
 
-privacyFiles.forEach(file => {
+privacyFiles.forEach((file) => {
   console.log(`Auditing: ${file}`);
   auditFile(file);
 });
@@ -300,11 +295,11 @@ console.log('\n' + '='.repeat(70));
 console.log('SECURITY AUDIT RESULTS');
 console.log('='.repeat(70) + '\n');
 
-const critical = issues.filter(i => i.severity === 'critical');
-const high = issues.filter(i => i.severity === 'high');
-const medium = issues.filter(i => i.severity === 'medium');
-const low = issues.filter(i => i.severity === 'low');
-const info = issues.filter(i => i.severity === 'info');
+const critical = issues.filter((i) => i.severity === 'critical');
+const high = issues.filter((i) => i.severity === 'high');
+const medium = issues.filter((i) => i.severity === 'medium');
+const low = issues.filter((i) => i.severity === 'low');
+const info = issues.filter((i) => i.severity === 'info');
 
 const severityOrder = ['critical', 'high', 'medium', 'low', 'info'];
 const severityIcons = {
@@ -315,12 +310,14 @@ const severityIcons = {
   info: 'ℹ️',
 };
 
-severityOrder.forEach(severity => {
-  const filtered = issues.filter(i => i.severity === severity);
+severityOrder.forEach((severity) => {
+  const filtered = issues.filter((i) => i.severity === severity);
   if (filtered.length > 0) {
-    console.log(`\n${severityIcons[severity as keyof typeof severityIcons]} ${severity.toUpperCase()} (${filtered.length})`);
+    console.log(
+      `\n${severityIcons[severity as keyof typeof severityIcons]} ${severity.toUpperCase()} (${filtered.length})`
+    );
     console.log('-'.repeat(70));
-    filtered.forEach(issue => {
+    filtered.forEach((issue) => {
       console.log(`\nFile: ${issue.file}${issue.line ? `:${issue.line}` : ''}`);
       console.log(`Issue: ${issue.issue}`);
       console.log(`Recommendation: ${issue.recommendation}`);
@@ -344,4 +341,3 @@ if (critical.length > 0 || high.length > 0) {
   console.log('\n✅ Security audit passed - no critical or high severity issues');
   process.exit(0);
 }
-

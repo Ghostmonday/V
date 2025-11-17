@@ -41,7 +41,7 @@ function validateFile(filePath: string, requiredExports: string[]): ValidationRe
         new RegExp(`export\\s+\\{[^}]*${exportName}[^}]*\\}`),
       ];
 
-      const found = patterns.some(pattern => pattern.test(content));
+      const found = patterns.some((pattern) => pattern.test(content));
       if (!found) {
         missingExports.push(exportName);
       }
@@ -86,7 +86,10 @@ function validateRoute(routePath: string, requiredRoutes: string[]): ValidationR
 
     for (const route of requiredRoutes) {
       // Check for route definition (router.get, router.post, etc.)
-      const pattern = new RegExp(`router\\.(get|post|put|delete)\\s*\\(\\s*['"]${route.replace(/\//g, '\\/')}['"]`, 'i');
+      const pattern = new RegExp(
+        `router\\.(get|post|put|delete)\\s*\\(\\s*['"]${route.replace(/\//g, '\\/')}['"]`,
+        'i'
+      );
       if (!pattern.test(content)) {
         missingRoutes.push(route);
       }
@@ -127,7 +130,7 @@ function validateMigration(migrationPath: string): ValidationResult {
 
   try {
     const content = readFileSync(migrationPath, 'utf-8');
-    
+
     // Check for required table
     const hasTable = /CREATE TABLE.*user_zkp_commitments/i.test(content);
     const hasRLS = /ENABLE ROW LEVEL SECURITY/i.test(content);
@@ -165,9 +168,8 @@ function validateMigration(migrationPath: string): ValidationResult {
 
 // Validate Zero-Knowledge Proof Service
 console.log('🔍 Validating Zero-Knowledge Proof Service...');
-results.push(validateFile(
-  'src/services/zkp-service.ts',
-  [
+results.push(
+  validateFile('src/services/zkp-service.ts', [
     'generateAttributeProof',
     'verifyAttributeProof',
     'generateSelectiveDisclosure',
@@ -177,27 +179,25 @@ results.push(validateFile(
     'AttributeProof',
     'DisclosureRequest',
     'DisclosureProof',
-  ]
-));
+  ])
+);
 
 // Validate Hardware-Accelerated Encryption Service
 console.log('🔍 Validating Hardware-Accelerated Encryption Service...');
-results.push(validateFile(
-  'src/services/hardware-accelerated-encryption.ts',
-  [
+results.push(
+  validateFile('src/services/hardware-accelerated-encryption.ts', [
     'detectHardwareAcceleration',
     'getOptimalEncryptionAlgorithm',
     'encryptWithHardwareAcceleration',
     'decryptWithHardwareAcceleration',
     'benchmarkEncryption',
-  ]
-));
+  ])
+);
 
 // Validate PFS Media Service
 console.log('🔍 Validating Perfect Forward Secrecy Media Service...');
-results.push(validateFile(
-  'src/services/pfs-media-service.ts',
-  [
+results.push(
+  validateFile('src/services/pfs-media-service.ts', [
     'generateEphemeralKeyPair',
     'deriveSharedSecret',
     'createPFSCallSession',
@@ -208,26 +208,23 @@ results.push(validateFile(
     'cleanupExpiredPFSSessions',
     'EphemeralKeyPair',
     'PFSCallSession',
-  ]
-));
+  ])
+);
 
 // Validate Privacy Routes
 console.log('🔍 Validating Privacy Routes...');
-results.push(validateRoute(
-  'src/routes/privacy-routes.ts',
-  [
+results.push(
+  validateRoute('src/routes/privacy-routes.ts', [
     '/selective-disclosure',
     '/verify-disclosure',
     '/encryption-status',
     '/zkp/commitments/:userId',
-  ]
-));
+  ])
+);
 
 // Validate Migration
 console.log('🔍 Validating Database Migration...');
-results.push(validateMigration(
-  'sql/migrations/2025-01-XX-privacy-zkp-commitments.sql'
-));
+results.push(validateMigration('sql/migrations/2025-01-XX-privacy-zkp-commitments.sql'));
 
 // Validate Integration
 console.log('🔍 Validating Integration...');
@@ -254,9 +251,7 @@ if (voiceRoutesExists) {
   results.push({
     feature: 'Voice Routes PFS Integration',
     status: hasPFS ? 'pass' : 'fail',
-    message: hasPFS
-      ? 'PFS integrated in voice routes'
-      : 'PFS not integrated in voice routes',
+    message: hasPFS ? 'PFS integrated in voice routes' : 'PFS not integrated in voice routes',
   });
 }
 
@@ -279,16 +274,16 @@ console.log('\n' + '='.repeat(60));
 console.log('VALIDATION RESULTS');
 console.log('='.repeat(60) + '\n');
 
-const passed = results.filter(r => r.status === 'pass').length;
-const failed = results.filter(r => r.status === 'fail').length;
-const warnings = results.filter(r => r.status === 'warning').length;
+const passed = results.filter((r) => r.status === 'pass').length;
+const failed = results.filter((r) => r.status === 'fail').length;
+const warnings = results.filter((r) => r.status === 'warning').length;
 
-results.forEach(result => {
+results.forEach((result) => {
   const icon = result.status === 'pass' ? '✅' : result.status === 'fail' ? '❌' : '⚠️';
   console.log(`${icon} ${result.feature}`);
   console.log(`   ${result.message}`);
   if (result.details && result.details.length > 0) {
-    result.details.forEach(detail => {
+    result.details.forEach((detail) => {
       console.log(`   - ${detail}`);
     });
   }
@@ -306,4 +301,3 @@ if (failed > 0) {
   console.log('\n✅ All validations passed!');
   process.exit(0);
 }
-

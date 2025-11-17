@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { getCached, setCached, generateETag, invalidatePattern } from '../../services/cache-service.js';
+import {
+  getCached,
+  setCached,
+  generateETag,
+  invalidatePattern,
+} from '../../services/cache-service.js';
 import { getRedisClient } from '../../config/db.ts';
 
 const redis = getRedisClient();
@@ -15,10 +20,8 @@ export interface CacheOptions {
  * Enhanced cache middleware with invalidation and cache warming
  */
 export function cacheMiddleware(options: CacheOptions | string) {
-  const opts: CacheOptions = typeof options === 'string' 
-    ? { prefix: options }
-    : options;
-  
+  const opts: CacheOptions = typeof options === 'string' ? { prefix: options } : options;
+
   const {
     prefix,
     ttlSeconds = 300, // Default: 5 minutes
@@ -33,43 +36,43 @@ export function cacheMiddleware(options: CacheOptions | string) {
     }
 
     // Build cache key with URL and varying headers
-    const varyValues = varyBy.map(header => req.headers[header.toLowerCase()] || '').join(':');
+    const varyValues = varyBy.map((header) => req.headers[header.toLowerCase()] || '').join(':');
     const key = `${prefix}:${req.url}:${varyValues}`;
-    
+
     // Check cache
     const cached = await getCached(key);
     if (cached) {
       const etag = generateETag(cached);
-      
+
       // Handle If-None-Match header (304 Not Modified)
       if (req.headers['if-none-match'] === etag) {
         res.set('ETag', etag);
         return res.status(304).end();
       }
-      
+
       res.set('ETag', etag);
       res.set('X-Cache', 'HIT');
       return res.json(cached);
     }
-    
+
     // Cache miss - store key for later setting
     res.locals.cacheKey = key;
     res.locals.cacheTTL = ttlSeconds;
     res.set('X-Cache', 'MISS');
-    
+
     // Intercept response to cache it
     const originalJson = res.json.bind(res);
-    res.json = function(body: any) {
+    res.json = function (body: any) {
       // Only cache successful responses
       if (res.statusCode >= 200 && res.statusCode < 300) {
-        setCached(key, body, ttlSeconds).catch(err => {
+        setCached(key, body, ttlSeconds).catch((err) => {
           // Non-critical: log but don't fail request
           console.error('Failed to cache response:', err);
         });
       }
       return originalJson(body);
     };
-    
+
     next();
   };
 }
@@ -82,16 +85,19 @@ export function cacheInvalidationMiddleware(pattern: string) {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Invalidate cache after successful mutation operations
     const originalJson = res.json.bind(res);
-    res.json = function(body: any) {
-      if (res.statusCode >= 200 && res.statusCode < 300 && 
-          ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-        invalidatePattern(pattern).catch(err => {
+    res.json = function (body: any) {
+      if (
+        res.statusCode >= 200 &&
+        res.statusCode < 300 &&
+        ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)
+      ) {
+        invalidatePattern(pattern).catch((err) => {
           console.error('Failed to invalidate cache:', err);
         });
       }
       return originalJson(body);
     };
-    
+
     next();
   };
 }
@@ -103,7 +109,7 @@ export function cacheInvalidationMiddleware(pattern: string) {
 export function setupCacheInvalidationListener(): void {
   // Subscribe to cache invalidation channel
   const subscriber = redis.duplicate();
-  
+
   subscriber.on('message', async (channel: string, message: string) => {
     if (channel === 'cache:invalidate') {
       try {
@@ -115,7 +121,7 @@ export function setupCacheInvalidationListener(): void {
       }
     }
   });
-  
+
   subscriber.subscribe('cache:invalidate');
 }
 
@@ -130,4 +136,3 @@ export async function publishCacheInvalidation(pattern: string): Promise<void> {
     console.error('Failed to publish cache invalidation:', error);
   }
 }
-

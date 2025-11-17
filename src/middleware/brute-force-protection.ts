@@ -1,7 +1,7 @@
 /**
  * Brute-force Protection Middleware
  * Tracks login attempts and implements account lockout
- * 
+ *
  * Features:
  * - Login attempt tracking per IP and user
  * - Account lockout after 5 failures
@@ -44,12 +44,12 @@ interface LoginAttempt {
 async function getLoginAttempts(identifier: string): Promise<LoginAttempt | null> {
   try {
     if (!redis) return null;
-    
+
     const key = `login_attempts:${identifier}`;
     const data = await redis.get(key);
-    
+
     if (!data) return null;
-    
+
     return JSON.parse(data) as LoginAttempt;
   } catch (error: any) {
     logError('Failed to get login attempts', error);
@@ -71,17 +71,17 @@ async function recordFailedAttempt(identifier: string): Promise<LoginAttempt> {
         captchaRequired: false,
       };
     }
-    
+
     const key = `login_attempts:${identifier}`;
     const existing = await getLoginAttempts(identifier);
-    
+
     const now = Date.now();
     const windowStart = now - ATTEMPT_WINDOW_SECONDS * 1000;
-    
+
     let attempts: LoginAttempt;
-    
+
     const existingLockoutCount = existing?.lockoutCount ?? 0;
-    
+
     if (existing && existing.firstAttempt > windowStart) {
       // Within window - increment count
       const nextCount = existing.count + 1;
@@ -116,21 +116,21 @@ async function recordFailedAttempt(identifier: string): Promise<LoginAttempt> {
         lockoutCount: existingLockoutCount,
       };
     }
-    
+
     // Store with TTL (expires after lockout duration + window)
     const ttl = attempts.lockedUntil
       ? Math.ceil((attempts.lockedUntil - now) / 1000) + ATTEMPT_WINDOW_SECONDS
       : ATTEMPT_WINDOW_SECONDS;
-    
+
     await redis.setex(key, ttl, JSON.stringify(attempts));
-    
+
     // Log audit event
     await logAudit('login_attempt_failed', identifier, {
       attemptCount: attempts.count,
       locked: !!attempts.lockedUntil,
       captchaRequired: attempts.captchaRequired,
     });
-    
+
     return attempts;
   } catch (error: any) {
     logError('Failed to record failed attempt', error);
@@ -150,10 +150,10 @@ async function recordFailedAttempt(identifier: string): Promise<LoginAttempt> {
 async function clearLoginAttempts(identifier: string): Promise<void> {
   try {
     if (!redis) return;
-    
+
     const key = `login_attempts:${identifier}`;
     await redis.del(key);
-    
+
     await logAudit('login_attempts_cleared', identifier, {});
   } catch (error: any) {
     logError('Failed to clear login attempts', error);
@@ -163,14 +163,16 @@ async function clearLoginAttempts(identifier: string): Promise<void> {
 /**
  * Check if account is locked
  */
-export async function isAccountLocked(identifier: string): Promise<{ locked: boolean; lockedUntil?: Date; reason?: string }> {
+export async function isAccountLocked(
+  identifier: string
+): Promise<{ locked: boolean; lockedUntil?: Date; reason?: string }> {
   try {
     const attempts = await getLoginAttempts(identifier);
-    
+
     if (!attempts) {
       return { locked: false };
     }
-    
+
     // VALIDATION CHECKPOINT: Validate lockout duration
     if (attempts.lockedUntil && attempts.lockedUntil > Date.now()) {
       return {
@@ -179,13 +181,13 @@ export async function isAccountLocked(identifier: string): Promise<{ locked: boo
         reason: `Account locked due to ${attempts.count} failed login attempts. Try again after ${new Date(attempts.lockedUntil).toISOString()}`,
       };
     }
-    
+
     // Lock expired - clear it
     if (attempts.lockedUntil && attempts.lockedUntil <= Date.now()) {
       await clearLoginAttempts(identifier);
       return { locked: false };
     }
-    
+
     return { locked: false };
   } catch (error: any) {
     logError('Failed to check account lock status', error);
@@ -218,14 +220,14 @@ async function verifyCaptchaToken(token: string, challenge?: string): Promise<bo
       captchaTokenSchema,
       'verifyCaptchaToken'
     );
-    
+
     if (!validated.token || validated.token.length === 0) {
       return false;
     }
-    
+
     // Get reCAPTCHA secret key from environment
     const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY;
-    
+
     if (!recaptchaSecretKey) {
       // If no secret key configured, log warning but allow through in development
       if (process.env.NODE_ENV === 'development') {
@@ -235,7 +237,7 @@ async function verifyCaptchaToken(token: string, challenge?: string): Promise<bo
       logError('reCAPTCHA secret key not configured in production');
       return false;
     }
-    
+
     // Verify token with Google reCAPTCHA API
     const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
     const response = await fetch(verifyUrl, {
@@ -248,27 +250,32 @@ async function verifyCaptchaToken(token: string, challenge?: string): Promise<bo
         response: validated.token,
       }),
     });
-    
+
     if (!response.ok) {
       logError('reCAPTCHA verification request failed', { status: response.status });
       return false;
     }
-    
-    const data = await response.json() as { success: boolean; score?: number; challenge_ts?: string; hostname?: string };
-    
+
+    const data = (await response.json()) as {
+      success: boolean;
+      score?: number;
+      challenge_ts?: string;
+      hostname?: string;
+    };
+
     // VALIDATION CHECKPOINT: Validate reCAPTCHA response
     if (!data.success) {
       logWarning('reCAPTCHA verification failed', { data });
       return false;
     }
-    
+
     // For reCAPTCHA v3, check score (0.0 to 1.0, higher is better)
     // Require score >= 0.5 for login attempts
     if (data.score !== undefined && data.score < 0.5) {
       logWarning('reCAPTCHA score too low', { score: data.score });
       return false;
     }
-    
+
     return true;
   } catch (error: any) {
     logError('CAPTCHA verification failed', error);
@@ -284,31 +291,32 @@ export function bruteForceProtection() {
     try {
       // Get identifier (IP address or user ID if available)
       const identifier = (req as any).user?.id || req.ip || req.socket.remoteAddress || 'unknown';
-      
+
       // VALIDATION CHECKPOINT: Validate identifier format
       if (!identifier || identifier === 'unknown') {
         logWarning('Could not determine identifier for brute-force protection', { ip: req.ip });
       }
-      
+
       // Check if account is locked
       const lockStatus = await isAccountLocked(identifier);
-      
+
       if (lockStatus.locked) {
         // VALIDATION CHECKPOINT: Validate lockout response
-        return res.status(423).json({ // 423 = Locked
+        return res.status(423).json({
+          // 423 = Locked
           error: 'Account temporarily locked',
           reason: lockStatus.reason,
           lockedUntil: lockStatus.lockedUntil?.toISOString(),
         });
       }
-      
+
       // Check if CAPTCHA is required
       const captchaRequired = await isCaptchaRequired(identifier);
-      
+
       if (captchaRequired) {
         // VALIDATION CHECKPOINT: Validate CAPTCHA token if required
         const captchaToken = req.body.captchaToken || req.headers['x-captcha-token'];
-        
+
         if (!captchaToken) {
           return res.status(400).json({
             error: 'CAPTCHA required',
@@ -316,10 +324,10 @@ export function bruteForceProtection() {
             captchaRequired: true,
           });
         }
-        
+
         // Verify CAPTCHA token
         const captchaValid = await verifyCaptchaToken(captchaToken);
-        
+
         if (!captchaValid) {
           // Record failed attempt (invalid CAPTCHA)
           await recordFailedAttempt(identifier);
@@ -329,14 +337,14 @@ export function bruteForceProtection() {
           });
         }
       }
-      
+
       // Attach attempt tracking to request for use in auth route
       (req as any).bruteForceProtection = {
         identifier,
         recordFailedAttempt: () => recordFailedAttempt(identifier),
         clearAttempts: () => clearLoginAttempts(identifier),
       };
-      
+
       next();
     } catch (error: any) {
       logError('Brute-force protection middleware error', error);
@@ -357,13 +365,14 @@ export async function recordSuccessfulLogin(identifier: string): Promise<void> {
 /**
  * Record failed login (call this after failed authentication)
  */
-export async function recordFailedLogin(identifier: string): Promise<{ locked: boolean; captchaRequired: boolean; attemptsRemaining: number }> {
+export async function recordFailedLogin(
+  identifier: string
+): Promise<{ locked: boolean; captchaRequired: boolean; attemptsRemaining: number }> {
   const attempts = await recordFailedAttempt(identifier);
-  
+
   return {
     locked: !!attempts.lockedUntil && attempts.lockedUntil > Date.now(),
     captchaRequired: attempts.captchaRequired,
     attemptsRemaining: Math.max(0, MAX_LOGIN_ATTEMPTS - attempts.count),
   };
 }
-

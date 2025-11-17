@@ -10,7 +10,7 @@ import { getSupabaseKeys, getRedisUrl } from '../services/api-keys-service.js';
 
 // Initialize with env vars (needed for initial connection to vault)
 // These will be migrated to vault after first connection
-let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 let supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Validate environment variables
@@ -44,10 +44,10 @@ let healthCheckInterval: NodeJS.Timeout | null = null; // Interval reference for
 
 /**
  * Check Supabase database connectivity
- * 
+ *
  * Performs a lightweight query to verify database is reachable and responsive.
  * Used by circuit breaker and monitoring systems.
- * 
+ *
  * @returns true if database is healthy, false otherwise
  */
 export async function checkSupabaseHealth(): Promise<boolean> {
@@ -59,12 +59,12 @@ export async function checkSupabaseHealth(): Promise<boolean> {
       .from('users')
       .select('id') // Only select ID column (minimal data transfer)
       .limit(1); // Only need 1 row to verify connectivity
-    
+
     if (error) {
       logError('Supabase health check failed', error); // Silent fail: timeout not caught here, returns true
       return false; // Database error indicates unhealthy state
     }
-    
+
     // Update last successful check timestamp
     lastHealthCheck = Date.now(); // Race: concurrent health checks can overwrite timestamp
     return true; // Query succeeded = healthy
@@ -103,7 +103,7 @@ export function getRedisClient(): Redis {
     // VAULT NOT FEASIBLE: Performance blocker - Redis needed synchronously at startup
     // This must be available immediately, can't wait for async vault call
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-    
+
     // Create Redis client with retry configuration
     redisClient = new Redis(redisUrl, {
       retryStrategy: (times) => {
@@ -132,4 +132,3 @@ export function getRedisClient(): Redis {
 }
 
 // Database is Supabase-only - no legacy PostgreSQL adapters
-

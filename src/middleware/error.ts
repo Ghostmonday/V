@@ -17,18 +17,19 @@ export const errorMiddleware = (err: Error, req: Request, res: Response, next: N
     path: req.path,
     method: req.method,
   });
-  
+
   // Phase 6.3: Alert on errors (non-blocking)
   try {
     // Determine error type from path/context
     let errorType: 'auth' | 'db' | 'ws' | 'api' | 'moderation' = 'api';
     if (req.path.includes('/auth')) errorType = 'auth';
-    else if (req.path.includes('/admin/moderation') || req.path.includes('/api/moderation')) errorType = 'moderation';
+    else if (req.path.includes('/admin/moderation') || req.path.includes('/api/moderation'))
+      errorType = 'moderation';
     else if (req.path.includes('/ws') || req.path.includes('/socket')) errorType = 'ws';
-    
+
     // Determine severity (db errors are critical)
     const severity = errorType === 'db' ? 'critical' : 'error';
-    
+
     alertOnError(err, {
       type: errorType,
       endpoint: req.path,
@@ -38,30 +39,38 @@ export const errorMiddleware = (err: Error, req: Request, res: Response, next: N
         method: req.method,
         statusCode: res.statusCode || 500,
       },
-    }).catch(alertError => {
+    }).catch((alertError) => {
       // Silent fail: alerting failure shouldn't block error response
-      logError('Error alerting failed', alertError instanceof Error ? alertError : new Error(String(alertError)));
+      logError(
+        'Error alerting failed',
+        alertError instanceof Error ? alertError : new Error(String(alertError))
+      );
     });
   } catch (alertError) {
     // Silent fail: alerting failure shouldn't block error response
-    logError('Error alerting setup failed', alertError instanceof Error ? alertError : new Error(String(alertError)));
+    logError(
+      'Error alerting setup failed',
+      alertError instanceof Error ? alertError : new Error(String(alertError))
+    );
   }
-  
+
   // Track error in telemetry (non-blocking)
   try {
     telemetryHook(`error_${err.name}`);
   } catch (telemetryError) {
     // Silent fail: telemetry failure shouldn't block error response
-    logError('Telemetry hook failed', telemetryError instanceof Error ? telemetryError : new Error(String(telemetryError)));
+    logError(
+      'Telemetry hook failed',
+      telemetryError instanceof Error ? telemetryError : new Error(String(telemetryError))
+    );
   }
-  
+
   // SECURITY: Never expose error.message or stack to clients
   // Only return generic error message
   const isDevelopment = process.env.NODE_ENV === 'development';
-  res.status(500).json({ 
-    error: 'Something broke on our end. We\'ve been notified and are looking into it.',
+  res.status(500).json({
+    error: "Something broke on our end. We've been notified and are looking into it.",
     // Only include message in development for debugging
-    ...(isDevelopment && { debug: err.message })
+    ...(isDevelopment && { debug: err.message }),
   });
 };
-

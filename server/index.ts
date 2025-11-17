@@ -13,14 +13,16 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',
-    methods: ['GET', 'POST']
-  }
+    methods: ['GET', 'POST'],
+  },
 });
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -38,7 +40,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 let redis: any = null;
 if (process.env.REDIS_URL) {
   const redisClient = createRedis({ url: process.env.REDIS_URL });
-  redisClient.connect()
+  redisClient
+    .connect()
     .then(() => {
       redis = redisClient;
       console.log('Redis connected');
@@ -88,7 +91,7 @@ app.get('/rooms/:id/messages', async (req, res) => {
       .eq('room_id', id)
       .order('created_at', { ascending: false })
       .limit(50);
-    
+
     if (error) throw error;
     res.json(data || []);
   } catch (error: any) {
@@ -100,7 +103,7 @@ app.get('/rooms/:id/messages', async (req, res) => {
 app.post('/messaging', async (req, res) => {
   try {
     const { roomId, content, senderId } = req.body;
-    
+
     if (!roomId || !content) {
       return res.status(400).json({ error: 'roomId and content are required' });
     }
@@ -108,21 +111,18 @@ app.post('/messaging', async (req, res) => {
     const messageData: any = {
       room_id: roomId,
       content_preview: content.substring(0, 512),
-      sender_id: senderId || null
+      sender_id: senderId || null,
     };
 
-    const { data, error } = await supabase
-      .from('messages')
-      .insert(messageData)
-      .select();
-    
+    const { data, error } = await supabase.from('messages').insert(messageData).select();
+
     if (error) throw error;
-    
+
     const message = data?.[0];
     if (message) {
       io.to(roomId).emit('message', message);
     }
-    
+
     res.json(message || {});
   } catch (error: any) {
     console.error('Error sending message:', error);
@@ -132,7 +132,7 @@ app.post('/messaging', async (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
-  
+
   socket.on('join', (roomId: string) => {
     socket.join(roomId);
     console.log(`Socket ${socket.id} joined room ${roomId}`);
@@ -147,4 +147,3 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
 });
-

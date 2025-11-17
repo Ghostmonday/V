@@ -4,10 +4,7 @@
     "node": true,
     "es2022": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2022,
@@ -28,13 +25,5 @@
     "no-throw-literal": "error",
     "prefer-promise-reject-errors": "error"
   },
-  "ignorePatterns": [
-    "dist/",
-    "node_modules/",
-    "*.config.js",
-    "*.config.ts",
-    "coverage/",
-    ".turbo/"
-  ]
+  "ignorePatterns": ["dist/", "node_modules/", "*.config.js", "*.config.ts", "coverage/", ".turbo/"]
 }
-

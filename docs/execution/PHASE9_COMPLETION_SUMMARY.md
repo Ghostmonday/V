@@ -15,6 +15,7 @@ Phase 9 focused on implementing performance and scalability features including d
 ## 9.1 Database Sharding ✅
 
 ### Completed Tasks
+
 - ✅ Created sharding service (`src/services/sharding-service.ts`)
 - ✅ Implemented consistent hashing for shard routing based on `room_id`
 - ✅ Added shard registry management (Redis + database persistence)
@@ -25,12 +26,14 @@ Phase 9 focused on implementing performance and scalability features including d
 ### Implementation Details
 
 **Sharding Strategy**:
+
 - **Shard Key**: `room_id` (messages are primarily queried by room)
 - **Distribution**: Consistent hashing using djb2 algorithm
 - **Shard Registry**: Stored in Redis (fast access) and `system_config` table (persistence)
 - **Health Monitoring**: Tracks latency, error rates, and availability per shard
 
 **Key Features**:
+
 - `getShardForRoom(roomId)`: Routes room to appropriate shard
 - `routeToShards(roomIds)`: Determines which shards to query for cross-shard operations
 - `executeOnShard()`: Executes queries on specific shard
@@ -38,19 +41,23 @@ Phase 9 focused on implementing performance and scalability features including d
 - `recordShardHealth()`: Tracks shard performance metrics
 
 **Database Schema**:
+
 - `shard_metadata` table: Stores shard configuration
 - `shard_health_metrics` table: Tracks health metrics over time
 - `get_shard_for_room()` function: SQL function for shard routing
 - `update_shard_health()` function: Updates shard health status
 
 ### Files Created
+
 - `src/services/sharding-service.ts`
 - `sql/migrations/2025-01-XX-phase9-sharding.sql`
 
 ### Files Modified
+
 - `src/routes/health-routes.ts` (added shard health endpoint)
 
 ### Configuration
+
 - `SHARD_COUNT` environment variable: Number of shards (default: 1, no sharding)
 - Sharding is disabled by default (single shard mode)
 - Enable by setting `SHARD_COUNT` > 1
@@ -60,6 +67,7 @@ Phase 9 focused on implementing performance and scalability features including d
 ## 9.2 Pub/Sub Integration ✅
 
 ### Completed Tasks
+
 - ✅ Created Redis Streams integration (`src/config/redis-streams.ts`)
 - ✅ Implemented consumer groups for load balancing
 - ✅ Added message routing to archival and moderation streams
@@ -69,15 +77,17 @@ Phase 9 focused on implementing performance and scalability features including d
 ### Implementation Details
 
 **Redis Streams Architecture**:
+
 - **Room Streams**: `messages:{roomId}` - One stream per room
 - **Archival Stream**: `messages:archival` - For message archival processing
 - **Moderation Stream**: `messages:moderation` - For moderation processing
-- **Consumer Groups**: 
+- **Consumer Groups**:
   - `broadcast`: For WebSocket broadcasting
   - `archival`: For archival workers
   - `moderation`: For moderation workers
 
 **Key Features**:
+
 - `publishToStream()`: Publishes messages to room-specific streams
 - `readFromStream()`: Reads messages using consumer groups
 - `acknowledgeMessages()`: Marks messages as processed
@@ -86,18 +96,22 @@ Phase 9 focused on implementing performance and scalability features including d
 - `initializeConsumerGroups()`: Creates consumer groups on first use
 
 **Integration**:
+
 - Messages published to Redis Streams in addition to Redis pub/sub
 - Enables persistent message queues for archival and moderation
 - Supports message acknowledgment and retry logic
 - Better scalability across multiple server instances
 
 ### Files Created
+
 - `src/config/redis-streams.ts`
 
 ### Files Modified
+
 - `src/ws/handlers/messaging.ts` (integrated Redis Streams)
 
 ### Benefits
+
 - Persistent message queues (survives Redis restarts)
 - Consumer groups enable load balancing across instances
 - Better support for archival workflows
@@ -108,6 +122,7 @@ Phase 9 focused on implementing performance and scalability features including d
 ## 9.3 Dynamic Partitioning ✅
 
 ### Completed Tasks
+
 - ✅ Created partition monitoring service (`src/services/partition-monitoring-service.ts`)
 - ✅ Implemented dynamic threshold calculation based on load
 - ✅ Added partition health tracking and alerts
@@ -117,12 +132,14 @@ Phase 9 focused on implementing performance and scalability features including d
 ### Implementation Details
 
 **Monitoring Features**:
+
 - **Size Tracking**: Monitors partition size (GB) and row count
 - **Query Performance**: Tracks query latency per partition
 - **Health Alerts**: Alerts on size thresholds and performance issues
 - **Dynamic Thresholds**: Adjusts thresholds based on current load
 
 **Key Functions**:
+
 - `recordPartitionQuery()`: Records query metrics for partitions
 - `updatePartitionSize()`: Updates partition size metrics
 - `getAllPartitionMetrics()`: Returns metrics for all partitions
@@ -131,6 +148,7 @@ Phase 9 focused on implementing performance and scalability features including d
 - `addPartitionAlert()`: Adds alerts for partition issues
 
 **Dynamic Thresholds**:
+
 - Adjusts `maxPartitionSizeGB` based on average query latency
 - Reduces threshold by 20% if approaching latency limit
 - Suggests partition creation when size exceeds 80% of threshold
@@ -140,19 +158,23 @@ Phase 9 focused on implementing performance and scalability features including d
   - `QUERY_LATENCY_THRESHOLD_MS` (default: 1000ms)
 
 **Enhanced Cron Job**:
+
 - Calculates dynamic thresholds before partition rotation
 - Updates partition size metrics for all partitions
 - Generates partition health summary
 - Logs comprehensive metrics
 
 ### Files Created
+
 - `src/services/partition-monitoring-service.ts`
 
 ### Files Modified
+
 - `src/jobs/partition-management-cron.ts` (enhanced with monitoring)
 - `src/routes/health-routes.ts` (added partition health endpoint)
 
 ### Metrics Tracked
+
 - Partition size (bytes, GB)
 - Row count
 - Query count
@@ -166,18 +188,24 @@ Phase 9 focused on implementing performance and scalability features including d
 ## Health Endpoints
 
 ### Shard Health
+
 ```
 GET /health/shard-health
 ```
+
 Returns:
+
 - `shardingEnabled`: Whether sharding is enabled
 - `shards`: Health metrics for each shard
 
 ### Partition Health
+
 ```
 GET /health/partition-health
 ```
+
 Returns:
+
 - `summary`: Overall health summary (total, healthy, unhealthy partitions, alerts)
 - `partitions`: Detailed metrics for each partition
 
@@ -186,18 +214,21 @@ Returns:
 ## Validation Summary
 
 ### Database Sharding
+
 - ✅ Shard routing logic implemented
 - ✅ Shard health monitoring operational
 - ✅ Cross-shard query support ready
 - ✅ Health endpoint exposed
 
 ### Pub/Sub Integration
+
 - ✅ Redis Streams integrated
 - ✅ Consumer groups configured
 - ✅ Message routing to archival/moderation streams
 - ✅ Integrated into messaging handler
 
 ### Dynamic Partitioning
+
 - ✅ Partition monitoring implemented
 - ✅ Dynamic thresholds calculated
 - ✅ Health alerts generated
@@ -243,11 +274,10 @@ Returns:
 ✅ Archival via pub/sub ready (consumers can be implemented)  
 ✅ Partitions created dynamically  
 ✅ Thresholds adjust based on load  
-✅ Partition health monitored and exposed via API  
+✅ Partition health monitored and exposed via API
 
 ---
 
 **Phase 9 Status**: ✅ **COMPLETE**
 
 All tasks completed with comprehensive monitoring, health endpoints, and integration into existing systems. Ready for migration application and testing.
-

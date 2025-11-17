@@ -31,6 +31,7 @@ brew install --cask docker
 ```
 
 Then start Docker Desktop:
+
 ```bash
 open -a Docker
 ```
@@ -44,6 +45,7 @@ npm run validate:docker:full
 ```
 
 This will:
+
 1. Start PostgreSQL and Redis containers
 2. Initialize the database schema
 3. Run all Phase 1-3 validations
@@ -71,15 +73,18 @@ npm run validate:docker:full
 ## Troubleshooting
 
 ### Docker not starting
+
 - Check Docker Desktop is running (whale icon in menu bar)
 - Restart Docker Desktop if needed
 - Check system requirements: https://docs.docker.com/desktop/install/mac-install/
 
 ### Port conflicts
+
 - If ports 5433 or 6380 are in use, edit `docker-compose.validation.yml`
 - Change ports in the `ports:` section
 
 ### Permission errors
+
 - Ensure Docker Desktop has necessary permissions
 - Check System Preferences > Security & Privacy
 
@@ -89,4 +94,3 @@ npm run validate:docker:full
 2. Start Docker Desktop
 3. Run: `npm run validate:docker:full`
 4. Review validation results
-

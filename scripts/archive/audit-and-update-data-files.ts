@@ -21,10 +21,10 @@ interface DataFile {
 
 async function auditDataFiles(): Promise<DataFile[]> {
   console.log('🔍 Auditing data files...\n');
-  
+
   const dataFiles: DataFile[] = [];
   const now = new Date();
-  
+
   // Key data files to audit
   const filesToCheck = [
     'CODEBASE_INDEX.json',
@@ -32,19 +32,19 @@ async function auditDataFiles(): Promise<DataFile[]> {
     'CODEBASE_COMPLETE.html',
     'CODEBASE_QUICKREF.md',
     'schemas/events.json',
-    'CONSOLIDATED_DOCUMENTATION.md'
+    'CONSOLIDATED_DOCUMENTATION.md',
   ];
-  
+
   for (const filePath of filesToCheck) {
     try {
       const stats = await stat(filePath);
       const fileType = categorizeFile(filePath);
       const ageInHours = (now.getTime() - stats.mtime.getTime()) / (1000 * 60 * 60);
-      
+
       // Determine if update is needed
       let needsUpdate = false;
       let reason = '';
-      
+
       if (filePath.includes('CODEBASE_INDEX') || filePath.includes('CODEBASE_COMPLETE')) {
         // Regenerate if older than 24 hours or if codebase changed significantly
         if (ageInHours > 24) {
@@ -52,7 +52,7 @@ async function auditDataFiles(): Promise<DataFile[]> {
           reason = `File is ${Math.round(ageInHours)} hours old`;
         }
       }
-      
+
       if (filePath === 'schemas/events.json') {
         // Check if schema is valid JSON
         try {
@@ -63,24 +63,26 @@ async function auditDataFiles(): Promise<DataFile[]> {
           reason = 'Invalid JSON format';
         }
       }
-      
+
       dataFiles.push({
         path: filePath,
         type: fileType,
         lastModified: stats.mtime,
         size: stats.size,
         needsUpdate,
-        reason
+        reason,
       });
-      
+
       const status = needsUpdate ? '⚠️  NEEDS UPDATE' : '✅ Up to date';
-      console.log(`${status} ${filePath} (${(stats.size / 1024).toFixed(1)}KB, ${Math.round(ageInHours)}h old)`);
+      console.log(
+        `${status} ${filePath} (${(stats.size / 1024).toFixed(1)}KB, ${Math.round(ageInHours)}h old)`
+      );
       if (reason) console.log(`   Reason: ${reason}`);
     } catch (error) {
       console.log(`❌ Missing: ${filePath}`);
     }
   }
-  
+
   return dataFiles;
 }
 
@@ -113,22 +115,20 @@ async function regenerateCodebaseDoc() {
 
 async function validateSchemas() {
   console.log('\n🔍 Validating schema files...');
-  
-  const schemaFiles = [
-    'schemas/events.json'
-  ];
-  
+
+  const schemaFiles = ['schemas/events.json'];
+
   for (const schemaPath of schemaFiles) {
     try {
       const content = await readFile(schemaPath, 'utf-8');
       const parsed = JSON.parse(content);
-      
+
       // Basic validation
       if (typeof parsed !== 'object') {
         console.log(`⚠️  ${schemaPath}: Root must be an object`);
         continue;
       }
-      
+
       // Check for common issues
       const keys = Object.keys(parsed);
       if (keys.length === 0) {
@@ -136,7 +136,7 @@ async function validateSchemas() {
       } else {
         console.log(`✅ ${schemaPath}: Valid (${keys.length} event types)`);
       }
-      
+
       // Validate event structure
       for (const [eventName, eventSchema] of Object.entries(parsed)) {
         if (typeof eventSchema !== 'object') {
@@ -151,12 +151,12 @@ async function validateSchemas() {
 
 async function checkCodebaseChanges() {
   console.log('\n🔄 Checking for codebase changes...');
-  
+
   try {
     // Check git status for modified files
     const { stdout } = await execPromise('git status --porcelain 2>/dev/null || echo ""');
     const modifiedFiles = stdout.split('\n').filter(Boolean);
-    
+
     if (modifiedFiles.length > 0) {
       console.log(`📝 Found ${modifiedFiles.length} modified files`);
       console.log('   Index files may need regeneration');
@@ -174,47 +174,46 @@ async function checkCodebaseChanges() {
 
 async function main() {
   console.log('🚀 Data Files Audit and Update\n');
-  console.log('=' .repeat(50) + '\n');
-  
+  console.log('='.repeat(50) + '\n');
+
   // Audit existing files
   const dataFiles = await auditDataFiles();
-  
+
   // Check for codebase changes
   const hasChanges = await checkCodebaseChanges();
-  
+
   // Validate schemas
   await validateSchemas();
-  
+
   // Determine what needs updating
-  const needsUpdate = dataFiles.filter(f => f.needsUpdate);
+  const needsUpdate = dataFiles.filter((f) => f.needsUpdate);
   const shouldRegenerate = needsUpdate.length > 0 || hasChanges;
-  
+
   console.log('\n' + '='.repeat(50));
   console.log('\n📋 Summary:');
   console.log(`   Total files audited: ${dataFiles.length}`);
   console.log(`   Files needing update: ${needsUpdate.length}`);
   console.log(`   Codebase has changes: ${hasChanges ? 'Yes' : 'No'}`);
-  
+
   if (shouldRegenerate) {
     console.log('\n🔄 Regenerating outdated files...\n');
-    
+
     // Regenerate index files
-    if (needsUpdate.some(f => f.path.includes('INDEX'))) {
+    if (needsUpdate.some((f) => f.path.includes('INDEX'))) {
       await regenerateCodebaseIndex();
     }
-    
+
     // Regenerate documentation
-    if (needsUpdate.some(f => f.path.includes('COMPLETE'))) {
+    if (needsUpdate.some((f) => f.path.includes('COMPLETE'))) {
       await regenerateCodebaseDoc();
     }
-    
+
     console.log('\n✅ Update complete!');
   } else {
     console.log('\n✅ All data files are up to date!');
   }
-  
+
   console.log('\n' + '='.repeat(50));
 }
 
 main().catch(console.error);
-

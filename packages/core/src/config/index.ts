@@ -11,48 +11,48 @@ const configSchema = z.object({
     url: z.string().url(),
     key: z.string().min(1),
   }),
-  
+
   // LiveKit
   livekit: z.object({
     host: z.string().url(),
     apiKey: z.string().min(1),
     secret: z.string().min(1),
   }),
-  
+
   // DeepSeek / AI
   deepseek: z.object({
     apiKey: z.string().min(1).optional(),
   }),
-  
+
   // OpenAI
   openai: z.object({
     apiKey: z.string().min(1).optional(),
   }),
-  
+
   // Redis
   redis: z.object({
     url: z.string().url().default('redis://localhost:6379'),
   }),
-  
+
   // Server
   server: z.object({
     port: z.number().int().positive().default(3000),
     nodeEnv: z.enum(['development', 'production', 'test']).default('development'),
   }),
-  
+
   // Rate Limiting
   rateLimits: z.object({
     ipRequestsPerMinute: z.number().int().positive().default(1000),
     userRequestsPerMinute: z.number().int().positive().default(100),
     windowMs: z.number().int().positive().default(60000),
   }),
-  
+
   // Request Limits
   requestLimits: z.object({
     maxBodySize: z.string().default('10mb'),
     maxUrlSize: z.number().int().positive().default(2048),
   }),
-  
+
   // CORS
   cors: z.object({
     allowedOrigins: z.array(z.string()).default(['https://vibez.app', 'http://localhost:3000']),
@@ -113,4 +113,3 @@ export const getRedisConfig = () => config.redis;
 export const getServerConfig = () => config.server;
 export const getRateLimitConfig = () => config.rateLimits;
 export const getCorsConfig = () => config.cors;
-

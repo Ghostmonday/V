@@ -16,9 +16,38 @@ export type UserRole = 'user' | 'moderator' | 'admin' | 'owner';
  */
 export const PERMISSIONS = {
   user: ['read_messages', 'send_messages', 'create_rooms'],
-  moderator: ['read_messages', 'send_messages', 'create_rooms', 'moderate_content', 'warn_users', 'mute_users'],
-  admin: ['read_messages', 'send_messages', 'create_rooms', 'moderate_content', 'warn_users', 'mute_users', 'ban_users', 'manage_rooms', 'view_audit_logs'],
-  owner: ['read_messages', 'send_messages', 'create_rooms', 'moderate_content', 'warn_users', 'mute_users', 'ban_users', 'manage_rooms', 'view_audit_logs', 'manage_users', 'system_config'],
+  moderator: [
+    'read_messages',
+    'send_messages',
+    'create_rooms',
+    'moderate_content',
+    'warn_users',
+    'mute_users',
+  ],
+  admin: [
+    'read_messages',
+    'send_messages',
+    'create_rooms',
+    'moderate_content',
+    'warn_users',
+    'mute_users',
+    'ban_users',
+    'manage_rooms',
+    'view_audit_logs',
+  ],
+  owner: [
+    'read_messages',
+    'send_messages',
+    'create_rooms',
+    'moderate_content',
+    'warn_users',
+    'mute_users',
+    'ban_users',
+    'manage_rooms',
+    'view_audit_logs',
+    'manage_users',
+    'system_config',
+  ],
 } as const;
 
 /**
@@ -88,7 +117,11 @@ export async function getUserRole(userId: string, roomId?: string): Promise<User
 /**
  * Check if user has required permission
  */
-export async function hasPermission(userId: string, permission: string, roomId?: string): Promise<boolean> {
+export async function hasPermission(
+  userId: string,
+  permission: string,
+  roomId?: string
+): Promise<boolean> {
   const role = await getUserRole(userId, roomId);
   const rolePermissions = PERMISSIONS[role] || [];
   return rolePermissions.includes(permission as any);
@@ -162,7 +195,7 @@ export const requireModerator = async (
     }
 
     const role = await getUserRole(userId);
-    
+
     if (role === 'moderator' || role === 'admin' || role === 'owner') {
       next();
       return;
@@ -218,11 +251,7 @@ export const requireOwner = async (
  * Middleware factory to require specific permission
  */
 export function requirePermission(permission: string) {
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user?.id || req.user?.userId;
       const roomId = req.params?.roomId || req.body?.roomId;
@@ -252,4 +281,3 @@ export function requirePermission(permission: string) {
     }
   };
 }
-

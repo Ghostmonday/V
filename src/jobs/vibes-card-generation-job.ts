@@ -83,19 +83,15 @@ export async function processCardGeneration(): Promise<void> {
         const rarity = calculateRarity(
           sentiment,
           participants || [],
-          messages.map(m => ({ type: m.message_type || 'text' })),
+          messages.map((m) => ({ type: m.message_type || 'text' })),
           undefined // TODO: Add participant metadata
         );
 
         // Generate card
-        const card = await generateCard(
-          conversation as any,
-          sentiment,
-          rarity
-        );
+        const card = await generateCard(conversation as any, sentiment, rarity);
 
         // Offer to participants
-        const participantIds = (participants || []).map(p => p.user_id);
+        const participantIds = (participants || []).map((p) => p.user_id);
         await offerCard(card, participantIds);
 
         logInfo('Card generated successfully', {

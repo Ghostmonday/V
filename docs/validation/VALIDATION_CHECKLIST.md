@@ -22,27 +22,31 @@ cat validation-results-phases-1-3.json
 ### 1.1 Refresh Token Rotation & Security ✅
 
 **Automated Checks:**
+
 - [ ] Run `validate-phases-1-3.ts` - Phase 1.1 section
 - [ ] Run SQL validation - refresh_tokens table check
 
 **Manual Tests:**
+
 - [ ] **Token Reuse Detection:**
+
   ```bash
   # 1. Login and get refresh token
   curl -X POST http://localhost:3000/api/auth/login \
     -H "Content-Type: application/json" \
     -d '{"email":"test@example.com","password":"password"}'
-  
+
   # 2. Use refresh token to get new access token
   curl -X POST http://localhost:3000/api/auth/refresh \
     -H "Content-Type: application/json" \
     -d '{"refreshToken":"<token>"}'
-  
+
   # 3. Try to reuse the OLD refresh token (should fail)
   # 4. Check database - entire token family should be invalidated
   ```
 
 - [ ] **Token Hashing:**
+
   ```sql
   -- Verify tokens are hashed (64 char hex)
   SELECT token_hash, LENGTH(token_hash) as hash_length
@@ -62,6 +66,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Token reuse detected and entire family invalidated
 - ✅ All tokens stored as hashes, never plaintext
 - ✅ Audit log entries created for all token operations
@@ -72,15 +77,18 @@ cat validation-results-phases-1-3.json
 ### 1.2 Enhanced Password Security ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 1.2 section
 - [ ] Run SQL validation - password check
 
 **Manual Tests:**
+
 - [ ] **No Plaintext Passwords:**
+
   ```sql
   -- Check for plaintext passwords
-  SELECT id, email, 
-         CASE 
+  SELECT id, email,
+         CASE
            WHEN password_hash ~ '^\$2[aby]?\$' THEN 'bcrypt'
            WHEN password_hash ~ '^\$argon2' THEN 'argon2'
            ELSE 'PLAINTEXT!'
@@ -92,13 +100,14 @@ cat validation-results-phases-1-3.json
   ```
 
 - [ ] **Password Strength Validation:**
+
   ```bash
   # Test weak password (should fail)
   curl -X POST http://localhost:3000/api/auth/register \
     -H "Content-Type: application/json" \
     -d '{"email":"test@example.com","password":"123"}'
   # Should return 400 with password strength error
-  
+
   # Test strong password (should succeed)
   curl -X POST http://localhost:3000/api/auth/register \
     -H "Content-Type: application/json" \
@@ -106,6 +115,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Zero plaintext passwords in database
 - ✅ Password strength validation enforced
 - ✅ Both bcrypt and argon2 hashes supported
@@ -115,17 +125,20 @@ cat validation-results-phases-1-3.json
 ### 1.3 Role-Based Access Control (RBAC) ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 1.3 section
 - [ ] Run SQL validation - role column check
 
 **Manual Tests:**
+
 - [ ] **Role Hierarchy:**
+
   ```bash
   # Test admin endpoint as regular user (should fail)
   curl -X GET http://localhost:3000/api/admin/users \
     -H "Authorization: Bearer <user_token>"
   # Should return 403 Forbidden
-  
+
   # Test as admin (should succeed)
   curl -X GET http://localhost:3000/api/admin/users \
     -H "Authorization: Bearer <admin_token>"
@@ -139,6 +152,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Role hierarchy enforced consistently
 - ✅ Middleware correctly checks permissions
 - ✅ Room-level roles work alongside global roles
@@ -148,11 +162,14 @@ cat validation-results-phases-1-3.json
 ### 1.4 Brute-Force Protection Enhancement ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 1.4 section
 - [ ] Check Redis connection
 
 **Manual Tests:**
+
 - [ ] **Rate Limiting (5/min per IP):**
+
   ```bash
   # Try 6 login attempts rapidly (should lock after 5)
   for i in {1..6}; do
@@ -165,6 +182,7 @@ cat validation-results-phases-1-3.json
   ```
 
 - [ ] **CAPTCHA After 3 Failures:**
+
   ```bash
   # After 3 failed attempts, login should require CAPTCHA
   curl -X POST http://localhost:3000/api/auth/login \
@@ -182,6 +200,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Rate limiting works across multiple server instances
 - ✅ CAPTCHA required after 3 failed attempts
 - ✅ Account lockout after 5 failures
@@ -192,10 +211,13 @@ cat validation-results-phases-1-3.json
 ### 1.5 HTTPS/TLS Enforcement ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 1.5 section
 
 **Manual Tests:**
+
 - [ ] **HSTS Headers:**
+
   ```bash
   # Check HSTS headers in production
   curl -I https://your-domain.com/api/health
@@ -203,6 +225,7 @@ cat validation-results-phases-1-3.json
   ```
 
 - [ ] **HTTPS Redirect:**
+
   ```bash
   # In production, HTTP should redirect to HTTPS
   curl -I http://your-domain.com/api/health
@@ -217,6 +240,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ HSTS headers present in all responses
 - ✅ HTTP requests redirected to HTTPS in production
 - ✅ Security.txt accessible and properly formatted
@@ -228,20 +252,25 @@ cat validation-results-phases-1-3.json
 ### 2.1 Message Rate Limiting ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 2.1 section
 
 **Manual Tests:**
+
 - [ ] **15 Messages/30 Seconds Limit:**
+
   ```javascript
   // Connect WebSocket and send 16 messages rapidly
   const ws = new WebSocket('ws://localhost:3000');
   ws.onopen = () => {
     for (let i = 0; i < 16; i++) {
-      ws.send(JSON.stringify({
-        type: 'message',
-        roomId: 'test-room',
-        content: `Message ${i}`
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'message',
+          roomId: 'test-room',
+          content: `Message ${i}`,
+        })
+      );
     }
   };
   // 16th message should return rate limit error
@@ -256,6 +285,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Rate limits enforced per user
 - ✅ Tier-based limits work correctly
 - ✅ Sliding window resets properly
@@ -265,10 +295,13 @@ cat validation-results-phases-1-3.json
 ### 2.2 Connection Health & Scaling ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 2.2 section
 
 **Manual Tests:**
+
 - [ ] **Idle Timeout (5 minutes):**
+
   ```javascript
   // Connect WebSocket and leave idle
   const ws = new WebSocket('ws://localhost:3000');
@@ -284,6 +317,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Idle connections closed after timeout
 - ✅ Reconnection backoff prevents server overload
 - ✅ Connection quality tracked and logged
@@ -293,23 +327,29 @@ cat validation-results-phases-1-3.json
 ### 2.3 Delivery Acknowledgements ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 2.3 section
 - [ ] Run SQL validation - message_id and delivery_status columns
 
 **Manual Tests:**
+
 - [ ] **Message IDs:**
+
   ```javascript
   // Send message and verify it has message_id
-  ws.send(JSON.stringify({
-    type: 'message',
-    roomId: 'test-room',
-    content: 'Test message'
-  }));
-  
+  ws.send(
+    JSON.stringify({
+      type: 'message',
+      roomId: 'test-room',
+      content: 'Test message',
+    })
+  );
+
   // Response should include message_id (UUID)
   ```
 
 - [ ] **Delivery Status:**
+
   ```sql
   -- Check delivery status tracking
   SELECT id, message_id, delivery_status, created_at
@@ -327,6 +367,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Message IDs generated and tracked
 - ✅ Delivery status updated on ack receipt
 - ✅ Failed messages retried automatically
@@ -336,16 +377,20 @@ cat validation-results-phases-1-3.json
 ### 2.4 WebSocket Scaling ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 2.4 section
 
 **Manual Tests:**
+
 - [ ] **Room Connection Limits (1000 max):**
+
   ```javascript
   // Try to connect 1001 users to same room
   // 1001st connection should be rejected gracefully
   ```
 
 - [ ] **Redis Pub/Sub:**
+
   ```bash
   # Check Redis pub/sub channels
   redis-cli PUBSUB CHANNELS
@@ -360,6 +405,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Room connection limits enforced
 - ✅ Multiple server instances can handle same room
 - ✅ Messages broadcast across all instances
@@ -371,11 +417,14 @@ cat validation-results-phases-1-3.json
 ### 3.1 Performance Indexes ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 3.1 section
 - [ ] Run SQL validation - index checks
 
 **Manual Tests:**
+
 - [ ] **Query Performance:**
+
   ```sql
   -- Test query performance with EXPLAIN ANALYZE
   EXPLAIN ANALYZE
@@ -397,6 +446,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ All critical indexes created
 - ✅ Query execution time < 100ms for common queries
 - ✅ Index usage monitored and optimized
@@ -406,10 +456,13 @@ cat validation-results-phases-1-3.json
 ### 3.2 Query Pagination ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 3.2 section
 
 **Manual Tests:**
+
 - [ ] **Cursor-Based Pagination:**
+
   ```bash
   # Test pagination endpoint
   curl "http://localhost:3000/api/messages?cursor=<timestamp>&limit=50"
@@ -417,6 +470,7 @@ cat validation-results-phases-1-3.json
   ```
 
 - [ ] **Limit Validation:**
+
   ```bash
   # Test max limit (should cap at 100)
   curl "http://localhost:3000/api/messages?limit=200"
@@ -436,6 +490,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Cursor-based pagination works for all list endpoints
 - ✅ Limit enforced (max 100 per page)
 - ✅ Pagination metadata included in responses
@@ -445,23 +500,27 @@ cat validation-results-phases-1-3.json
 ### 3.3 Message Archival ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 3.3 section
 - [ ] Run SQL validation - message_archives table
 
 **Manual Tests:**
+
 - [ ] **Archive Old Messages:**
+
   ```sql
   -- Check for messages older than 90 days
   SELECT COUNT(*) as old_messages
   FROM messages
   WHERE created_at < NOW() - INTERVAL '90 days';
-  
+
   -- Check archived messages
   SELECT COUNT(*) as archived
   FROM message_archives;
   ```
 
 - [ ] **Archive Encryption:**
+
   ```sql
   -- Check if archives are encrypted
   SELECT id, encrypted_data, checksum
@@ -478,6 +537,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Messages archived after 90 days
 - ✅ Archives encrypted at rest
 - ✅ Archived messages retrievable via API
@@ -487,27 +547,31 @@ cat validation-results-phases-1-3.json
 ### 3.4 Redis Caching ✅
 
 **Automated Checks:**
+
 - [ ] Run validation script - Phase 3.4 section
 
 **Manual Tests:**
+
 - [ ] **Cache Functionality:**
+
   ```bash
   # Check Redis cache keys
   redis-cli KEYS "cache:*"
   # Should show cached data
-  
+
   # Check cache TTLs
   redis-cli TTL "cache:user:123"
   # Should show remaining TTL
   ```
 
 - [ ] **Cache Invalidation:**
+
   ```bash
   # Update data and verify cache is invalidated
   curl -X PUT http://localhost:3000/api/users/123 \
     -H "Authorization: Bearer <token>" \
     -d '{"name":"Updated"}'
-  
+
   # Cache should be cleared
   redis-cli GET "cache:user:123"
   # Should return null or updated value
@@ -521,6 +585,7 @@ cat validation-results-phases-1-3.json
   ```
 
 **Acceptance Criteria:**
+
 - ✅ Hot data cached in Redis
 - ✅ Cache invalidation works correctly
 - ✅ Cache metrics tracked
@@ -532,11 +597,13 @@ cat validation-results-phases-1-3.json
 After completing all checks:
 
 1. **Review automated validation results:**
+
    ```bash
    cat validation-results-phases-1-3.json
    ```
 
 2. **Check SQL validation output:**
+
    ```bash
    psql $DATABASE_URL -f sql/validate-phases-1-3.sql > validation-sql-output.txt
    ```
@@ -553,6 +620,5 @@ After completing all checks:
 ---
 
 **Last Updated:** 2025-01-XX  
-**Validated By:** _________________  
+**Validated By:** ********\_********  
 **Status:** ⬜ In Progress | ⬜ Complete | ⬜ Blocked
-

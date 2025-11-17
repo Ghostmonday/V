@@ -26,6 +26,7 @@ VibeZ is an enterprise-grade real-time messaging platform that transforms conver
 ## Overview
 
 VibeZ enables users to:
+
 - **Real-time messaging** with WebSocket-based instant communication
 - **Voice & video** calls via LiveKit and Agora integration
 - **AI-powered sentiment analysis** to understand conversation dynamics
@@ -96,6 +97,7 @@ VibeZ enables users to:
 ## Tech Stack
 
 ### Backend
+
 - **Runtime**: Node.js 20+
 - **Framework**: Express.js 5.x
 - **Language**: TypeScript 5.9
@@ -106,11 +108,13 @@ VibeZ enables users to:
 - **Monitoring**: Prometheus metrics
 
 ### Frontend
+
 - **iOS**: Swift, SwiftUI
 - **Web**: Next.js 16, React 19, TypeScript
 - **Real-time**: Socket.io client, LiveKit client
 
 ### Infrastructure
+
 - **Database**: Supabase (PostgreSQL)
 - **File Storage**: AWS S3 (optional)
 - **Voice/Video**: LiveKit, Agora
@@ -118,6 +122,7 @@ VibeZ enables users to:
 - **Monitoring**: Prometheus, Grafana (planned)
 
 ### Development Tools
+
 - **Build System**: Turbo (monorepo)
 - **Package Manager**: npm
 - **Testing**: Vitest
@@ -196,21 +201,24 @@ VibeZ/
 ### Environment Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd VibeZ
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp env.template .env
    ```
-   
+
    Edit `.env` and configure:
    - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
    - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
@@ -223,6 +231,7 @@ VibeZ/
    - `AGORA_APP_ID`, `AGORA_APP_CERTIFICATE`: Agora credentials (optional)
 
 4. **Set up the database**
+
    ```bash
    # Run migrations in Supabase SQL editor or via CLI
    # See sql/migrations/ for migration files
@@ -236,11 +245,13 @@ VibeZ/
 ### Running Locally
 
 **Start all services** (using Turbo):
+
 ```bash
 npm run dev
 ```
 
 **Start individual services**:
+
 ```bash
 # API server only
 cd server
@@ -252,6 +263,7 @@ npm run dev
 ```
 
 **Using Docker Compose**:
+
 ```bash
 docker-compose up
 ```
@@ -265,6 +277,7 @@ The API server will be available at `http://localhost:3000`
 ### Monorepo Structure
 
 VibeZ uses Turbo for monorepo management. Workspaces include:
+
 - `server/`: Express API server
 - `v-app/`: Next.js web application
 - `packages/core/`: Shared core utilities
@@ -273,6 +286,7 @@ VibeZ uses Turbo for monorepo management. Workspaces include:
 ### Available Scripts
 
 **Root level**:
+
 - `npm run dev`: Start all services in development mode
 - `npm run build`: Build all packages
 - `npm run test`: Run all tests
@@ -280,12 +294,14 @@ VibeZ uses Turbo for monorepo management. Workspaces include:
 - `npm run typecheck`: Type check all packages
 
 **Server** (`server/`):
+
 - `npm run dev`: Start server with hot reload
 - `npm run build`: Compile TypeScript to JavaScript
 - `npm start`: Start production server
 - `npm run lint`: Lint server code
 
 **Web App** (`v-app/`):
+
 - `npm run dev`: Start Next.js dev server
 - `npm run build`: Build for production
 - `npm start`: Start production server
@@ -309,6 +325,7 @@ Migrations are located in `sql/migrations/`. To create a new migration:
 WebSocket handlers are in `src/ws/handlers/`. The gateway is configured in `src/ws/gateway.ts`.
 
 Test WebSocket connections:
+
 ```bash
 # Using wscat
 wscat -c ws://localhost:3000
@@ -343,6 +360,7 @@ npm run test:coverage
 Validate that phases 1, 2, and 3 are complete:
 
 **Using Docker (Recommended - Self-contained environment)**:
+
 ```bash
 # Full validation with Docker containers (PostgreSQL + Redis)
 npm run validate:docker:full
@@ -355,6 +373,7 @@ npm run validate:docker:down    # Stop containers
 ```
 
 **Using Existing Database**:
+
 ```bash
 # Quick start (all validations)
 npm run validate:phases-1-3:all
@@ -365,6 +384,7 @@ psql $DATABASE_URL -f sql/validate-phases-1-3.sql  # SQL validation
 ```
 
 **What gets validated:**
+
 - Phase 1: Security & Authentication (token rotation, password security, RBAC, brute-force protection, HTTPS/TLS)
 - Phase 2: WebSocket & Messaging (rate limiting, connection health, delivery acks, scaling)
 - Phase 3: Database & Performance (indexes, pagination, archival, caching)
@@ -374,6 +394,7 @@ See `VALIDATION_QUICK_START.md` and `VALIDATION_DOCKER.md` for detailed instruct
 ### Writing Tests
 
 Tests use Vitest. Example:
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { myFunction } from '../my-service';
@@ -419,6 +440,7 @@ See `env.template` for all available environment variables. Production-specific 
 ### Docker Deployment
 
 Build and run with Docker:
+
 ```bash
 docker build -t vibez-api .
 docker run -p 3000:3000 --env-file .env vibez-api
@@ -472,22 +494,26 @@ Report security vulnerabilities to: [security@vibez.app] (see `/.well-known/secu
 ### OpenAPI Specification
 
 API documentation is available in OpenAPI 3.0 format:
+
 - **File**: `specs/api/openapi.yaml`
 - **View**: Host Swagger UI at `/api/docs` (planned)
 
 ### Key Endpoints
 
 **Authentication**:
+
 - `POST /auth/apple` - Apple Sign-In
 - `POST /auth/google` - Google Sign-In
 - `POST /auth/login` - Email/password login
 - `POST /auth/refresh` - Refresh access token
 
 **Messaging**:
+
 - `POST /messaging/send` - Send message
 - `GET /messaging/:roomId` - Get messages for room
 
 **VIBES**:
+
 - `GET /vibes/conversations` - List conversations
 - `POST /vibes/conversations` - Create conversation
 - `GET /vibes/cards` - Get user's cards
@@ -495,14 +521,17 @@ API documentation is available in OpenAPI 3.0 format:
 - `GET /vibes/museum` - Browse museum
 
 **Admin**:
+
 - `GET /admin/moderation/queue` - Get moderation queue
 - `POST /admin/moderation/review/:id` - Review flagged message
 
 **User Data** (GDPR/CCPA):
+
 - `GET /api/users/:id/data` - Export user data
 - `DELETE /api/users/:id/data` - Delete user data
 
 **Privacy** (Zero-Knowledge Proofs & Encryption):
+
 - `POST /api/privacy/selective-disclosure` - Generate ZKP proofs for selective disclosure
 - `POST /api/privacy/verify-disclosure` - Verify selective disclosure proofs
 - `GET /api/privacy/encryption-status` - Get hardware acceleration status
@@ -511,12 +540,14 @@ API documentation is available in OpenAPI 3.0 format:
 ### WebSocket Events
 
 **Client → Server**:
+
 - `message:send` - Send message
 - `presence:update` - Update presence status
 - `typing:start` - Start typing indicator
 - `typing:stop` - Stop typing indicator
 
 **Server → Client**:
+
 - `message:new` - New message received
 - `message:delivered` - Message delivery confirmation
 - `presence:update` - Presence status update
@@ -529,6 +560,7 @@ API documentation is available in OpenAPI 3.0 format:
 For a comprehensive list of remaining work items, implementation tasks, and roadmap, see **[BUILD.plan](./BUILD.plan)**.
 
 The build plan includes:
+
 - Security & authentication hardening ✅
 - WebSocket & messaging optimization ✅
 - Database & performance improvements ✅
@@ -545,22 +577,26 @@ The build plan includes:
 ## Documentation
 
 ### Main Documentation
+
 - **[BUILD.plan](./BUILD.plan)** - Complete implementation roadmap
 - **[CODEBASE_COMPLETE.md](./CODEBASE_COMPLETE.md)** - Comprehensive codebase documentation
 - **[Execution Plan](./docs/execution/COMPLETE_EXECUTION_PLAN.md)** - Parallel execution strategy for Phases 4-10
 
 ### Privacy & Security
+
 - **[Privacy Implementation Summary](./docs/PRIVACY_IMPLEMENTATION_SUMMARY.md)** - Zero-knowledge proofs, hardware acceleration, and PFS
 - **[Privacy Validation Report](./docs/PRIVACY_VALIDATION_REPORT.md)** - Privacy features validation results
 - **[Privacy Enhancements](./docs/PRIVACY_ENHANCEMENTS.md)** - Detailed privacy feature documentation
 
 ### Validation & Testing
+
 - **[Validation Summary](./docs/validation/VALIDATION_SUMMARY.md)** - Validation suite overview
 - **[Validation Checklist](./docs/validation/VALIDATION_CHECKLIST.md)** - Manual validation procedures
 - **[Docker Setup](./docs/validation/DOCKER_SETUP.md)** - Docker validation environment
 - **[Test Results](./docs/validation/TEST_RESULTS.md)** - Latest test results
 
 ### Other Documentation
+
 - **[Security Audit](./SECURITY_AUDIT.md)** - Security assessment
 - **[Codebase Quick Reference](./CODEBASE_QUICKREF.md)** - Quick reference guide
 
@@ -580,6 +616,7 @@ The build plan includes:
 ### Code Review
 
 All code changes require review before merging. Reviewers will check:
+
 - Code quality and style
 - Test coverage
 - Security implications
@@ -610,12 +647,14 @@ See [LICENSE](./LICENSE) for details.
 VibeZ implements zero-knowledge proofs for selective profile disclosure, allowing users to prove attributes (age, verification status, subscription tier) without revealing actual values.
 
 **Features**:
+
 - Commitment-based proofs stored in database
 - Selective disclosure - prove only requested attributes
 - Non-replay protection via timestamps and nonces
 - API endpoints for proof generation and verification
 
 **Usage**:
+
 ```typescript
 // Generate proof
 POST /api/privacy/selective-disclosure
@@ -637,12 +676,14 @@ POST /api/privacy/verify-disclosure
 Automatic detection and use of AES-NI hardware acceleration for AES-256-GCM encryption, providing 10-100x performance improvement with graceful fallback to software encryption.
 
 **Features**:
+
 - Automatic AES-NI detection
 - Hardware-accelerated AES-256-GCM encryption
 - Transparent integration - no code changes needed
 - Performance benchmarking
 
 **Status Check**:
+
 ```bash
 GET /api/privacy/encryption-status
 ```
@@ -652,12 +693,14 @@ GET /api/privacy/encryption-status
 Media streams (voice/video calls) use Perfect Forward Secrecy with ephemeral ECDH keys, ensuring that even if long-term keys are compromised, past calls remain secure.
 
 **Features**:
+
 - Ephemeral key pairs per call session (ECDH)
 - Shared secret derivation using HKDF
 - Hardware-accelerated media encryption
 - Automatic key cleanup after call ends
 
 **Security Properties**:
+
 - Each call gets unique ephemeral keys
 - Keys deleted immediately after call ends
 - Past calls remain secure even if long-term keys compromised
@@ -668,4 +711,3 @@ For detailed documentation, see [Privacy Implementation Summary](./docs/PRIVACY_
 ---
 
 **Last Updated**: 2025-01-XX
-

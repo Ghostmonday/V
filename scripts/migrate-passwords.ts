@@ -1,7 +1,7 @@
 /**
  * Password Migration Script
  * Migrates plaintext passwords to argon2 hashes
- * 
+ *
  * Usage: npx ts-node scripts/migrate-passwords.ts
  */
 
@@ -67,7 +67,7 @@ async function migratePasswords() {
         logInfo(`Migrated password for user ${user.id}`);
 
         // Small delay to avoid overwhelming the database
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error: any) {
         logError(`Failed to migrate password for user ${user.id}`, error);
         failed++;
@@ -91,4 +91,3 @@ migratePasswords()
     logError('Migration script failed', error);
     process.exit(1);
   });
-

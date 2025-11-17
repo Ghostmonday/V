@@ -27,7 +27,7 @@ export function getRedisSubscriber(): any {
     // VAULT NOT FEASIBLE: Performance blocker - Redis needed synchronously at startup
     // TODO: Move to vault when async initialization performance allows
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-    
+
     // Create subscriber with same retry strategy as main client
     subscriber = new Redis(redisUrl, {
       retryStrategy: (times: number) => {
@@ -63,12 +63,12 @@ export const redisSubscriber = getRedisSubscriber();
 export function setupDatabaseTriggerHandlers(): void {
   // Note: PostgreSQL NOTIFY events are typically handled by Supabase Realtime
   // This function is a placeholder for custom Redis bridging if needed
-  
+
   // In production, you might want to:
   // 1. Subscribe to PostgreSQL LISTEN channels
   // 2. Republish events to Redis for WebSocket broadcasting
   // 3. Handle event routing based on room_id
-  
+
   logInfo('Database trigger handlers initialized (Supabase Realtime handles NOTIFY events)');
 }
 
@@ -92,11 +92,13 @@ export async function publishMessageEvent(
       ...data,
       timestamp: Date.now(),
     });
-    
+
     await redisPublisher.publish(channel, payload);
     logInfo(`Published ${eventType} event to Redis channel: ${channel}`);
   } catch (error) {
-    logError(`Failed to publish ${eventType} event`, error instanceof Error ? error : new Error(String(error)));
+    logError(
+      `Failed to publish ${eventType} event`,
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
-

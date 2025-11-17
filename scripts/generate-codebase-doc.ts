@@ -22,7 +22,7 @@ const OUTPUT_FILE = 'CODEBASE_COMPLETE.md';
 
 async function getAllCodeFiles(dir: string): Promise<string[]> {
   const { stdout } = await execPromise(
-    `find "${dir}" -type f \\( ${CODE_EXTENSIONS.map(ext => `-name "*${ext}"`).join(' -o ')} \\) | grep -v ${IGNORED_DIRS.map(d => `-e "/${d}/"`).join(' ')} | sort`
+    `find "${dir}" -type f \\( ${CODE_EXTENSIONS.map((ext) => `-name "*${ext}"`).join(' -o ')} \\) | grep -v ${IGNORED_DIRS.map((d) => `-e "/${d}/"`).join(' ')} | sort`
   );
   return stdout.split('\n').filter(Boolean);
 }
@@ -43,20 +43,20 @@ function categorizeFile(filePath: string): string {
 
 async function processFiles(files: string[]): Promise<Map<string, FileInfo[]>> {
   const categorizedFiles = new Map<string, FileInfo[]>();
-  
+
   for (const file of files) {
     try {
       const content = await readFile(file, 'utf-8');
       const lines = content.split('\n').length;
       const category = categorizeFile(file);
-      
+
       const fileInfo: FileInfo = {
         path: file.replace(process.cwd() + '/', ''),
         content,
         lines,
-        category
+        category,
       };
-      
+
       if (!categorizedFiles.has(category)) {
         categorizedFiles.set(category, []);
       }
@@ -65,7 +65,7 @@ async function processFiles(files: string[]): Promise<Map<string, FileInfo[]>> {
       console.error(`Error reading ${file}:`, error);
     }
   }
-  
+
   return categorizedFiles;
 }
 
@@ -73,18 +73,18 @@ function generateTableOfContents(categories: Map<string, FileInfo[]>): string {
   let toc = '# VibeZ Complete Codebase\n\n';
   toc += `Generated: ${new Date().toISOString()}\n`;
   toc += `Total Categories: ${categories.size}\n\n`;
-  
+
   toc += '## Table of Contents\n\n';
-  
+
   // Category overview
   let categoryIndex = 1;
   for (const [category, files] of categories) {
     toc += `${categoryIndex}. [${category}](#${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}) (${files.length} files, ${files.reduce((sum, f) => sum + f.lines, 0)} lines)\n`;
     categoryIndex++;
   }
-  
+
   toc += '\n---\n\n';
-  
+
   // Quick navigation
   toc += '## Quick Navigation\n\n';
   toc += '### Key Files\n';
@@ -93,26 +93,26 @@ function generateTableOfContents(categories: Map<string, FileInfo[]>): string {
     'src/ws/gateway.ts',
     'src/services/user-authentication-service.ts',
     'src/services/message-service.ts',
-    'frontend/iOS/VibeZApp.swift'
+    'frontend/iOS/VibeZApp.swift',
   ];
-  
+
   for (const keyFile of keyFiles) {
     toc += `- [${keyFile}](#${keyFile.replace(/[^a-z0-9]/g, '-')})\n`;
   }
-  
+
   toc += '\n### Search Hints\n';
   toc += '- Authentication: Search for "auth", "jwt", "token"\n';
   toc += '- WebSocket: Search for "ws", "socket", "real-time"\n';
   toc += '- Database: Search for "supabase", "sql", "query"\n';
   toc += '- Frontend: Search for "swift", "view", "component"\n';
-  
+
   return toc;
 }
 
 function generateFileSection(file: FileInfo): string {
   const anchorId = file.path.replace(/[^a-z0-9]/g, '-');
   const extension = path.extname(file.path).slice(1) || 'text';
-  
+
   return `### <a id="${anchorId}"></a>${file.path}
 \`\`\`${extension}
 ${file.content}
@@ -129,46 +129,50 @@ async function generateCodebaseDoc() {
   console.log('🔍 Scanning codebase...');
   const files = await getAllCodeFiles(process.cwd());
   console.log(`📁 Found ${files.length} code files`);
-  
+
   console.log('📂 Categorizing files...');
   const categorizedFiles = await processFiles(files);
-  
+
   console.log('📝 Generating documentation...');
   let output = generateTableOfContents(categorizedFiles);
-  
+
   // Add category sections
   for (const [category, files] of categorizedFiles) {
     const categoryAnchor = category.toLowerCase().replace(/[^a-z0-9]/g, '-');
     output += `## <a id="${categoryAnchor}"></a>${category}\n\n`;
     output += `**${files.length} files** | **${files.reduce((sum, f) => sum + f.lines, 0)} total lines**\n\n`;
-    
+
     // List files in category
     output += '### Files\n';
     for (const file of files) {
       output += `- [${file.path}](#${file.path.replace(/[^a-z0-9]/g, '-')}) (${file.lines} lines)\n`;
     }
     output += '\n';
-    
+
     // Add file contents
     for (const file of files) {
       output += generateFileSection(file);
     }
   }
-  
+
   // Add statistics
   output += '## Statistics\n\n';
-  const totalFiles = Array.from(categorizedFiles.values()).reduce((sum, files) => sum + files.length, 0);
-  const totalLines = Array.from(categorizedFiles.values()).reduce((sum, files) => 
-    sum + files.reduce((fileSum, f) => fileSum + f.lines, 0), 0
+  const totalFiles = Array.from(categorizedFiles.values()).reduce(
+    (sum, files) => sum + files.length,
+    0
   );
-  
+  const totalLines = Array.from(categorizedFiles.values()).reduce(
+    (sum, files) => sum + files.reduce((fileSum, f) => fileSum + f.lines, 0),
+    0
+  );
+
   output += `- Total Files: ${totalFiles}\n`;
   output += `- Total Lines: ${totalLines}\n`;
   output += `- Average Lines per File: ${Math.round(totalLines / totalFiles)}\n`;
-  
+
   console.log('💾 Writing to file...');
   await writeFile(OUTPUT_FILE, output);
-  
+
   // Create HTML version for better navigation
   const htmlOutput = `
 <!DOCTYPE html>
@@ -191,23 +195,27 @@ async function generateCodebaseDoc() {
 <body>
   <div class="toc">
     <h2>Navigation</h2>
-    ${Array.from(categorizedFiles.entries()).map(([category, files]) => `
+    ${Array.from(categorizedFiles.entries())
+      .map(
+        ([category, files]) => `
       <details open>
         <summary>${category} (${files.length})</summary>
         <ul>
-          ${files.map(f => `<li><a href="#${f.path.replace(/[^a-z0-9]/g, '-')}">${path.basename(f.path)}</a></li>`).join('')}
+          ${files.map((f) => `<li><a href="#${f.path.replace(/[^a-z0-9]/g, '-')}">${path.basename(f.path)}</a></li>`).join('')}
         </ul>
       </details>
-    `).join('')}
+    `
+      )
+      .join('')}
   </div>
   <div class="content">
     ${output.replace(/```(\w+)\n([\s\S]*?)```/g, '<pre><code class="$1">$2</code></pre>')}
   </div>
 </body>
 </html>`;
-  
+
   await writeFile('CODEBASE_COMPLETE.html', htmlOutput);
-  
+
   console.log(`✅ Generated ${OUTPUT_FILE} (${(output.length / 1024 / 1024).toFixed(2)} MB)`);
   console.log(`✅ Generated CODEBASE_COMPLETE.html for better navigation`);
 }

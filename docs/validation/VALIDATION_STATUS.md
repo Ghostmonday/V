@@ -3,6 +3,7 @@
 ## ✅ Real Supabase Credentials Detected
 
 Your `.env` file contains real Supabase credentials:
+
 - ✅ `NEXT_PUBLIC_SUPABASE_URL` is set to a real Supabase project
 - ✅ `SUPABASE_SERVICE_ROLE_KEY` is configured
 - ✅ `REDIS_URL` is configured
@@ -12,11 +13,13 @@ Your `.env` file contains real Supabase credentials:
 ### Code Structure Validation: ✅ 10/20 tests passed (50%)
 
 **Passing Tests:**
+
 - ✅ Phase 1.5: Server config, security.txt, HSTS headers
 - ✅ Phase 2.2: WebSocket gateway, idle timeout, ping/pong
 - ✅ Phase 3.2: Pagination helpers, cursor pagination, limit validation, metadata
 
 **Requires Database/Redis Connection:**
+
 - ⚠️ Phase 1.1-1.4: Refresh tokens, password security, RBAC, brute-force protection
 - ⚠️ Phase 2.1, 2.3-2.4: Rate limiting, delivery acknowledgements, WebSocket scaling
 - ⚠️ Phase 3.1, 3.3-3.4: Performance indexes, message archival, Redis caching
@@ -24,6 +27,7 @@ Your `.env` file contains real Supabase credentials:
 ## Issue: TypeScript Import Error
 
 The validation script cannot import `src/config/db.js` because:
+
 - The file contains TypeScript syntax (`: Type` annotations) but has `.js` extension
 - This causes "Unexpected token ':'" errors when importing
 
@@ -47,6 +51,7 @@ The validation script cannot import `src/config/db.js` because:
 ### Option 2: Fix db.js Import Issue
 
 The `src/config/db.js` file needs to be either:
+
 - Renamed to `.ts` and compiled, OR
 - Converted to pure JavaScript (remove TypeScript syntax)
 
@@ -79,4 +84,3 @@ This creates isolated PostgreSQL and Redis containers for testing.
 - `sql/validate-phases-1-3.sql` - SQL validation (database schema)
 
 Both scripts are ready to use once the import issue is resolved or SQL validation is run directly.
-

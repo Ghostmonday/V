@@ -19,10 +19,10 @@ const RETRY_DELAY_MS = 1000; // 1 second base delay
  */
 function isTransientError(error: any): boolean {
   if (!error) return false;
-  
+
   const errorCode = error.code || error.errno || '';
   const errorMessage = error.message || '';
-  
+
   // PostgreSQL error codes for transient errors
   const transientCodes = [
     '40001', // serialization_failure
@@ -35,25 +35,16 @@ function isTransientError(error: any): boolean {
     '57P02', // crash_shutdown
     '57P03', // cannot_connect_now
   ];
-  
+
   // Check error code
   if (transientCodes.includes(String(errorCode))) {
     return true;
   }
-  
+
   // Check error message for common transient patterns
-  const transientPatterns = [
-    'deadlock',
-    'timeout',
-    'connection',
-    'network',
-    'temporary',
-    'retry',
-  ];
-  
-  return transientPatterns.some(pattern => 
-    errorMessage.toLowerCase().includes(pattern)
-  );
+  const transientPatterns = ['deadlock', 'timeout', 'connection', 'network', 'temporary', 'retry'];
+
+  return transientPatterns.some((pattern) => errorMessage.toLowerCase().includes(pattern));
 }
 
 export async function executeTransaction<T>(
@@ -64,15 +55,15 @@ export async function executeTransaction<T>(
   if (!operations || operations.length === 0) {
     throw new Error('Transaction requires at least one operation');
   }
-  
+
   // VALIDATION CHECKPOINT: Validate max retries
   if (retryCount >= MAX_TRANSACTION_RETRIES) {
     throw new Error(`Transaction failed after ${MAX_TRANSACTION_RETRIES} retries`);
   }
-  
+
   const results: T[] = [];
   const executedOperations: Array<{ operation: () => Promise<any>; result?: any }> = [];
-  
+
   try {
     // Execute all operations sequentially
     // Note: For true transactions, use Supabase RPC functions with BEGIN/COMMIT
@@ -81,38 +72,40 @@ export async function executeTransaction<T>(
       if (typeof operation !== 'function') {
         throw new Error('Invalid operation: must be a function');
       }
-      
+
       const result = await operation();
       results.push(result);
       executedOperations.push({ operation, result });
     }
-    
+
     // VALIDATION CHECKPOINT: Validate transaction commit success
     if (results.length !== operations.length) {
-      throw new Error(`Transaction incomplete: ${results.length}/${operations.length} operations succeeded`);
+      throw new Error(
+        `Transaction incomplete: ${results.length}/${operations.length} operations succeeded`
+      );
     }
-    
+
     return results;
   } catch (error: any) {
     // VALIDATION CHECKPOINT: Validate error handling
     const isTransient = isTransientError(error);
-    
+
     if (isTransient && retryCount < MAX_TRANSACTION_RETRIES) {
       // Retry with exponential backoff
       const delay = RETRY_DELAY_MS * Math.pow(2, retryCount);
-      
+
       // VALIDATION CHECKPOINT: Validate retry delay calculation
       logError(`Transaction failed (transient), retrying in ${delay}ms`, error);
-      
-      await new Promise(resolve => setTimeout(resolve, delay));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
       return executeTransaction(operations, retryCount + 1);
     }
-    
+
     // VALIDATION CHECKPOINT: Validate rollback on failure
     // Rollback: delete any created records if transaction fails
     logError('Transaction failed, rolling back', error);
-    
+
     // Attempt rollback for executed operations
     // Note: This is best-effort - some operations may not be reversible
     for (const executed of executedOperations) {
@@ -127,7 +120,7 @@ export async function executeTransaction<T>(
         logError('Rollback failed', rollbackError);
       }
     }
-    
+
     throw error;
   }
 }
@@ -149,7 +142,7 @@ export async function createMessageWithReceipt(
   if (!messageData || !receiptData) {
     throw new Error('Invalid transaction data');
   }
-  
+
   return executeTransaction([
     async () => {
       // VALIDATION CHECKPOINT: Validate each operation in transaction
@@ -163,12 +156,12 @@ export async function createMessageWithReceipt(
       if (messageError || !message) {
         throw messageError || new Error('Failed to create message');
       }
-      
+
       // VALIDATION CHECKPOINT: Validate message created successfully
       if (!message.id) {
         throw new Error('Message created but missing ID');
       }
-      
+
       return message;
     },
     async (message: any) => {
@@ -176,7 +169,7 @@ export async function createMessageWithReceipt(
       if (!message || !message.id) {
         throw new Error('Invalid message for receipt creation');
       }
-      
+
       // Insert receipt
       const { data: receipt, error: receiptError } = await supabase
         .from('message_receipts')
@@ -191,15 +184,15 @@ export async function createMessageWithReceipt(
       if (receiptError) {
         throw receiptError;
       }
-      
+
       // VALIDATION CHECKPOINT: Validate receipt created successfully
       if (!receipt || !receipt.id) {
         throw new Error('Receipt created but missing ID');
       }
-      
+
       return { message, receipt };
     },
-  ]).then(results => {
+  ]).then((results) => {
     // VALIDATION CHECKPOINT: Validate data consistency after transaction
     const finalResult = results[results.length - 1];
     if (!finalResult || !finalResult.message || !finalResult.receipt) {
@@ -240,7 +233,7 @@ export async function createMessageWithSentiment(
     if (messageData.room_id) {
       const { analyzeSentiment } = await import('./sentiment-analysis-service.js');
       const sentimentResult = await analyzeSentiment(messageData.content);
-      
+
       // Store sentiment in message metadata or separate table
       await supabase
         .from('messages')
@@ -251,7 +244,7 @@ export async function createMessageWithSentiment(
           },
         })
         .eq('id', message.id);
-      
+
       sentiment = sentimentResult;
     }
 
@@ -261,4 +254,3 @@ export async function createMessageWithSentiment(
     throw error;
   }
 }
-

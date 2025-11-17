@@ -51,6 +51,7 @@ npm install -g tsx
 ```
 
 This runs:
+
 - ✅ TypeScript validation (code structure, implementations)
 - ✅ SQL validation (database schema, data integrity)
 - ✅ Generates summary report
@@ -75,6 +76,7 @@ See `VALIDATION_CHECKLIST.md` for step-by-step manual tests.
 ## 📊 What Gets Validated
 
 ### Phase 1: Security & Authentication ✅
+
 - [x] Refresh token rotation & security
 - [x] Password hashing (no plaintext)
 - [x] Role-based access control (RBAC)
@@ -82,12 +84,14 @@ See `VALIDATION_CHECKLIST.md` for step-by-step manual tests.
 - [x] HTTPS/TLS enforcement
 
 ### Phase 2: WebSocket & Messaging ✅
+
 - [x] Message rate limiting
 - [x] Connection health & scaling
 - [x] Delivery acknowledgements
 - [x] WebSocket scaling (Redis pub/sub)
 
 ### Phase 3: Database & Performance ✅
+
 - [x] Performance indexes
 - [x] Query pagination
 - [x] Message archival
@@ -104,16 +108,19 @@ After running validations:
 ## 🔍 Understanding Results
 
 ### ✅ Passed
+
 - Feature is implemented correctly
 - Database schema is correct
 - Code structure is valid
 
 ### ❌ Failed
+
 - Feature missing or incomplete
 - Database schema issue
 - Code implementation issue
 
 ### ⚠️ Warning
+
 - Partial implementation
 - Optional feature missing
 - Configuration needed
@@ -121,6 +128,7 @@ After running validations:
 ## 🐛 Troubleshooting
 
 ### "tsx not found"
+
 ```bash
 npm install -g tsx
 # OR use npx
@@ -128,6 +136,7 @@ npx tsx scripts/validate-phases-1-3.ts
 ```
 
 ### "Database connection failed"
+
 ```bash
 # Check DATABASE_URL is set
 echo $DATABASE_URL
@@ -137,11 +146,13 @@ psql $DATABASE_URL -c "SELECT 1;"
 ```
 
 ### "Redis not available"
+
 - Redis checks will be skipped if Redis is not running
 - This is OK for initial validation
 - Start Redis for full validation: `redis-server`
 
 ### "Table/column does not exist"
+
 - This is expected if migrations haven't been run
 - Run the suggested migrations from the error messages
 - Or check `sql/migrations/` for migration files
@@ -164,7 +175,7 @@ psql $DATABASE_URL -c "SELECT 1;"
 ---
 
 **Ready to validate? Run:**
+
 ```bash
 ./scripts/run-all-validations.sh
 ```
-

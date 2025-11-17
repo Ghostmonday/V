@@ -18,12 +18,14 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 **Service**: `src/services/zkp-service.ts`
 
 **Features**:
+
 - ✅ Generate cryptographic proofs for user attributes without revealing values
 - ✅ Selective disclosure - prove specific attributes (age, verification, subscription tier)
 - ✅ Commitment-based verification - commitments can be stored publicly
 - ✅ Proof expiration and revocation support
 
 **Supported Attributes**:
+
 - `age` - Age verification without revealing exact age
 - `verified` - Verification status proof
 - `subscription_tier` - Subscription level proof
@@ -33,6 +35,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ### API Endpoints
 
 **POST `/api/privacy/selective-disclosure`**
+
 ```json
 {
   "attributeTypes": ["age", "verified", "subscription_tier"],
@@ -41,6 +44,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -65,6 +69,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ```
 
 **POST `/api/privacy/verify-disclosure`**
+
 ```json
 {
   "disclosureProof": { ... },
@@ -78,6 +83,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ### Database Schema
 
 **Table**: `user_zkp_commitments`
+
 - Stores proof commitments (public, doesn't reveal values)
 - Supports expiration and revocation
 - RLS policies for user data access
@@ -91,12 +97,14 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 **Service**: `src/services/hardware-accelerated-encryption.ts`
 
 **Features**:
+
 - ✅ Automatic detection of AES-NI hardware acceleration
 - ✅ Uses hardware-accelerated AES-256-GCM when available
 - ✅ Falls back to software encryption if hardware unavailable
 - ✅ Performance benchmarking
 
 **Integration**:
+
 - ✅ Integrated into `encryption-service.ts`
 - ✅ Transparent to application code
 - ✅ Automatic algorithm selection
@@ -104,11 +112,13 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ### Performance
 
 **Hardware-Accelerated (AES-NI)**:
+
 - ~10-100x faster than software encryption
 - Lower CPU usage
 - Better battery life on mobile devices
 
 **Detection**:
+
 - Automatically detects AES-NI availability
 - Logs detection status on startup
 - Benchmarks encryption throughput
@@ -116,6 +126,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ### API Endpoint
 
 **GET `/api/privacy/encryption-status`**
+
 ```json
 {
   "success": true,
@@ -137,6 +148,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 **Service**: `src/services/pfs-media-service.ts`
 
 **Features**:
+
 - ✅ Ephemeral key pairs for each call session (ECDH)
 - ✅ Shared secret derivation for media encryption
 - ✅ Automatic key cleanup after call ends
@@ -144,6 +156,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 - ✅ Expired session cleanup cron job
 
 **Integration**:
+
 - ✅ LiveKit voice/video calls
 - ✅ Agora video calls (WebRTC DTLS-SRTP provides PFS)
 - ✅ Call session lifecycle management
@@ -159,11 +172,13 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ### Voice/Video Integration
 
 **LiveKit**:
+
 - Ephemeral keys generated on token creation
 - Keys stored in Redis with 2-hour TTL
 - Automatic cleanup on call end
 
 **Agora**:
+
 - WebRTC DTLS-SRTP provides PFS by default
 - Ephemeral keys exchanged via WebRTC protocol
 - No additional implementation needed
@@ -171,6 +186,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ### API Changes
 
 **POST `/voice/rooms/:room_name/join`** (Enhanced)
+
 ```json
 {
   "token": "livekit_token",
@@ -186,6 +202,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ```
 
 **POST `/voice/rooms/:room_name/leave`** (New)
+
 - Ends PFS session and deletes ephemeral keys
 
 ---
@@ -193,18 +210,21 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ## Security Properties
 
 ### Zero-Knowledge Proofs
+
 - ✅ **Privacy**: Attribute values never revealed
 - ✅ **Verifiability**: Proofs can be verified without learning values
 - ✅ **Selective**: Only requested attributes are proven
 - ✅ **Non-replay**: Timestamps and nonces prevent replay attacks
 
 ### Hardware-Accelerated Encryption
+
 - ✅ **Performance**: 10-100x faster encryption
 - ✅ **Security**: Same security level, better performance
 - ✅ **Transparency**: Automatic detection and fallback
 - ✅ **Compatibility**: Works on all platforms (fallback available)
 
 ### Perfect Forward Secrecy
+
 - ✅ **Ephemeral Keys**: New keys for each call
 - ✅ **Key Deletion**: Keys deleted after call ends
 - ✅ **Past Security**: Compromised long-term keys don't affect past calls
@@ -215,6 +235,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ## Files Created/Modified
 
 ### New Files
+
 - `src/services/zkp-service.ts` - Zero-knowledge proof service
 - `src/services/hardware-accelerated-encryption.ts` - Hardware acceleration
 - `src/services/pfs-media-service.ts` - Perfect forward secrecy for media
@@ -222,6 +243,7 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 - `sql/migrations/2025-01-XX-privacy-zkp-commitments.sql` - ZKP commitments table
 
 ### Modified Files
+
 - `src/services/encryption-service.ts` - Integrated hardware acceleration
 - `src/services/livekit-token-service.ts` - Added PFS support
 - `src/routes/voice-routes.ts` - Enhanced with PFS
@@ -238,14 +260,18 @@ Enhanced privacy module with zero-knowledge proofs for selective disclosure, har
 ```typescript
 import { generateSelectiveDisclosure } from './services/zkp-service.js';
 
-const proof = await generateSelectiveDisclosure(userId, {
-  age: 25,
-  verified: true,
-  subscription_tier: 'pro',
-}, {
-  attributeTypes: ['age', 'verified'],
-  purpose: 'Age verification',
-});
+const proof = await generateSelectiveDisclosure(
+  userId,
+  {
+    age: 25,
+    verified: true,
+    subscription_tier: 'pro',
+  },
+  {
+    attributeTypes: ['age', 'verified'],
+    purpose: 'Age verification',
+  }
+);
 ```
 
 ### Verify Proof
@@ -264,10 +290,7 @@ const isValid = await verifySelectiveDisclosure(proof, {
 ```typescript
 import { encryptWithHardwareAcceleration } from './services/hardware-accelerated-encryption.js';
 
-const { encrypted, iv, authTag, algorithm } = await encryptWithHardwareAcceleration(
-  data,
-  key
-);
+const { encrypted, iv, authTag, algorithm } = await encryptWithHardwareAcceleration(data, key);
 ```
 
 ### Create PFS Call Session
@@ -275,11 +298,7 @@ const { encrypted, iv, authTag, algorithm } = await encryptWithHardwareAccelerat
 ```typescript
 import { createPFSCallSession } from './services/pfs-media-service.js';
 
-const session = await createPFSCallSession(
-  callId,
-  roomId,
-  [userId1, userId2]
-);
+const session = await createPFSCallSession(callId, roomId, [userId1, userId2]);
 ```
 
 ---
@@ -304,17 +323,20 @@ ZKP_PROOF_EXPIRY_HOURS=24  # Proof expiration (default: 24 hours)
 ## Security Considerations
 
 ### Zero-Knowledge Proofs
+
 - ⚠️ **Current Implementation**: Simplified proof system (placeholder)
 - ⚠️ **Production**: Use proper ZKP library (circom, snarkjs) for production
 - ✅ **Commitments**: Cryptographically secure hash commitments
 - ✅ **Non-replay**: Timestamps and nonces prevent replay
 
 ### Hardware Acceleration
+
 - ✅ **Automatic**: Detects and uses hardware when available
 - ✅ **Fallback**: Software encryption if hardware unavailable
 - ✅ **Security**: Same security level regardless of acceleration
 
 ### Perfect Forward Secrecy
+
 - ✅ **Ephemeral Keys**: New keys for each call
 - ✅ **Key Deletion**: Critical - keys must be deleted after call
 - ✅ **Redis TTL**: Automatic expiration (2 hours)
@@ -335,4 +357,3 @@ ZKP_PROOF_EXPIRY_HOURS=24  # Proof expiration (default: 24 hours)
 **Status**: ✅ **COMPLETE**
 
 All privacy enhancements implemented and integrated. Ready for testing and production deployment.
-

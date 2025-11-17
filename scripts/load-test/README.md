@@ -15,6 +15,7 @@ This directory contains load testing scripts for VibeZ to validate system perfor
 [k6](https://k6.io/) is a modern load testing tool written in Go.
 
 **Installation:**
+
 ```bash
 # macOS
 brew install k6
@@ -31,6 +32,7 @@ choco install k6
 ```
 
 **Run k6 tests:**
+
 ```bash
 # Basic run
 k6 run scripts/load-test/k6-load-test.js
@@ -51,11 +53,13 @@ k6 report results.json
 [Artillery](https://www.artillery.io/) is a Node.js-based load testing toolkit.
 
 **Installation:**
+
 ```bash
 npm install -g artillery
 ```
 
 **Run Artillery tests:**
+
 ```bash
 # Basic run
 artillery run scripts/load-test/artillery-config.yml
@@ -71,16 +75,19 @@ artillery report results.json
 ## Test Scenarios
 
 ### 1. Concurrent Users Test
+
 - Ramp up from 0 to 10,000 concurrent users over 17 minutes
 - Sustain 10,000 users for 10 minutes
 - Ramp down to 0 over 5 minutes
 
 ### 2. Message Throughput Test
+
 - Each user sends 1 message per second
 - At 10k users = 10k messages/sec target
 - Measures message latency and success rate
 
 ### 3. WebSocket Connection Test
+
 - Tests WebSocket connection establishment
 - Tests message sending/receiving
 - Tests connection stability under load
@@ -88,6 +95,7 @@ artillery report results.json
 ## Prerequisites
 
 1. **Test Database**: Set up a test database with test users
+
    ```sql
    -- Create test users
    INSERT INTO users (id, email, password_hash) VALUES
@@ -97,6 +105,7 @@ artillery report results.json
    ```
 
 2. **Test Rooms**: Create test rooms for messaging
+
    ```sql
    INSERT INTO rooms (id, name, is_public) VALUES
    ('room-1', 'Load Test Room 1', true),
@@ -117,6 +126,7 @@ artillery report results.json
 ### Success Criteria
 
 ✅ **Pass**: All thresholds met
+
 - p95 latency < 200ms
 - p99 latency < 500ms
 - Error rate < 1%
@@ -124,6 +134,7 @@ artillery report results.json
 - Throughput > 10k messages/sec
 
 ❌ **Fail**: Any threshold exceeded
+
 - Investigate bottlenecks
 - Check database performance
 - Review Redis connection pool
@@ -132,18 +143,21 @@ artillery report results.json
 ## Troubleshooting
 
 ### High Error Rates
+
 - Check database connection pool size
 - Verify Redis is running and accessible
 - Check server resource limits (CPU, memory)
 - Review rate limiting configuration
 
 ### High Latency
+
 - Optimize database queries
 - Check Redis cache hit rates
 - Review WebSocket connection handling
 - Consider horizontal scaling
 
 ### Connection Failures
+
 - Check WebSocket server capacity
 - Verify load balancer configuration
 - Review connection timeout settings
@@ -175,4 +189,3 @@ jobs:
       - name: Run load tests
         run: k6 run scripts/load-test/k6-load-test.js
 ```
-

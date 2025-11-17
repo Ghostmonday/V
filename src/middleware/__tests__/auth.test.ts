@@ -26,27 +26,27 @@ describe('authMiddleware', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockReq = {
       headers: {},
     };
-    
+
     mockRes = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
     };
-    
+
     mockNext = vi.fn();
-    
+
     // Mock JWT secret
     vi.mocked(apiKeysService.getJwtSecret).mockResolvedValue('test-secret-key');
   });
 
   it('should return 401 if Authorization header is missing', async () => {
     mockReq.headers = {};
-    
+
     await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
     expect(mockNext).not.toHaveBeenCalled();
@@ -56,9 +56,9 @@ describe('authMiddleware', () => {
     mockReq.headers = {
       authorization: 'Bearer',
     };
-    
+
     await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
     expect(mockNext).not.toHaveBeenCalled();
@@ -69,9 +69,9 @@ describe('authMiddleware', () => {
     mockReq.headers = {
       authorization: `Bearer ${token}`,
     };
-    
+
     await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
-    
+
     expect(mockNext).toHaveBeenCalled();
     expect(mockReq.user).toBeDefined();
     expect(mockReq.user?.userId).toBe('test-user-id');
@@ -81,25 +81,26 @@ describe('authMiddleware', () => {
     mockReq.headers = {
       authorization: 'Bearer invalid-token',
     };
-    
+
     await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid token' });
     expect(mockNext).not.toHaveBeenCalled();
   });
 
   it('should return 401 if token is expired', async () => {
-    const expiredToken = jwt.sign({ userId: 'test-user-id' }, 'test-secret-key', { expiresIn: '-1h' });
+    const expiredToken = jwt.sign({ userId: 'test-user-id' }, 'test-secret-key', {
+      expiresIn: '-1h',
+    });
     mockReq.headers = {
       authorization: `Bearer ${expiredToken}`,
     };
-    
+
     await authMiddleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid token' });
     expect(mockNext).not.toHaveBeenCalled();
   });
 });
-

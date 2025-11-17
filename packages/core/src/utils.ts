@@ -22,7 +22,9 @@ export function hashSHA256(input: string): string {
  */
 export function hashWithSalt(input: string, salt?: string): { hash: string; salt: string } {
   const usedSalt = salt || randomBytes(16).toString('hex');
-  const hash = createHash('sha256').update(input + usedSalt).digest('hex');
+  const hash = createHash('sha256')
+    .update(input + usedSalt)
+    .digest('hex');
   return { hash, salt: usedSalt };
 }
 
@@ -79,7 +81,7 @@ export function anonymizePII<T extends Record<string, any>>(
   salt?: string
 ): T {
   const anonymized = { ...data };
-  
+
   for (const field of fields) {
     if (anonymized[field] && typeof anonymized[field] === 'string') {
       if (field === 'email') {
@@ -93,7 +95,7 @@ export function anonymizePII<T extends Record<string, any>>(
       }
     }
   }
-  
+
   return anonymized;
 }
 
@@ -107,4 +109,3 @@ export function generateUserSalt(userId: string): string {
   // Use a fixed prefix + user ID hash for consistent salting
   return `user_salt_${hashSHA256(userId).substring(0, 16)}`;
 }
-

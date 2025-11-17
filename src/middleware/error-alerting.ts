@@ -70,9 +70,7 @@ async function sendEmailAlert(subject: string, message: string, html?: string): 
       personalizations: [{ to: [{ email: alertConfig.emailTo }] }],
       from: { email: process.env.ALERT_FROM_EMAIL || 'alerts@vibez.app', name: 'VibeZ Alerts' },
       subject,
-      content: [
-        { type: 'text/plain', value: message },
-      ],
+      content: [{ type: 'text/plain', value: message }],
     };
 
     // Add HTML content if provided
@@ -80,16 +78,12 @@ async function sendEmailAlert(subject: string, message: string, html?: string): 
       emailData.content.push({ type: 'text/html', value: html });
     }
 
-    await axios.post(
-      'https://api.sendgrid.com/v3/mail/send',
-      emailData,
-      {
-        headers: {
-          Authorization: `Bearer ${alertConfig.emailApiKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    await axios.post('https://api.sendgrid.com/v3/mail/send', emailData, {
+      headers: {
+        Authorization: `Bearer ${alertConfig.emailApiKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error: any) {
     logError('Failed to send email alert', error);
   }
@@ -117,7 +111,8 @@ async function sendPagerDutyAlert(
         event_action: severity === 'critical' ? 'trigger' : 'acknowledge',
         payload: {
           summary,
-          severity: severity === 'critical' ? 'critical' : severity === 'error' ? 'error' : 'warning',
+          severity:
+            severity === 'critical' ? 'critical' : severity === 'error' ? 'error' : 'warning',
           source: 'vibez-api',
           custom_details: details,
         },
@@ -187,7 +182,7 @@ export async function alertOnError(
       alertPromises.push(sendPagerDutyAlert(message, severity, metadata));
     }
 
-    Promise.all(alertPromises).catch(err => {
+    Promise.all(alertPromises).catch((err) => {
       logError('Failed to send alerts', err);
     });
   }
@@ -199,4 +194,3 @@ export async function alertOnError(
 export function configureAlerting(config: Partial<AlertConfig>): void {
   alertConfig = { ...alertConfig, ...config };
 }
-

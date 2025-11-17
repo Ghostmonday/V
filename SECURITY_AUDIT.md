@@ -5,17 +5,20 @@ This document outlines the security validation process for the VibeZ application
 ## 1. Dependency Security Audit
 
 ### Run npm audit
+
 ```bash
 cd server
 npm audit
 ```
 
 ### Fix auto-fixable issues
+
 ```bash
 npm audit fix
 ```
 
 ### Document manual fixes
+
 - Review `npm audit` output for vulnerabilities that require manual intervention
 - Document each vulnerability:
   - Package name and version
@@ -25,6 +28,7 @@ npm audit fix
   - Status (fixed, pending, accepted risk)
 
 ### Example audit workflow
+
 ```bash
 # Full audit report
 npm audit --json > audit-report.json
@@ -39,11 +43,13 @@ npm audit
 ## 2. Penetration Testing with OWASP ZAP
 
 ### Prerequisites
+
 - Install OWASP ZAP: https://www.zaproxy.org/download/
 - Deploy application to test environment
 - Obtain test API keys and credentials
 
 ### Baseline Scan
+
 ```bash
 # Start ZAP daemon
 zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true
@@ -53,6 +59,7 @@ zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true
 ```
 
 ### Full Scan (for production)
+
 ```bash
 # Spider scan
 zap-cli spider http://localhost:3000
@@ -67,30 +74,35 @@ zap-cli report -o zap-report.html -f html
 ### Test Areas
 
 #### Encryption Implementation
+
 - [ ] Verify Signal Protocol encryption is properly implemented
 - [ ] Test that unencrypted messages are rejected in E2E rooms
 - [ ] Verify AES-256 encryption for sensitive data
 - [ ] Test key rotation and management
 
 #### Rate Limiting
+
 - [ ] Test rate limit enforcement
 - [ ] Verify tiered rate limits (free/pro/enterprise)
 - [ ] Test rate limit bypass attempts
 - [ ] Verify rate limit headers are present
 
 #### SQL Injection Prevention
+
 - [ ] Test all database queries for SQL injection vulnerabilities
 - [ ] Verify parameterized queries are used
 - [ ] Test input validation on all endpoints
 - [ ] Test RLS (Row Level Security) policies
 
 #### Authentication & Authorization
+
 - [ ] Test JWT token validation
 - [ ] Verify token expiration
 - [ ] Test unauthorized access attempts
 - [ ] Verify role-based access control
 
 #### API Security
+
 - [ ] Test CORS configuration
 - [ ] Verify HTTPS enforcement
 - [ ] Test input validation
@@ -99,6 +111,7 @@ zap-cli report -o zap-report.html -f html
 ## 3. Manual Security Testing
 
 ### Encryption Tests
+
 ```bash
 # Test Signal Protocol encryption
 npm test -- e2e-encryption.test.ts
@@ -108,12 +121,14 @@ npm test -- auth-encryption.test.ts
 ```
 
 ### Rate Limiting Tests
+
 ```bash
 # Test rate limit middleware
 npm test -- rateLimit.test.ts
 ```
 
 ### Input Validation Tests
+
 ```bash
 # Test input validation
 npm test -- input-validation.test.ts
@@ -122,6 +137,7 @@ npm test -- input-validation.test.ts
 ## 4. Security Checklist
 
 ### Code Review Checklist
+
 - [ ] All sensitive data is encrypted at rest
 - [ ] All communications use HTTPS/TLS
 - [ ] E2E encryption implemented for messages
@@ -134,6 +150,7 @@ npm test -- input-validation.test.ts
 - [ ] Proper error handling (no information leakage)
 
 ### Infrastructure Checklist
+
 - [ ] Secrets stored in vault (not in code)
 - [ ] Database access restricted (RLS policies)
 - [ ] Redis access restricted
@@ -162,6 +179,7 @@ npm test -- input-validation.test.ts
 ## Security Audit Report - [Date]
 
 ### Summary
+
 - Total vulnerabilities found: X
 - Critical: X
 - High: X
@@ -169,6 +187,7 @@ npm test -- input-validation.test.ts
 - Low: X
 
 ### Critical Findings
+
 1. [Finding description]
    - Severity: Critical
    - Impact: [Description]
@@ -176,11 +195,12 @@ npm test -- input-validation.test.ts
    - Status: [Fixed/Pending]
 
 ### Recommendations
+
 - [Recommendation 1]
 - [Recommendation 2]
 
 ### Next Steps
+
 - [Action item 1]
 - [Action item 2]
 ```
-

@@ -56,6 +56,7 @@ docker-compose -f docker-compose.validation.yml up -d
 ```
 
 This will:
+
 - Wait for PostgreSQL to be ready
 - Run core schema (`sql/01_sinapse_schema.sql`)
 - Run Phase 1 migrations (refresh tokens)
@@ -91,6 +92,7 @@ REDIS_URL=redis://localhost:6380
 ```
 
 For Supabase client compatibility (if needed):
+
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=http://localhost:5433
 SUPABASE_SERVICE_ROLE_KEY=vibez_dev_password
@@ -191,4 +193,3 @@ After running validations:
 - Data persists in Docker volumes between runs
 - The setup script is idempotent (safe to run multiple times)
 - SQL validation handles missing tables/columns gracefully
-

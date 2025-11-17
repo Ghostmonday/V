@@ -18,10 +18,12 @@ Phase 5 implements comprehensive content moderation and safety features using Go
 ### 5.1 Perspective API Integration ✅
 
 **Files**:
+
 - `src/services/perspective-api-service.ts`
 - `src/services/moderation.service.ts`
 
 **Implementation**:
+
 - ✅ Perspective API key configuration via `getApiKey('perspective_api_key', 'production')`
 - ✅ Toxicity scoring with multiple attributes (toxicity, severe_toxicity, identity_attack, insult, profanity, threat)
 - ✅ Error handling with fallback to DeepSeek API
@@ -29,6 +31,7 @@ Phase 5 implements comprehensive content moderation and safety features using Go
 - ✅ Comprehensive logging
 
 **Acceptance Criteria Met**:
+
 - ✅ Perspective API integrated
 - ✅ Toxicity scores returned (0-1 range)
 - ✅ Fallback to DeepSeek on failure
@@ -38,12 +41,14 @@ Phase 5 implements comprehensive content moderation and safety features using Go
 ### 5.2 Configurable Thresholds ✅
 
 **Files**:
+
 - `src/services/perspective-api-service.ts` (updated `getModerationThresholds()`)
 - `src/services/moderation.service.ts` (uses room-specific thresholds)
 - `src/routes/chat-room-config-routes.ts` (threshold management endpoints)
 - `sql/migrations/2025-01-XX-phase5-per-room-thresholds.sql` (database schema)
 
 **Implementation**:
+
 - ✅ Warning threshold (0.6) - sends warning when score ≥ threshold
 - ✅ Block threshold (0.8) - blocks message when score ≥ threshold
 - ✅ **Per-room custom thresholds** - room owners/admins can override system defaults
@@ -54,6 +59,7 @@ Phase 5 implements comprehensive content moderation and safety features using Go
   - `POST /chat_rooms/:id/moderation-thresholds` - Set room thresholds
 
 **Acceptance Criteria Met**:
+
 - ✅ Warning sent at 0.6 threshold
 - ✅ Message blocked at 0.8 threshold
 - ✅ Per-room thresholds configurable
@@ -63,12 +69,14 @@ Phase 5 implements comprehensive content moderation and safety features using Go
 ### 5.3 Flagging System Enhancement ✅
 
 **Files**:
+
 - `src/services/message-flagging-service.ts` (updated)
 - `src/routes/moderation-routes.ts` (new user-facing endpoints)
 - `src/routes/admin-moderation-routes.ts` (existing admin endpoints)
 - `sql/migrations/2025-01-XX-flagged-messages.sql` (database schema)
 
 **Implementation**:
+
 - ✅ **Auto-flagging on toxicity** - messages above warn threshold automatically flagged
 - ✅ **Manual flagging UI integration** - users can flag messages via API
 - ✅ Status tracking (pending/reviewed/dismissed/action_taken)
@@ -84,6 +92,7 @@ Phase 5 implements comprehensive content moderation and safety features using Go
   - `GET /admin/moderation/stats` - Moderation statistics
 
 **Acceptance Criteria Met**:
+
 - ✅ Messages auto-flagged on toxicity
 - ✅ Users can manually flag messages
 - ✅ Flag status tracked and updated
@@ -163,6 +172,7 @@ Phase 5 implements comprehensive content moderation and safety features using Go
 ### System-Wide Thresholds
 
 Stored in `system_config` table:
+
 ```json
 {
   "warn": 0.6,
@@ -173,6 +183,7 @@ Stored in `system_config` table:
 ### Per-Room Thresholds
 
 Stored in `room_moderation_thresholds` table:
+
 - Override system defaults per room
 - Requires room owner or admin permission
 - Validated: 0 ≤ warn ≤ block ≤ 1
@@ -232,11 +243,13 @@ Stored in `room_moderation_thresholds` table:
 ## Files Modified/Created
 
 ### New Files
+
 - `sql/migrations/2025-01-XX-phase5-per-room-thresholds.sql`
 - `src/routes/moderation-routes.ts`
 - `docs/validation/PHASE5_COMPLETION.md`
 
 ### Modified Files
+
 - `src/services/perspective-api-service.ts` - Added per-room threshold support
 - `src/services/moderation.service.ts` - Uses room-specific thresholds
 - `src/services/message-flagging-service.ts` - Fixed flagged_by handling
@@ -248,9 +261,9 @@ Stored in `room_moderation_thresholds` table:
 ## Phase 5 Status: ✅ COMPLETE
 
 All acceptance criteria met. Moderation system is fully functional with:
+
 - ✅ Perspective API integration with DeepSeek fallback
 - ✅ Configurable thresholds (system-wide and per-room)
 - ✅ Auto-flagging on toxicity
 - ✅ Manual flagging for users
 - ✅ Status tracking and admin review workflow
-

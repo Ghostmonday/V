@@ -14,7 +14,7 @@ import { logInfo, logError } from '../shared/logger.js';
 export default async function expireRooms(): Promise<void> {
   try {
     const now = new Date().toISOString();
-    
+
     // Find expired Pro rooms
     const { data: expiredRooms, error: fetchError } = await supabase
       .from('rooms')
@@ -33,11 +33,8 @@ export default async function expireRooms(): Promise<void> {
     }
 
     // Delete expired rooms
-    const roomIds = expiredRooms.map(r => r.id);
-    const { error: deleteError } = await supabase
-      .from('rooms')
-      .delete()
-      .in('id', roomIds);
+    const roomIds = expiredRooms.map((r) => r.id);
+    const { error: deleteError } = await supabase.from('rooms').delete().in('id', roomIds);
 
     if (deleteError) {
       logError('Failed to delete expired rooms', deleteError);
@@ -63,4 +60,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       process.exit(1);
     });
 }
-

@@ -1,9 +1,9 @@
 /**
  * Data Retention Cron Job
  * Deletes expired data based on TTL policies
- * 
+ *
  * Schedule: Daily at 2 AM UTC (configurable via environment)
- * 
+ *
  * Tasks:
  * 1. Delete expired messages based on TTL
  * 2. Clean up ephemeral data (typing indicators, presence)
@@ -34,7 +34,10 @@ async function acquireLock(): Promise<boolean> {
     const result = await redis.set(LOCK_KEY, 'locked', 'EX', LOCK_TTL, 'NX');
     return result === 'OK';
   } catch (error) {
-    logError('Failed to acquire data retention lock', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to acquire data retention lock',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return false;
   }
 }
@@ -46,7 +49,10 @@ async function releaseLock(): Promise<void> {
   try {
     await redis.del(LOCK_KEY);
   } catch (error) {
-    logError('Failed to release data retention lock', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to release data retention lock',
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
 
@@ -83,8 +89,8 @@ async function deleteExpiredMessages(): Promise<{ deleted: number; errors: strin
     }
 
     // Check for legal holds and room-level retention overrides
-    const roomIds = [...new Set(expiredMessages.map(m => m.room_id))];
-    
+    const roomIds = [...new Set(expiredMessages.map((m) => m.room_id))];
+
     // Get rooms with legal holds or custom retention
     const { data: protectedRooms, error: roomsError } = await supabase
       .from('rooms')
@@ -98,14 +104,14 @@ async function deleteExpiredMessages(): Promise<{ deleted: number; errors: strin
 
     const protectedRoomIds = new Set(
       (protectedRooms || [])
-        .filter(r => r.legal_hold || (r.retention_days && r.retention_days > ttlDays))
-        .map(r => r.id)
+        .filter((r) => r.legal_hold || (r.retention_days && r.retention_days > ttlDays))
+        .map((r) => r.id)
     );
 
     // Filter out messages from protected rooms
     const messagesToDelete = expiredMessages
-      .filter(m => !protectedRoomIds.has(m.room_id))
-      .map(m => m.id);
+      .filter((m) => !protectedRoomIds.has(m.room_id))
+      .map((m) => m.id);
 
     if (messagesToDelete.length === 0) {
       logInfo('No messages to delete (all protected by legal holds or retention policies)');
@@ -116,11 +122,8 @@ async function deleteExpiredMessages(): Promise<{ deleted: number; errors: strin
     const batchSize = 100;
     for (let i = 0; i < messagesToDelete.length; i += batchSize) {
       const batch = messagesToDelete.slice(i, i + batchSize);
-      
-      const { error: deleteError } = await supabase
-        .from('messages')
-        .delete()
-        .in('id', batch);
+
+      const { error: deleteError } = await supabase.from('messages').delete().in('id', batch);
 
       if (deleteError) {
         errors.push(`Failed to delete message batch: ${deleteError.message}`);
@@ -133,7 +136,10 @@ async function deleteExpiredMessages(): Promise<{ deleted: number; errors: strin
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     errors.push(`Error deleting expired messages: ${errorMessage}`);
-    logError('Error deleting expired messages', error instanceof Error ? error : new Error(errorMessage));
+    logError(
+      'Error deleting expired messages',
+      error instanceof Error ? error : new Error(errorMessage)
+    );
   }
 
   return { deleted, errors };
@@ -180,7 +186,10 @@ async function cleanupEphemeralData(): Promise<{ deleted: number; errors: string
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     errors.push(`Error cleaning up ephemeral data: ${errorMessage}`);
-    logError('Error cleaning up ephemeral data', error instanceof Error ? error : new Error(errorMessage));
+    logError(
+      'Error cleaning up ephemeral data',
+      error instanceof Error ? error : new Error(errorMessage)
+    );
   }
 
   return { deleted, errors };
@@ -214,12 +223,9 @@ async function deleteExpiredTemporaryRooms(): Promise<{ deleted: number; errors:
       return { deleted, errors };
     }
 
-    const roomIds = expiredRooms.map(r => r.id);
+    const roomIds = expiredRooms.map((r) => r.id);
 
-    const { error: deleteError } = await supabase
-      .from('rooms')
-      .delete()
-      .in('id', roomIds);
+    const { error: deleteError } = await supabase.from('rooms').delete().in('id', roomIds);
 
     if (deleteError) {
       errors.push(`Failed to delete expired temporary rooms: ${deleteError.message}`);
@@ -230,7 +236,10 @@ async function deleteExpiredTemporaryRooms(): Promise<{ deleted: number; errors:
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     errors.push(`Error deleting expired temporary rooms: ${errorMessage}`);
-    logError('Error deleting expired temporary rooms', error instanceof Error ? error : new Error(errorMessage));
+    logError(
+      'Error deleting expired temporary rooms',
+      error instanceof Error ? error : new Error(errorMessage)
+    );
   }
 
   return { deleted, errors };
@@ -250,7 +259,10 @@ async function anonymizeExpiredUsers(): Promise<{ anonymized: number; errors: st
       .from('deleted_users')
       .select('user_id, deleted_at')
       .is('anonymized_at', null)
-      .lt('deleted_at', new Date(Date.now() - DEFAULT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString())
+      .lt(
+        'deleted_at',
+        new Date(Date.now() - DEFAULT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString()
+      )
       .limit(100); // Process in batches
 
     if (fetchError) {
@@ -281,7 +293,10 @@ async function anonymizeExpiredUsers(): Promise<{ anonymized: number; errors: st
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     errors.push(`Error in anonymizeExpiredUsers: ${errorMessage}`);
-    logError('Error anonymizing expired users', error instanceof Error ? error : new Error(errorMessage));
+    logError(
+      'Error anonymizing expired users',
+      error instanceof Error ? error : new Error(errorMessage)
+    );
   }
 
   return { anonymized, errors };
@@ -319,13 +334,14 @@ export async function runDataRetentionCleanup(): Promise<void> {
     logInfo('Starting data retention cleanup cron job');
 
     // Run cleanup tasks
-    const [messagesResult, ephemeralResult, roomsResult, anonymizationResult, pfsCleanupCount] = await Promise.all([
-      deleteExpiredMessages(),
-      cleanupEphemeralData(),
-      deleteExpiredTemporaryRooms(),
-      anonymizeExpiredUsers(),
-      cleanupExpiredPFSSessions(), // Cleanup expired PFS call sessions
-    ]);
+    const [messagesResult, ephemeralResult, roomsResult, anonymizationResult, pfsCleanupCount] =
+      await Promise.all([
+        deleteExpiredMessages(),
+        cleanupEphemeralData(),
+        deleteExpiredTemporaryRooms(),
+        anonymizeExpiredUsers(),
+        cleanupExpiredPFSSessions(), // Cleanup expired PFS call sessions
+      ]);
 
     const totalDeleted = messagesResult.deleted + ephemeralResult.deleted + roomsResult.deleted;
     const allErrors = [
@@ -350,7 +366,10 @@ export async function runDataRetentionCleanup(): Promise<void> {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    logError('Data retention cleanup cron job failed', error instanceof Error ? error : new Error(errorMessage));
+    logError(
+      'Data retention cleanup cron job failed',
+      error instanceof Error ? error : new Error(errorMessage)
+    );
     throw error;
   } finally {
     // Always release lock, even on error
@@ -365,15 +384,17 @@ export async function runDataRetentionCleanup(): Promise<void> {
 export function scheduleDataRetentionCleanup(): void {
   // Calculate milliseconds until next 2 AM UTC
   const now = new Date();
-  const utc2AM = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    2, // 2 AM
-    0,
-    0,
-    0
-  ));
+  const utc2AM = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      2, // 2 AM
+      0,
+      0,
+      0
+    )
+  );
 
   // If 2 AM UTC has already passed today, schedule for tomorrow
   if (utc2AM.getTime() <= now.getTime()) {
@@ -384,23 +405,24 @@ export function scheduleDataRetentionCleanup(): void {
 
   // Schedule initial run
   setTimeout(() => {
-    runDataRetentionCleanup().catch(err => {
+    runDataRetentionCleanup().catch((err) => {
       logError('Scheduled data retention cleanup failed', err);
     });
 
     // Then run daily (24 hours = 86400000 ms)
     setInterval(() => {
-      runDataRetentionCleanup().catch(err => {
+      runDataRetentionCleanup().catch((err) => {
         logError('Scheduled data retention cleanup failed', err);
       });
     }, 86400000);
   }, msUntil2AM);
 
-  logInfo(`Data retention cleanup scheduled to run daily at 2 AM UTC (first run in ${Math.round(msUntil2AM / 1000 / 60)} minutes)`);
+  logInfo(
+    `Data retention cleanup scheduled to run daily at 2 AM UTC (first run in ${Math.round(msUntil2AM / 1000 / 60)} minutes)`
+  );
 }
 
 // Auto-schedule if this module is imported
 if (process.env.NODE_ENV !== 'test') {
   scheduleDataRetentionCleanup();
 }
-

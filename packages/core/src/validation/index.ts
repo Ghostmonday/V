@@ -80,4 +80,3 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
     return schema.parse(query);
   };
 }
-

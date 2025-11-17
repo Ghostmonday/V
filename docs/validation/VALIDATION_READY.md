@@ -17,23 +17,27 @@ npm run validate:phases-1-3:all
 ## 📦 What's Included
 
 ### Automated Validation Scripts
+
 - ✅ `scripts/validate-phases-1-3.ts` (815 lines) - TypeScript validation
-- ✅ `sql/validate-phases-1-3.sql` (412 lines) - SQL database validation  
+- ✅ `sql/validate-phases-1-3.sql` (412 lines) - SQL database validation
 - ✅ `scripts/run-all-validations.sh` - All-in-one runner script
 
 ### Documentation
+
 - ✅ `VALIDATION_QUICK_START.md` - Quick start guide
 - ✅ `VALIDATION_CHECKLIST.md` - Comprehensive manual checklist (600+ lines)
 - ✅ `VALIDATION_SUMMARY.md` - Validation summary
 - ✅ `scripts/README-VALIDATION.md` - Detailed guide
 
 ### NPM Scripts
+
 - ✅ `npm run validate:phases-1-3` - Run TypeScript validation
 - ✅ `npm run validate:phases-1-3:all` - Run all validations
 
 ## ✅ Validation Coverage
 
 ### Phase 1: Security & Authentication
+
 - Refresh token rotation & security
 - Password hashing (no plaintext)
 - Role-based access control (RBAC)
@@ -41,12 +45,14 @@ npm run validate:phases-1-3:all
 - HTTPS/TLS enforcement
 
 ### Phase 2: WebSocket & Messaging
+
 - Message rate limiting
 - Connection health & scaling
 - Delivery acknowledgements
 - WebSocket scaling (Redis pub/sub)
 
 ### Phase 3: Database & Performance
+
 - Performance indexes
 - Query pagination
 - Message archival
@@ -55,6 +61,7 @@ npm run validate:phases-1-3:all
 ## 🚀 Running Validations
 
 ### Prerequisites
+
 ```bash
 # Set database URL (required for SQL validation)
 export DATABASE_URL="postgresql://user:pass@host:5432/dbname"
@@ -66,11 +73,13 @@ export REDIS_URL="redis://localhost:6379"
 ```
 
 ### Run All Validations
+
 ```bash
 npm run validate:phases-1-3:all
 ```
 
 ### Individual Validations
+
 ```bash
 # TypeScript validation only
 npm run validate:phases-1-3
@@ -82,6 +91,7 @@ psql $DATABASE_URL -f sql/validate-phases-1-3.sql
 ## 📊 Output
 
 After running validations:
+
 - **Console output** - Real-time results with ✅/❌ indicators
 - **`validation-results-phases-1-3.json`** - Detailed JSON report
 - **SQL output** - Database validation messages
@@ -111,6 +121,7 @@ After running validations:
 ---
 
 **Ready to validate? Run:**
+
 ```bash
 npm run validate:phases-1-3:all
 ```
