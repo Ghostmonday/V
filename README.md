@@ -1,8 +1,8 @@
 # VibeZ
 
-**Real-time communication platform with AI-powered sentiment analysis and collectible card generation**
+**Real-time communication platform with AI-powered sentiment analysis**
 
-VibeZ is an enterprise-grade real-time messaging platform that transforms conversations into collectible digital cards. Built with TypeScript, Express, WebSockets, and Supabase, VibeZ combines real-time communication with AI-powered sentiment analysis to create unique digital artifacts from meaningful conversations.
+VibeZ is an enterprise-grade real-time messaging platform focused on meaningful conversations and emotional connection. Built with TypeScript, Express, WebSockets, and Supabase, VibeZ combines instant messaging with real-time sentiment analysis to help users understand conversation dynamics, emotional intensity, and create lasting memories through collectible digital cards.
 
 ---
 
@@ -28,17 +28,19 @@ VibeZ is an enterprise-grade real-time messaging platform that transforms conver
 VibeZ enables users to:
 
 - **Real-time messaging** with WebSocket-based instant communication
-- **Voice & video** calls via LiveKit and Agora integration
-- **AI-powered sentiment analysis** to understand conversation dynamics
-- **Collectible card generation** from meaningful conversations
+- **AI-powered sentiment analysis** that analyzes conversation dynamics in real-time
+- **Emotional intelligence** tracking sentiment, emotional intensity, and conversation patterns
+- **Collectible card generation** from meaningful conversations (sentiment-based, non-tradeable)
 - **Digital museum** to showcase and discover conversation cards
+- **Voice & video** calls via LiveKit and Agora integration with Perfect Forward Secrecy
 - **Privacy-first** design with GDPR/CCPA compliance
 
 ### Key Features
 
-- **Real-time Messaging**: WebSocket-based messaging with delivery acknowledgements
-- **VIBES Cards**: AI-generated collectible cards from conversations based on sentiment, rarity, and emotional intensity
-- **Sentiment Analysis**: Real-time analysis of conversation sentiment and emotional dynamics
+- **Real-time Sentiment Chat**: WebSocket-based messaging with live sentiment analysis and emotional tracking
+- **AI-Powered Sentiment Analysis**: Real-time analysis of conversation sentiment, emotional intensity, and dynamics
+- **VIBES Cards**: AI-generated collectible cards from meaningful conversations based on sentiment, rarity, and emotional intensity
+- **Conversation Intelligence**: Understand conversation patterns, emotional peaks, and meaningful moments
 - **Moderation**: AI-powered content moderation with Perspective API and DeepSeek integration
 - **Voice/Video**: LiveKit and Agora integration for voice and video calls with Perfect Forward Secrecy
 - **Privacy**: End-to-end encryption, PII encryption at rest, GDPR/CCPA compliance
