@@ -195,16 +195,6 @@ export async function sendMessageToRoom(data: {
     validateAfterDB(messageData, messageResponseSchema, 'messages.insert');
     // Note: For future enhancement, wrap message creation + receipt creation in transaction
     
-    // VIBES: Trigger card generation check (async, non-blocking)
-    if (messageData?.id) {
-      import('../services/vibes/card-lifecycle-hook.js').then(({ onMessageSent }) => {
-        onMessageSent(String(roomIdValue), messageData.id).catch(err => {
-          // Silent fail - don't block message sending
-        });
-      }).catch(() => {
-        // Silent fail if module doesn't load
-      });
-    }
 
     // Broadcast message via Redis pub/sub for real-time delivery to connected clients
     // Channel format: "room:{roomId}" - all clients subscribed to this room receive the message

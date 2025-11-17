@@ -30,9 +30,6 @@ vi.mock('../../ws/handlers/delivery-ack.js', () => ({
   handleDeliveryAckMessage: vi.fn(async () => {}),
 }));
 
-vi.mock('../../ws/handlers/vibes-cards.js', () => ({
-  handleCardEvent: vi.fn(async () => {}),
-}));
 
 describe('WebSocket Integration Tests', () => {
   let wss: WebSocketServer;

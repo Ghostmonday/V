@@ -4,9 +4,10 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import Redis from 'ioredis';
-import { logError, logInfo } from '../shared/logger.js';
+import Redis, { Cluster } from 'ioredis';
+import { logError, logInfo, logWarning } from '../shared/logger.js';
 import { getSupabaseKeys, getRedisUrl } from '../services/api-keys-service.js';
+import { createRedisClient, parseRedisConfig, checkRedisHealth, type RedisClusterConfig } from './redis-cluster.js';
 
 // Initialize with env vars (needed for initial connection to vault)
 // These will be migrated to vault after first connection
@@ -89,46 +90,71 @@ if (!healthCheckInterval) {
 }
 
 // Singleton Redis client instance (shared across entire application)
-let redisClient: Redis | null = null;
-let redisClientPromise: Promise<Redis> | null = null;
+// Supports single instance, cluster, and sentinel modes
+let redisClient: Redis | Cluster | null = null;
+let redisClientPromise: Promise<Redis | Cluster> | null = null;
+let redisConfig: RedisClusterConfig | null = null;
 
 /**
  * Get or create Redis client instance
  * Uses singleton pattern to ensure only one connection pool is created
- * NOTE: Redis URL stays in env for now (vault not feasible: performance blocker)
- * TODO: Move to vault when async initialization performance allows
+ * Supports Redis Cluster and Sentinel modes for high availability
+ * 
+ * Configuration via environment variables:
+ * - REDIS_MODE: 'single' | 'cluster' | 'sentinel' (default: 'single')
+ * - REDIS_URL: For single mode (default: 'redis://localhost:6379')
+ * - REDIS_CLUSTER_NODES: For cluster mode (comma-separated host:port)
+ * - REDIS_SENTINELS: For sentinel mode (comma-separated host:port)
+ * - REDIS_SENTINEL_NAME: For sentinel mode (default: 'mymaster')
+ * - REDIS_PASSWORD: Optional password for all modes
  */
-export function getRedisClient(): Redis {
+export function getRedisClient(): Redis | Cluster {
   if (!redisClient) {
-    // VAULT NOT FEASIBLE: Performance blocker - Redis needed synchronously at startup
-    // This must be available immediately, can't wait for async vault call
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-
-    // Create Redis client with retry configuration
-    redisClient = new Redis(redisUrl, {
-      retryStrategy: (times) => {
-        // Exponential backoff with cap: 50ms, 100ms, 150ms... up to 2000ms max
-        // times = number of retry attempts (1, 2, 3, ...)
-        // Math.min ensures delay never exceeds 2000ms (2 seconds)
-        const delay = Math.min(times * 50, 2000);
-        return delay; // Return delay in milliseconds, or null/undefined to stop retrying
-      },
-      maxRetriesPerRequest: 3, // Max 3 retries per command before giving up
-    });
-
-    // Error handler: log but don't crash (Redis failures are non-fatal)
-    redisClient.on('error', (err) => {
-      logError('Redis connection error', err);
-      // Note: Errors are logged but app continues (graceful degradation)
-    });
-
-    // Connection success handler
-    redisClient.on('connect', () => {
-      logInfo('Redis connected');
-    });
+    try {
+      // Parse configuration from environment
+      redisConfig = parseRedisConfig();
+      
+      // Create Redis client based on configuration (supports cluster/sentinel)
+      redisClient = createRedisClient(redisConfig);
+      
+      logInfo(`Redis client initialized in ${redisConfig.mode} mode`);
+    } catch (error) {
+      logError('Failed to initialize Redis client', error instanceof Error ? error : new Error(String(error)));
+      // Fallback to single instance mode if configuration fails
+      const fallbackUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+      redisClient = new Redis(fallbackUrl, {
+        retryStrategy: (times) => Math.min(times * 50, 2000),
+        maxRetriesPerRequest: 3,
+      });
+      logWarning('Using fallback single-instance Redis configuration');
+    }
   }
   // Return existing client if already created (singleton pattern)
   return redisClient;
+}
+
+/**
+ * Get Redis client configuration
+ */
+export function getRedisConfig(): RedisClusterConfig | null {
+  if (!redisConfig) {
+    try {
+      redisConfig = parseRedisConfig();
+    } catch (error) {
+      logError('Failed to parse Redis config', error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+  return redisConfig;
+}
+
+/**
+ * Check Redis health (supports cluster and sentinel)
+ */
+export async function checkRedisHealthStatus(): Promise<boolean> {
+  if (!redisClient) {
+    return false;
+  }
+  return await checkRedisHealth(redisClient);
 }
 
 // Database is Supabase-only - no legacy PostgreSQL adapters

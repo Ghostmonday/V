@@ -10,7 +10,6 @@ import path from 'path';
 import { handlePresence } from './handlers/presence.js';
 import { handleMessaging } from './handlers/messaging.js';
 import { handleReadReceipt } from './handlers/read-receipts.js';
-import { handleCardEvent } from './handlers/vibes-cards.js';
 import { handleDeliveryAckMessage } from './handlers/delivery-ack.js';
 import { logError } from '../shared/logger.js';
 import { 
@@ -296,10 +295,6 @@ export function setupWebSocketGateway(wss: WebSocketServer) {
         case 'read_receipt':
           // Read receipts (delivered, read, seen)
           handleReadReceipt(ws, envelope);
-          break;
-        case 'vibes_card':
-          // VIBES card events (generated, offered, claimed)
-          handleCardEvent(ws, envelope as any);
           break;
         case 'delivery_ack':
           // Delivery acknowledgements from clients

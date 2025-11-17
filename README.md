@@ -30,8 +30,6 @@ VibeZ enables users to:
 - **Real-time messaging** with WebSocket-based instant communication
 - **AI-powered sentiment analysis** that analyzes conversation dynamics in real-time
 - **Emotional intelligence** tracking sentiment, emotional intensity, and conversation patterns
-- **Collectible card generation** from meaningful conversations (sentiment-based, non-tradeable)
-- **Digital museum** to showcase and discover conversation cards
 - **Voice & video** calls via LiveKit and Agora integration with Perfect Forward Secrecy
 - **Privacy-first** design with GDPR/CCPA compliance
 
@@ -39,7 +37,6 @@ VibeZ enables users to:
 
 - **Real-time Sentiment Chat**: WebSocket-based messaging with live sentiment analysis and emotional tracking
 - **AI-Powered Sentiment Analysis**: Real-time analysis of conversation sentiment, emotional intensity, and dynamics
-- **VIBES Cards**: AI-generated collectible cards from meaningful conversations based on sentiment, rarity, and emotional intensity
 - **Conversation Intelligence**: Understand conversation patterns, emotional peaks, and meaningful moments
 - **Moderation**: AI-powered content moderation with Perspective API and DeepSeek integration
 - **Voice/Video**: LiveKit and Agora integration for voice and video calls with Perfect Forward Secrecy
@@ -91,7 +88,7 @@ VibeZ enables users to:
 - **WebSocket Gateway**: Real-time messaging and presence updates
 - **Database**: Supabase PostgreSQL with Row Level Security (RLS) policies
 - **Cache**: Redis for caching, pub/sub, and rate limiting
-- **AI Services**: OpenAI for sentiment analysis and DALL-E for card generation
+- **AI Services**: OpenAI for sentiment analysis
 - **Moderation**: Perspective API and DeepSeek for content moderation
 
 ---
@@ -120,7 +117,7 @@ VibeZ enables users to:
 - **Database**: Supabase (PostgreSQL)
 - **File Storage**: AWS S3 (optional)
 - **Voice/Video**: LiveKit, Agora
-- **AI**: DALL-E API, Perspective API
+- **AI**: Perspective API
 - **Monitoring**: Prometheus, Grafana (planned)
 
 ### Development Tools
@@ -226,7 +223,6 @@ VibeZ/
    - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
    - `JWT_SECRET`: Generate a secure random string
    - `REDIS_URL`: Redis connection URL (default: `redis://localhost:6379`)
-   - `DALL_E_API_KEY`: DALL-E API key (for card generation)
    - `PERSPECTIVE_API_KEY`: Perspective API key (for moderation)
    - `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`: LiveKit credentials (optional)
    - `AGORA_APP_ID`, `AGORA_APP_CERTIFICATE`: Agora credentials (optional)
@@ -434,7 +430,6 @@ See `env.template` for all available environment variables. Production-specific 
 - `JWT_SECRET`: Must be a secure random string (32+ bytes)
 - `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key
 - `REDIS_URL`: Production Redis URL
-- `DALL_E_API_KEY`: DALL-E API key
 - `PERSPECTIVE_API_KEY`: Perspective API key
 
 ### Docker Deployment
@@ -516,9 +511,6 @@ API documentation is available in OpenAPI 3.0 format:
 
 - `GET /vibes/conversations` - List conversations
 - `POST /vibes/conversations` - Create conversation
-- `GET /vibes/cards` - Get user's cards
-- `POST /vibes/cards/:id/claim` - Claim card
-- `GET /vibes/museum` - Browse museum
 
 **Admin**:
 

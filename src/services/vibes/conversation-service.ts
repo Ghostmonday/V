@@ -132,30 +132,3 @@ export async function addParticipant(
   }
 }
 
-/**
- * Check if conversation qualifies for card generation
- * Basic check: has enough messages and participants
- */
-export async function qualifiesForCardGeneration(conversationId: string): Promise<boolean> {
-  try {
-    const conversation = await getConversation(conversationId);
-    if (!conversation) return false;
-
-    // Minimum requirements for card generation
-    const minMessages = VIBES_CONSTANTS.MIN_MESSAGES_FOR_CARD;
-    const minParticipants = VIBES_CONSTANTS.MIN_PARTICIPANTS_FOR_CARD;
-
-    const { count: participantCount } = await supabase
-      .from('conversation_participants')
-      .select('*', { count: 'exact', head: true })
-      .eq('conversation_id', conversationId);
-
-    return (
-      conversation.message_count >= minMessages &&
-      (participantCount || 0) >= minParticipants
-    );
-  } catch (error) {
-    logError('Failed to check card qualification', error);
-    return false;
-  }
-}

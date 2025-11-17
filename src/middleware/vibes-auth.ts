@@ -4,19 +4,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { vibesConfig } from '../config/vibes.config.js';
 import { logError } from '../shared/logger.js';
 
-/**
- * Check if card generation is enabled
- */
-export function requireCardGeneration(req: Request, res: Response, next: NextFunction): void {
-  if (!vibesConfig.cardGenerationEnabled) {
-    res.status(503).json({ error: 'Card generation is currently disabled' });
-    return;
-  }
-  next();
-}
 
 /**
  * Validate conversation access

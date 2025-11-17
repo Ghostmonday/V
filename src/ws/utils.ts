@@ -306,6 +306,7 @@ export function broadcastToRoom(
 /**
  * Initialize Redis subscriber for cross-process message broadcasting
  * Subscribes to room channels and broadcasts to local WebSocket connections
+ * Handles Redis failover and reconnection automatically
  */
 export function initializeRedisSubscriber(): void {
   if (redisSubscriberInitialized) {
@@ -319,14 +320,18 @@ export function initializeRedisSubscriber(): void {
       return;
     }
     
-    // Subscribe to all room channels (pattern: room:*)
-    subscriber.psubscribe('room:*', (err: Error | null) => {
-      if (err) {
-        logError('Failed to subscribe to Redis room channels', err);
-        return;
-      }
-      logInfo('Subscribed to Redis room channels for cross-process broadcasting');
+    // Setup reconnection handler for failover scenarios
+    subscriber.on('reconnecting', (delay: number) => {
+      logInfo(`Redis subscriber reconnecting in ${delay}ms (failover detected)`);
     });
+    
+    subscriber.on('ready', () => {
+      // Resubscribe after reconnection
+      subscribeToRoomChannels(subscriber);
+    });
+    
+    // Initial subscription
+    subscribeToRoomChannels(subscriber);
     
     // Handle incoming messages from other server instances
     subscriber.on('pmessage', (pattern: string, channel: string, message: string) => {
@@ -364,6 +369,27 @@ export function initializeRedisSubscriber(): void {
     redisSubscriberInitialized = true;
   } catch (error: unknown) {
     logError('Failed to initialize Redis subscriber', error instanceof Error ? error : new Error(String(error)));
+  }
+}
+
+/**
+ * Subscribe to Redis room channels
+ * Handles subscription errors and retries
+ */
+function subscribeToRoomChannels(subscriber: any): void {
+  try {
+    // Subscribe to all room channels (pattern: room:*)
+    subscriber.psubscribe('room:*', (err: Error | null) => {
+      if (err) {
+        logError('Failed to subscribe to Redis room channels', err);
+        // Retry after delay
+        setTimeout(() => subscribeToRoomChannels(subscriber), 5000);
+        return;
+      }
+      logInfo('Subscribed to Redis room channels for cross-process broadcasting');
+    });
+  } catch (error: unknown) {
+    logError('Error subscribing to Redis channels', error instanceof Error ? error : new Error(String(error)));
   }
 }
 

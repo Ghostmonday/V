@@ -17,33 +17,9 @@ export class VIBESError extends Error {
   }
 }
 
-export class CardNotFoundError extends VIBESError {
-  constructor(cardId: string) {
-    super('CARD_NOT_FOUND', `Card not found: ${cardId}`, 404, { cardId });
-  }
-}
-
 export class ConversationNotFoundError extends VIBESError {
   constructor(conversationId: string) {
     super('CONVERSATION_NOT_FOUND', `Conversation not found: ${conversationId}`, 404, { conversationId });
-  }
-}
-
-export class CardAlreadyClaimedError extends VIBESError {
-  constructor(cardId: string) {
-    super('CARD_ALREADY_CLAIMED', `Card already claimed: ${cardId}`, 409, { cardId });
-  }
-}
-
-export class ClaimExpiredError extends VIBESError {
-  constructor(cardId: string) {
-    super('CLAIM_EXPIRED', `Claim deadline expired for card: ${cardId}`, 410, { cardId });
-  }
-}
-
-export class SafetyFlagError extends VIBESError {
-  constructor(flags: string[]) {
-    super('SAFETY_FLAGS', 'Card generation blocked due to safety flags', 403, { flags });
   }
 }
 

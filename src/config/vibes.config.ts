@@ -21,7 +21,6 @@ export interface VIBESConfig {
   redisUrl?: string;
 
   // AI Services
-  dalleApiKey?: string;
   sentimentApiUrl?: string;
 
   // Storage
@@ -30,9 +29,6 @@ export interface VIBESConfig {
   awsSecretAccessKey?: string;
 
   // VIBES Specific
-  founderVaultAddress?: string;
-  claimDeadlineMinutes: number;
-  cardGenerationEnabled: boolean;
 
   // Features
   features: {
@@ -77,7 +73,6 @@ export const vibesConfig: VIBESConfig = {
   redisUrl: process.env.REDIS_URL,
 
   // AI Services
-  dalleApiKey: process.env.DALL_E_API_KEY,
   sentimentApiUrl: process.env.SENTIMENT_API_URL,
 
   // Storage
@@ -86,9 +81,6 @@ export const vibesConfig: VIBESConfig = {
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 
   // VIBES Specific
-  founderVaultAddress: process.env.FOUNDER_VAULT_ADDRESS,
-  claimDeadlineMinutes: getNumberEnv('CLAIM_DEADLINE_MINUTES', 15),
-  cardGenerationEnabled: getBooleanEnv('CARD_GENERATION_ENABLED', true),
 
   // Features
   features: {
@@ -102,6 +94,5 @@ if (!vibesConfig.databaseUrl && !vibesConfig.supabaseUrl) {
   throw new Error('Either DATABASE_URL or SUPABASE_URL must be set');
 }
 
-// Card generation validation removed - OpenAI API key no longer used
 
 export default vibesConfig;

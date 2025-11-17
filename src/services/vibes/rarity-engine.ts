@@ -1,6 +1,6 @@
 /**
  * VIBES Rarity Engine
- * Calculates rarity tiers for cards based on sentiment and dynamics
+ * Calculates rarity tiers based on sentiment and conversation dynamics
  */
 
 import { SentimentAnalysis } from './sentiment-service.js';

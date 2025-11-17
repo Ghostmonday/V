@@ -1,52 +1,69 @@
 /**
  * Redis Pub/Sub helpers for real-time events
+ * Supports Redis Cluster and Sentinel modes for high availability
  */
 
 import { getRedisClient } from './db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { createRedisClient, parseRedisConfig, type RedisClusterConfig } from './redis-cluster.js';
+import { logError, logInfo, logWarning } from '../shared/logger.js';
+import Redis, { Cluster } from 'ioredis';
 
 // Publisher instance (for sending messages to Redis channels)
 // Uses regular Redis client (can publish and subscribe, but we separate for clarity)
+// Supports cluster and sentinel modes
 const publisher = getRedisClient();
 
 // Subscriber instance (separate connection for subscribing to channels)
 // IMPORTANT: Redis requires separate connection for SUBSCRIBE mode
 // A connection in SUBSCRIBE mode can only execute subscribe/unsubscribe commands
 // So we need two connections: one for pub, one for sub
-let subscriber: any = null;
+// Supports cluster and sentinel modes
+let subscriber: Redis | Cluster | null = null;
 
-export function getRedisPublisher(): any {
+export function getRedisPublisher(): Redis | Cluster {
   return publisher;
 }
 
-export function getRedisSubscriber(): any {
+export function getRedisSubscriber(): Redis | Cluster {
   if (!subscriber) {
-    // Create separate Redis connection for subscriber
-    // Use require() instead of import to avoid TypeScript type conflicts with ioredis
-    const Redis = require('ioredis');
-    // VAULT NOT FEASIBLE: Performance blocker - Redis needed synchronously at startup
-    // TODO: Move to vault when async initialization performance allows
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    try {
+      // Parse configuration from environment (same as main client)
+      const redisConfig = parseRedisConfig();
+      
+      // Create subscriber with same configuration as publisher
+      // This ensures both connections use the same cluster/sentinel setup
+      subscriber = createRedisClient(redisConfig);
+      
+      // Error handler: log but don't crash (subscriber failures are non-fatal)
+      subscriber.on('error', (err: Error) => {
+        logError('Redis subscriber error', err);
+      });
 
-    // Create subscriber with same retry strategy as main client
-    subscriber = new Redis(redisUrl, {
-      retryStrategy: (times: number) => {
-        // Exponential backoff: 50ms, 100ms, 150ms... up to 2000ms max
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-      },
-      maxRetriesPerRequest: 3, // Max 3 retries per command
-    });
-
-    // Error handler: log but don't crash (subscriber failures are non-fatal)
-    subscriber.on('error', (err: Error) => {
-      logError('Redis subscriber error', err);
-    });
-
-    // Connection success handler
-    subscriber.on('connect', () => {
-      logInfo('Redis subscriber connected');
-    });
+      // Connection success handler
+      subscriber.on('connect', () => {
+        logInfo(`Redis subscriber connected (${redisConfig.mode} mode)`);
+      });
+      
+      // Reconnection handler
+      subscriber.on('reconnecting', (delay: number) => {
+        logInfo(`Redis subscriber reconnecting in ${delay}ms`);
+      });
+      
+      // Close handler
+      subscriber.on('close', () => {
+        logWarning('Redis subscriber connection closed');
+      });
+    } catch (error) {
+      logError('Failed to initialize Redis subscriber', error instanceof Error ? error : new Error(String(error)));
+      // Fallback to single instance mode
+      const Redis = require('ioredis');
+      const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+      subscriber = new Redis(redisUrl, {
+        retryStrategy: (times: number) => Math.min(times * 50, 2000),
+        maxRetriesPerRequest: 3,
+      });
+      logWarning('Using fallback single-instance Redis subscriber');
+    }
   }
   return subscriber;
 }

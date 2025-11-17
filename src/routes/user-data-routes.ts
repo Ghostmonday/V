@@ -47,9 +47,6 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
       auditLogs: [],
       conversations: [],
       conversationParticipants: [],
-      cards: [],
-      cardOwnerships: [],
-      cardEvents: [],
       boosts: [],
     };
 
@@ -176,41 +173,6 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
       userData.conversationParticipants = conversationParticipants;
     }
 
-    // Get cards owned by user (via card_ownerships)
-    const { data: cardOwnerships } = await supabase
-      .from('card_ownerships')
-      .select('card_id, acquired_at, acquisition_type, claim_deadline, previous_owner_id')
-      .eq('owner_id', id)
-      .order('acquired_at', { ascending: false });
-
-    if (cardOwnerships) {
-      userData.cardOwnerships = cardOwnerships;
-
-      // Get card details for owned cards
-      const cardIds = cardOwnerships.map(co => co.card_id);
-      if (cardIds.length > 0) {
-        const { data: cards } = await supabase
-          .from('cards')
-          .select('id, conversation_id, artwork_url, frame_style, title, caption, metadata, rarity_data, created_at, generated_at, is_burned, burned_at')
-          .in('id', cardIds);
-
-        if (cards) {
-          userData.cards = cards;
-        }
-      }
-    }
-
-    // Get card events for user
-    const { data: cardEvents } = await supabase
-      .from('card_events')
-      .select('card_id, event_type, metadata, created_at')
-      .eq('user_id', id)
-      .order('created_at', { ascending: false })
-      .limit(1000);
-
-    if (cardEvents) {
-      userData.cardEvents = cardEvents;
-    }
 
     // Get boosts/transactions
     const { data: boosts } = await supabase
@@ -228,7 +190,6 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
       exportedAt: userData.exportedAt,
       messageCount: userData.messages.length,
       roomCount: userData.rooms.length,
-      cardCount: userData.cards.length,
       conversationCount: userData.conversations.length,
     });
 

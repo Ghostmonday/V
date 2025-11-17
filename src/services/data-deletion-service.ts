@@ -117,29 +117,7 @@ export async function softDeleteUserData(
       deletionResults.telemetry = 0;
     }
 
-    // 9. Transfer card ownerships to system (or mark for deletion)
-    const { count: cardOwnershipCount } = await supabase
-      .from('card_ownerships')
-      .update({
-        owner_id: '00000000-0000-0000-0000-000000000000',
-        previous_owner_id: userId,
-      })
-      .eq('owner_id', userId);
-
-    deletionResults.cardOwnerships = cardOwnershipCount || 0;
-
-    // 10. Anonymize card events
-    const { count: cardEventCount } = await supabase
-      .from('card_events')
-      .update({
-        user_id: null,
-        metadata: { ...{ anonymized: true, originalUserId: userId } },
-      })
-      .eq('user_id', userId);
-
-    deletionResults.cardEvents = cardEventCount || 0;
-
-    // 11. Anonymize boosts
+    // 9. Anonymize boosts
     const { count: boostCount } = await supabase
       .from('boosts')
       .update({

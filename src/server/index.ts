@@ -43,8 +43,6 @@ import nicknamesRoutes from '../routes/nicknames-routes.js';
 import pinnedRoutes from '../routes/pinned-routes.js';
 import bandwidthRoutes from '../routes/bandwidth-routes.js';
 import vibesConversationRoutes from '../routes/vibes/conversation-routes.js';
-import vibesCardRoutes from '../routes/vibes/card-routes.js';
-import vibesMuseumRoutes from '../routes/vibes/museum-routes.js';
 import userDataRoutes from '../routes/user-data-routes.js';
 import privacyRoutes from '../routes/privacy-routes.js';
 import { telemetryMiddleware } from './middleware/telemetry.js';
@@ -59,7 +57,6 @@ import helmet from 'helmet';
 import csurf from 'csurf';
 import { logInfo } from '../shared/logger.js';
 import { LIMIT_REQUESTS_PER_MIN } from './utils/config.js';
-import { vibesConfig } from '../config/vibes.config.js';
 
 dotenv.config();
 
@@ -266,8 +263,6 @@ app.use('/chat_rooms', chatRoomConfigRoutes); // Room configuration endpoints
 app.use('/', roomRoutes); // Room creation and join endpoints (POST /chat-rooms, POST /chat-rooms/:id/join)
 app.use('/rooms', agoraRoutes); // Agora room management (mute, video, members, leave)
 app.use('/vibes/conversations', vibesConversationRoutes); // VIBES conversation endpoints
-app.use('/vibes/cards', vibesCardRoutes); // VIBES card endpoints
-app.use('/vibes/museum', vibesMuseumRoutes); // VIBES museum endpoints
 import vibesAdminRoutes from '../routes/vibes/admin-routes.js';
 app.use('/vibes/admin', vibesAdminRoutes); // VIBES admin endpoints
 app.use(healthRoutes); // Mount health routes at root level (additional health endpoints)
@@ -323,28 +318,6 @@ const expireRoomsPromise = process.env.ENABLE_ROOM_EXPIRY !== 'false'
     })
   : Promise.resolve();
 
-// VIBES Card Generation Job (if enabled) - parallel import
-const cardGenerationPromise = vibesConfig.cardGenerationEnabled
-  ? import('../jobs/vibes-card-generation-job.js').then(({ processCardGeneration, processExpiredClaims }) => {
-      // Run card generation every 5 minutes
-      setInterval(() => {
-        processCardGeneration().catch(err => {
-          logError('Card generation job failed', err);
-        });
-      }, 5 * 60 * 1000);
-      
-      // Process expired claims every minute
-      setInterval(() => {
-        processExpiredClaims().catch(err => {
-          logError('Expired claims job failed', err);
-        });
-      }, 60 * 1000);
-      
-      logInfo('VIBES card generation job scheduled');
-    }).catch(err => {
-      logError('Failed to load card generation job', err);
-    })
-  : Promise.resolve();
 
 // Phase 8: Data retention cron job (if enabled) - parallel import
 const dataRetentionPromise = process.env.ENABLE_DATA_RETENTION !== 'false'
@@ -356,7 +329,7 @@ const dataRetentionPromise = process.env.ENABLE_DATA_RETENTION !== 'false'
   : Promise.resolve();
 
 // Wait for all jobs to load in parallel
-await Promise.all([partitionManagementPromise, expireRoomsPromise, cardGenerationPromise, dataRetentionPromise]);
+await Promise.all([partitionManagementPromise, expireRoomsPromise, dataRetentionPromise]);
 
 // Health endpoint already defined above (before rate limiting)
 

@@ -53,61 +53,6 @@ export interface RarityCalculation {
   final_tier: RarityTier;
 }
 
-// Card Types
-export interface Card {
-  id: string;
-  conversation_id: string;
-  sentiment_analysis_id: string | null;
-  artwork_url: string;
-  frame_style: RarityTier;
-  title: string;
-  caption: string | null;
-  metadata: Record<string, any>;
-  rarity_data: Record<string, any>;
-  created_at: Date;
-  generated_at: Date | null;
-  is_burned: boolean;
-  burned_at: Date | null;
-}
-
-// Ownership Types
-export type AcquisitionType = 'claimed' | 'defaulted' | 'purchased';
-
-export interface CardOwnership {
-  id: string;
-  card_id: string;
-  owner_id: string;
-  acquired_at: Date;
-  acquisition_type: AcquisitionType;
-  claim_deadline: Date | null;
-  previous_owner_id: string | null;
-}
-
-// Museum Types
-export type MuseumVisibility = 'public' | 'redacted' | 'burned' | 'private';
-
-export interface MuseumEntry {
-  card: Card;
-  owner_id: string | null;
-  visibility: MuseumVisibility;
-  view_count: number;
-  featured: boolean;
-}
-
-export interface MuseumFilters {
-  rarity?: RarityTier;
-  featured?: boolean;
-  limit?: number;
-  offset?: number;
-}
-
-// Card Event Types
-export interface CardEvent {
-  type: 'card_generated' | 'card_offered' | 'card_claimed' | 'card_declined' | 'card_expired';
-  card_id: string;
-  conversation_id: string;
-  data?: any;
-}
 
 // Boost Types
 export type BoostType = 'scream_multiplier' | 'rarity_boost' | 'print_order';

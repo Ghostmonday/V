@@ -65,10 +65,10 @@ function generateCommitment(
   // Use SHA-3-256 for future-proofing (if available, fallback to SHA-256)
   try {
     // Node.js 16+ supports SHA-3
-    return crypto.createHash('sha3-256').update(input).digest('hex');
+    return crypto.createHash('sha3-256').update(input).digest('hex') as string;
   } catch {
     // Fallback to SHA-256 if SHA-3 not available
-    return crypto.createHash('sha256').update(input).digest('hex');
+    return crypto.createHash('sha256').update(input).digest('hex') as string;
   }
 }
 
@@ -222,7 +222,7 @@ export async function storeProofCommitments(
   proofs: AttributeProof[]
 ): Promise<void> {
   try {
-    const { supabase } = await import('../config/db.ts');
+    const { supabase } = await import('../config/db.js');
 
     // Store commitments in database
     const commitmentsToInsert = proofs.map((p) => ({

@@ -10,7 +10,6 @@ import {
   getConversation,
   getUserConversations,
   addParticipant,
-  qualifiesForCardGeneration,
 } from '../../services/vibes/conversation-service.js';
 import { logError } from '../../shared/logger.js';
 
@@ -92,15 +91,5 @@ router.post('/:id/participants', authMiddleware, async (req, res, next) => {
   }
 });
 
-// Check if qualifies for card generation
-router.get('/:id/qualifies-for-card', authMiddleware, async (req, res, next) => {
-  try {
-    const qualifies = await qualifiesForCardGeneration(req.params.id);
-    res.json({ qualifies });
-  } catch (error) {
-    logError('Failed to check qualification', error);
-    next(error);
-  }
-});
 
 export default router;
