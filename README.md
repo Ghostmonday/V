@@ -517,16 +517,35 @@ API documentation is available in OpenAPI 3.0 format:
 For a comprehensive list of remaining work items, implementation tasks, and roadmap, see **[BUILD.plan](./BUILD.plan)**.
 
 The build plan includes:
-- Security & authentication hardening
-- WebSocket & messaging optimization
-- Database & performance improvements
-- AI & VIBES features integration
+- Security & authentication hardening ✅
+- WebSocket & messaging optimization ✅
+- Database & performance improvements ✅
+- AI & VIBES features integration (in progress)
 - Moderation & safety enhancements
 - Observability & operations
 - Testing & quality assurance
 - Privacy & compliance
 - Performance & scalability
 - Documentation & developer experience
+
+---
+
+## Documentation
+
+### Main Documentation
+- **[BUILD.plan](./BUILD.plan)** - Complete implementation roadmap
+- **[CODEBASE_COMPLETE.md](./CODEBASE_COMPLETE.md)** - Comprehensive codebase documentation
+- **[Execution Plan](./docs/execution/COMPLETE_EXECUTION_PLAN.md)** - Parallel execution strategy for Phases 4-10
+
+### Validation & Testing
+- **[Validation Summary](./docs/validation/VALIDATION_SUMMARY.md)** - Validation suite overview
+- **[Validation Checklist](./docs/validation/VALIDATION_CHECKLIST.md)** - Manual validation procedures
+- **[Docker Setup](./docs/validation/DOCKER_SETUP.md)** - Docker validation environment
+- **[Test Results](./docs/validation/TEST_RESULTS.md)** - Latest test results
+
+### Other Documentation
+- **[Security Audit](./SECURITY_AUDIT.md)** - Security assessment
+- **[Codebase Quick Reference](./CODEBASE_QUICKREF.md)** - Quick reference guide
 
 ---
 
@@ -565,5 +584,5 @@ See [LICENSE](./LICENSE) for details.
 
 ---
 
-**Last Updated**: 2025-01-XX
+**Last Updated**: 2025-11-16
 

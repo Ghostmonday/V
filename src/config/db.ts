@@ -10,7 +10,7 @@ import { getSupabaseKeys, getRedisUrl } from '../services/api-keys-service.js';
 
 // Initialize with env vars (needed for initial connection to vault)
 // These will be migrated to vault after first connection
-let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 let supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Validate environment variables
