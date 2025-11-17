@@ -58,10 +58,10 @@ const securityChecks = {
     /await\s+\w+\([^)]*\)(?!.*catch)/i,
   ],
   
-  // Check for exposed secrets in logs
+  // Check for exposed secrets in logs (but not safe patterns)
   exposedSecrets: [
-    /log(Info|Error|Warning|Debug).*['"](password|secret|key|token)[^'"]*['"]/gi,
-    /console\.(log|error|warn).*['"](password|secret|key|token)[^'"]*['"]/gi,
+    /log(Info|Error|Warning|Debug).*['"](password|secret|key|token)\s*[:=][^'"]*['"]/gi,
+    /console\.(log|error|warn).*['"](password|secret|key|token)\s*[:=][^'"]*['"]/gi,
   ],
   
   // Check for weak random number generation
