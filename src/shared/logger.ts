@@ -43,3 +43,20 @@ export function log(...args: unknown[]): void {
   logInfo(String(args[0] || ''), ...args.slice(1));
 }
 
+export function logAudit(event: string, userId: string, metadata?: Record<string, unknown>): Promise<void> {
+  // Audit logging - in production, this would write to an audit log table
+  const auditEntry = {
+    event,
+    userId,
+    timestamp: new Date().toISOString(),
+    metadata: metadata || {},
+  };
+  
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(`[VibeZ AUDIT] ${event}`, auditEntry);
+  }
+  
+  // In production, this would be async and write to database
+  return Promise.resolve();
+}
+

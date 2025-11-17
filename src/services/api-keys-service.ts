@@ -28,6 +28,17 @@ export async function getApiKey(
     return cached.value;
   }
 
+  // Check environment variable first as fallback
+  const envKey = process.env[keyName];
+  if (envKey) {
+    // Cache the value
+    keyCache.set(cacheKey, {
+      value: envKey,
+      expiresAt: Date.now() + CACHE_TTL,
+    });
+    return envKey;
+  }
+
   try {
     // Call the database function to retrieve and decrypt the key
     const { data, error } = await supabase.rpc('get_api_key', {

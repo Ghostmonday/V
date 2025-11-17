@@ -54,7 +54,7 @@ describe('WebSocket Integration Tests', () => {
   });
 
   describe('Connection Establishment', () => {
-    it('should accept connection with valid authentication', (done) => {
+    it('should accept connection with valid authentication', (done: () => void) => {
       const mockReq = {
         url: 'ws://localhost:3000/ws?userId=user-123&token=valid-token',
         headers: {
@@ -83,7 +83,7 @@ describe('WebSocket Integration Tests', () => {
       }, 100);
     });
 
-    it('should reject connection without authentication', (done) => {
+    it('should reject connection without authentication', (done: () => void) => {
       const mockReq = {
         url: 'ws://localhost:3000/ws',
         headers: {

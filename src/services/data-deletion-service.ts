@@ -3,11 +3,14 @@
  * Handles GDPR/CCPA compliant data deletion with soft delete and retention periods
  */
 
-import { supabase } from '../config/db.ts';
+import { supabase } from '../config/db.js';
 import { logError, logInfo, logAudit } from '../shared/logger.js';
 
 // Default retention period: 30 days (configurable via env)
-const DEFAULT_RETENTION_DAYS = parseInt(process.env.DATA_RETENTION_DAYS || process.env.RETENTION_USERS_DAYS || '30', 10);
+const DEFAULT_RETENTION_DAYS = parseInt(
+  (process.env.DATA_RETENTION_DAYS || process.env.RETENTION_USERS_DAYS || '30') as string,
+  10
+);
 
 /**
  * Soft delete user data with retention period

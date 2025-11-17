@@ -37,16 +37,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Initialize Redis (optional, will work without it)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-let redis: any = null;
+let redis: ReturnType<typeof createRedis> | null = null;
 if (process.env.REDIS_URL) {
   const redisClient = createRedis({ url: process.env.REDIS_URL });
   redisClient
     .connect()
     .then(() => {
       redis = redisClient;
-      console.log('Redis connected');
+      console.warn('Redis connected');
     })
-    .catch((err: any) => {
+    .catch((err: Error) => {
       console.warn('Redis connection failed, continuing without Redis:', err.message);
     });
 }
@@ -54,31 +54,33 @@ if (process.env.REDIS_URL) {
 app.get('/rooms', async (req, res) => {
   try {
     const { data, error } = await supabase.from('rooms').select('*');
-    if (error) throw error;
+    if (error) {throw error;}
     res.json(data || []);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error fetching rooms:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
 app.post('/rooms', async (req, res) => {
   try {
     const { name, title, slug } = req.body;
-    const roomData: any = {};
-    if (name) roomData.name = name;
-    if (title) roomData.title = title;
-    if (slug) roomData.slug = slug;
+    const roomData: { name?: string; title?: string; slug?: string } = {};
+    if (name) {roomData.name = name;}
+    if (title) {roomData.title = title;}
+    if (slug) {roomData.slug = slug;}
     if (!roomData.title && !roomData.slug && !roomData.name) {
       roomData.title = name || 'New Room';
     }
 
     const { data, error } = await supabase.from('rooms').insert(roomData).select();
-    if (error) throw error;
+    if (error) {throw error;}
     res.json(data?.[0] || {});
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error creating room:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -92,11 +94,12 @@ app.get('/rooms/:id/messages', async (req, res) => {
       .order('created_at', { ascending: false })
       .limit(50);
 
-    if (error) throw error;
+    if (error) {throw error;}
     res.json(data || []);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error fetching messages:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -108,7 +111,7 @@ app.post('/messaging', async (req, res) => {
       return res.status(400).json({ error: 'roomId and content are required' });
     }
 
-    const messageData: any = {
+    const messageData: { room_id: string; content_preview: string; sender_id: string | null } = {
       room_id: roomId,
       content_preview: content.substring(0, 512),
       sender_id: senderId || null,
@@ -116,7 +119,7 @@ app.post('/messaging', async (req, res) => {
 
     const { data, error } = await supabase.from('messages').insert(messageData).select();
 
-    if (error) throw error;
+    if (error) {throw error;}
 
     const message = data?.[0];
     if (message) {
@@ -124,26 +127,27 @@ app.post('/messaging', async (req, res) => {
     }
 
     res.json(message || {});
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error sending message:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+  console.warn('Client connected:', socket.id);
 
   socket.on('join', (roomId: string) => {
     socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
+    console.warn(`Socket ${socket.id} joined room ${roomId}`);
   });
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
+    console.warn('Client disconnected:', socket.id);
   });
 });
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
+  console.warn(`Backend server running on port ${PORT}`);
 });

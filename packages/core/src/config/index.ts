@@ -24,11 +24,6 @@ const configSchema = z.object({
     apiKey: z.string().min(1).optional(),
   }),
 
-  // OpenAI
-  openai: z.object({
-    apiKey: z.string().min(1).optional(),
-  }),
-
   // Redis
   redis: z.object({
     url: z.string().url().default('redis://localhost:6379'),
@@ -74,9 +69,6 @@ function loadConfig(): Config {
     },
     deepseek: {
       apiKey: process.env.DEEPSEEK_API_KEY,
-    },
-    openai: {
-      apiKey: process.env.OPENAI_API_KEY,
     },
     redis: {
       url: process.env.REDIS_URL || 'redis://localhost:6379',

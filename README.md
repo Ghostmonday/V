@@ -120,7 +120,7 @@ VibeZ enables users to:
 - **Database**: Supabase (PostgreSQL)
 - **File Storage**: AWS S3 (optional)
 - **Voice/Video**: LiveKit, Agora
-- **AI**: OpenAI API, DALL-E API, Perspective API
+- **AI**: DALL-E API, Perspective API
 - **Monitoring**: Prometheus, Grafana (planned)
 
 ### Development Tools
@@ -226,7 +226,6 @@ VibeZ/
    - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
    - `JWT_SECRET`: Generate a secure random string
    - `REDIS_URL`: Redis connection URL (default: `redis://localhost:6379`)
-   - `OPENAI_API_KEY`: OpenAI API key (for AI features)
    - `DALL_E_API_KEY`: DALL-E API key (for card generation)
    - `PERSPECTIVE_API_KEY`: Perspective API key (for moderation)
    - `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`: LiveKit credentials (optional)
@@ -435,7 +434,6 @@ See `env.template` for all available environment variables. Production-specific 
 - `JWT_SECRET`: Must be a secure random string (32+ bytes)
 - `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key
 - `REDIS_URL`: Production Redis URL
-- `OPENAI_API_KEY`: OpenAI API key
 - `DALL_E_API_KEY`: DALL-E API key
 - `PERSPECTIVE_API_KEY`: Perspective API key
 

@@ -301,7 +301,6 @@ SELECT store_api_key('JWT_SECRET', 'auth', 'your_random_secret_key_min_32_chars'
 -- AI/LLM Keys
 SELECT store_api_key('DEEPSEEK_API_KEY', 'ai', 'sk-your-deepseek-key', 'DeepSeek API Key (for optimizer/moderation)', 'production');
 SELECT store_api_key('GROK_API_KEY', 'ai', 'your_grok_api_key', 'Grok API Key (for Sin bot)', 'production');
-SELECT store_api_key('OPENAI_KEY', 'ai', 'sk-your-openai-key', 'OpenAI API Key (for embeddings)', 'production');
 SELECT store_api_key('ANTHROPIC_KEY', 'ai', 'sk-ant-your-anthropic-key', 'Anthropic API Key (for Claude)', 'production');
 
 -- AWS S3 Keys

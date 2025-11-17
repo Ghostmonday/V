@@ -10,7 +10,8 @@
     "outDir": "./dist",
     "rootDir": "./"
   },
-  "include": ["src/**/*.ts", "index.ts", "scripts/**/*.ts"],
+  "include": ["src/**/*.ts", "index.ts", "scripts/**/*.ts", "vitest.d.ts", "node.d.ts", "express.d.ts", "third-party.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
+
 

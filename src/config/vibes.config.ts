@@ -21,7 +21,6 @@ export interface VIBESConfig {
   redisUrl?: string;
 
   // AI Services
-  openaiApiKey?: string;
   dalleApiKey?: string;
   sentimentApiUrl?: string;
 
@@ -78,7 +77,6 @@ export const vibesConfig: VIBESConfig = {
   redisUrl: process.env.REDIS_URL,
 
   // AI Services
-  openaiApiKey: process.env.OPENAI_API_KEY,
   dalleApiKey: process.env.DALL_E_API_KEY,
   sentimentApiUrl: process.env.SENTIMENT_API_URL,
 
@@ -104,8 +102,6 @@ if (!vibesConfig.databaseUrl && !vibesConfig.supabaseUrl) {
   throw new Error('Either DATABASE_URL or SUPABASE_URL must be set');
 }
 
-if (vibesConfig.cardGenerationEnabled && !vibesConfig.openaiApiKey) {
-  console.warn('⚠️  Card generation enabled but OPENAI_API_KEY not set');
-}
+// Card generation validation removed - OpenAI API key no longer used
 
 export default vibesConfig;

@@ -7,7 +7,6 @@ services:
     environment:
       - DB_URL=postgres://postgres:password@postgres:5432/sinaps
       - REDIS_URL=redis://redis:6379
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - PROMETHEUS_URL=http://prometheus:9090
       - API_URL=http://api:3000
@@ -25,7 +24,6 @@ services:
     build: .
     command: node dist/optimizer/index.js
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PROMETHEUS_URL=http://prometheus:9090
       - API_URL=http://api:3000
       - ADMIN_API_KEY=${ADMIN_API_KEY:-admin_key}

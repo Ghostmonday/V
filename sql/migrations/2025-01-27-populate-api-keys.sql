@@ -113,11 +113,6 @@ SELECT store_api_key('GROK_API_KEY', 'ai',
     'production'
 );
 
-SELECT store_api_key('OPENAI_KEY', 'ai', 
-    'sk-your-openai-key',  -- ⚠️ ADD IF YOU HAVE OPENAI KEY
-    'OpenAI API Key (for embeddings)', 
-    'production'
-);
 
 SELECT store_api_key('ANTHROPIC_KEY', 'ai', 
     'sk-ant-your-anthropic-key',  -- ⚠️ ADD IF YOU HAVE ANTHROPIC KEY

@@ -4,8 +4,8 @@
  * Uses PostgreSQL GIN indexes and RLS-safe RPC functions
  */
 
-import { supabase } from '../config/db.ts';
-import { getRedisClient } from '../config/db.ts';
+import { supabase } from '../config/db.js';
+import { getRedisClient } from '../config/db.js';
 import { logError, logInfo } from '../shared/logger.js';
 
 const redis = getRedisClient();
@@ -79,7 +79,7 @@ export async function fullTextSearch(options: SearchOptions): Promise<SearchResu
           filter_room_id: roomId || null,
           filter_user_id: userId || null,
           result_limit: limit
-        }).then(result => ({ type: 'messages', ...result }))
+        }).then((result: unknown) => ({ type: 'messages', ...(result as Record<string, unknown>) }))
       );
     }
 
@@ -89,7 +89,7 @@ export async function fullTextSearch(options: SearchOptions): Promise<SearchResu
         supabase.rpc('search_rooms_fulltext', {
           search_query: query,
           result_limit: limit
-        }).then(result => ({ type: 'rooms', ...result }))
+        }).then((result: unknown) => ({ type: 'rooms', ...(result as Record<string, unknown>) }))
       );
     }
 
@@ -101,7 +101,7 @@ export async function fullTextSearch(options: SearchOptions): Promise<SearchResu
           .select('id, username, display_name')
           .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
           .limit(limit)
-          .then(result => ({ type: 'users', ...result }))
+          .then((result: unknown) => ({ type: 'users', ...(result as Record<string, unknown>) }))
       );
     }
 
