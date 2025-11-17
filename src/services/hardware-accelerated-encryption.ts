@@ -53,29 +53,26 @@ export async function encryptWithHardwareAcceleration(
   const algorithm = getOptimalEncryptionAlgorithm();
   const config = getEncryptionConfig();
   const iv = crypto.randomBytes(16);
-  
+
   const dataBuffer = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
-  
+
   // Validate inputs
   if (!dataBuffer || dataBuffer.length === 0) {
     throw new Error('Invalid input: data buffer is empty');
   }
-  
+
   if (!key || key.length < 16) {
     throw new Error('Invalid key: key must be at least 16 bytes');
   }
-  
+
   try {
     if (algorithm.includes('gcm')) {
       // GCM mode (hardware-accelerated on x86/x64 with AES-NI)
       try {
         const cipher = crypto.createCipheriv(algorithm, key, iv);
-        const encrypted = Buffer.concat([
-          cipher.update(dataBuffer),
-          cipher.final(),
-        ]);
+        const encrypted = Buffer.concat([cipher.update(dataBuffer), cipher.final()]);
         const authTag = cipher.getAuthTag();
-        
+
         return {
           encrypted,
           iv,
@@ -89,7 +86,7 @@ export async function encryptWithHardwareAcceleration(
           error: gcmError.message,
           algorithm,
         });
-        
+
         // Try software fallback (CBC mode)
         return await encryptWithSoftwareFallback(dataBuffer, key, iv);
       }
@@ -101,19 +98,21 @@ export async function encryptWithHardwareAcceleration(
     // Comprehensive error handling
     const errorMessage = error.message || 'Unknown encryption error';
     const errorCode = error.code || 'ENCRYPTION_ERROR';
-    
+
     logWarning('Encryption failed, attempting software fallback', {
       error: errorMessage,
       errorCode,
       algorithm,
       hardwareAccelerated: config.hardwareAccelerated,
     });
-    
+
     // Final fallback attempt
     try {
       return await encryptWithSoftwareFallback(dataBuffer, key, iv);
     } catch (fallbackError: any) {
-      throw new Error(`Hardware-accelerated encryption failed: ${errorMessage}. Fallback also failed: ${fallbackError.message}`);
+      throw new Error(
+        `Hardware-accelerated encryption failed: ${errorMessage}. Fallback also failed: ${fallbackError.message}`
+      );
     }
   }
 }
@@ -136,15 +135,12 @@ async function encryptWithSoftwareFallback(
     // Use AES-256-CBC as software fallback
     const fallbackAlgorithm = 'aes-256-cbc';
     const cipher = crypto.createCipheriv(fallbackAlgorithm, key, iv);
-    const encrypted = Buffer.concat([
-      cipher.update(dataBuffer),
-      cipher.final(),
-    ]);
-    
+    const encrypted = Buffer.concat([cipher.update(dataBuffer), cipher.final()]);
+
     logInfo('Using software encryption fallback', {
       algorithm: fallbackAlgorithm,
     });
-    
+
     return {
       encrypted,
       iv,
@@ -167,40 +163,37 @@ export async function decryptWithHardwareAcceleration(
   algorithm?: string
 ): Promise<Buffer> {
   const algo = algorithm || getOptimalEncryptionAlgorithm();
-  
+
   // Validate inputs
   if (!encrypted || encrypted.length === 0) {
     throw new Error('Invalid input: encrypted buffer is empty');
   }
-  
+
   if (!key || key.length < 16) {
     throw new Error('Invalid key: key must be at least 16 bytes');
   }
-  
+
   if (!iv || iv.length < 16) {
     throw new Error('Invalid IV: IV must be at least 16 bytes');
   }
-  
+
   try {
     if (algo.includes('gcm')) {
       // GCM mode
       if (!authTag) {
         throw new Error('Auth tag required for GCM mode');
       }
-      
+
       if (authTag.length !== 16) {
         throw new Error('Invalid auth tag: must be 16 bytes');
       }
-      
+
       try {
         const decipher = crypto.createDecipheriv(algo, key, iv);
         decipher.setAuthTag(authTag);
-        
-        const decrypted = Buffer.concat([
-          decipher.update(encrypted),
-          decipher.final(),
-        ]);
-        
+
+        const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+
         return decrypted;
       } catch (gcmError: any) {
         // If GCM decryption fails, it might be corrupted data
@@ -209,27 +202,26 @@ export async function decryptWithHardwareAcceleration(
           error: gcmError.message,
           algorithm: algo,
         });
-        throw new Error(`GCM decryption failed: ${gcmError.message}. Data may be corrupted or tampered.`);
+        throw new Error(
+          `GCM decryption failed: ${gcmError.message}. Data may be corrupted or tampered.`
+        );
       }
     } else {
       // CBC mode (software fallback)
       try {
         const decipher = crypto.createDecipheriv(algo, key, iv);
-        return Buffer.concat([
-          decipher.update(encrypted),
-          decipher.final(),
-        ]);
+        return Buffer.concat([decipher.update(encrypted), decipher.final()]);
       } catch (cbcError: any) {
         // Comprehensive error handling for CBC mode
         const errorMessage = cbcError.message || 'Unknown decryption error';
         const errorCode = cbcError.code || 'DECRYPTION_ERROR';
-        
+
         logWarning('CBC decryption failed', {
           error: errorMessage,
           errorCode,
           algorithm: algo,
         });
-        
+
         throw new Error(`Hardware-accelerated decryption failed: ${errorMessage}`);
       }
     }
@@ -238,7 +230,7 @@ export async function decryptWithHardwareAcceleration(
     if (error.message && error.message.includes('decryption failed')) {
       throw error;
     }
-    
+
     // Format unknown errors
     throw new Error(`Hardware-accelerated decryption failed: ${error.message || 'Unknown error'}`);
   }
@@ -261,15 +253,15 @@ export async function benchmarkEncryption(
   const algorithm = config.preferredAlgorithm;
   const data = Buffer.alloc(dataSize, 'test');
   const key = crypto.randomBytes(32);
-  
+
   const startTime = process.hrtime.bigint();
-  
+
   await encryptWithHardwareAcceleration(data, key);
-  
+
   const endTime = process.hrtime.bigint();
   const durationMs = Number(endTime - startTime) / 1_000_000;
-  const throughputMBps = (dataSize / (1024 * 1024)) / (durationMs / 1000);
-  
+  const throughputMBps = dataSize / (1024 * 1024) / (durationMs / 1000);
+
   return {
     algorithm,
     hardwareAccelerated: config.hardwareAccelerated,
@@ -278,4 +270,3 @@ export async function benchmarkEncryption(
     fallbackAvailable: true, // Software fallback always available
   };
 }
-

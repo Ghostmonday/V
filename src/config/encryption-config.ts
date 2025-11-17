@@ -79,21 +79,21 @@ class EncryptionConfigManager {
       const testData = Buffer.alloc(1024, 'test');
       const key = crypto.randomBytes(32);
       const iv = crypto.randomBytes(16);
-      
+
       const startTime = process.hrtime.bigint();
-      
+
       // Try hardware-accelerated algorithm (GCM mode typically uses AES-NI)
       const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
       cipher.update(testData);
       cipher.final();
-      
+
       const endTime = process.hrtime.bigint();
       const durationMs = Number(endTime - startTime) / 1_000_000;
-      
+
       // If encryption is very fast (< 1ms for 1KB), likely hardware-accelerated
       const likelyHardwareAccelerated = durationMs < 1.0;
       const preferredAlgorithm = 'aes-256-gcm';
-      
+
       const config: EncryptionConfig = {
         hardwareAccelerated: likelyHardwareAccelerated,
         preferredAlgorithm,
@@ -112,7 +112,7 @@ class EncryptionConfigManager {
           testDuration: `${durationMs.toFixed(3)}ms`,
         });
       }
-      
+
       return config;
     } catch (error: any) {
       logWarning('Failed to detect hardware acceleration', error);
@@ -169,4 +169,3 @@ export function getOptimalEncryptionAlgorithm(): string {
 export function isHardwareAccelerated(): boolean {
   return getEncryptionConfig().hardwareAccelerated;
 }
-
