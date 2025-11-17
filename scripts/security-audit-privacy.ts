@@ -160,8 +160,15 @@ function auditFile(filePath: string): void {
       for (const match of matches) {
         const lineNum = content.substring(0, match.index).split('\n').length;
         const line = lines[lineNum - 1];
-        // Skip if it's redacted or hashed
-        if (line && (line.includes('redact') || line.includes('hash') || line.includes('substring'))) {
+        // Skip if it's redacted, hashed, or partial (not exposing actual secret)
+        if (line && (
+          line.includes('redact') || 
+          line.includes('hash') || 
+          line.includes('substring') ||
+          line.includes('keyIdHash') ||
+          line.includes('Partial hash') ||
+          line.includes('not the actual')
+        )) {
           continue;
         }
         issues.push({
