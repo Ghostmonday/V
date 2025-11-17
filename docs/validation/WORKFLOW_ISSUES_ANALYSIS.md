@@ -98,16 +98,18 @@ grep -q "FormState" src/types/ui-states.ts
 - **Root package.json**: Expects Node 20 (based on `@types/node@^20.19.25`)
 - **Server package.json**: Uses Node 20
 
-#### Issue 2.8: Missing Telemetry Files
-**Lines 174-200**:
-- Expects various telemetry files that may not exist:
-  - `src/telemetry/ux/client-sdk.ts`
+#### Issue 2.8: Missing Telemetry Files (RESOLVED)
+**Lines 174-200** (OLD WORKFLOW - NOW FIXED):
+- ~~Expects various telemetry files that may not exist:~~
+  - ~~`src/telemetry/ux/client-sdk.ts`~~ ❌ (does not exist - was frontend SDK, now in Swift)
   - `src/routes/ux-telemetry-routes.ts` ✅ (exists)
   - `src/services/ux-telemetry-service.ts` ✅ (exists)
   - `src/services/ux-telemetry-redaction.ts` ✅ (exists)
-  - `src/llm-observer/watchdog.ts` ❌ (may not exist)
-  - `src/llm-observer/strategies/*.json` ❌ (may not exist)
-  - `sql/17_ux_telemetry_schema.sql` ❌ (may not exist)
+  - ~~`src/llm-observer/watchdog.ts`~~ ❌ (does not exist - removed from workflow)
+  - ~~`src/llm-observer/strategies/*.json`~~ ❌ (does not exist - removed from workflow)
+  - ~~`sql/17_ux_telemetry_schema.sql`~~ ❌ (does not exist - UX telemetry schema is in other SQL files)
+
+**Note**: The workflow has been rewritten and no longer references these non-existent files.
 
 ---
 
@@ -188,14 +190,12 @@ grep -q "FormState" src/types/ui-states.ts
 
 ## Files That Need to Exist (If Keeping UI-State Tests)
 
-If you want to keep the UI-State Tests workflow, create:
+**UPDATE**: The UI-State Tests workflow has been rewritten to test Swift/iOS code instead of Vue.js components. See `docs/validation/UI_STATE_TESTS_MIGRATION.md` for details.
 
-1. `src/types/ui-states.ts` - TypeScript definitions matching Swift enums
-2. `tests/state-matrix.md` - Documentation of all UI states
-3. `src/components/__tests__/` - Component tests (but components don't exist)
-4. `src/telemetry/ux/__tests__/privacy.test.ts` - Privacy tests
-5. Storybook configuration (if testing Vue components)
-6. E2E test setup (if testing frontend)
-
-**OR** rewrite the workflow to test Swift/iOS code instead.
+The workflow now:
+- ✅ Tests actual Swift UI state enums (`ButtonState`, `InputState`, `FormState`)
+- ✅ Validates `ProgrammaticUIView.swift` usage
+- ✅ Tests Swift telemetry integration
+- ✅ Validates backend TypeScript telemetry files
+- ✅ Uses macOS runner and xcodebuild for iOS testing
 
