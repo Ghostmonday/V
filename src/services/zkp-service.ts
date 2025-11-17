@@ -286,3 +286,72 @@ export async function verifySelectiveDisclosure(
   }
 }
 
+/**
+ * Verify multiple selective disclosure proofs in batch
+ * More efficient than verifying individually
+ * 
+ * @param disclosureProofs - Array of disclosure proofs to verify
+ * @param expectedCommitmentsMap - Map of proof index to expected commitments
+ * @returns Array of verification results with details
+ */
+export async function verifyBatchedSelectiveDisclosure(
+  disclosureProofs: DisclosureProof[],
+  expectedCommitmentsMap: Record<number, Record<AttributeType, string>>
+): Promise<Array<{
+  index: number;
+  valid: boolean;
+  errors?: string[];
+}>> {
+  const results: Array<{
+    index: number;
+    valid: boolean;
+    errors?: string[];
+  }> = [];
+
+  // Process proofs in parallel for efficiency
+  const verificationPromises = disclosureProofs.map(async (proof, index) => {
+    const expectedCommitments = expectedCommitmentsMap[index];
+    const errors: string[] = [];
+
+    if (!expectedCommitments) {
+      errors.push('Missing expected commitments');
+      return { index, valid: false, errors };
+    }
+
+    try {
+      // Verify all proofs in this disclosure
+      for (const attributeProof of proof.proofs) {
+        const expectedCommitment = expectedCommitments[attributeProof.attributeType];
+        if (!expectedCommitment) {
+          errors.push(`Missing expected commitment for ${attributeProof.attributeType}`);
+          continue;
+        }
+
+        const isValid = await verifyAttributeProof(attributeProof, expectedCommitment);
+        if (!isValid) {
+          errors.push(`Invalid proof for ${attributeProof.attributeType}`);
+        }
+      }
+
+      // Verify metadata
+      if (proof.metadata.expiresAt && Date.now() > proof.metadata.expiresAt) {
+        errors.push('Proof expired');
+      }
+
+      // Verify user ID matches
+      if (!proof.metadata.userId) {
+        errors.push('Missing user ID in proof metadata');
+      }
+
+      const valid = errors.length === 0;
+      return { index, valid, errors: valid ? undefined : errors };
+    } catch (error: any) {
+      logError(`Failed to verify batched proof at index ${index}`, error);
+      return { index, valid: false, errors: [`Verification error: ${error.message}`] };
+    }
+  });
+
+  const verificationResults = await Promise.all(verificationPromises);
+  return verificationResults;
+}
+

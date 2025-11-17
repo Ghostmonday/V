@@ -17,8 +17,10 @@ import {
 import {
   sanitizedDisclosureRequestSchema,
   sanitizedVerifyDisclosureSchema,
+  sanitizedBatchedVerifyDisclosureSchema,
   sanitizeUUID,
 } from '../utils/input-sanitizer.js';
+import { verifyBatchedSelectiveDisclosure } from '../services/zkp-service.js';
 import { rateLimit } from '../middleware/rate-limiter.js';
 
 const router = Router();
@@ -112,31 +114,74 @@ router.post('/selective-disclosure', authMiddleware, disclosureRateLimit, async 
 
 /**
  * POST /api/privacy/verify-disclosure
- * Verify a selective disclosure proof
+ * Verify a selective disclosure proof (single or batched)
  * Protected by rate limiting and input sanitization
+ * 
+ * Supports both single proof and batched verification for efficiency
  */
 router.post('/verify-disclosure', authMiddleware, disclosureRateLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // Sanitize and validate input (prevents injection attacks)
-    const validated = sanitizedVerifyDisclosureSchema.safeParse(req.body);
-    if (!validated.success) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid request body',
-        details: validated.error.errors,
+    // Check if this is a batched request
+    if (req.body.disclosureProofs && Array.isArray(req.body.disclosureProofs)) {
+      // Batched verification
+      const validated = sanitizedBatchedVerifyDisclosureSchema.safeParse(req.body);
+      if (!validated.success) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid batched request body',
+          details: validated.error.errors,
+        });
+      }
+
+      const { disclosureProofs, expectedCommitmentsMap } = validated.data;
+      
+      // Convert string keys to numbers for expectedCommitmentsMap
+      const commitmentsMap: Record<number, Record<string, string>> = {};
+      for (const [key, value] of Object.entries(expectedCommitmentsMap)) {
+        const index = parseInt(key, 10);
+        if (!isNaN(index)) {
+          commitmentsMap[index] = value;
+        }
+      }
+
+      // Verify batched proofs
+      const results = await verifyBatchedSelectiveDisclosure(disclosureProofs, commitmentsMap);
+      
+      const allValid = results.every(r => r.valid);
+      const validCount = results.filter(r => r.valid).length;
+      
+      res.json({
+        success: true,
+        batched: true,
+        allValid,
+        validCount,
+        totalCount: results.length,
+        results,
+        verifiedAt: new Date().toISOString(),
+      });
+    } else {
+      // Single proof verification
+      const validated = sanitizedVerifyDisclosureSchema.safeParse(req.body);
+      if (!validated.success) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid request body',
+          details: validated.error.errors,
+        });
+      }
+
+      const { disclosureProof, expectedCommitments } = validated.data;
+
+      // Verify the disclosure proof
+      const isValid = await verifySelectiveDisclosure(disclosureProof, expectedCommitments);
+
+      res.json({
+        success: true,
+        batched: false,
+        valid: isValid,
+        verifiedAt: new Date().toISOString(),
       });
     }
-
-    const { disclosureProof, expectedCommitments } = validated.data;
-
-    // Verify the disclosure proof
-    const isValid = await verifySelectiveDisclosure(disclosureProof, expectedCommitments);
-
-    res.json({
-      success: true,
-      valid: isValid,
-      verifiedAt: new Date().toISOString(),
-    });
   } catch (error: any) {
     logError('Failed to verify selective disclosure', error);
     res.status(500).json({

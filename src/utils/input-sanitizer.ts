@@ -139,3 +139,31 @@ export const sanitizedVerifyDisclosureSchema = z.object({
   ),
 }).strict();
 
+/**
+ * Schema for batched verify disclosure request
+ */
+export const sanitizedBatchedVerifyDisclosureSchema = z.object({
+  disclosureProofs: z.array(z.object({
+    proofs: z.array(z.object({
+      attributeType: z.enum(['age', 'verified', 'subscription_tier', 'location_country', 'custom']),
+      proof: z.string().max(10000),
+      commitment: z.string().regex(/^[0-9a-f]{64}$/i),
+      timestamp: z.number().int().positive(),
+      nonce: z.string().max(100),
+    })),
+    metadata: z.object({
+      userId: z.string().uuid(),
+      issuedAt: z.number().int().positive(),
+      expiresAt: z.number().int().positive().optional(),
+      purpose: z.string().max(500).optional(),
+    }),
+  })).min(1).max(100), // Limit batch size to 100
+  expectedCommitmentsMap: z.record(
+    z.string().regex(/^\d+$/), // Index as string
+    z.record(
+      z.enum(['age', 'verified', 'subscription_tier', 'location_country', 'custom']),
+      z.string().regex(/^[0-9a-f]{64}$/i)
+    )
+  ),
+}).strict();
+
