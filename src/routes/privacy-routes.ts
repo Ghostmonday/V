@@ -14,33 +14,50 @@ import {
   storeProofCommitments,
   AttributeType,
 } from '../services/zkp-service.js';
-import { z } from 'zod';
+import {
+  sanitizedDisclosureRequestSchema,
+  sanitizedVerifyDisclosureSchema,
+  sanitizeUUID,
+} from '../utils/input-sanitizer.js';
+import { rateLimit } from '../middleware/rate-limiter.js';
 
 const router = Router();
 
-// Schema for selective disclosure request
-const disclosureRequestSchema = z.object({
-  attributeTypes: z.array(z.enum(['age', 'verified', 'subscription_tier', 'location_country', 'custom'])),
-  purpose: z.string().optional(),
+// Rate limiting for disclosure APIs (prevent abuse)
+const disclosureRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 requests per minute
+  message: 'Too many disclosure requests, please try again later',
 });
 
 /**
  * POST /api/privacy/selective-disclosure
  * Generate zero-knowledge proofs for selective disclosure
+ * Protected by rate limiting and input sanitization
  */
-router.post('/selective-disclosure', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/selective-disclosure', authMiddleware, disclosureRateLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const validated = disclosureRequestSchema.safeParse(req.body);
+    // Sanitize and validate input (prevents injection attacks)
+    const validated = sanitizedDisclosureRequestSchema.safeParse(req.body);
     if (!validated.success) {
       return res.status(400).json({
         success: false,
         error: 'Invalid request body',
         details: validated.error.errors,
+      });
+    }
+
+    // Sanitize verifierId if provided
+    const verifierId = req.body.verifierId ? sanitizeUUID(req.body.verifierId) : undefined;
+    if (req.body.verifierId && !verifierId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid verifierId format',
       });
     }
 
@@ -73,7 +90,7 @@ router.post('/selective-disclosure', authMiddleware, async (req: AuthenticatedRe
       {
         attributeTypes,
         purpose,
-        verifierId: req.body.verifierId,
+        verifierId,
       }
     );
 
@@ -96,17 +113,21 @@ router.post('/selective-disclosure', authMiddleware, async (req: AuthenticatedRe
 /**
  * POST /api/privacy/verify-disclosure
  * Verify a selective disclosure proof
+ * Protected by rate limiting and input sanitization
  */
-router.post('/verify-disclosure', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/verify-disclosure', authMiddleware, disclosureRateLimit, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { disclosureProof, expectedCommitments } = req.body;
-
-    if (!disclosureProof || !expectedCommitments) {
+    // Sanitize and validate input (prevents injection attacks)
+    const validated = sanitizedVerifyDisclosureSchema.safeParse(req.body);
+    if (!validated.success) {
       return res.status(400).json({
         success: false,
-        error: 'Missing disclosureProof or expectedCommitments',
+        error: 'Invalid request body',
+        details: validated.error.errors,
       });
     }
+
+    const { disclosureProof, expectedCommitments } = validated.data;
 
     // Verify the disclosure proof
     const isValid = await verifySelectiveDisclosure(disclosureProof, expectedCommitments);
@@ -151,7 +172,13 @@ router.get('/encryption-status', authMiddleware, async (req: AuthenticatedReques
       benchmark: {
         throughputMBps: benchmark.throughputMBps,
         durationMs: benchmark.durationMs,
+        fallbackAvailable: benchmark.fallbackAvailable,
       },
+      // Include fallback alert flag for UI
+      fallbackAlert: !capabilities.hardwareAccelerated ? {
+        message: 'Hardware acceleration unavailable - using software encryption',
+        severity: 'warning',
+      } : undefined,
     });
   } catch (error: any) {
     logError('Failed to get encryption status', error);
@@ -168,7 +195,12 @@ router.get('/encryption-status', authMiddleware, async (req: AuthenticatedReques
  */
 router.get('/zkp/commitments/:userId', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { userId } = req.params;
+    // Sanitize userId from params (prevents injection)
+    const userId = sanitizeUUID(req.params.userId);
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid userId format' });
+    }
+
     const requestingUserId = req.user?.userId;
     
     // Users can only view their own commitments
@@ -176,12 +208,14 @@ router.get('/zkp/commitments/:userId', authMiddleware, async (req: Authenticated
       return res.status(403).json({ error: 'Forbidden: Cannot view other users\' commitments' });
     }
     
+    // Optimized query with proper indexing (user_id + revoked_at + created_at)
     const { data: commitments, error } = await supabase
       .from('user_zkp_commitments')
       .select('id, attribute_type, commitment, created_at, expires_at, revoked_at')
       .eq('user_id', userId)
-      .is('revoked_at', null) // Only active commitments
-      .order('created_at', { ascending: false });
+      .is('revoked_at', null) // Only active commitments (uses index)
+      .order('created_at', { ascending: false })
+      .limit(100); // Limit results for performance
     
     if (error) {
       logError('Failed to fetch ZKP commitments', error);

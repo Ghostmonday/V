@@ -6,6 +6,7 @@
 
 import crypto from 'crypto';
 import { logInfo, logWarning } from '../shared/logger.js';
+import { getEncryptionConfig, getOptimalEncryptionAlgorithm } from '../config/encryption-config.js';
 
 /**
  * Encryption algorithm preferences (hardware-accelerated first)
@@ -18,87 +19,21 @@ const ENCRYPTION_ALGORITHMS = {
 };
 
 /**
- * Detected encryption capabilities
- */
-let encryptionCapabilities: {
-  hardwareAccelerated: boolean;
-  preferredAlgorithm: string;
-  detected: boolean;
-} | null = null;
-
-/**
  * Detect hardware acceleration capabilities
- * Checks if AES-NI is available (Node.js crypto uses it automatically if available)
+ * DEPRECATED: Use getEncryptionConfig() from encryption-config.ts instead
+ * Kept for backward compatibility
  */
 export function detectHardwareAcceleration(): {
   hardwareAccelerated: boolean;
   preferredAlgorithm: string;
   detected: boolean;
 } {
-  if (encryptionCapabilities) {
-    return encryptionCapabilities;
-  }
-
-  try {
-    // Test encryption speed to detect hardware acceleration
-    // Hardware-accelerated AES is significantly faster
-    const testData = Buffer.alloc(1024, 'test');
-    const key = crypto.randomBytes(32);
-    const iv = crypto.randomBytes(16);
-    
-    const startTime = process.hrtime.bigint();
-    
-    // Try hardware-accelerated algorithm (GCM mode typically uses AES-NI)
-    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-    cipher.update(testData);
-    cipher.final();
-    
-    const endTime = process.hrtime.bigint();
-    const duration = Number(endTime - startTime) / 1_000_000; // Convert to milliseconds
-    
-    // If encryption is very fast (< 1ms for 1KB), likely hardware-accelerated
-    // This is a heuristic - actual detection would require CPUID or similar
-    const likelyHardwareAccelerated = duration < 1.0;
-    
-    // Node.js crypto automatically uses AES-NI if available on x86/x64
-    // We can't directly detect it, but GCM mode is typically accelerated
-    const preferredAlgorithm = 'aes-256-gcm'; // GCM mode uses AES-NI when available
-    
-    encryptionCapabilities = {
-      hardwareAccelerated: likelyHardwareAccelerated,
-      preferredAlgorithm,
-      detected: true,
-    };
-    
-    if (likelyHardwareAccelerated) {
-      logInfo('Hardware-accelerated encryption detected (AES-NI)', {
-        algorithm: preferredAlgorithm,
-        testDuration: `${duration.toFixed(3)}ms`,
-      });
-    } else {
-      logWarning('Hardware acceleration not detected, using software encryption', {
-        algorithm: preferredAlgorithm,
-        testDuration: `${duration.toFixed(3)}ms`,
-      });
-    }
-    
-    return encryptionCapabilities;
-  } catch (error: any) {
-    logWarning('Failed to detect hardware acceleration', error);
-    return {
-      hardwareAccelerated: false,
-      preferredAlgorithm: 'aes-256-gcm',
-      detected: false,
-    };
-  }
-}
-
-/**
- * Get optimal encryption algorithm based on hardware capabilities
- */
-export function getOptimalEncryptionAlgorithm(): string {
-  const capabilities = detectHardwareAcceleration();
-  return capabilities.preferredAlgorithm;
+  const config = getEncryptionConfig();
+  return {
+    hardwareAccelerated: config.hardwareAccelerated,
+    preferredAlgorithm: config.preferredAlgorithm,
+    detected: config.detected,
+  };
 }
 
 /**
@@ -113,8 +48,10 @@ export async function encryptWithHardwareAcceleration(
   iv: Buffer;
   authTag?: Buffer;
   algorithm: string;
+  hardwareAccelerated: boolean;
 }> {
   const algorithm = getOptimalEncryptionAlgorithm();
+  const config = getEncryptionConfig();
   const iv = crypto.randomBytes(16);
   
   const dataBuffer = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
@@ -134,6 +71,7 @@ export async function encryptWithHardwareAcceleration(
         iv,
         authTag,
         algorithm,
+        hardwareAccelerated: config.hardwareAccelerated,
       };
     } else {
       // CBC mode (software fallback)
@@ -147,6 +85,7 @@ export async function encryptWithHardwareAcceleration(
         encrypted,
         iv,
         algorithm,
+        hardwareAccelerated: false,
       };
     }
   } catch (error: any) {
@@ -204,9 +143,10 @@ export async function benchmarkEncryption(
   hardwareAccelerated: boolean;
   durationMs: number;
   throughputMBps: number;
+  fallbackAvailable: boolean;
 }> {
-  const capabilities = detectHardwareAcceleration();
-  const algorithm = capabilities.preferredAlgorithm;
+  const config = getEncryptionConfig();
+  const algorithm = config.preferredAlgorithm;
   const data = Buffer.alloc(dataSize, 'test');
   const key = crypto.randomBytes(32);
   
@@ -220,9 +160,10 @@ export async function benchmarkEncryption(
   
   return {
     algorithm,
-    hardwareAccelerated: capabilities.hardwareAccelerated,
+    hardwareAccelerated: config.hardwareAccelerated,
     durationMs,
     throughputMBps,
+    fallbackAvailable: true, // Software fallback always available
   };
 }
 

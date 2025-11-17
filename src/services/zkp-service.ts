@@ -48,6 +48,7 @@ export interface DisclosureProof {
 /**
  * Generate commitment for an attribute value
  * Commitment = H(attribute_value || salt || nonce)
+ * Uses SHA-3-256 for future-proofing (more secure than SHA-256)
  */
 function generateCommitment(
   attributeValue: string | number | boolean,
@@ -55,7 +56,15 @@ function generateCommitment(
   nonce: string
 ): string {
   const input = `${attributeValue}:${salt}:${nonce}`;
-  return crypto.createHash('sha256').update(input).digest('hex');
+  
+  // Use SHA-3-256 for future-proofing (if available, fallback to SHA-256)
+  try {
+    // Node.js 16+ supports SHA-3
+    return crypto.createHash('sha3-256').update(input).digest('hex');
+  } catch {
+    // Fallback to SHA-256 if SHA-3 not available
+    return crypto.createHash('sha256').update(input).digest('hex');
+  }
 }
 
 /**

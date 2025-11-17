@@ -11,9 +11,9 @@ import { supabase } from '../config/db.ts';
 import {
   encryptWithHardwareAcceleration,
   decryptWithHardwareAcceleration,
-  getOptimalEncryptionAlgorithm,
-  detectHardwareAcceleration,
 } from './hardware-accelerated-encryption.js';
+import { getEncryptionConfig } from '../config/encryption-config.js';
+import { mediaStreamCircuitBreaker } from '../utils/circuit-breaker.js';
 
 const redis = getRedisClient();
 
@@ -75,6 +75,21 @@ export async function generateEphemeralKeyPair(): Promise<EphemeralKeyPair> {
 
 /**
  * Derive shared secret from ephemeral keys (ECDH)
+ * 
+ * PERFECT FORWARD SECRECY FLOW:
+ * 1. Each call generates ephemeral ECDH key pairs (generateEphemeralKeyPair)
+ * 2. Participants exchange public keys (getCallPublicKeys)
+ * 3. Each participant derives shared secret using their private key + other's public key (deriveSharedSecret)
+ * 4. Shared secret is derived using HKDF to create encryption key (pbkdf2Sync)
+ * 5. Encryption key is used to encrypt media streams (encryptMediaStream)
+ * 6. After call ends, all ephemeral private keys are deleted (endPFSCallSession)
+ * 
+ * SECURITY PROPERTIES:
+ * - Each call gets unique ephemeral keys (never reused)
+ * - Keys are deleted immediately after call ends
+ * - Even if long-term keys are compromised, past calls remain secure
+ * - Future calls use fresh keys, so compromise doesn't affect future calls
+ * 
  * This secret is used to encrypt media streams with Perfect Forward Secrecy
  * Uses hardware-accelerated AES-256-GCM when available
  */
@@ -83,26 +98,34 @@ export function deriveSharedSecret(
   theirPublicKey: string
 ): string {
   try {
+    // Step 1: Create ECDH instance with P-256 curve (secp256r1)
     const ecdh = crypto.createECDH('secp256r1');
     ecdh.setPrivateKey(Buffer.from(ourPrivateKey, 'base64'));
     
+    // Step 2: Compute shared secret using ECDH (Diffie-Hellman key exchange)
+    // This produces a shared secret that only these two parties can compute
     const sharedSecret = ecdh.computeSecret(Buffer.from(theirPublicKey, 'base64'));
     
-    // Derive encryption key from shared secret using HKDF
+    // Step 3: Derive encryption key from shared secret using HKDF (PBKDF2)
     // This ensures Perfect Forward Secrecy - each call gets a unique key
+    // Even if the shared secret is somehow compromised, it's only valid for this call
     const derivedKey = crypto.pbkdf2Sync(
       sharedSecret,
-      Buffer.from('vibez-pfs-media', 'utf8'),
-      100000,
-      32,
-      'sha256'
+      Buffer.from('vibez-pfs-media', 'utf8'), // Salt/context
+      100000, // Iterations (high for security)
+      32, // Key length (256 bits)
+      'sha256' // Hash function
     );
     
-    // Log hardware acceleration status for media encryption
-    const hwAccel = detectHardwareAcceleration();
-    logInfo('Derived shared secret for PFS media encryption', {
-      hardwareAccelerated: hwAccel.hardwareAccelerated,
-      algorithm: hwAccel.preferredAlgorithm,
+    // Log key derivation event for audit trail (without exposing secrets)
+    const keyId = crypto.createHash('sha256').update(sharedSecret).digest('hex').substring(0, 16);
+    const encryptionConfig = getEncryptionConfig();
+    logInfo('Key derivation event - PFS shared secret derived', {
+      keyIdHash: keyId, // Partial hash for identification, not the actual key
+      keyLength: derivedKey.length,
+      algorithm: encryptionConfig.preferredAlgorithm,
+      hardwareAccelerated: encryptionConfig.hardwareAccelerated,
+      timestamp: new Date().toISOString(),
     });
     
     return derivedKey.toString('base64');
@@ -304,6 +327,7 @@ export async function endPFSCallSession(callId: string): Promise<void> {
 /**
  * Encrypt media stream data using hardware-accelerated AES-256-GCM
  * Uses the shared secret derived from PFS ephemeral keys
+ * Protected by circuit breaker to prevent cascading failures
  * 
  * @param mediaData - Media stream data to encrypt
  * @param sharedSecret - Shared secret derived from ECDH (base64 encoded)
@@ -318,37 +342,47 @@ export async function encryptMediaStream(
   authTag: Buffer;
   algorithm: string;
 }> {
-  try {
-    // Decode shared secret from base64
-    const secretKey = Buffer.from(sharedSecret, 'base64');
-    
-    // Use hardware-accelerated encryption (AES-256-GCM with AES-NI if available)
-    const result = await encryptWithHardwareAcceleration(mediaData, secretKey);
-    
-    if (!result.authTag) {
-      throw new Error('Auth tag required for GCM mode');
+  // Use circuit breaker to prevent cascading failures under load
+  return await mediaStreamCircuitBreaker.execute(async () => {
+    try {
+      // Decode shared secret from base64
+      const secretKey = Buffer.from(sharedSecret, 'base64');
+      
+      // Use hardware-accelerated encryption (AES-256-GCM with AES-NI if available)
+      const result = await encryptWithHardwareAcceleration(mediaData, secretKey);
+      
+      if (!result.authTag) {
+        throw new Error('Auth tag required for GCM mode');
+      }
+      
+      const encryptionConfig = getEncryptionConfig();
+      logInfo('Encrypted media stream with hardware-accelerated AES-256-GCM', {
+        algorithm: result.algorithm,
+        dataSize: mediaData.length,
+        hardwareAccelerated: encryptionConfig.hardwareAccelerated,
+      });
+      
+      return {
+        encrypted: result.encrypted,
+        iv: result.iv,
+        authTag: result.authTag,
+        algorithm: result.algorithm,
+      };
+    } catch (error: any) {
+      logError('Failed to encrypt media stream', error);
+      throw new Error('Failed to encrypt media stream with PFS');
     }
-    
-    logInfo('Encrypted media stream with hardware-accelerated AES-256-GCM', {
-      algorithm: result.algorithm,
-      dataSize: mediaData.length,
-    });
-    
-    return {
-      encrypted: result.encrypted,
-      iv: result.iv,
-      authTag: result.authTag,
-      algorithm: result.algorithm,
-    };
-  } catch (error: any) {
-    logError('Failed to encrypt media stream', error);
-    throw new Error('Failed to encrypt media stream with PFS');
-  }
+  }, async () => {
+    // Fallback: return error response instead of crashing
+    logError('Media stream encryption failed - circuit breaker fallback', new Error('Encryption service unavailable'));
+    throw new Error('Media stream encryption temporarily unavailable');
+  });
 }
 
 /**
  * Decrypt media stream data using hardware-accelerated AES-256-GCM
  * Uses the shared secret derived from PFS ephemeral keys
+ * Protected by circuit breaker to prevent cascading failures
  * 
  * @param encryptedData - Encrypted media stream data
  * @param sharedSecret - Shared secret derived from ECDH (base64 encoded)
@@ -364,29 +398,38 @@ export async function decryptMediaStream(
   authTag: Buffer,
   algorithm?: string
 ): Promise<Buffer> {
-  try {
-    // Decode shared secret from base64
-    const secretKey = Buffer.from(sharedSecret, 'base64');
-    
-    // Use hardware-accelerated decryption (AES-256-GCM with AES-NI if available)
-    const decrypted = await decryptWithHardwareAcceleration(
-      encryptedData,
-      secretKey,
-      iv,
-      authTag,
-      algorithm
-    );
-    
-    logInfo('Decrypted media stream with hardware-accelerated AES-256-GCM', {
-      algorithm: algorithm || getOptimalEncryptionAlgorithm(),
-      dataSize: decrypted.length,
-    });
-    
-    return decrypted;
-  } catch (error: any) {
-    logError('Failed to decrypt media stream', error);
-    throw new Error('Failed to decrypt media stream with PFS');
-  }
+  // Use circuit breaker to prevent cascading failures under load
+  return await mediaStreamCircuitBreaker.execute(async () => {
+    try {
+      // Decode shared secret from base64
+      const secretKey = Buffer.from(sharedSecret, 'base64');
+      
+      // Use hardware-accelerated decryption (AES-256-GCM with AES-NI if available)
+      const decrypted = await decryptWithHardwareAcceleration(
+        encryptedData,
+        secretKey,
+        iv,
+        authTag,
+        algorithm
+      );
+      
+      const encryptionConfig = getEncryptionConfig();
+      logInfo('Decrypted media stream with hardware-accelerated AES-256-GCM', {
+        algorithm: algorithm || encryptionConfig.preferredAlgorithm,
+        dataSize: decrypted.length,
+        hardwareAccelerated: encryptionConfig.hardwareAccelerated,
+      });
+      
+      return decrypted;
+    } catch (error: any) {
+      logError('Failed to decrypt media stream', error);
+      throw new Error('Failed to decrypt media stream with PFS');
+    }
+  }, async () => {
+    // Fallback: return error response instead of crashing
+    logError('Media stream decryption failed - circuit breaker fallback', new Error('Decryption service unavailable'));
+    throw new Error('Media stream decryption temporarily unavailable');
+  });
 }
 
 /**
