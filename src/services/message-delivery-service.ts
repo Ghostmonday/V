@@ -16,7 +16,7 @@ import {
   validateServiceData,
   validateBeforeDB,
   validateAfterDB,
-} from '../middleware/incremental-validation.js';
+} from '../middleware/validation/incremental-validation.js';
 import { z } from 'zod';
 
 const redis = getRedisClient();

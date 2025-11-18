@@ -77,6 +77,13 @@ struct SettingsView: View {
                         .font(.caption)
                 }
                 
+                Section("Privacy") {
+                    NavigationLink("Privacy & Security", destination: PrivacySettingsView())
+                        .font(.body)
+                        .accessibilityLabel("Privacy and security settings")
+                        .accessibilityHint("View encryption status, zero-knowledge proofs, and data management")
+                }
+                
                 Section("Account") {
                     NavigationLink("Subscription", destination: SubscriptionView())
                 }

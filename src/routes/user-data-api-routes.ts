@@ -4,11 +4,11 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { supabase } from '../config/db.ts';
 import { logError, logInfo, logAudit } from '../shared/logger.js';
-import { rateLimit } from '../middleware/rate-limiter.js';
+import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
 import { decryptField } from '../services/encryption-service.js';
 
 const router = Router();
@@ -173,17 +173,22 @@ router.get('/:id/data', authMiddleware, async (req: AuthenticatedRequest, res: R
       userData.conversationParticipants = conversationParticipants;
     }
 
-    // Get boosts/transactions
-    const { data: boosts } = await supabase
-      .from('boosts')
-      .select(
-        'id, conversation_id, boost_type, amount_paid, payment_provider, payment_id, metadata, created_at'
-      )
-      .eq('user_id', id)
-      .order('created_at', { ascending: false });
+    // Get boosts/transactions (if table exists - VIBES feature)
+    try {
+      const { data: boosts } = await supabase
+        .from('boosts')
+        .select(
+          'id, conversation_id, boost_type, amount_paid, payment_provider, payment_id, metadata, created_at'
+        )
+        .eq('user_id', id)
+        .order('created_at', { ascending: false });
 
-    if (boosts) {
-      userData.boosts = boosts;
+      if (boosts) {
+        userData.boosts = boosts;
+      }
+    } catch (error) {
+      // Table may not exist if VIBES feature is disabled
+      userData.boosts = [];
     }
 
     // Log export event

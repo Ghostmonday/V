@@ -3,7 +3,7 @@
  */
 
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { setNickname, getNickname, getRoomNicknames } from '../services/nickname-service.js';
 import { logError } from '../shared/logger.js';

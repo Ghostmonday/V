@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import {
   getUserSubscription,
   getSubscriptionLimits,

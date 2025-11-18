@@ -40,17 +40,16 @@ import readReceiptsRoutes from '../routes/read-receipts-routes.js';
 import nicknamesRoutes from '../routes/nicknames-routes.js';
 import pinnedRoutes from '../routes/pinned-routes.js';
 import bandwidthRoutes from '../routes/bandwidth-routes.js';
-import vibesConversationRoutes from '../routes/vibes/conversation-routes.js';
 import userDataRoutes from '../routes/user-data-routes.js';
 import privacyRoutes from '../routes/privacy-routes.js';
-import { telemetryMiddleware } from './middleware/telemetry.js';
+import { telemetryMiddleware } from '../middleware/monitoring/telemetry.js';
 import { errorMiddleware } from './middleware/error.js';
-import { structuredLogging } from '../middleware/structured-logging.js';
-import { rateLimit, ipRateLimit } from '../middleware/rate-limiter.js';
-import rateLimiter from '../middleware/rate-limiter.js'; // Simple default rate limiter
-import { sanitizeInput } from '../middleware/input-validation.js';
-import { fileUploadSecurity } from '../middleware/file-upload-security.js';
-import supabaseAuthMiddleware from '../middleware/supabase-auth.js'; // Supabase JWT auth middleware
+import { structuredLogging } from '../middleware/monitoring/structured-logging.js';
+import { rateLimit, ipRateLimit } from '../middleware/rate-limiting/rate-limiter.js';
+import rateLimiter from '../middleware/rate-limiting/rate-limiter.js'; // Simple default rate limiter
+import { sanitizeInput } from '../middleware/validation/input-validation.js';
+import { fileUploadSecurity } from '../middleware/security/file-upload-security.js';
+import supabaseAuthMiddleware from '../middleware/auth/supabase-auth.js'; // Supabase JWT auth middleware
 import helmet from 'helmet';
 import csurf from 'csurf';
 import { logInfo } from '../shared/logger.js';
@@ -258,9 +257,6 @@ app.use('/api/bandwidth', bandwidthRoutes); // Bandwidth mode endpoints
 app.use('/chat_rooms', chatRoomConfigRoutes); // Room configuration endpoints
 app.use('/', roomRoutes); // Room creation and join endpoints (POST /chat-rooms, POST /chat-rooms/:id/join)
 app.use('/rooms', agoraRoutes); // Agora room management (mute, video, members, leave)
-app.use('/vibes/conversations', vibesConversationRoutes); // VIBES conversation endpoints
-import vibesAdminRoutes from '../routes/vibes/admin-routes.js';
-app.use('/vibes/admin', vibesAdminRoutes); // VIBES admin endpoints
 app.use(healthRoutes); // Mount health routes at root level (additional health endpoints)
 
 // Metrics endpoint

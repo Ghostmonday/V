@@ -5,9 +5,9 @@
  * Implements sliding window algorithm for accurate rate limiting
  */
 
-import { getRedisClient } from '../config/db.ts';
-import { logWarning, logInfo } from '../shared/logger.js';
-import { getUserSubscription, SubscriptionTier } from '../services/subscription-service.js';
+import { getRedisClient } from '../../config/db.ts';
+import { logWarning, logInfo } from '../../shared/logger.js';
+import { getUserSubscription, SubscriptionTier } from '../../services/subscription-service.js';
 
 // Base rate limits (free tier)
 const BASE_MAX_MESSAGES = 15;

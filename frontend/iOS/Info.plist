@@ -68,5 +68,14 @@
 	<!-- AVAudioSession category for background audio -->
 	<key>AVAudioSessionCategory</key>
 	<string>playback</string>
+	<!-- Privacy Permissions (Required for App Store) -->
+	<key>NSCameraUsageDescription</key>
+	<string>VibeZ needs camera access to enable video calls in rooms.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VibeZ needs microphone access to enable voice calls in rooms.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>VibeZ needs photo library access to share images in conversations.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>VibeZ needs permission to save images to your photo library.</string>
 </dict>
 </plist>

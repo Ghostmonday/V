@@ -3,7 +3,7 @@ import PhotosUI
 
 /// Chat Input View
 /// Migrated from src/components/ChatInput.vue
-/// Text input with slash command detection, bot autocomplete, file upload, and VIBE actions
+/// Text input with slash command detection, bot autocomplete, and file upload
 struct ChatInputView: View {
     @State private var input: String = ""
     @State private var showCommands: Bool = false
@@ -17,7 +17,6 @@ struct ChatInputView: View {
     
     let onSend: ((String) -> Void)?
     let onFlagged: ((String) -> Void)? // Callback for flagged messages
-    let onVibe: (() -> Void)?
     let onFileSelect: ((Data) -> Void)?
     
     var body: some View {
@@ -62,26 +61,15 @@ struct ChatInputView: View {
                     .accessibilityLabel("Message input")
                     .accessibilityHint("Type your message or use slash commands")
                 
-                // VIBE Button (if input empty)
-                if input.isEmpty {
-                    Button(action: {
-                        haptic.impactOccurred()
-                        onVibe?()
-                    }) {
-                        Image(systemName: "heart.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(Color("VibeZGold")) // Vibe Color
-                    }
-                    .accessibilityLabel("Send Vibe")
-                } else {
-                    // Send Button (if input not empty)
-                    Button(action: handleSend) {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(Color("VibeZGold"))
-                    }
-                    .accessibilityLabel("Send message")
+                // Send Button
+                Button(action: handleSend) {
+                    Image(systemName: input.isEmpty ? "circle" : "arrow.up.circle.fill")
+                        .font(.system(size: 28))
+                        .foregroundColor(input.isEmpty ? .secondary : Color("VibeZGold"))
                 }
+                .disabled(input.isEmpty)
+                .accessibilityLabel("Send message")
+                .accessibilityHint(input.isEmpty ? "Enter a message first" : "Double tap to send")
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -289,9 +277,6 @@ struct ModerationResponse: Codable {
             },
             onFlagged: { suggestion in
                 print("Flagged: \(suggestion)")
-            },
-            onVibe: {
-                print("Vibe Sent!")
             },
             onFileSelect: { _ in
                 print("File Selected")

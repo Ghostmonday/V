@@ -19,7 +19,7 @@ import {
   exportUserTelemetry,
 } from '../services/ux-telemetry-service.js';
 import { logError, logInfo } from '../shared/logger.js';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import type { UXTelemetryBatch } from '../types/ux-telemetry.js';
 import { UXEventCategory, UXEventType } from '../types/ux-telemetry.js';

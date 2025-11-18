@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import LiveKit
 import UIKit
+import AVFoundation
 
 /// LiveKit Room Manager
 /// Wraps LiveKit Swift SDK for voice/video functionality
@@ -45,6 +46,14 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
     // MARK: - Connection
     
     func joinRoom(config: JoinConfig) async throws {
+        // Request permissions before joining room
+        if config.audioEnabled {
+            await requestMicrophonePermission()
+        }
+        if config.videoEnabled {
+            await requestCameraPermission()
+        }
+        
         // Disconnect if already connected
         if room != nil {
             await leaveRoom()
@@ -67,7 +76,7 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
         
         do {
             try await newRoom.connect(url: config.url, token: config.token)
-            
+        
             self.isConnected = true
             self.isPushToTalkMode = config.pushToTalk
             
@@ -79,14 +88,14 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
             self.localVideoEnabled = config.videoEnabled
             
             self.updateParticipants()
-            
+        
             print("[LiveKit] Joined room successfully")
-            
+        
             UXTelemetryService.logRoomEntry(roomId: newRoom.name ?? "unknown", metadata: [
                 "audioEnabled": "\(config.audioEnabled)",
                 "videoEnabled": "\(config.videoEnabled)",
                 "pushToTalk": "\(config.pushToTalk)"
-            ])
+        ])
             
         } catch {
             print("[LiveKit] Failed to join room: \(error)")
@@ -115,14 +124,14 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
         do {
             try await localParticipant.setMicrophone(enabled: newState)
             self.localAudioEnabled = newState
-            
-            UXTelemetryService.logStateTransition(
-                componentId: "AudioControl",
+        
+        UXTelemetryService.logStateTransition(
+            componentId: "AudioControl",
                 stateBefore: !newState ? "enabled" : "muted",
                 stateAfter: newState ? "enabled" : "muted",
-                category: .voiceAV
-            )
-            
+            category: .voiceAV
+        )
+        
             return newState
         } catch {
             print("[LiveKit] Failed to toggle audio: \(error)")
@@ -133,7 +142,7 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
     func enableAudio() async {
         guard let room = room, let localParticipant = room.localParticipant else { return }
         if !localParticipant.isMicrophoneEnabled() {
-            _ = await toggleAudio()
+        _ = await toggleAudio()
         }
     }
     
@@ -177,14 +186,14 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
         do {
             try await localParticipant.setCamera(enabled: newState)
             self.localVideoEnabled = newState
-            
-            UXTelemetryService.logStateTransition(
-                componentId: "VideoControl",
+        
+        UXTelemetryService.logStateTransition(
+            componentId: "VideoControl",
                 stateBefore: !newState ? "enabled" : "disabled",
                 stateAfter: newState ? "enabled" : "disabled",
-                category: .voiceAV
-            )
-            
+            category: .voiceAV
+        )
+        
             return newState
         } catch {
             print("[LiveKit] Failed to toggle video: \(error)")
@@ -215,6 +224,26 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
                 print("[LiveKit] Failed to switch camera: \(error)")
             }
         }
+    }
+    
+    // MARK: - Permissions
+    
+    private func requestMicrophonePermission() async {
+        #if os(iOS)
+        let status = await AVAudioSession.sharedInstance().requestRecordPermission()
+        if !status {
+            print("[LiveKit] Microphone permission denied")
+        }
+        #endif
+    }
+    
+    private func requestCameraPermission() async {
+        #if os(iOS)
+        let status = await AVCaptureDevice.requestAccess(for: .video)
+        if !status {
+            print("[LiveKit] Camera permission denied")
+        }
+        #endif
     }
 
     // MARK: - Participant Management
@@ -271,9 +300,9 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
     nonisolated func room(_ room: Room, participant: Participant, didUpdate publication: TrackPublication, muted: Bool) {
         Task { @MainActor in
             self.updateParticipants()
-        }
     }
-    
+}
+
     nonisolated func room(_ room: Room, participant: Participant, didUpdate speakStatus: Bool) {
         Task { @MainActor in
             self.updateParticipants()

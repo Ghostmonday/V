@@ -6,7 +6,7 @@
 
 import { Router, Response, NextFunction } from 'express';
 import { liveKitService } from '../services/livekit-service.js';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { logError } from '../shared/logger.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { getLiveKitKeys } from '../services/api-keys-service.js';
@@ -62,7 +62,9 @@ router.post(
 
       // Generate participant token with PFS support
       const { generateLiveKitToken } = await import('../services/livekit-token-service.js');
-      const tokenResult = await generateLiveKitToken(userId, voiceRoomName, 'guest', callId);
+      // Enable E2EE by default for all calls (competitive advantage over Discord)
+      const e2eeEnabled = true;
+      const tokenResult = await generateLiveKitToken(userId, voiceRoomName, 'guest', callId, e2eeEnabled);
 
       // Fallback to service method if new method fails
       const token =

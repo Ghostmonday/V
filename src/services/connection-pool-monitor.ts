@@ -4,7 +4,7 @@
  */
 
 import { logWarning, logError, logInfo } from '../shared/logger.js';
-import { alertOnError } from '../middleware/error-alerting.js';
+import { alertOnError } from '../middleware/monitoring/error-alerting.js';
 import client from 'prom-client';
 
 // Prometheus metrics for connection pool

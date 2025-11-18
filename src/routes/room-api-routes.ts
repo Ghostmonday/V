@@ -6,8 +6,8 @@
 
 import { Router, Response, NextFunction } from 'express';
 import { createRoom, joinRoom, getRoom } from '../services/room-service.js';
-import { authMiddleware } from '../middleware/supabase-auth.js';
-import { ageVerificationMiddleware } from '../middleware/age-verification.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { ageVerificationMiddleware } from '../middleware/validation/age-verification.js';
 import { logError } from '../shared/logger.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 

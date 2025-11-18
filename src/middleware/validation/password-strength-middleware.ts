@@ -13,7 +13,7 @@
 
 import { z } from 'zod';
 import { validateServiceData } from './incremental-validation.js';
-import { logWarning } from '../shared/logger.js';
+import { logWarning } from '../../shared/logger.js';
 
 // Password strength schema
 const passwordStrengthSchema = z

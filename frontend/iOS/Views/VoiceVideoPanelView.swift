@@ -6,6 +6,7 @@ struct VoiceVideoPanelView: View {
     @StateObject private var roomManager = LiveKitRoomManager.shared
     let roomName: String
     let token: String // LiveKit token to join
+    let serverUrl: String // LiveKit server URL
     
     var body: some View {
         VStack(spacing: 16) {
@@ -54,7 +55,7 @@ struct VoiceVideoPanelView: View {
                     Button(action: {
                         Task {
                             _ = await roomManager.toggleVideo()
-                        }
+    }
                     }) {
                         VStack(spacing: 4) {
                             Image(systemName: roomManager.localVideoEnabled ? "video.fill" : "video.slash.fill")
@@ -104,16 +105,16 @@ struct VoiceVideoPanelView: View {
     }
     
     private func joinRoom() {
-        let config = LiveKitRoomManager.JoinConfig(
-            url: "wss://vibe-z-j8d29s.livekit.cloud", // TODO: Get from API
-            token: token,
-            audioEnabled: true,
-            videoEnabled: false,
-            pushToTalk: false
-        )
-        
         Task {
             do {
+                let config = LiveKitRoomManager.JoinConfig(
+                    url: serverUrl,
+                    token: token,
+                    audioEnabled: true,
+                    videoEnabled: false,
+                    pushToTalk: false
+                )
+                
                 try await roomManager.joinRoom(config: config)
             } catch {
                 print("Failed to join room: \(error)")

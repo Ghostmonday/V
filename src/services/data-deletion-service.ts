@@ -115,16 +115,21 @@ export async function softDeleteUserData(
       deletionResults.telemetry = 0;
     }
 
-    // 9. Anonymize boosts
-    const { count: boostCount } = await supabase
-      .from('boosts')
-      .update({
-        user_id: '00000000-0000-0000-0000-000000000000',
-        metadata: { ...{ anonymized: true, originalUserId: userId } },
-      })
-      .eq('user_id', userId);
+    // 9. Anonymize boosts (if table exists - VIBES feature)
+    try {
+      const { count: boostCount } = await supabase
+        .from('boosts')
+        .update({
+          user_id: '00000000-0000-0000-0000-000000000000',
+          metadata: { ...{ anonymized: true, originalUserId: userId } },
+        })
+        .eq('user_id', userId);
 
-    deletionResults.boosts = boostCount || 0;
+      deletionResults.boosts = boostCount || 0;
+    } catch (error) {
+      // Table may not exist if VIBES feature is disabled
+      deletionResults.boosts = 0;
+    }
 
     // Log deletion
     await logAudit('user_data_soft_deleted', userId, {

@@ -30,6 +30,7 @@
     "validate:docker:setup": "./scripts/setup-validation-db.sh",
     "validate:docker:run": "./scripts/run-validation-docker.sh",
     "validate:docker:full": "npm run validate:docker:up && sleep 5 && npm run validate:docker:setup && npm run validate:docker:run",
+    "stress-test": "node scripts/stress-test.js",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -7,8 +7,8 @@ import { Router, Response } from 'express';
 import multer from 'multer';
 import * as fileStorageService from '../services/file-storage-service.js';
 import { telemetryHook } from '../telemetry/index.js';
-import { fileUploadSecurity } from '../middleware/file-upload-security.js';
-import supabaseAuthMiddleware from '../middleware/supabase-auth.js';
+import { fileUploadSecurity } from '../middleware/security/file-upload-security.js';
+import supabaseAuthMiddleware from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB max (enforced by middleware)

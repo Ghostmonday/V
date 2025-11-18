@@ -5,9 +5,9 @@
  */
 
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../types/auth.types.js';
-import { supabase } from '../config/db.ts';
-import { logError, logAudit } from '../shared/logger.js';
+import { AuthenticatedRequest } from '../../types/auth.types.js';
+import { supabase } from '../../config/db.ts';
+import { logError, logAudit } from '../../shared/logger.js';
 
 export type UserRole = 'user' | 'moderator' | 'admin' | 'owner';
 

@@ -6,7 +6,7 @@
 import { Router } from 'express';
 import * as messageService from '../services/message-service.js';
 import { telemetryHook } from '../telemetry/index.js';
-import { rateLimit } from '../middleware/rate-limiter.js';
+import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
 
 const router = Router();
 

@@ -13,6 +13,7 @@ struct ChatView: View {
     @State private var showPaywall = false
     @State private var showVoicePanel = true
     @State private var liveKitToken: String?
+    @State private var liveKitServerUrl: String?
     
     @State private var haptic = UIImpactFeedbackGenerator(style: .light)
     
@@ -24,9 +25,9 @@ struct ChatView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Voice/Video Panel (Collapsible or persistent)
-                if let roomName = room?.name, let token = liveKitToken {
+                if let roomName = room?.name, let token = liveKitToken, let serverUrl = liveKitServerUrl {
                     if showVoicePanel {
-                        VoiceVideoPanelView(roomName: roomName, token: token)
+                        VoiceVideoPanelView(roomName: roomName, token: token, serverUrl: serverUrl)
                             .padding(.horizontal)
                             .padding(.top, 8)
                             .transition(.move(edge: .top))
@@ -84,7 +85,6 @@ struct ChatView: View {
                             withAnimation { showFlaggedToast = false }
                         }
                     },
-                    onVibe: sendVibe,
                     onFileSelect: uploadFile
                 )
             }
@@ -149,13 +149,6 @@ struct ChatView: View {
         }
     }
     
-    private func sendVibe() {
-        guard let roomId = room?.id.uuidString else { return }
-        Task {
-            await VibeService.shared.sendVibePulse(roomId: roomId)
-        }
-    }
-    
     private func uploadFile(_ data: Data) {
         guard let room = room else { return }
         Task {
@@ -196,19 +189,24 @@ struct ChatView: View {
     }
     
     private func joinVoiceRoom() {
-        guard let roomId = room?.id.uuidString else { return }
+        guard let roomId = room?.id.uuidString, let roomName = room?.name else { return }
         
         Task {
             do {
-                // Call backend to get token
-                // Endpoint: POST /chat-rooms/:id/join
-                let response: JoinRoomResponse = try await APIClient.shared.request(
-                    endpoint: "/chat-rooms/\(roomId)/join",
-                    method: "POST"
+                // Call backend to get LiveKit token and server URL
+                // Endpoint: POST /video/join
+                let response: VideoJoinResponse = try await APIClient.shared.request(
+                    endpoint: "/video/join",
+                    method: "POST",
+                    body: [
+                        "roomName": roomName,
+                        "userName": "User" // TODO: Get from user profile
+                    ]
                 )
                 
                 await MainActor.run {
                     self.liveKitToken = response.token
+                    self.liveKitServerUrl = response.serverUrl
                     self.showVoicePanel = true
                 }
             } catch {
@@ -218,11 +216,10 @@ struct ChatView: View {
     }
 }
 
-struct JoinRoomResponse: Codable {
-    let success: Bool
+struct VideoJoinResponse: Codable {
     let token: String
-    let channelName: String
-    let uid: Int
+    let roomName: String
+    let serverUrl: String
 }
 
 

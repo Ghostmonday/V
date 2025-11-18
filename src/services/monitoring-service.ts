@@ -20,11 +20,11 @@ export const rateLimitGauge = new client.Gauge({
   labelNames: ['type'],
 });
 
-// Sentiment metrics
-export const sentimentCounter = new client.Counter({
-  name: 'sentiment_analysis_total',
-  help: 'Total number of sentiment analyses',
-  labelNames: ['mood'], // mood: 'happy', 'sad', 'neutral'
+// Message metrics (replaces sentiment metrics)
+export const messageCounter = new client.Counter({
+  name: 'messages_total',
+  help: 'Total number of messages processed',
+  labelNames: ['type'], // type: 'text', 'image', 'voice'
 });
 
 export const sentimentHistogram = new client.Histogram({
@@ -81,10 +81,19 @@ export function recordRateLimitHit(endpoint: string, type: 'user' | 'ip' | 'ws_m
 }
 
 /**
- * Record sentiment analysis
+ * Record message processing (replaces sentiment-specific tracking)
+ */
+export function recordMessageProcessed(type: 'text' | 'image' | 'voice'): void {
+  messageCounter.inc({ type });
+}
+
+/**
+ * Record sentiment analysis (for moderation purposes)
+ * @deprecated Use recordMessageProcessed for general message tracking
  */
 export function recordSentiment(mood: 'happy' | 'sad' | 'neutral', polarity: number): void {
-  sentimentCounter.inc({ mood });
+  // Keep for backward compatibility, but prefer recordMessageProcessed
+  messageCounter.inc({ type: 'text' });
   sentimentHistogram.observe(polarity);
 }
 

@@ -4,7 +4,7 @@
  */
 
 import { Router, Response, NextFunction } from 'express';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { logError } from '../shared/logger.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 

@@ -15,7 +15,7 @@ import {
   validateServiceData,
   validateBeforeDB,
   validateAfterDB,
-} from '../middleware/incremental-validation.js';
+} from '../middleware/validation/incremental-validation.js';
 import { encryptField, decryptField } from './encryption-service.js';
 import { z } from 'zod';
 import crypto from 'crypto';

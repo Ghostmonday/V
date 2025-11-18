@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { logError } from '../shared/logger.js';
+import { logError } from '../../shared/logger.js';
 
 /**
  * Input validation middleware

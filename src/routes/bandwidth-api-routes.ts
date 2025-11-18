@@ -3,7 +3,7 @@
  */
 
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { getBandwidthMode, setBandwidthMode } from '../services/bandwidth-service.js';
 import { logError } from '../shared/logger.js';

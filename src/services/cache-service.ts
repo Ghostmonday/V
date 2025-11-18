@@ -1,161 +1,156 @@
 /**
- * Cache Service
- * Provides Redis-based caching with invalidation strategies and metrics
+ * Redis Caching Service
+ * Provides caching layer for frequently accessed data
+ * Implements TTL-based expiration and smart invalidation
  */
 
 import { getRedisClient } from '../config/db.ts';
-import { logInfo, logError } from '../shared/logger.js';
-import { createHash } from 'crypto';
+import { logError, logInfo } from '../shared/logger.js';
 
 const redis = getRedisClient();
+const DEFAULT_TTL = 30; // 30 seconds default TTL
 
-// Cache metrics
-const cacheMetrics = {
-  hits: 0,
-  misses: 0,
-  sets: 0,
-  deletes: 0,
-};
-
-/**
- * Generate ETag for content
- * @param content - Content to generate ETag for
- * @returns ETag string
- */
-export function generateETag(content: any): string {
-  const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
-  return `"${createHash('md5').update(contentStr).digest('hex')}"`;
+interface CacheOptions {
+  ttl?: number; // Time to live in seconds
+  keyPrefix?: string; // Key prefix for namespacing
 }
 
 /**
  * Get cached value
- * @param key - Cache key
- * @returns Cached value or null
  */
-export async function getCached(key: string): Promise<any | null> {
+export async function getCache<T>(key: string, options?: CacheOptions): Promise<T | null> {
   try {
-    const cached = await redis.get(key);
+    const cacheKey = options?.keyPrefix ? `${options.keyPrefix}:${key}` : key;
+    const cached = await redis.get(cacheKey);
+    
     if (cached) {
-      cacheMetrics.hits++;
-      return JSON.parse(cached);
+      return JSON.parse(cached) as T;
     }
-    cacheMetrics.misses++;
+    
     return null;
   } catch (error) {
-    logError(
-      `Cache get error for key: ${key}`,
-      error instanceof Error ? error : new Error(String(error))
-    );
-    cacheMetrics.misses++;
-    return null;
+    logError('Cache get error', error instanceof Error ? error : new Error(String(error)));
+    return null; // Fail open - return null on cache error
   }
 }
 
 /**
  * Set cached value
- * @param key - Cache key
- * @param value - Value to cache
- * @param ttlSeconds - Time to live in seconds (default: 300 = 5 minutes)
  */
-export async function setCached(key: string, value: any, ttlSeconds: number = 300): Promise<void> {
+export async function setCache<T>(
+  key: string,
+  value: T,
+  options?: CacheOptions
+): Promise<boolean> {
   try {
+    const cacheKey = options?.keyPrefix ? `${options.keyPrefix}:${key}` : key;
+    const ttl = options?.ttl || DEFAULT_TTL;
     const serialized = JSON.stringify(value);
-    await redis.setex(key, ttlSeconds, serialized);
-    cacheMetrics.sets++;
+    
+    await redis.setex(cacheKey, ttl, serialized);
+    return true;
   } catch (error) {
-    logError(
-      `Cache set error for key: ${key}`,
-      error instanceof Error ? error : new Error(String(error))
-    );
+    logError('Cache set error', error instanceof Error ? error : new Error(String(error)));
+    return false; // Fail open - return false on cache error
   }
 }
 
 /**
  * Delete cached value
- * @param key - Cache key to delete
  */
-export async function deleteCached(key: string): Promise<void> {
+export async function deleteCache(key: string, options?: CacheOptions): Promise<boolean> {
   try {
-    await redis.del(key);
-    cacheMetrics.deletes++;
+    const cacheKey = options?.keyPrefix ? `${options.keyPrefix}:${key}` : key;
+    await redis.del(cacheKey);
+    return true;
   } catch (error) {
-    logError(
-      `Cache delete error for key: ${key}`,
-      error instanceof Error ? error : new Error(String(error))
-    );
+    logError('Cache delete error', error instanceof Error ? error : new Error(String(error)));
+    return false;
   }
 }
 
 /**
- * Invalidate cache by pattern
- * @param pattern - Redis key pattern (e.g., 'user:*')
+ * Invalidate cache by pattern (e.g., "room:*")
  */
-export async function invalidatePattern(pattern: string): Promise<number> {
+export async function invalidateCachePattern(pattern: string): Promise<number> {
   try {
     const keys = await redis.keys(pattern);
-    if (keys.length === 0) {
-      return 0;
-    }
-
+    if (keys.length === 0) return 0;
+    
     const deleted = await redis.del(...keys);
-    cacheMetrics.deletes += deleted;
+    logInfo(`Invalidated ${deleted} cache keys matching pattern: ${pattern}`);
     return deleted;
   } catch (error) {
-    logError(
-      `Cache invalidation error for pattern: ${pattern}`,
-      error instanceof Error ? error : new Error(String(error))
-    );
+    logError('Cache invalidation error', error instanceof Error ? error : new Error(String(error)));
     return 0;
   }
 }
 
 /**
- * Warm cache with frequently accessed data
- * @param key - Cache key
- * @param fetcher - Function to fetch data if not cached
- * @param ttlSeconds - Time to live in seconds
+ * Cache wrapper for async functions
+ * Automatically caches result and handles cache misses
+ */
+export async function cached<T>(
+  key: string,
+  fn: () => Promise<T>,
+  options?: CacheOptions
+): Promise<T> {
+  // Try cache first
+  const cached = await getCache<T>(key, options);
+  if (cached !== null) {
+    return cached;
+  }
+  
+  // Cache miss - execute function
+  const result = await fn();
+  
+  // Cache result
+  await setCache(key, result, options);
+  
+  return result;
+}
+
+// Cache key generators
+export const CacheKeys = {
+  roomList: (userId?: string) => userId ? `room:list:${userId}` : 'room:list:all',
+  room: (roomId: string) => `room:${roomId}`,
+  messages: (roomId: string, since?: string) => 
+    since ? `messages:${roomId}:${since}` : `messages:${roomId}:latest`,
+  user: (userId: string) => `user:${userId}`,
+};
+
+// Cache invalidation helpers
+export async function invalidateRoomCache(roomId: string): Promise<void> {
+  await Promise.all([
+    deleteCache(CacheKeys.room(roomId)),
+    invalidateCachePattern('room:list:*'), // Invalidate all room lists
+  ]);
+}
+
+export async function invalidateMessageCache(roomId: string): Promise<void> {
+  await invalidateCachePattern(`messages:${roomId}:*`);
+}
+
+export async function invalidateUserCache(userId: string): Promise<void> {
+  await deleteCache(CacheKeys.user(userId));
+}
+
+/**
+ * Warm cache (alias for cached function)
+ * Used by room-service.ts
  */
 export async function warmCache<T>(
   key: string,
-  fetcher: () => Promise<T>,
-  ttlSeconds: number = 300
+  fn: () => Promise<T>,
+  ttl?: number
 ): Promise<T> {
-  const cached = await getCached(key);
-  if (cached !== null) {
-    return cached as T;
-  }
-
-  const data = await fetcher();
-  await setCached(key, data, ttlSeconds);
-  return data;
+  return cached(key, fn, { ttl });
 }
 
 /**
- * Get cache metrics
- * @returns Cache hit/miss statistics
+ * Invalidate cache pattern (alias)
+ * Used by room-service.ts
  */
-export function getCacheMetrics(): {
-  hits: number;
-  misses: number;
-  sets: number;
-  deletes: number;
-  hitRate: number;
-} {
-  const total = cacheMetrics.hits + cacheMetrics.misses;
-  const hitRate = total > 0 ? cacheMetrics.hits / total : 0;
-
-  return {
-    ...cacheMetrics,
-    hitRate: Math.round(hitRate * 100) / 100, // Round to 2 decimal places
-  };
-}
-
-/**
- * Reset cache metrics
- */
-export function resetCacheMetrics(): void {
-  cacheMetrics.hits = 0;
-  cacheMetrics.misses = 0;
-  cacheMetrics.sets = 0;
-  cacheMetrics.deletes = 0;
+export async function invalidatePattern(pattern: string): Promise<number> {
+  return invalidateCachePattern(pattern);
 }

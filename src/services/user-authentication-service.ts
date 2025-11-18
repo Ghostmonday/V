@@ -286,8 +286,8 @@ export async function verifyAppleSignInToken(
   }
 }
 
-import { validateServiceData, validateAfterDB } from '../middleware/incremental-validation.js';
-import { validatePasswordStrength } from '../middleware/password-strength.js';
+import { validateServiceData, validateAfterDB } from '../middleware/validation/incremental-validation.js';
+import { validatePasswordStrength } from '../middleware/validation/password-strength.js';
 import { z } from 'zod';
 
 // Validation schemas

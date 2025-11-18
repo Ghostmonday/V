@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware as authenticate } from '../middleware/supabase-auth.js';
+import { authMiddleware as authenticate } from '../middleware/auth/supabase-auth.js';
 import { fullTextSearch, searchRoomMessages, searchRooms } from '../services/search-service.js';
 import { logAudit } from '../shared/logger.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';

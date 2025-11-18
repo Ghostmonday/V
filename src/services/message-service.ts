@@ -19,7 +19,7 @@ import {
   validateServiceData,
   validateBeforeDB,
   validateAfterDB,
-} from '../middleware/incremental-validation.js';
+} from '../middleware/validation/incremental-validation.js';
 import { isEncryptedPayload, isE2ERoom } from './e2e-encryption.js';
 import { z } from 'zod';
 
@@ -30,6 +30,7 @@ const messageInputSchema = z.object({
   roomId: z.union([z.string().uuid(), z.string(), z.number()]),
   senderId: z.string().uuid(),
   content: z.string().min(1).max(10000),
+  ttl: z.number().int().positive().optional(), // Optional TTL in seconds for ephemeral messages
 });
 
 const messageDBSchema = z.object({
@@ -45,11 +46,13 @@ const messageDBSchema = z.object({
  * Persists message to database and broadcasts via Redis pub/sub
  * Includes AI moderation for enterprise rooms
  * Validates incrementally at every step
+ * @param data.ttl - Optional time-to-live in seconds for ephemeral messages (Phase 2.1)
  */
 export async function sendMessageToRoom(data: {
   roomId: string | number;
   senderId: string;
   content: string;
+  ttl?: number; // Optional TTL in seconds for ephemeral messages
 }): Promise<void> {
   try {
     // VALIDATION POINT 1: Validate input data
@@ -154,6 +157,7 @@ export async function sendMessageToRoom(data: {
     let contentToStore: string;
     if (requiresEncryption) {
       // Store encrypted payload as-is (already encrypted by client)
+      // If payload starts with 'sealed:', it's a Sealed Sender message (hides metadata)
       contentToStore = validatedInput.content;
     } else {
       // Compress message content at DB write using JSONB compression
@@ -174,19 +178,31 @@ export async function sendMessageToRoom(data: {
       throw new Error('Failed to prepare message content for storage');
     }
 
+    // Calculate expires_at if TTL is provided (ephemeral messages - Phase 2.1)
+    let expiresAt: Date | undefined;
+    if (validatedInput.ttl && validatedInput.ttl > 0) {
+      expiresAt = new Date(Date.now() + validatedInput.ttl * 1000); // Convert seconds to milliseconds
+    }
+
     // VALIDATION POINT 9: Validate data before database insert
-    const dbPayload = {
+    const dbPayload: Record<string, unknown> = {
       room_id: roomIdValue,
-      conversation_id: roomIdValue, // VIBES: Also set conversation_id
+      conversation_id: roomIdValue, // Conversation tracking for message threading
       sender_id: validatedInput.senderId,
       content: contentToStore, // Store encrypted (E2E) or compressed (non-E2E) content
       message_type: 'text',
       is_encrypted: requiresEncryption, // Flag to indicate encryption status
     };
 
-    // Update schema to include is_encrypted flag
+    // Add expires_at if TTL was provided
+    if (expiresAt) {
+      dbPayload.expires_at = expiresAt.toISOString();
+    }
+
+    // Update schema to include is_encrypted and expires_at flags
     const messageDBSchemaWithEncryption = messageDBSchema.extend({
       is_encrypted: z.boolean().optional(),
+      expires_at: z.string().datetime().optional(),
     });
 
     const validatedDBPayload = validateBeforeDB(
@@ -273,7 +289,7 @@ export async function getRoomMessages(
     if (since) {
       try {
         const sinceDate = new Date(since);
-        filter.ts = { gte: sinceDate.toISOString() }; // Greater than or equal to since timestamp
+        filter.created_at = { gte: sinceDate.toISOString() }; // Greater than or equal to since timestamp
       } catch (e) {
         // Invalid date format - ignore since parameter
         logWarning('Invalid since parameter format, ignoring', { since });
@@ -285,7 +301,7 @@ export async function getRoomMessages(
     // limit: 50 = reasonable page size for initial load (can paginate for more)
     const messages = await findMany('messages', {
       filter,
-      orderBy: { column: 'ts', ascending: false }, // 'ts' = timestamp column, newest first
+      orderBy: { column: 'created_at', ascending: false }, // 'created_at' = timestamp column, newest first
       limit: 50, // Max 50 messages per request (prevents large payloads)
     });
 

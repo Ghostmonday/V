@@ -30,6 +30,17 @@ struct ThreadView: View {
                 .transition(.move(edge: .bottom))
             }
         }
+        .navigationTitle("Thread")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Leave") {
+                    // Dismiss view (NavigationStack handles this automatically)
+                    // In a NavigationStack, the back button serves as "Leave"
+                }
+                .font(.body)
+            }
+        }
         .task {
             await loadThread()
         }

@@ -7,7 +7,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
 import * as Sentry from '@sentry/node';
-import { AuthenticatedRequest, AuthenticatedUser } from '../types/auth.types.js';
+import { AuthenticatedRequest, AuthenticatedUser } from '../../types/auth.types.js';
 
 // Initialize Supabase client for token verification
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -98,6 +98,9 @@ export const supabaseAuthMiddleware = async (
     return res.status(401).json({ error: 'Invalid token' });
   }
 };
+
+// Alias export for backward compatibility
+export const authMiddleware = supabaseAuthMiddleware;
 
 // Default export for compatibility
 export default supabaseAuthMiddleware;

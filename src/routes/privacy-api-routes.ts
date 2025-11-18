@@ -4,7 +4,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { authMiddleware } from '../middleware/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { supabase } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
@@ -21,7 +21,7 @@ import {
   sanitizeUUID,
 } from '../utils/input-sanitizer.js';
 import { verifyBatchedSelectiveDisclosure } from '../services/zkp-service.js';
-import { rateLimit } from '../middleware/rate-limiter.js';
+import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
 
 const router = Router();
 

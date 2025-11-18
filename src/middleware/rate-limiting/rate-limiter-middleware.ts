@@ -4,10 +4,10 @@
  */
 
 import { Response, NextFunction } from 'express';
-import { getRedisClient } from '../config/db.ts';
-import { logWarning } from '../shared/logger.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
-import { getUserSubscription, SubscriptionTier } from '../services/subscription-service.js';
+import { getRedisClient } from '../../config/db.ts';
+import { logWarning } from '../../shared/logger.js';
+import { AuthenticatedRequest } from '../../types/auth.types.js';
+import { getUserSubscription, SubscriptionTier } from '../../services/subscription-service.js';
 import * as Sentry from '@sentry/node';
 
 const redis = getRedisClient();

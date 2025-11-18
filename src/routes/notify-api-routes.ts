@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware as authenticate } from '../middleware/supabase-auth.js';
+import { authMiddleware as authenticate } from '../middleware/auth/supabase-auth.js';
 import { enqueueNotification } from '../services/notifications-service.js';
 
 const router = express.Router();
