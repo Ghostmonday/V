@@ -16,7 +16,9 @@ struct SettingsView: View {
                         .onChange(of: aiOn) { _ in
                             haptic.impactOccurred()
                         }
-                        .accessibleToggle("AI Moderation", isOn: aiOn, hint: isEnterprise ? "Enable AI content moderation" : "Available in enterprise rooms only")
+                        .accessibilityLabel("AI Moderation")
+                        .accessibilityHint(isEnterprise ? "Enable AI content moderation" : "Available in enterprise rooms only")
+                        .accessibilityValue(aiOn ? "On" : "Off")
                     
                     if !isEnterprise {
                         Text("Only in enterprise rooms.")
@@ -38,7 +40,9 @@ struct SettingsView: View {
                             await updateBandwidthPreference(newValue)
                         }
                     }
-                    .accessibleToggle("Low-bandwidth mode", isOn: UserSettings.shared.lowBandwidth, hint: "Reduce data usage by downsampling media")
+                    .accessibilityLabel("Low-bandwidth mode")
+                    .accessibilityHint("Reduce data usage by downsampling media")
+                    .accessibilityValue(UserSettings.shared.lowBandwidth ? "On" : "Off")
                     
                     Text("Reduces data usage by downsampling images and videos")
                         .foregroundColor(.secondary)
@@ -103,6 +107,18 @@ struct SettingsView: View {
         // Open Terraform Cloud workspace
         if let url = URL(string: "https://app.terraform.io/runs/new/your-workspace") {
             UIApplication.shared.open(url)
+        }
+    }
+    
+    private func updateBandwidthPreference(_ enabled: Bool) async {
+        do {
+            try await APIClient.shared.request(
+                endpoint: "/api/bandwidth/preference",
+                method: "POST",
+                body: ["low_bandwidth": enabled]
+            )
+        } catch {
+            print("[Settings] Failed to update bandwidth preference: \(error)")
         }
     }
 }

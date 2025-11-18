@@ -59,7 +59,8 @@ struct NicknameRow: View {
                 }
                 .font(.subheadline)
                 .foregroundColor(Color("VibeZGold"))
-                .accessibleButton("Save nickname", hint: "Double tap to save changes")
+                .accessibilityLabel("Save nickname")
+                .accessibilityHint("Double tap to save changes")
             }
         }
         .padding(.vertical, 4)
@@ -136,6 +137,7 @@ struct NicknameItem: Codable {
 }
 
 /// User Settings Manager
+@MainActor
 class UserSettings: ObservableObject {
     static let shared = UserSettings()
     @Published var lowBandwidth: Bool {

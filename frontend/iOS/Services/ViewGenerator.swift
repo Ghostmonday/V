@@ -111,6 +111,7 @@ class ViewGenerator {
 
 // MARK: - Component Registry
 
+@MainActor
 class ComponentRegistry {
     static let shared = ComponentRegistry()
     

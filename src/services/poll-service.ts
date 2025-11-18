@@ -32,7 +32,7 @@ export async function createPoll(data: CreatePollData, createdBy: string) {
     const options: PollOption[] = data.options.map((text, index) => ({
       id: `opt_${index}`,
       text,
-      votes: 0
+      votes: 0,
     }));
 
     const { data: poll, error } = await supabase
@@ -45,7 +45,7 @@ export async function createPoll(data: CreatePollData, createdBy: string) {
         is_anonymous: data.is_anonymous,
         is_multiple_choice: data.is_multiple_choice,
         expires_at: data.expires_at,
-        status: 'active'
+        status: 'active',
       })
       .select()
       .single();
@@ -60,7 +60,7 @@ export async function createPoll(data: CreatePollData, createdBy: string) {
       JSON.stringify({
         type: 'poll_created',
         poll_id: poll.id,
-        question: data.question
+        question: data.question,
       })
     );
 
@@ -81,11 +81,7 @@ export async function voteOnPoll(
 ) {
   try {
     // Get poll
-    const { data: poll } = await supabase
-      .from('polls')
-      .select('*')
-      .eq('id', pollId)
-      .single();
+    const { data: poll } = await supabase.from('polls').select('*').eq('id', pollId).single();
 
     if (!poll) {
       throw new Error('Poll not found');
@@ -97,10 +93,7 @@ export async function voteOnPoll(
 
     if (poll.expires_at && new Date(poll.expires_at) < new Date()) {
       // Update poll status
-      await supabase
-        .from('polls')
-        .update({ status: 'expired' })
-        .eq('id', pollId);
+      await supabase.from('polls').update({ status: 'expired' }).eq('id', pollId);
       throw new Error('Poll has expired');
     }
 
@@ -122,19 +115,16 @@ export async function voteOnPoll(
     await supabase.from('poll_votes').insert({
       poll_id: pollId,
       user_id: userId, // null if anonymous
-      option_id: optionId
+      option_id: optionId,
     });
 
     // Update option vote count in poll.options JSONB
     const options: PollOption[] = poll.options || [];
-    const optionIndex = options.findIndex(opt => opt.id === optionId);
+    const optionIndex = options.findIndex((opt) => opt.id === optionId);
     if (optionIndex >= 0) {
       options[optionIndex].votes = (options[optionIndex].votes || 0) + 1;
-      
-      await supabase
-        .from('polls')
-        .update({ options })
-        .eq('id', pollId);
+
+      await supabase.from('polls').update({ options }).eq('id', pollId);
     }
 
     // Broadcast vote
@@ -144,7 +134,7 @@ export async function voteOnPoll(
         type: 'poll_vote',
         poll_id: pollId,
         option_id: optionId,
-        user_id: poll.is_anonymous ? null : userId
+        user_id: poll.is_anonymous ? null : userId,
       })
     );
 
@@ -161,11 +151,7 @@ export async function voteOnPoll(
  */
 export async function getPollResults(pollId: string) {
   try {
-    const { data: poll } = await supabase
-      .from('polls')
-      .select('*')
-      .eq('id', pollId)
-      .single();
+    const { data: poll } = await supabase.from('polls').select('*').eq('id', pollId).single();
 
     if (!poll) {
       throw new Error('Poll not found');
@@ -185,15 +171,15 @@ export async function getPollResults(pollId: string) {
     }
 
     // Merge with poll options
-    const options: PollOption[] = (poll.options || []).map(opt => ({
+    const options: PollOption[] = (poll.options || []).map((opt) => ({
       ...opt,
-      votes: voteCounts[opt.id] || opt.votes || 0
+      votes: voteCounts[opt.id] || opt.votes || 0,
     }));
 
     return {
       ...poll,
       options,
-      total_votes: votes?.length || 0
+      total_votes: votes?.length || 0,
     };
   } catch (error: any) {
     logError('Failed to get poll results', error);
@@ -228,4 +214,3 @@ export async function getRoomPolls(roomId: string, includeClosed: boolean = fals
     return [];
   }
 }
-

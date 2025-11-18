@@ -4,11 +4,5 @@
  */
 
 export const VIBES_CONSTANTS = {
-  // Safety
-  SAFETY_FLAGS: {
-    SELF_HARM: 'self_harm',
-    VIOLENCE: 'violence',
-    HARASSMENT: 'harassment',
-    SPAM: 'spam',
-  },
+  // Gamification removed - no safety flags
 } as const;

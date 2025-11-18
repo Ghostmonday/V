@@ -45,17 +45,13 @@ describe('E2E Encryption Service', () => {
 
   it('should encrypt and decrypt messages', async () => {
     const plaintext = 'Hello, this is a test message!';
-    
-    const encrypted = await encryptMessage(
-      plaintext,
-      recipientPreKeyBundle,
-      senderKeyPair
-    );
-    
+
+    const encrypted = await encryptMessage(plaintext, recipientPreKeyBundle, senderKeyPair);
+
     expect(encrypted).toBeDefined();
     expect(typeof encrypted).toBe('string');
     expect(encrypted.length).toBeGreaterThan(0);
-    
+
     // Note: Decryption requires proper session management
     // This is a simplified test - full decryption would need session state
   });
@@ -63,7 +59,7 @@ describe('E2E Encryption Service', () => {
   it('should validate encrypted payloads', () => {
     const encryptedPayload = 'dGVzdGVuY3J5cHRlZGRhdGE='; // base64 encoded
     const plaintextPayload = 'plaintext message';
-    
+
     expect(isEncryptedPayload(encryptedPayload)).toBe(true);
     expect(isEncryptedPayload(plaintextPayload)).toBe(false);
   });
@@ -72,10 +68,9 @@ describe('E2E Encryption Service', () => {
     const e2eRoom = { e2e_enabled: true };
     const nonE2eRoom = { e2e_enabled: false };
     const roomWithoutFlag = {};
-    
+
     expect(isE2ERoom(e2eRoom)).toBe(true);
     expect(isE2ERoom(nonE2eRoom)).toBe(false);
     expect(isE2ERoom(roomWithoutFlag)).toBe(false);
   });
 });
-

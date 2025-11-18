@@ -4,10 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  createConversation,
-  getConversation,
-} from '../conversation-service.js';
+import { createConversation, getConversation } from '../conversation-service.js';
 
 describe('Conversation Service', () => {
   it('should have createConversation function', () => {

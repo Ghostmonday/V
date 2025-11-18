@@ -50,7 +50,7 @@ export async function createConversation(
     if (convError) throw convError;
 
     // Add participants
-    const participants = participantIds.map(userId => ({
+    const participants = participantIds.map((userId) => ({
       conversation_id: conversation.id,
       user_id: userId,
     }));
@@ -94,15 +94,17 @@ export async function getUserConversations(userId: string): Promise<Conversation
   try {
     const { data, error } = await supabase
       .from('conversation_participants')
-      .select(`
+      .select(
+        `
         conversation_id,
         conversations (*)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('joined_at', { ascending: false });
 
     if (error) throw error;
-    
+
     return (data || []).map((item: any) => item.conversations).filter(Boolean);
   } catch (error) {
     logError('Failed to get user conversations', error);
@@ -113,17 +115,12 @@ export async function getUserConversations(userId: string): Promise<Conversation
 /**
  * Add participant to conversation
  */
-export async function addParticipant(
-  conversationId: string,
-  userId: string
-): Promise<void> {
+export async function addParticipant(conversationId: string, userId: string): Promise<void> {
   try {
-    const { error } = await supabase
-      .from('conversation_participants')
-      .insert({
-        conversation_id: conversationId,
-        user_id: userId,
-      });
+    const { error } = await supabase.from('conversation_participants').insert({
+      conversation_id: conversationId,
+      user_id: userId,
+    });
 
     if (error) throw error;
   } catch (error) {
@@ -131,4 +128,3 @@ export async function addParticipant(
     throw error;
   }
 }
-

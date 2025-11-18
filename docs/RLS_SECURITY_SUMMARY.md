@@ -1,4 +1,5 @@
 # RLS Security Audit & Completion Summary
+
 ## VibeZ/Sinapse Database - Production Security Assessment
 
 **Date:** Generated automatically  
@@ -26,75 +27,75 @@ This document provides a comprehensive Row-Level Security (RLS) audit for the Vi
 
 ### Core Tables (Critical - Must Have RLS)
 
-| Table | Schema | RLS Status | Policies | Security Level |
-|-------|--------|------------|----------|----------------|
-| `users` | public | ✅ Enabled | SELECT, INSERT, UPDATE, SERVICE | Critical |
-| `rooms` | public | ✅ Enabled | SELECT, INSERT, UPDATE, SERVICE | Critical |
-| `room_memberships` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE, SERVICE | Critical |
-| `messages` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE, SERVICE | Critical |
-| `message_receipts` | public | ✅ Enabled | SELECT, ALL (own), SERVICE | Critical |
-| `audit_log` | public | ✅ Enabled | INSERT (service), SELECT (service), NO UPDATE/DELETE | Critical |
-| `logs_raw` | public | ✅ Enabled | SERVICE ONLY | Critical |
-| `logs_compressed` | public | ✅ Enabled | SERVICE + SELECT (auth) | Critical |
-| `retention_schedule` | public | ✅ Enabled | SERVICE ONLY | Critical |
-| `legal_holds` | public | ✅ Enabled | SERVICE ONLY | Critical |
-| `telemetry` | public | ✅ Enabled | SERVICE ONLY | Critical |
-| `system_config` | public | ✅ Enabled | SERVICE ONLY | Critical |
-| `encode_queue` | service | ✅ Enabled | SERVICE ONLY | Critical |
-| `moderation_queue` | service | ✅ Enabled | SERVICE ONLY | Critical |
+| Table                | Schema  | RLS Status | Policies                                             | Security Level |
+| -------------------- | ------- | ---------- | ---------------------------------------------------- | -------------- |
+| `users`              | public  | ✅ Enabled | SELECT, INSERT, UPDATE, SERVICE                      | Critical       |
+| `rooms`              | public  | ✅ Enabled | SELECT, INSERT, UPDATE, SERVICE                      | Critical       |
+| `room_memberships`   | public  | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE, SERVICE              | Critical       |
+| `messages`           | public  | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE, SERVICE              | Critical       |
+| `message_receipts`   | public  | ✅ Enabled | SELECT, ALL (own), SERVICE                           | Critical       |
+| `audit_log`          | public  | ✅ Enabled | INSERT (service), SELECT (service), NO UPDATE/DELETE | Critical       |
+| `logs_raw`           | public  | ✅ Enabled | SERVICE ONLY                                         | Critical       |
+| `logs_compressed`    | public  | ✅ Enabled | SERVICE + SELECT (auth)                              | Critical       |
+| `retention_schedule` | public  | ✅ Enabled | SERVICE ONLY                                         | Critical       |
+| `legal_holds`        | public  | ✅ Enabled | SERVICE ONLY                                         | Critical       |
+| `telemetry`          | public  | ✅ Enabled | SERVICE ONLY                                         | Critical       |
+| `system_config`      | public  | ✅ Enabled | SERVICE ONLY                                         | Critical       |
+| `encode_queue`       | service | ✅ Enabled | SERVICE ONLY                                         | Critical       |
+| `moderation_queue`   | service | ✅ Enabled | SERVICE ONLY                                         | Critical       |
 
 ### Feature Tables (High Priority)
 
-| Table | Schema | RLS Status | Policies | Security Level |
-|-------|--------|------------|----------|----------------|
-| `threads` | public | ✅ Enabled | SELECT, INSERT, UPDATE, SERVICE | High |
-| `edit_history` | public | ✅ Enabled | SELECT (message), INSERT (service), SERVICE | High |
-| `assistants` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE | High |
-| `bots` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE | High |
-| `bot_endpoints` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (bot owner), SERVICE | High |
-| `subscriptions` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE | High |
-| `embeddings` | public | ✅ Enabled | SELECT (message), INSERT (service), SERVICE | High |
-| `metrics` | public | ✅ Enabled | SERVICE ONLY | High |
-| `presence_logs` | public | ✅ Enabled | SELECT (own/room), INSERT (own), SERVICE | High |
-| `healing_logs` | public | ✅ Enabled | SELECT (room), SERVICE | High |
+| Table           | Schema | RLS Status | Policies                                            | Security Level |
+| --------------- | ------ | ---------- | --------------------------------------------------- | -------------- |
+| `threads`       | public | ✅ Enabled | SELECT, INSERT, UPDATE, SERVICE                     | High           |
+| `edit_history`  | public | ✅ Enabled | SELECT (message), INSERT (service), SERVICE         | High           |
+| `assistants`    | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE       | High           |
+| `bots`          | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE       | High           |
+| `bot_endpoints` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (bot owner), SERVICE | High           |
+| `subscriptions` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE       | High           |
+| `embeddings`    | public | ✅ Enabled | SELECT (message), INSERT (service), SERVICE         | High           |
+| `metrics`       | public | ✅ Enabled | SERVICE ONLY                                        | High           |
+| `presence_logs` | public | ✅ Enabled | SELECT (own/room), INSERT (own), SERVICE            | High           |
+| `healing_logs`  | public | ✅ Enabled | SELECT (room), SERVICE                              | High           |
 
 ### Additional Tables (Medium Priority)
 
-| Table | Schema | RLS Status | Policies | Notes |
-|-------|--------|------------|----------|-------|
-| `files` | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE | Owner or room members |
-| `pinned_items` | public | ✅ Enabled | SELECT, INSERT, DELETE (own), SERVICE | Owner only |
-| `reactions` | public | ✅ Enabled | SELECT, INSERT, DELETE (own), SERVICE | Room members |
-| `read_receipts` | public | ⚠️ Check | SELECT, ALL (own) | Similar to message_receipts |
-| `nicknames` | public | ⚠️ Check | SELECT (room), UPDATE (own) | Room members |
-| `room_members` | public | ⚠️ Check | SELECT (room), INSERT (own) | Alternative to room_memberships |
-| `ux_telemetry` | public | ⚠️ Check | SELECT, INSERT (own) | Owner only |
-| `api_keys` | public | ✅ Enabled | SERVICE ONLY | Service role |
-| `config` | public | ✅ Enabled | SERVICE ONLY | Service role |
-| `polls` | public | ⚠️ Check | SELECT (room), INSERT (member) | Room members |
-| `poll_votes` | public | ⚠️ Check | SELECT (own), INSERT (own) | Voters |
-| `bot_invites` | public | ⚠️ Check | SELECT, INSERT (admin) | Room admins |
-| `moderation_flags` | public | ⚠️ Check | SELECT (moderator), INSERT (service) | Moderators |
-| `room_moderation_thresholds` | public | ⚠️ Check | SELECT, UPDATE (admin) | Room admins |
-| `flagged_messages` | public | ⚠️ Check | SELECT (moderator) | Moderators |
-| `message_archives` | public | ⚠️ Check | SELECT (room) | Room members |
-| `refresh_tokens` | public | ⚠️ Check | SELECT, INSERT, DELETE (own) | Owner only |
-| `auth_audit_log` | public | ⚠️ Check | SELECT (own) | Owner only |
-| `user_zkp_commitments` | public | ⚠️ Check | SELECT, INSERT, UPDATE (own) | Owner only |
-| `consent_records` | public | ⚠️ Check | SELECT, INSERT, UPDATE (own) | Owner only |
-| `deleted_users` | public | ⚠️ Check | SERVICE ONLY | Service role |
-| `shard_metadata` | public | ⚠️ Check | SERVICE ONLY | Service role |
-| `shard_health_metrics` | public | ⚠️ Check | SERVICE ONLY | Service role |
-| `monetization_subscriptions` | public | ⚠️ Check | SELECT (own) | Owner only |
-| `usage_stats` | public | ⚠️ Check | SELECT (own) | Owner only |
-| `conversations` | public | ⚠️ Check | SELECT (participant) | Participants |
-| `conversation_participants` | public | ⚠️ Check | SELECT (participant) | Participants |
-| `sentiment_analysis` | public | ⚠️ Check | SELECT (participant) | Participants |
-| `cards` | public | ⚠️ Check | SELECT (participant) | Participants |
-| `card_ownerships` | public | ⚠️ Check | SELECT, INSERT (own) | Owner only |
-| `card_events` | public | ⚠️ Check | SELECT (owner) | Card owners |
-| `museum_entries` | public | ⚠️ Check | SELECT (public), INSERT/UPDATE (own) | Public read |
-| `boosts` | public | ⚠️ Check | SELECT, INSERT (own) | Owner only |
+| Table                        | Schema | RLS Status | Policies                                      | Notes                           |
+| ---------------------------- | ------ | ---------- | --------------------------------------------- | ------------------------------- |
+| `files`                      | public | ✅ Enabled | SELECT, INSERT, UPDATE, DELETE (own), SERVICE | Owner or room members           |
+| `pinned_items`               | public | ✅ Enabled | SELECT, INSERT, DELETE (own), SERVICE         | Owner only                      |
+| `reactions`                  | public | ✅ Enabled | SELECT, INSERT, DELETE (own), SERVICE         | Room members                    |
+| `read_receipts`              | public | ⚠️ Check   | SELECT, ALL (own)                             | Similar to message_receipts     |
+| `nicknames`                  | public | ⚠️ Check   | SELECT (room), UPDATE (own)                   | Room members                    |
+| `room_members`               | public | ⚠️ Check   | SELECT (room), INSERT (own)                   | Alternative to room_memberships |
+| `ux_telemetry`               | public | ⚠️ Check   | SELECT, INSERT (own)                          | Owner only                      |
+| `api_keys`                   | public | ✅ Enabled | SERVICE ONLY                                  | Service role                    |
+| `config`                     | public | ✅ Enabled | SERVICE ONLY                                  | Service role                    |
+| `polls`                      | public | ⚠️ Check   | SELECT (room), INSERT (member)                | Room members                    |
+| `poll_votes`                 | public | ⚠️ Check   | SELECT (own), INSERT (own)                    | Voters                          |
+| `bot_invites`                | public | ⚠️ Check   | SELECT, INSERT (admin)                        | Room admins                     |
+| `moderation_flags`           | public | ⚠️ Check   | SELECT (moderator), INSERT (service)          | Moderators                      |
+| `room_moderation_thresholds` | public | ⚠️ Check   | SELECT, UPDATE (admin)                        | Room admins                     |
+| `flagged_messages`           | public | ⚠️ Check   | SELECT (moderator)                            | Moderators                      |
+| `message_archives`           | public | ⚠️ Check   | SELECT (room)                                 | Room members                    |
+| `refresh_tokens`             | public | ⚠️ Check   | SELECT, INSERT, DELETE (own)                  | Owner only                      |
+| `auth_audit_log`             | public | ⚠️ Check   | SELECT (own)                                  | Owner only                      |
+| `user_zkp_commitments`       | public | ⚠️ Check   | SELECT, INSERT, UPDATE (own)                  | Owner only                      |
+| `consent_records`            | public | ⚠️ Check   | SELECT, INSERT, UPDATE (own)                  | Owner only                      |
+| `deleted_users`              | public | ⚠️ Check   | SERVICE ONLY                                  | Service role                    |
+| `shard_metadata`             | public | ⚠️ Check   | SERVICE ONLY                                  | Service role                    |
+| `shard_health_metrics`       | public | ⚠️ Check   | SERVICE ONLY                                  | Service role                    |
+| `monetization_subscriptions` | public | ⚠️ Check   | SELECT (own)                                  | Owner only                      |
+| `usage_stats`                | public | ⚠️ Check   | SELECT (own)                                  | Owner only                      |
+| `conversations`              | public | ⚠️ Check   | SELECT (participant)                          | Participants                    |
+| `conversation_participants`  | public | ⚠️ Check   | SELECT (participant)                          | Participants                    |
+| `sentiment_analysis`         | public | ⚠️ Check   | SELECT (participant)                          | Participants                    |
+| `cards`                      | public | ⚠️ Check   | SELECT (participant)                          | Participants                    |
+| `card_ownerships`            | public | ⚠️ Check   | SELECT, INSERT (own)                          | Owner only                      |
+| `card_events`                | public | ⚠️ Check   | SELECT (owner)                                | Card owners                     |
+| `museum_entries`             | public | ⚠️ Check   | SELECT (public), INSERT/UPDATE (own)          | Public read                     |
+| `boosts`                     | public | ⚠️ Check   | SELECT, INSERT (own)                          | Owner only                      |
 
 ---
 
@@ -172,6 +173,7 @@ The following tables exist but may need RLS policies created. Run `RLS_COMPLETE_
 ### Policy Patterns Used
 
 #### Pattern 1: Owner-Only Access
+
 ```sql
 -- Users can only access their own data
 CREATE POLICY table_select_own ON table_name
@@ -180,6 +182,7 @@ CREATE POLICY table_select_own ON table_name
 ```
 
 #### Pattern 2: Room Membership Access
+
 ```sql
 -- Users can access data in rooms they're members of
 CREATE POLICY table_select_room ON table_name
@@ -193,6 +196,7 @@ CREATE POLICY table_select_room ON table_name
 ```
 
 #### Pattern 3: Service Role Only
+
 ```sql
 -- Only service role can access
 CREATE POLICY table_service_only ON table_name
@@ -205,6 +209,7 @@ CREATE POLICY table_deny_others ON table_name
 ```
 
 #### Pattern 4: Append-Only (Immutable)
+
 ```sql
 -- Service can insert/select, but no updates/deletes
 CREATE POLICY table_insert_service ON table_name
@@ -229,7 +234,7 @@ CREATE POLICY table_no_delete ON table_name
 ✅ **Immutability:** Audit logs and append-only tables cannot be modified  
 ✅ **Time-Limited Actions:** Message deletion limited to 24 hours  
 ✅ **Role-Based Access:** Room admins/mods have elevated permissions where appropriate  
-✅ **Real-Time Compatible:** All policies support Supabase real-time subscriptions  
+✅ **Real-Time Compatible:** All policies support Supabase real-time subscriptions
 
 ---
 
@@ -247,6 +252,7 @@ CREATE POLICY table_no_delete ON table_name
 - All table/column references verified against schema
 
 **Validation Method:**
+
 - PostgreSQL syntax checker
 - Manual review of all DO blocks
 - Verification of all EXECUTE statements
@@ -266,6 +272,7 @@ CREATE POLICY table_no_delete ON table_name
 - **Service Role Integrity:** Service role policies correctly allow full access where needed
 
 **Validation Checks:**
+
 - ✅ Users cannot read other users' private data
 - ✅ Users cannot modify other users' data
 - ✅ Users cannot access rooms they're not members of
@@ -287,6 +294,7 @@ CREATE POLICY table_no_delete ON table_name
 - **Ownership Chains:** ✅ Secure - bot endpoints require bot ownership, etc.
 
 **Security Validation:**
+
 - ✅ No policy allows reading other users' data
 - ✅ No policy allows modifying other users' data
 - ✅ All foreign key relationships remain secure
@@ -372,18 +380,21 @@ The following tables may exist in your database but policies are generated condi
 ### ✅ Verification Steps
 
 1. **Run Audit Script:**
+
    ```sql
    -- Run: sql/COMPLETE_RLS_AUDIT_AND_FIX.sql
    -- This will show gap analysis
    ```
 
 2. **Apply Policies:**
+
    ```sql
    -- Run: sql/RLS_COMPLETE_POLICIES.sql
    -- This creates all missing policies
    ```
 
 3. **Verify Policies:**
+
    ```sql
    -- Run: sql/VERIFY_RLS_POLICIES.sql
    -- This shows all created policies
@@ -436,18 +447,21 @@ The following tables may exist in your database but policies are generated condi
 ## 7. NEXT STEPS
 
 1. **Run the Complete Policies Script:**
+
    ```bash
    # Execute in Supabase SQL Editor or psql
    psql -f sql/RLS_COMPLETE_POLICIES.sql
    ```
 
 2. **Verify Policies Created:**
+
    ```bash
    # Check policy count
    psql -f sql/VERIFY_RLS_POLICIES.sql
    ```
 
 3. **Run Gap Analysis:**
+
    ```bash
    # See what still needs work
    psql -f sql/COMPLETE_RLS_AUDIT_AND_FIX.sql
@@ -490,6 +504,7 @@ The following tables may exist in your database but policies are generated condi
 ### Real-Time Compatibility
 
 All policies are designed to work with Supabase real-time subscriptions:
+
 - Policies use `USING` clauses that work with real-time
 - Room membership checks are efficient
 - No policies block real-time triggers
@@ -497,6 +512,7 @@ All policies are designed to work with Supabase real-time subscriptions:
 ### Service Role Usage
 
 Service role is used for:
+
 - Audit log insertion
 - Telemetry collection
 - Log compression
@@ -514,4 +530,3 @@ The VibeZ/Sinapse database now has comprehensive Row-Level Security policies cov
 **Status:** ✅ **SAFE FOR PRODUCTION**
 
 Apply the policies using `sql/RLS_COMPLETE_POLICIES.sql` and verify using `sql/VERIFY_RLS_POLICIES.sql`.
-

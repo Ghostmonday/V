@@ -15,6 +15,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
+    "test:e2e:auth": "cypress run --spec 'cypress/e2e/auth-flow.cy.ts'",
+    "test:e2e:auth:full": "./scripts/run-auth-e2e-tests.sh",
     "format": "prettier --write \"**/*.{ts,js,json,md}\" --ignore-path .prettierignore",
     "format:check": "prettier --check \"**/*.{ts,js,json,md}\" --ignore-path .prettierignore",
     "clean": "turbo clean && find . -name node_modules -type d -prune -exec rm -rf {} +",
@@ -25,29 +29,44 @@
     "validate:docker:down": "docker-compose -f docker-compose.validation.yml down",
     "validate:docker:setup": "./scripts/setup-validation-db.sh",
     "validate:docker:run": "./scripts/run-validation-docker.sh",
-    "validate:docker:full": "npm run validate:docker:up && sleep 5 && npm run validate:docker:setup && npm run validate:docker:run"
+    "validate:docker:full": "npm run validate:docker:up && sleep 5 && npm run validate:docker:setup && npm run validate:docker:run",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@sentry/node": "^10.25.0",
+    "@signalapp/libsignal-client": "^0.86.4",
     "@types/express": "^4.17.20",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.19.25",
+    "@types/supertest": "^6.0.3",
     "@types/ws": "^8.5.9",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
+    "@vitest/coverage-v8": "^1.2.0",
+    "argon2": "^0.44.0",
+    "cypress": "^15.6.0",
     "depcheck": "^1.4.7",
+    "dotenv": "^17.2.3",
     "eslint": "^8.57.0",
+    "husky": "^9.1.7",
     "knip": "^5.69.1",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.2.0",
+    "supertest": "^7.1.4",
     "tsx": "^4.20.6",
     "turbo": "^2.3.3",
     "typescript": "^5.9.3",
     "unimported": "^1.31.0",
-    "vitest": "^1.2.0",
-    "@vitest/coverage-v8": "^1.2.0"
+    "vitest": "^1.2.0"
   },
   "overrides": {
     "livekit-server-sdk": "2.2.0",
     "@supabase/supabase-js": "2.38.1"
+  },
+  "lint-staged": {
+    "**/.env": "echo '❌ Secret file found - aborting commit!' && exit 1",
+    "**/.env.*": "echo '❌ Secret file found - aborting commit!' && exit 1",
+    "**/*.env": "echo '❌ Secret file found - aborting commit!' && exit 1"
   }
 }

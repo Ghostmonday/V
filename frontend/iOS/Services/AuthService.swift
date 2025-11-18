@@ -20,8 +20,8 @@ class AuthService {
             body: request
         )
         
-        // Store JWT token
-        AuthTokenManager.shared.token = response.jwt
+        // Note: AuthService is deprecated - use SupabaseAuthService instead
+        // Token storage is handled by SupabaseAuthService
         
         // Return user if provided, otherwise create from token
         if let user = response.user {
@@ -51,7 +51,8 @@ class AuthService {
             body: request
         )
         
-        AuthTokenManager.shared.token = response.jwt
+        // Note: Token storage is handled by SupabaseAuthService
+        // This method is deprecated - use SupabaseAuthService instead
         
         if let user = response.user {
             return user
@@ -80,7 +81,8 @@ class AuthService {
             body: request
         )
         
-        AuthTokenManager.shared.token = response.jwt
+        // Note: Token storage is handled by SupabaseAuthService
+        // This method is deprecated - use SupabaseAuthService instead
         
         if let user = response.user {
             return user

@@ -115,9 +115,9 @@ class APIClient {
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Add authentication token if available
-        if let token = AuthTokenManager.shared.token {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        // Add Supabase authentication token if available
+        if let session = SupabaseAuthService.shared.currentSession {
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
         }
         
         // Add body for POST/PUT requests
@@ -166,8 +166,9 @@ class APIClient {
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        if let token = AuthTokenManager.shared.token {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        // Add Supabase authentication token if available
+        if let session = SupabaseAuthService.shared.currentSession {
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
         }
         
         if let body = body {
@@ -195,25 +196,5 @@ enum APIError: Error {
     case decodingError(Error)
 }
 
-/// Simple token manager for authentication
-@MainActor
-class AuthTokenManager {
-    static let shared = AuthTokenManager()
-    private let keychainKey = "vibez_auth_token"
-    
-    var token: String? {
-        get {
-            return UserDefaults.standard.string(forKey: keychainKey)
-        }
-        set {
-            if let token = newValue {
-                UserDefaults.standard.set(token, forKey: keychainKey)
-            } else {
-                UserDefaults.standard.removeObject(forKey: keychainKey)
-            }
-        }
-    }
-    
-    private init() {}
-}
+// AuthTokenManager removed - using SupabaseAuthService.shared.currentSession instead
 

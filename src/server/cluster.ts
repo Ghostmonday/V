@@ -1,7 +1,7 @@
 /**
  * Node.js Clustering Support
  * Enables multi-process WebSocket handling for better scalability
- * 
+ *
  * Usage: Set ENABLE_CLUSTERING=true to enable clustering mode
  * The cluster module will spawn worker processes, each handling WebSocket connections
  */
@@ -27,13 +27,13 @@ export function setupCluster(callback: () => void): void {
   if (cluster.isPrimary) {
     // Master process - spawn workers
     logInfo(`Starting cluster with ${WORKER_COUNT} workers`);
-    
+
     // Spawn workers
     for (let i = 0; i < WORKER_COUNT; i++) {
       const worker = cluster.fork();
       logInfo(`Worker ${worker.process.pid} spawned`);
     }
-    
+
     // Handle worker exit - restart if crashed
     cluster.on('exit', (worker, code, signal) => {
       logError(`Worker ${worker.process.pid} died`, new Error(`Code: ${code}, Signal: ${signal}`));
@@ -41,17 +41,16 @@ export function setupCluster(callback: () => void): void {
       const newWorker = cluster.fork();
       logInfo(`Worker ${newWorker.process.pid} spawned`);
     });
-    
+
     // Handle worker online
     cluster.on('online', (worker) => {
       logInfo(`Worker ${worker.process.pid} is online`);
     });
-    
+
     // Handle worker disconnect
     cluster.on('disconnect', (worker) => {
       logInfo(`Worker ${worker.process.pid} disconnected`);
     });
-    
   } else {
     // Worker process - run the server
     logInfo(`Worker ${process.pid} starting server`);
@@ -75,4 +74,3 @@ export function getWorkerId(): string {
   }
   return `worker-${process.pid}`;
 }
-

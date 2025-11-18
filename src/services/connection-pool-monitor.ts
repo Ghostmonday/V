@@ -93,7 +93,6 @@ async function checkPoolHealth(): Promise<void> {
     // - Query timeouts
     // - Connection errors
     // - Slow queries
-
   } catch (error: any) {
     logError('Failed to check pool health', error);
   }
@@ -104,7 +103,7 @@ async function checkPoolHealth(): Promise<void> {
  */
 export function recordPoolExhaustion(): void {
   connectionPoolExhausted.inc();
-  
+
   const error = new Error('Database connection pool exhausted');
   alertOnError(error, {
     type: 'db',
@@ -124,4 +123,3 @@ export function recordPoolExhaustion(): void {
 export function getPoolStats(): PoolStats | null {
   return lastPoolStats;
 }
-

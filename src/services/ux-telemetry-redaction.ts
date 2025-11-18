@@ -1,9 +1,9 @@
 /**
  * UX Telemetry PII Redaction Service
- * 
+ *
  * Server-side PII detector and redaction pipeline.
  * Acts as a safety net in addition to client-side scrubbing.
- * 
+ *
  * Scans all metadata fields recursively for sensitive information:
  * - Email addresses
  * - Phone numbers
@@ -11,7 +11,7 @@
  * - Social Security Numbers
  * - IP addresses
  * - Raw message content (if accidentally included)
- * 
+ *
  * @module ux-telemetry-redaction
  */
 
@@ -27,31 +27,31 @@ const PII_PATTERNS = {
     pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
     name: 'email',
   },
-  
+
   // Phone numbers (various formats)
   phone: {
     pattern: /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g,
     name: 'phone',
   },
-  
+
   // Credit card numbers (with or without separators)
   creditCard: {
     pattern: /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g,
     name: 'credit_card',
   },
-  
+
   // Social Security Numbers
   ssn: {
     pattern: /\b\d{3}-\d{2}-\d{4}\b/g,
     name: 'ssn',
   },
-  
+
   // IPv4 addresses
   ipv4: {
     pattern: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
     name: 'ipv4',
   },
-  
+
   // IPv6 addresses (simplified pattern)
   ipv6: {
     pattern: /\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b/g,
@@ -85,16 +85,16 @@ const SENSITIVE_FIELD_NAMES = [
 export interface RedactionStats {
   /** Total fields scanned */
   fieldsScanned: number;
-  
+
   /** Fields redacted */
   fieldsRedacted: number;
-  
+
   /** PII types detected */
   piiTypesDetected: string[];
-  
+
   /** Total PII instances found */
   totalPiiInstances: number;
-  
+
   /** Whether event was modified */
   wasModified: boolean;
 }
@@ -104,7 +104,7 @@ export interface RedactionStats {
  */
 function isSensitiveFieldName(key: string): boolean {
   const lowerKey = key.toLowerCase();
-  return SENSITIVE_FIELD_NAMES.some(sensitive => lowerKey.includes(sensitive));
+  return SENSITIVE_FIELD_NAMES.some((sensitive) => lowerKey.includes(sensitive));
 }
 
 /**
@@ -113,7 +113,7 @@ function isSensitiveFieldName(key: string): boolean {
 function detectPII(value: string): { types: Set<string>; count: number } {
   const detectedTypes = new Set<string>();
   let count = 0;
-  
+
   for (const { pattern, name } of Object.values(PII_PATTERNS)) {
     const matches = value.match(pattern);
     if (matches) {
@@ -121,7 +121,7 @@ function detectPII(value: string): { types: Set<string>; count: number } {
       count += matches.length;
     }
   }
-  
+
   return { types: detectedTypes, count };
 }
 
@@ -130,11 +130,11 @@ function detectPII(value: string): { types: Set<string>; count: number } {
  */
 function redactString(value: string): string {
   let redacted = value;
-  
+
   for (const { pattern } of Object.values(PII_PATTERNS)) {
     redacted = redacted.replace(pattern, '[REDACTED]');
   }
-  
+
   return redacted;
 }
 
@@ -142,78 +142,73 @@ function redactString(value: string): string {
  * Recursively redact PII from a value
  * Returns: [redacted value, stats]
  */
-function redactValue(
-  value: unknown,
-  key: string = '',
-  stats: RedactionStats
-): unknown {
+function redactValue(value: unknown, key: string = '', stats: RedactionStats): unknown {
   stats.fieldsScanned++;
-  
+
   // Handle null/undefined
   if (value === null || value === undefined) {
     return value;
   }
-  
+
   // Check if field name suggests sensitive content
   if (key && isSensitiveFieldName(key)) {
     stats.fieldsRedacted++;
     stats.wasModified = true;
     return '[REDACTED]';
   }
-  
+
   // Handle strings
   if (typeof value === 'string') {
     const { types, count } = detectPII(value);
-    
+
     if (count > 0) {
       stats.fieldsRedacted++;
       stats.totalPiiInstances += count;
       stats.wasModified = true;
-      
-      types.forEach(type => {
+
+      types.forEach((type) => {
         if (!stats.piiTypesDetected.includes(type)) {
           stats.piiTypesDetected.push(type);
         }
       });
-      
+
       return redactString(value);
     }
-    
+
     return value;
   }
-  
+
   // Handle arrays
   if (Array.isArray(value)) {
-    return value.map((item, index) => 
-      redactValue(item, `${key}[${index}]`, stats)
-    );
+    return value.map((item, index) => redactValue(item, `${key}[${index}]`, stats));
   }
-  
+
   // Handle objects
   if (typeof value === 'object') {
     const redacted: Record<string, unknown> = {};
-    
+
     for (const [objKey, objValue] of Object.entries(value)) {
       const fullKey = key ? `${key}.${objKey}` : objKey;
       redacted[objKey] = redactValue(objValue, fullKey, stats);
     }
-    
+
     return redacted;
   }
-  
+
   // Return other types as-is (numbers, booleans, etc.)
   return value;
 }
 
 /**
  * Redact PII from a UX telemetry event
- * 
+ *
  * This is a server-side safety net. The client SDK should already scrub PII,
  * but this provides defense in depth.
  */
-export function redactUXTelemetryEvent(
-  event: UXTelemetryEvent
-): { event: UXTelemetryEvent; stats: RedactionStats } {
+export function redactUXTelemetryEvent(event: UXTelemetryEvent): {
+  event: UXTelemetryEvent;
+  stats: RedactionStats;
+} {
   const stats: RedactionStats = {
     fieldsScanned: 0,
     fieldsRedacted: 0,
@@ -221,27 +216,22 @@ export function redactUXTelemetryEvent(
     totalPiiInstances: 0,
     wasModified: false,
   };
-  
+
   try {
     // Create a copy to avoid mutating original
     const redactedEvent: UXTelemetryEvent = { ...event };
-    
+
     // Redact metadata (most likely to contain PII)
-    redactedEvent.metadata = redactValue(
-      event.metadata,
-      'metadata',
-      stats
-    ) as Record<string, unknown>;
-    
+    redactedEvent.metadata = redactValue(event.metadata, 'metadata', stats) as Record<
+      string,
+      unknown
+    >;
+
     // Redact device context (may contain IP addresses)
     if (event.deviceContext) {
-      redactedEvent.deviceContext = redactValue(
-        event.deviceContext,
-        'deviceContext',
-        stats
-      ) as any;
+      redactedEvent.deviceContext = redactValue(event.deviceContext, 'deviceContext', stats) as any;
     }
-    
+
     // Redact component ID if it looks suspicious
     if (event.componentId && typeof event.componentId === 'string') {
       const { count } = detectPII(event.componentId);
@@ -252,7 +242,7 @@ export function redactUXTelemetryEvent(
         redactedEvent.componentId = '[REDACTED]';
       }
     }
-    
+
     // Redact state values if they contain PII
     if (event.stateBefore && typeof event.stateBefore === 'string') {
       const { count } = detectPII(event.stateBefore);
@@ -263,7 +253,7 @@ export function redactUXTelemetryEvent(
         redactedEvent.stateBefore = '[REDACTED]';
       }
     }
-    
+
     if (event.stateAfter && typeof event.stateAfter === 'string') {
       const { count } = detectPII(event.stateAfter);
       if (count > 0) {
@@ -273,15 +263,15 @@ export function redactUXTelemetryEvent(
         redactedEvent.stateAfter = '[REDACTED]';
       }
     }
-    
+
     // Log redaction if PII was found
     if (stats.wasModified) {
       logInfo(
         `[UX Telemetry] PII redacted: ${stats.fieldsRedacted} fields, ` +
-        `${stats.totalPiiInstances} instances, types: ${stats.piiTypesDetected.join(', ')}`
+          `${stats.totalPiiInstances} instances, types: ${stats.piiTypesDetected.join(', ')}`
       );
     }
-    
+
     return { event: redactedEvent, stats };
   } catch (error) {
     logError('Error redacting UX telemetry event', error);
@@ -293,9 +283,7 @@ export function redactUXTelemetryEvent(
 /**
  * Redact PII from a batch of events
  */
-export function redactUXTelemetryBatch(
-  events: UXTelemetryEvent[]
-): {
+export function redactUXTelemetryBatch(events: UXTelemetryEvent[]): {
   events: UXTelemetryEvent[];
   stats: RedactionStats;
 } {
@@ -306,25 +294,25 @@ export function redactUXTelemetryBatch(
     totalPiiInstances: 0,
     wasModified: false,
   };
-  
-  const redactedEvents = events.map(event => {
+
+  const redactedEvents = events.map((event) => {
     const { event: redactedEvent, stats } = redactUXTelemetryEvent(event);
-    
+
     // Aggregate stats
     aggregatedStats.fieldsScanned += stats.fieldsScanned;
     aggregatedStats.fieldsRedacted += stats.fieldsRedacted;
     aggregatedStats.totalPiiInstances += stats.totalPiiInstances;
     aggregatedStats.wasModified = aggregatedStats.wasModified || stats.wasModified;
-    
-    stats.piiTypesDetected.forEach(type => {
+
+    stats.piiTypesDetected.forEach((type) => {
       if (!aggregatedStats.piiTypesDetected.includes(type)) {
         aggregatedStats.piiTypesDetected.push(type);
       }
     });
-    
+
     return redactedEvent;
   });
-  
+
   return {
     events: redactedEvents,
     stats: aggregatedStats,
@@ -339,7 +327,7 @@ export function validateNoPII(event: UXTelemetryEvent): {
   violations: string[];
 } {
   const violations: string[] = [];
-  
+
   // Check metadata
   const metadataStr = JSON.stringify(event.metadata);
   for (const { pattern, name } of Object.values(PII_PATTERNS)) {
@@ -347,7 +335,7 @@ export function validateNoPII(event: UXTelemetryEvent): {
       violations.push(`${name} found in metadata`);
     }
   }
-  
+
   // Check device context
   if (event.deviceContext) {
     const deviceStr = JSON.stringify(event.deviceContext);
@@ -357,7 +345,7 @@ export function validateNoPII(event: UXTelemetryEvent): {
       }
     }
   }
-  
+
   // Check component ID
   if (event.componentId) {
     for (const { pattern, name } of Object.values(PII_PATTERNS)) {
@@ -366,7 +354,7 @@ export function validateNoPII(event: UXTelemetryEvent): {
       }
     }
   }
-  
+
   // Check state values
   if (event.stateBefore) {
     for (const { pattern, name } of Object.values(PII_PATTERNS)) {
@@ -375,7 +363,7 @@ export function validateNoPII(event: UXTelemetryEvent): {
       }
     }
   }
-  
+
   if (event.stateAfter) {
     for (const { pattern, name } of Object.values(PII_PATTERNS)) {
       if (pattern.test(event.stateAfter)) {
@@ -383,10 +371,9 @@ export function validateNoPII(event: UXTelemetryEvent): {
       }
     }
   }
-  
+
   return {
     valid: violations.length === 0,
     violations,
   };
 }
-

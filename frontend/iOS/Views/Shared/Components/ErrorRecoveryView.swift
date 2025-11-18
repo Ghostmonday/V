@@ -34,14 +34,16 @@ struct ErrorRecoveryView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color("VibeZGold"))
-                .accessibleButton("Retry", hint: "Double tap to try again")
+                .accessibilityLabel("Retry")
+                .accessibilityHint("Double tap to try again")
                 
                 if let dismiss = dismissAction {
                     Button("Dismiss") {
                         dismiss()
                     }
                     .buttonStyle(.bordered)
-                    .accessibleButton("Dismiss", hint: "Double tap to close")
+                    .accessibilityLabel("Dismiss")
+                    .accessibilityHint("Double tap to close")
                 }
             }
         }

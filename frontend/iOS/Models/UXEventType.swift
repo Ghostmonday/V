@@ -276,3 +276,38 @@ public struct EmotionPulseEvent: Codable {
     }
 }
 
+// MARK: - View Modification Types
+
+struct WatchdogRecommendation {
+    let action: String
+    let target: String
+}
+
+struct ViewModification {
+    let componentId: String
+    let type: ModificationType
+    let value: Any
+    
+    enum ModificationType {
+        case labelChange
+        case visibilityChange
+    }
+}
+
+struct ABTestExperiment {
+    let id: String
+    let recommendation: WatchdogRecommendation
+    var conversions: [String: Int]
+    var status: ExperimentStatus
+    
+    enum ExperimentStatus {
+        case active
+        case completed
+    }
+}
+
+enum ABTestVariant: String {
+    case control = "control"
+    case treatment = "treatment"
+}
+

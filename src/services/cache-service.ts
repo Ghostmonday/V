@@ -42,7 +42,10 @@ export async function getCached(key: string): Promise<any | null> {
     cacheMetrics.misses++;
     return null;
   } catch (error) {
-    logError(`Cache get error for key: ${key}`, error instanceof Error ? error : new Error(String(error)));
+    logError(
+      `Cache get error for key: ${key}`,
+      error instanceof Error ? error : new Error(String(error))
+    );
     cacheMetrics.misses++;
     return null;
   }
@@ -60,7 +63,10 @@ export async function setCached(key: string, value: any, ttlSeconds: number = 30
     await redis.setex(key, ttlSeconds, serialized);
     cacheMetrics.sets++;
   } catch (error) {
-    logError(`Cache set error for key: ${key}`, error instanceof Error ? error : new Error(String(error)));
+    logError(
+      `Cache set error for key: ${key}`,
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
 
@@ -73,7 +79,10 @@ export async function deleteCached(key: string): Promise<void> {
     await redis.del(key);
     cacheMetrics.deletes++;
   } catch (error) {
-    logError(`Cache delete error for key: ${key}`, error instanceof Error ? error : new Error(String(error)));
+    logError(
+      `Cache delete error for key: ${key}`,
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
 
@@ -87,12 +96,15 @@ export async function invalidatePattern(pattern: string): Promise<number> {
     if (keys.length === 0) {
       return 0;
     }
-    
+
     const deleted = await redis.del(...keys);
     cacheMetrics.deletes += deleted;
     return deleted;
   } catch (error) {
-    logError(`Cache invalidation error for pattern: ${pattern}`, error instanceof Error ? error : new Error(String(error)));
+    logError(
+      `Cache invalidation error for pattern: ${pattern}`,
+      error instanceof Error ? error : new Error(String(error))
+    );
     return 0;
   }
 }
@@ -112,7 +124,7 @@ export async function warmCache<T>(
   if (cached !== null) {
     return cached as T;
   }
-  
+
   const data = await fetcher();
   await setCached(key, data, ttlSeconds);
   return data;
@@ -131,7 +143,7 @@ export function getCacheMetrics(): {
 } {
   const total = cacheMetrics.hits + cacheMetrics.misses;
   const hitRate = total > 0 ? cacheMetrics.hits / total : 0;
-  
+
   return {
     ...cacheMetrics,
     hitRate: Math.round(hitRate * 100) / 100, // Round to 2 decimal places
@@ -147,4 +159,3 @@ export function resetCacheMetrics(): void {
   cacheMetrics.sets = 0;
   cacheMetrics.deletes = 0;
 }
-

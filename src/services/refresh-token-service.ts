@@ -1,7 +1,7 @@
 /**
  * Refresh Token Service
  * Implements secure token rotation with server-side invalidation
- * 
+ *
  * Features:
  * - Token family tracking for rotation detection
  * - Automatic invalidation of reused tokens
@@ -65,16 +65,14 @@ export async function issueTokenPair(
     expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRY_DAYS);
 
     // Store refresh token
-    const { error } = await supabase
-      .from('refresh_tokens')
-      .insert({
-        user_id: userId,
-        token_hash: tokenHash,
-        family_id: familyId,
-        expires_at: expiresAt.toISOString(),
-        ip_address: ipAddress,
-        user_agent: userAgent,
-      });
+    const { error } = await supabase.from('refresh_tokens').insert({
+      user_id: userId,
+      token_hash: tokenHash,
+      family_id: familyId,
+      expires_at: expiresAt.toISOString(),
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    });
 
     if (error) {
       throw error;
@@ -101,7 +99,10 @@ export async function issueTokenPair(
 /**
  * Invalidate entire token family (security measure for reuse attacks)
  */
-async function invalidateTokenFamily(familyId: string, reason: string = 'Security violation'): Promise<number> {
+async function invalidateTokenFamily(
+  familyId: string,
+  reason: string = 'Security violation'
+): Promise<number> {
   try {
     const { data, error } = await supabase
       .from('refresh_tokens')
@@ -128,7 +129,7 @@ async function invalidateTokenFamily(familyId: string, reason: string = 'Securit
           userIds.add(tokenData.user_id);
         }
       }
-      
+
       // Log audit event for each affected user
       for (const userId of userIds) {
         await logAuthEvent(userId, 'token_family_invalidated', false, undefined, undefined, reason);
@@ -155,21 +156,35 @@ export async function rotateRefreshToken(
     const tokenHash = hashToken(refreshToken);
 
     // Find token record
-    const { data: tokenRecord, error: findError } = await supabase
+    const { data: tokenRecord, error: findError } = (await supabase
       .from('refresh_tokens')
       .select('*')
       .eq('token_hash', tokenHash)
       .is('revoked_at', null)
-      .single() as { data: RefreshTokenRecord | null; error: any };
+      .single()) as { data: RefreshTokenRecord | null; error: any };
 
     if (findError || !tokenRecord) {
-      await logAuthEvent(null, 'token_refresh_failed', false, ipAddress, userAgent, 'Invalid token');
+      await logAuthEvent(
+        null,
+        'token_refresh_failed',
+        false,
+        ipAddress,
+        userAgent,
+        'Invalid token'
+      );
       return null;
     }
 
     // Check if token is expired
     if (new Date(tokenRecord.expires_at) < new Date()) {
-      await logAuthEvent(tokenRecord.user_id, 'token_refresh_failed', false, ipAddress, userAgent, 'Token expired');
+      await logAuthEvent(
+        tokenRecord.user_id,
+        'token_refresh_failed',
+        false,
+        ipAddress,
+        userAgent,
+        'Token expired'
+      );
       return null;
     }
 
@@ -210,16 +225,14 @@ export async function rotateRefreshToken(
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRY_DAYS);
 
-    await supabase
-      .from('refresh_tokens')
-      .insert({
-        user_id: tokenRecord.user_id,
-        token_hash: newTokenHash,
-        family_id: tokenRecord.family_id, // Same family
-        expires_at: expiresAt.toISOString(),
-        ip_address: ipAddress,
-        user_agent: userAgent,
-      });
+    await supabase.from('refresh_tokens').insert({
+      user_id: tokenRecord.user_id,
+      token_hash: newTokenHash,
+      family_id: tokenRecord.family_id, // Same family
+      expires_at: expiresAt.toISOString(),
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    });
 
     // Generate new access token
     const accessToken = issueToken({ id: tokenRecord.user_id });
@@ -294,7 +307,18 @@ export async function revokeAllUserTokens(userId: string): Promise<number> {
  */
 async function logAuthEvent(
   userId: string | null,
-  eventType: 'login' | 'logout' | 'login_failed' | 'token_issued' | 'token_refreshed' | 'token_revoked' | 'token_reuse_detected' | 'token_issue_failed' | 'token_refresh_failed' | 'all_tokens_revoked' | 'token_family_invalidated',
+  eventType:
+    | 'login'
+    | 'logout'
+    | 'login_failed'
+    | 'token_issued'
+    | 'token_refreshed'
+    | 'token_revoked'
+    | 'token_reuse_detected'
+    | 'token_issue_failed'
+    | 'token_refresh_failed'
+    | 'all_tokens_revoked'
+    | 'token_family_invalidated',
   success: boolean,
   ipAddress?: string,
   userAgent?: string,
@@ -302,17 +326,15 @@ async function logAuthEvent(
   metadata?: Record<string, any>
 ): Promise<void> {
   try {
-    await supabase
-      .from('auth_audit_log')
-      .insert({
-        user_id: userId,
-        event_type: eventType,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        success,
-        failure_reason: failureReason,
-        metadata: metadata || {},
-      });
+    await supabase.from('auth_audit_log').insert({
+      user_id: userId,
+      event_type: eventType,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      success,
+      failure_reason: failureReason,
+      metadata: metadata || {},
+    });
   } catch (error: any) {
     // Non-critical: log but don't fail
     logError('Failed to log auth event', error);
@@ -327,4 +349,3 @@ export function getAccessTokenExpiry(): Date {
   expiresAt.setMinutes(expiresAt.getMinutes() + ACCESS_TOKEN_EXPIRY_MINUTES);
   return expiresAt;
 }
-

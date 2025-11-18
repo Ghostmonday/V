@@ -15,7 +15,7 @@ import { logError } from '../shared/logger.js';
 export enum SubscriptionTier {
   FREE = 'free',
   PRO = 'pro',
-  TEAM = 'team'
+  TEAM = 'team',
 }
 
 export interface SubscriptionLimits {
@@ -30,20 +30,20 @@ const TIER_LIMITS: Record<SubscriptionTier, SubscriptionLimits> = {
     aiMessages: 10,
     maxRooms: 5,
     storageMB: 100,
-    voiceCallMinutes: 30
+    voiceCallMinutes: 30,
   },
   [SubscriptionTier.PRO]: {
     aiMessages: -1,
     maxRooms: -1,
     storageMB: 10240, // 10GB
-    voiceCallMinutes: -1
+    voiceCallMinutes: -1,
   },
   [SubscriptionTier.TEAM]: {
     aiMessages: -1,
     maxRooms: -1,
     storageMB: 102400, // 100GB
-    voiceCallMinutes: -1
-  }
+    voiceCallMinutes: -1,
+  },
 };
 
 // [FEATURE: Paywalls] [DB] [GATE]
@@ -55,11 +55,14 @@ export async function getUserSubscription(userId: string): Promise<SubscriptionT
   try {
     const user = await findOne<{ subscription: string }>('users', { id: userId });
     if (!user) return SubscriptionTier.FREE;
-    
+
     const tier = user.subscription as SubscriptionTier;
     return Object.values(SubscriptionTier).includes(tier) ? tier : SubscriptionTier.FREE;
   } catch (error) {
-    logError('Failed to get user subscription', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to get user subscription',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return SubscriptionTier.FREE;
   }
 }
@@ -84,7 +87,10 @@ export async function updateSubscription(userId: string, tier: SubscriptionTier)
   try {
     await updateOne('users', userId, { subscription: tier });
   } catch (error) {
-    logError('Failed to update subscription', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to update subscription',
+      error instanceof Error ? error : new Error(String(error))
+    );
     throw error;
   }
 }
@@ -96,4 +102,3 @@ export async function updateSubscription(userId: string, tier: SubscriptionTier)
 // - Database: users.subscription column validation [DB] [GATE]
 // - Error handling: Default to FREE tier on errors [GATE] [RELIAB]
 // - Telemetry: subscription_updated event emission [EVENT] [FEATURE: Telemetry]
-

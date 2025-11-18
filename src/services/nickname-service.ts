@@ -12,11 +12,7 @@ const redis = getRedisClient();
 /**
  * Set nickname for user in a room
  */
-export async function setNickname(
-  userId: string,
-  roomId: string,
-  nickname: string
-) {
+export async function setNickname(userId: string, roomId: string, nickname: string) {
   try {
     // Validate nickname length
     if (nickname.length > 32) {
@@ -32,14 +28,12 @@ export async function setNickname(
 
     if (error) {
       // Try insert if update failed (user not in room yet)
-      const { error: insertError } = await supabase
-        .from('room_memberships')
-        .insert({
-          user_id: userId,
-          room_id: roomId,
-          nickname,
-          role: 'member'
-        });
+      const { error: insertError } = await supabase.from('room_memberships').insert({
+        user_id: userId,
+        room_id: roomId,
+        nickname,
+        role: 'member',
+      });
 
       if (insertError) {
         throw insertError;
@@ -53,7 +47,7 @@ export async function setNickname(
         type: 'nickname_changed',
         user_id: userId,
         nickname,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
     );
 
@@ -110,4 +104,3 @@ export async function getRoomNicknames(roomId: string): Promise<Record<string, s
     return {};
   }
 }
-

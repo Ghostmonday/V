@@ -19,7 +19,7 @@ export class LiveKitService {
 
   async initialize() {
     if (this.initialized) return;
-    
+
     try {
       const livekitKeys = await getLiveKitKeys();
       const livekitHost = livekitKeys.host || livekitKeys.url;
@@ -27,14 +27,20 @@ export class LiveKitService {
       const livekitApiSecret = livekitKeys.apiSecret;
 
       if (!livekitHost || !livekitApiKey || !livekitApiSecret) {
-        logError('LiveKit configuration missing', new Error('LIVEKIT_HOST, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET required in vault'));
+        logError(
+          'LiveKit configuration missing',
+          new Error('LIVEKIT_HOST, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET required in vault')
+        );
         throw new Error('LiveKit not configured');
       }
 
       this.roomService = new RoomServiceClient(livekitHost, livekitApiKey, livekitApiSecret);
       this.initialized = true;
     } catch (error) {
-      logError('Failed to initialize LiveKit service', error instanceof Error ? error : new Error(String(error)));
+      logError(
+        'Failed to initialize LiveKit service',
+        error instanceof Error ? error : new Error(String(error))
+      );
       throw error;
     }
   }
@@ -63,7 +69,8 @@ export class LiveKitService {
         maxParticipants = 50;
       }
 
-      const room = await this.roomService.createRoom({ // Race: concurrent creates can conflict, room may already exist
+      const room = await this.roomService.createRoom({
+        // Race: concurrent creates can conflict, room may already exist
         name: roomName,
         emptyTimeout: 300, // 5 minutes
         maxParticipants,
@@ -80,7 +87,7 @@ export class LiveKitService {
       // Track room as active for participant sync
       const roomNameToTrack = room.name || roomName;
       // Room will be tracked when getVoiceSession is called (which syncs participants)
-      
+
       return room.name || roomName;
     } catch (error: any) {
       logError('Failed to create voice room', error);
@@ -98,7 +105,7 @@ export class LiveKitService {
     userName: string = ''
   ): Promise<string> {
     await this.ensureInitialized();
-    
+
     if (!roomName || typeof roomName !== 'string') {
       throw new Error('Invalid roomName');
     }
@@ -142,7 +149,7 @@ export class LiveKitService {
     });
 
     const jwtToken = token.toJwt();
-    
+
     // Cache token for 5 minutes (300 seconds)
     try {
       await redis.setex(cacheKey, 300, jwtToken);
@@ -165,7 +172,7 @@ export class LiveKitService {
       }
 
       const rooms = await this.roomService.listRooms([roomName]);
-      const room = rooms.find(r => r.name === roomName);
+      const room = rooms.find((r) => r.name === roomName);
 
       if (!room) {
         return null;
@@ -173,17 +180,17 @@ export class LiveKitService {
 
       // Sync participants from LiveKit to Redis for fast lookups
       const participants = await this.roomService.listParticipants(roomName);
-      
+
       // Track room as active for periodic sync
       trackActiveRoom(roomName);
-      
+
       // Update Redis cache with current participants for presence sync
-      const participantIds = participants.map(p => p.identity);
+      const participantIds = participants.map((p) => p.identity);
       const cacheKey = `livekit:room:${roomName}:participants`;
       try {
         // Store participant list in Redis with 5-minute TTL
         await redis.setex(cacheKey, 300, JSON.stringify(participantIds));
-        
+
         // Also update individual participant presence
         for (const participant of participants) {
           await redis.set(`presence:${participant.identity}`, 'online', 'EX', 300);
@@ -196,7 +203,7 @@ export class LiveKitService {
       return {
         room_name: roomName,
         participant_count: participants.length,
-        participants: participants.map(p => ({
+        participants: participants.map((p) => ({
           id: p.sid,
           user_id: p.identity,
           identity: p.identity,
@@ -210,7 +217,7 @@ export class LiveKitService {
       return null;
     }
   }
-  
+
   /**
    * Sync participants for a room (called periodically)
    */
@@ -222,7 +229,10 @@ export class LiveKitService {
         logInfo('Synced LiveKit participants', { roomName, count: session.participant_count });
       }
     } catch (error) {
-      logError('Failed to sync room participants', error instanceof Error ? error : new Error(String(error)));
+      logError(
+        'Failed to sync room participants',
+        error instanceof Error ? error : new Error(String(error))
+      );
     }
   }
 
@@ -272,7 +282,8 @@ export class LiveKitService {
     this.performanceStats.set(roomName, stats); // Race: concurrent stats updates can overwrite each other
 
     try {
-      await recordTelemetryEvent('voice_stats', { // Silent fail: stats lost if telemetry fails
+      await recordTelemetryEvent('voice_stats', {
+        // Silent fail: stats lost if telemetry fails
         room_id: roomName,
         latency_ms: stats.latency,
         features: {
@@ -324,9 +335,10 @@ export class LiveKitService {
       for (const room of rooms) {
         // Delete rooms empty for more than 1 hour
         if (room.numParticipants === 0) {
-          const creationTime = typeof room.creationTime === 'string' 
-            ? new Date(room.creationTime).getTime()
-            : (room.creationTime as any).getTime?.() || now;
+          const creationTime =
+            typeof room.creationTime === 'string'
+              ? new Date(room.creationTime).getTime()
+              : (room.creationTime as any).getTime?.() || now;
           if (now - creationTime > 3600000) {
             await this.roomService.deleteRoom(room.name);
             // Untrack room when deleted
@@ -351,7 +363,7 @@ export const liveKitService = new LiveKitService();
 
 // Periodic cleanup (every hour)
 setInterval(() => {
-  liveKitService.cleanupEmptyRooms().catch(err => {
+  liveKitService.cleanupEmptyRooms().catch((err) => {
     logError('Error in periodic room cleanup', err);
   });
 }, 3600000);
@@ -361,8 +373,8 @@ setInterval(() => {
 const activeRooms = new Set<string>();
 setInterval(() => {
   // Sync participants for all active rooms
-  activeRooms.forEach(roomName => {
-    liveKitService.syncRoomParticipants(roomName).catch(err => {
+  activeRooms.forEach((roomName) => {
+    liveKitService.syncRoomParticipants(roomName).catch((err) => {
       logError('Failed to sync room participants', err);
     });
   });
@@ -377,4 +389,3 @@ export function trackActiveRoom(roomName: string): void {
 export function untrackActiveRoom(roomName: string): void {
   activeRooms.delete(roomName);
 }
-

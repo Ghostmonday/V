@@ -30,7 +30,6 @@ vi.mock('../../ws/handlers/delivery-ack.js', () => ({
   handleDeliveryAckMessage: vi.fn(async () => {}),
 }));
 
-
 describe('WebSocket Integration Tests', () => {
   let wss: WebSocketServer;
   let server: any;
@@ -41,7 +40,7 @@ describe('WebSocket Integration Tests', () => {
       on: vi.fn(),
       listen: vi.fn(),
     };
-    
+
     wss = new WebSocketServer({ noServer: true });
     setupWebSocketGateway(wss);
   });
@@ -110,7 +109,7 @@ describe('WebSocket Integration Tests', () => {
   describe('Message Handling', () => {
     it('should handle message sending', async () => {
       const { handleMessaging } = await import('../../ws/handlers/messaging.js');
-      
+
       const mockWs = {
         userId: 'user-123',
         send: vi.fn(),
@@ -132,7 +131,7 @@ describe('WebSocket Integration Tests', () => {
 
     it('should handle delivery acknowledgements', async () => {
       const { handleDeliveryAckMessage } = await import('../../ws/handlers/delivery-ack.js');
-      
+
       const mockWs = {
         userId: 'user-123',
         send: vi.fn(),
@@ -155,7 +154,7 @@ describe('WebSocket Integration Tests', () => {
   describe('Presence Handling', () => {
     it('should handle presence updates', async () => {
       const { handlePresence } = await import('../../ws/handlers/presence.js');
-      
+
       const mockWs = {
         userId: 'user-123',
         send: vi.fn(),
@@ -178,7 +177,7 @@ describe('WebSocket Integration Tests', () => {
   describe('Read Receipts', () => {
     it('should handle read receipt updates', async () => {
       const { handleReadReceipt } = await import('../../ws/handlers/read-receipts.js');
-      
+
       const mockWs = {
         userId: 'user-123',
         send: vi.fn(),
@@ -198,4 +197,3 @@ describe('WebSocket Integration Tests', () => {
     });
   });
 });
-

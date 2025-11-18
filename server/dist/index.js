@@ -16,12 +16,12 @@ const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     cors: {
         origin: 'http://localhost:3000',
-        methods: ['GET', 'POST']
-    }
+        methods: ['GET', 'POST'],
+    },
 });
 app.use((0, cors_1.default)({
     origin: 'http://localhost:3000',
-    credentials: true
+    credentials: true,
 }));
 app.use(express_1.default.json());
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -32,13 +32,15 @@ if (!supabaseUrl || !supabaseKey) {
 }
 const supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
 // Initialize Redis (optional, will work without it)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let redis = null;
 if (process.env.REDIS_URL) {
     const redisClient = (0, redis_1.createClient)({ url: process.env.REDIS_URL });
-    redisClient.connect()
+    redisClient
+        .connect()
         .then(() => {
         redis = redisClient;
-        console.log('Redis connected');
+        console.warn('Redis connected');
     })
         .catch((err) => {
         console.warn('Redis connection failed, continuing without Redis:', err.message);
@@ -47,36 +49,43 @@ if (process.env.REDIS_URL) {
 app.get('/rooms', async (req, res) => {
     try {
         const { data, error } = await supabase.from('rooms').select('*');
-        if (error)
+        if (error) {
             throw error;
+        }
         res.json(data || []);
     }
     catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Error fetching rooms:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: errorMessage });
     }
 });
 app.post('/rooms', async (req, res) => {
     try {
         const { name, title, slug } = req.body;
         const roomData = {};
-        if (name)
+        if (name) {
             roomData.name = name;
-        if (title)
+        }
+        if (title) {
             roomData.title = title;
-        if (slug)
+        }
+        if (slug) {
             roomData.slug = slug;
+        }
         if (!roomData.title && !roomData.slug && !roomData.name) {
             roomData.title = name || 'New Room';
         }
         const { data, error } = await supabase.from('rooms').insert(roomData).select();
-        if (error)
+        if (error) {
             throw error;
+        }
         res.json(data?.[0] || {});
     }
     catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Error creating room:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: errorMessage });
     }
 });
 app.get('/rooms/:id/messages', async (req, res) => {
@@ -88,13 +97,15 @@ app.get('/rooms/:id/messages', async (req, res) => {
             .eq('room_id', id)
             .order('created_at', { ascending: false })
             .limit(50);
-        if (error)
+        if (error) {
             throw error;
+        }
         res.json(data || []);
     }
     catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Error fetching messages:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: errorMessage });
     }
 });
 app.post('/messaging', async (req, res) => {
@@ -106,14 +117,12 @@ app.post('/messaging', async (req, res) => {
         const messageData = {
             room_id: roomId,
             content_preview: content.substring(0, 512),
-            sender_id: senderId || null
+            sender_id: senderId || null,
         };
-        const { data, error } = await supabase
-            .from('messages')
-            .insert(messageData)
-            .select();
-        if (error)
+        const { data, error } = await supabase.from('messages').insert(messageData).select();
+        if (error) {
             throw error;
+        }
         const message = data?.[0];
         if (message) {
             io.to(roomId).emit('message', message);
@@ -121,21 +130,22 @@ app.post('/messaging', async (req, res) => {
         res.json(message || {});
     }
     catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Error sending message:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: errorMessage });
     }
 });
 io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
+    console.warn('Client connected:', socket.id);
     socket.on('join', (roomId) => {
         socket.join(roomId);
-        console.log(`Socket ${socket.id} joined room ${roomId}`);
+        console.warn(`Socket ${socket.id} joined room ${roomId}`);
     });
     socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id);
+        console.warn('Client disconnected:', socket.id);
     });
 });
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
-    console.log(`Backend server running on port ${PORT}`);
+    console.warn(`Backend server running on port ${PORT}`);
 });

@@ -1,6 +1,7 @@
 # RLS Policy Status Summary
 
 ## Current Status
+
 **Total RLS Policies: 7**
 
 ## Critical Tables That Should Have RLS
@@ -8,6 +9,7 @@
 Based on the schema requirements, these tables should have RLS enabled:
 
 ### 🔴 CRITICAL (Must Have RLS + Policies)
+
 1. **audit_log** - Append-only, immutable events
 2. **messages** - User messages with room membership checks
 3. **logs_raw** - Service role only
@@ -24,6 +26,7 @@ Based on the schema requirements, these tables should have RLS enabled:
 14. **api_keys** - Service role only
 
 ### 🟡 SERVICE SCHEMA (Should Have RLS)
+
 15. **service.encode_queue** - Service role only
 16. **service.moderation_queue** - Service role only
 
@@ -57,10 +60,12 @@ Based on the schema files (`05_rls_policies.sql` and `08_enhanced_rls_policies.s
 ## Action Required
 
 Run the RLS policies setup scripts:
+
 1. `sql/05_rls_policies.sql` - Base RLS policies
 2. `sql/08_enhanced_rls_policies.sql` - Enhanced policies with room membership checks
 
 These scripts will:
+
 - Enable RLS on all critical tables
 - Create appropriate policies for each table
 - Ensure proper access control for production
@@ -68,10 +73,10 @@ These scripts will:
 ## Security Risk
 
 Without proper RLS policies:
+
 - ❌ Users may access data they shouldn't
 - ❌ Service operations may be exposed
 - ❌ Audit logs may be modifiable
 - ❌ Room membership checks may be bypassed
 
 **🚨 DO NOT LAUNCH without fixing RLS policies!**
-

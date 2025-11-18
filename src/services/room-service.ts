@@ -52,12 +52,12 @@ export async function createRoom(name: string, userId: string): Promise<any> {
     }
 
     logInfo(`Room created: ${room.id} - ${room.name}`);
-    
+
     // Phase 3.4: Invalidate room listing cache when room is created
-    await invalidatePattern('rooms:list:*').catch(err => {
+    await invalidatePattern('rooms:list:*').catch((err) => {
       logError('Failed to invalidate room cache', err);
     });
-    
+
     return room;
   } catch (error: any) {
     logError('createRoom error', error);
@@ -71,7 +71,10 @@ export async function createRoom(name: string, userId: string): Promise<any> {
  * @param userId - User ID
  * @returns Join result with LiveKit token
  */
-export async function joinRoom(roomId: string, userId: string): Promise<{ success: boolean; room?: any; livekitToken?: string }> {
+export async function joinRoom(
+  roomId: string,
+  userId: string
+): Promise<{ success: boolean; room?: any; livekitToken?: string }> {
   try {
     // Check if room exists and is private
     const { data: room, error: roomError } = await supabase
@@ -108,7 +111,8 @@ export async function joinRoom(roomId: string, userId: string): Promise<{ succes
       .select()
       .single();
 
-    if (joinError && joinError.code !== '23505') { // 23505 = unique violation (already joined)
+    if (joinError && joinError.code !== '23505') {
+      // 23505 = unique violation (already joined)
       logError('Failed to join room', joinError);
       throw new Error(joinError.message || 'Failed to join room');
     }
@@ -136,11 +140,7 @@ export async function getRoom(roomId: string): Promise<any | null> {
     const room = await warmCache(
       cacheKey,
       async () => {
-        const { data, error } = await supabase
-          .from('rooms')
-          .select('*')
-          .eq('id', roomId)
-          .single();
+        const { data, error } = await supabase.from('rooms').select('*').eq('id', roomId).single();
 
         if (error || !data) {
           return null;

@@ -2,6 +2,7 @@ import Foundation
 
 /// A/B Test Manager
 /// Manages A/B testing experiments, variant assignment, and conversion tracking
+@MainActor
 class ABTestManager {
     static let shared = ABTestManager()
     
@@ -51,7 +52,7 @@ class ABTestManager {
     
     /// Check if experiment should be rolled back
     func shouldRollback(_ experiment: ABTestExperiment) -> Bool {
-        guard experiment.status == .active else {
+        guard experiment.status == ABTestExperiment.ExperimentStatus.active else {
             return false
         }
         
@@ -106,7 +107,7 @@ class ABTestManager {
         // Conclude experiment after 1000 conversions
         if totalConversions >= 1000 {
             var updatedExperiment = experiment
-            updatedExperiment.status = .completed
+            updatedExperiment.status = ABTestExperiment.ExperimentStatus.completed
             experiments[experiment.id] = updatedExperiment
             
             print("[ABTestManager] Experiment \(experiment.id) completed")

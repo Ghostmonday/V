@@ -17,9 +17,11 @@ const NOTIFICATION_GROUP = 'notification-workers';
 // Initialize consumer group if using streams
 async function initNotificationStream() {
   try {
-    await redis.xgroup('CREATE', NOTIFICATION_STREAM, NOTIFICATION_GROUP, '0', 'MKSTREAM').catch(() => {
-      // Group already exists, ignore
-    });
+    await redis
+      .xgroup('CREATE', NOTIFICATION_STREAM, NOTIFICATION_GROUP, '0', 'MKSTREAM')
+      .catch(() => {
+        // Group already exists, ignore
+      });
   } catch (error) {
     // Stream doesn't exist yet, will be created on first write
   }
@@ -32,14 +34,17 @@ export async function enqueueNotification(userId: string, payload: any): Promise
       payload: JSON.stringify(payload),
       timestamp: Date.now(),
     };
-    
+
     // Use Redis Streams for better performance
     await redis.xadd(
       NOTIFICATION_STREAM,
       '*',
-      'userId', userId,
-      'payload', JSON.stringify(payload),
-      'timestamp', Date.now().toString()
+      'userId',
+      userId,
+      'payload',
+      JSON.stringify(payload),
+      'timestamp',
+      Date.now().toString()
     );
   } catch (error: any) {
     // Fallback to list if streams not available
@@ -53,10 +58,16 @@ async function processNotificationQueue() {
   try {
     // Read from stream using consumer group
     const messages = await redis.xreadgroup(
-      'GROUP', NOTIFICATION_GROUP, 'worker-1',
-      'COUNT', 10,
-      'BLOCK', 1000,
-      'STREAMS', NOTIFICATION_STREAM, '>'
+      'GROUP',
+      NOTIFICATION_GROUP,
+      'worker-1',
+      'COUNT',
+      10,
+      'BLOCK',
+      1000,
+      'STREAMS',
+      NOTIFICATION_STREAM,
+      '>'
     );
 
     if (!messages || messages.length === 0) {
@@ -89,10 +100,9 @@ async function processNotificationQueue() {
           // Send notification to all active subscriptions
           const sendPromises = (subs || []).map(async (sub: any) => {
             try {
-              const pushSub = typeof sub.push_sub === 'string' 
-                ? JSON.parse(sub.push_sub) 
-                : sub.push_sub;
-              
+              const pushSub =
+                typeof sub.push_sub === 'string' ? JSON.parse(sub.push_sub) : sub.push_sub;
+
               await webPush.sendNotification(pushSub, JSON.stringify(payload));
               logInfo(`Notification sent to user ${userId}`);
             } catch (err: any) {
@@ -134,13 +144,13 @@ async function processNotificationListFallback() {
     // Use SCAN instead of KEYS to avoid blocking
     const cursor = '0';
     const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'notifications:*', 'COUNT', 10);
-    
+
     for (const key of keys) {
       if (key.startsWith('notifications:stream')) continue; // Skip stream keys
-      
+
       const userId = key.split(':')[1];
       const payload = await redis.lpop(key);
-      
+
       if (payload) {
         const { data: subs } = await supabase
           .from('subscriptions')
@@ -150,9 +160,8 @@ async function processNotificationListFallback() {
 
         for (const sub of subs || []) {
           try {
-            const pushSub = typeof sub.push_sub === 'string' 
-              ? JSON.parse(sub.push_sub) 
-              : sub.push_sub;
+            const pushSub =
+              typeof sub.push_sub === 'string' ? JSON.parse(sub.push_sub) : sub.push_sub;
             await webPush.sendNotification(pushSub, payload);
           } catch (err: any) {
             logError(`Failed to send notification`, err);
@@ -166,14 +175,13 @@ async function processNotificationListFallback() {
 }
 
 // Initialize stream on module load
-initNotificationStream().catch(err => {
+initNotificationStream().catch((err) => {
   logError('Failed to initialize notification stream', err);
 });
 
 // Process queue every 2 seconds (less frequent than before)
 setInterval(() => {
-  processNotificationQueue().catch(err => {
+  processNotificationQueue().catch((err) => {
     logError('Notification queue processing error', err);
   });
 }, 2000);
-

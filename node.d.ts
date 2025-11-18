@@ -8,10 +8,20 @@ declare module 'node:fs' {
 
 declare module 'fs' {
   export function readFileSync(path: string | Buffer, encoding?: string): string | Buffer;
-  export function readFileSync(path: string | Buffer, options?: { encoding?: string; flag?: string }): string | Buffer;
-  export function writeFileSync(file: string | Buffer, data: string | Buffer, options?: { encoding?: string; mode?: number; flag?: string }): void;
+  export function readFileSync(
+    path: string | Buffer,
+    options?: { encoding?: string; flag?: string }
+  ): string | Buffer;
+  export function writeFileSync(
+    file: string | Buffer,
+    data: string | Buffer,
+    options?: { encoding?: string; mode?: number; flag?: string }
+  ): void;
   export function existsSync(path: string | Buffer): boolean;
-  export function readdirSync(path: string | Buffer, options?: { encoding?: string; withFileTypes?: boolean }): string[];
+  export function readdirSync(
+    path: string | Buffer,
+    options?: { encoding?: string; withFileTypes?: boolean }
+  ): string[];
   export function statSync(path: string | Buffer): {
     isFile(): boolean;
     isDirectory(): boolean;
@@ -47,23 +57,33 @@ declare module 'crypto' {
   export function createHash(algorithm: string): Hash;
   export function randomBytes(size: number): Buffer;
   export function randomUUID(): string;
-  export function pbkdf2Sync(password: string | Buffer, salt: string | Buffer, iterations: number, keylen: number, digest: string): Buffer;
+  export function pbkdf2Sync(
+    password: string | Buffer,
+    salt: string | Buffer,
+    iterations: number,
+    keylen: number,
+    digest: string
+  ): Buffer;
   export function createHmac(algorithm: string, key: string | Buffer): Hmac;
   export function createECDH(curve: string): ECDH;
-  
+
   export interface Hash {
     update(data: string | Buffer): this;
     digest(encoding?: string): string | Buffer;
   }
-  
+
   export interface Hmac {
     update(data: string | Buffer): this;
     digest(encoding?: string): string | Buffer;
   }
-  
+
   export interface ECDH {
     generateKeys(encoding?: string, format?: string): string | Buffer;
-    computeSecret(otherPublicKey: string | Buffer, inputEncoding?: string, outputEncoding?: string): string | Buffer;
+    computeSecret(
+      otherPublicKey: string | Buffer,
+      inputEncoding?: string,
+      outputEncoding?: string
+    ): string | Buffer;
     getPublicKey(encoding?: string, format?: string): string | Buffer;
     getPrivateKey(encoding?: string): string | Buffer;
     setPrivateKey(privateKey: string | Buffer, encoding?: string): void;
@@ -80,12 +100,15 @@ declare module 'cluster' {
       pid: number;
     };
   }
-  
+
   export const isPrimary: boolean;
   export const isWorker: boolean;
-  
+
   export function fork(env?: Record<string, string>): Worker;
-  export function on(event: 'exit', listener: (worker: Worker, code: number, signal: string) => void): void;
+  export function on(
+    event: 'exit',
+    listener: (worker: Worker, code: number, signal: string) => void
+  ): void;
   export function on(event: 'online', listener: (worker: Worker) => void): void;
   export function on(event: 'disconnect', listener: (worker: Worker) => void): void;
 }
@@ -130,4 +153,3 @@ declare class Buffer {
   toString(encoding?: string): string;
   length: number;
 }
-

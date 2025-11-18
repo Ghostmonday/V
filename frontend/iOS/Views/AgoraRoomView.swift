@@ -66,7 +66,7 @@ struct AgoraRoomView: View {
             ScrollView {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: columns), spacing: 8) {
                     ForEach(members) { member in
-                        VideoTileView(
+                        AgoraVideoTileView(
                             member: member,
                             size: itemSize,
                             isLocal: member.userId == agoraManager.currentUserId
@@ -210,7 +210,7 @@ struct AgoraRoomView: View {
 
 // MARK: - Video Tile View
 
-struct VideoTileView: View {
+struct AgoraVideoTileView: View {
     let member: RoomMember
     let size: CGFloat
     let isLocal: Bool

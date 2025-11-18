@@ -26,6 +26,7 @@ The `.github/workflows/ui-state-tests.yml` workflow has been **completely rewrit
 ## New Test File Created
 
 **`frontend/iOS/Tests/UIStateTests.swift`**
+
 - Comprehensive tests for `ButtonState`, `InputState`, and `FormState` enums
 - Validates all enum cases exist
 - Tests raw value conversion (String-backed enums)
@@ -35,6 +36,7 @@ The `.github/workflows/ui-state-tests.yml` workflow has been **completely rewrit
 ## Workflow Jobs
 
 ### 1. `swift-ui-state-tests`
+
 - Runs on macOS (required for iOS testing)
 - Verifies UI state enum files exist
 - Validates enum definitions have all required cases
@@ -42,16 +44,19 @@ The `.github/workflows/ui-state-tests.yml` workflow has been **completely rewrit
 - Runs Swift tests via `xcodebuild`
 
 ### 2. `swift-telemetry-tests`
+
 - Validates Swift telemetry service exists
 - Verifies `UXEventType` includes UI state events
 - Runs telemetry-specific tests
 
 ### 3. `backend-telemetry-validation`
+
 - Validates backend TypeScript telemetry files exist
 - Type checks backend code
 - Lints backend code
 
 ### 4. `state-enum-coverage`
+
 - Lists all state cases for documentation
 - Verifies `ProgrammaticUIView` uses all state types
 - Provides coverage report
@@ -59,6 +64,7 @@ The `.github/workflows/ui-state-tests.yml` workflow has been **completely rewrit
 ## Files Validated
 
 ### Swift Files (Frontend)
+
 - ✅ `frontend/iOS/Views/Shared/Modifiers/ButtonStateModifier.swift`
 - ✅ `frontend/iOS/Views/Shared/Modifiers/InputStateModifier.swift`
 - ✅ `frontend/iOS/Views/Shared/Modifiers/FormStateModifier.swift`
@@ -67,6 +73,7 @@ The `.github/workflows/ui-state-tests.yml` workflow has been **completely rewrit
 - ✅ `frontend/iOS/Models/UXEventType.swift`
 
 ### TypeScript Files (Backend)
+
 - ✅ `src/routes/ux-telemetry-routes.ts`
 - ✅ `src/services/ux-telemetry-service.ts`
 - ✅ `src/services/ux-telemetry-redaction.ts`
@@ -75,6 +82,7 @@ The `.github/workflows/ui-state-tests.yml` workflow has been **completely rewrit
 ## Next Steps
 
 1. **Generate Xcode Project** (if using XcodeGen):
+
    ```bash
    cd frontend/iOS
    xcodegen generate
@@ -104,4 +112,3 @@ The `.github/workflows/ui-state-tests.yml` workflow has been **completely rewrit
 - New paths added for Swift files
 - Workflow now accurately reflects codebase architecture
 - All tests validate real, existing files
-

@@ -11,9 +11,9 @@
     "lint": "eslint src --max-warnings=0"
   },
   "dependencies": {
-    "@vibez/core": "workspace:*",
-    "@vibez/supabase": "workspace:*",
-    "@vibez/ai-mod": "workspace:*",
+    "@vibez/core": "*",
+    "@vibez/supabase": "*",
+    "@vibez/ai-mod": "*",
     "@aws-sdk/client-s3": "^3.490.0",
     "@supabase/supabase-js": "2.38.1",
     "apn": "^2.2.0",
@@ -35,7 +35,6 @@
     "marked": "^11.1.1",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^2.6.7",
-    "openai": "^4.20.0",
     "p-limit": "^5.0.0",
     "p-retry": "^6.2.0",
     "prom-client": "^15.1.3",

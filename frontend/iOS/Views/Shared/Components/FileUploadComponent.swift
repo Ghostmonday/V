@@ -129,14 +129,23 @@ final class FileUploadViewModel: ObservableObject {
         
         // Check file type
         if provider.hasItemConformingToTypeIdentifier(UTType.data.identifier) {
+            let fileName = provider.suggestedName ?? "file"
             provider.loadItem(forTypeIdentifier: UTType.data.identifier, options: nil) { [weak self] data, error in
+                // Copy data immediately to avoid data race
+                let fileData: Data?
+                if let data = data as? Data {
+                    fileData = Data(data) // Create a copy
+                } else {
+                    fileData = nil
+                }
+                
                 Task { @MainActor in
                     if let error = error {
                         self?.error = "Failed to load file: \(error.localizedDescription)"
                         return
                     }
                     
-                    guard let fileData = data as? Data else {
+                    guard let fileData = fileData else {
                         self?.error = "Invalid file data"
                         return
                     }
@@ -148,7 +157,7 @@ final class FileUploadViewModel: ObservableObject {
                         return
                     }
                     
-                    await self?.uploadFile(data: fileData, fileName: provider.suggestedName ?? "file")
+                    await self?.uploadFile(data: fileData, fileName: fileName)
                 }
             }
         } else {
@@ -178,8 +187,8 @@ final class FileUploadViewModel: ObservableObject {
             request.httpMethod = "POST"
             request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             
-            if let token = AuthTokenManager.shared.token {
-                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            if let session = SupabaseAuthService.shared.currentSession {
+                request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
             }
             
             request.httpBody = body

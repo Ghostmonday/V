@@ -27,14 +27,14 @@ describe('Message Service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockRedis = {
       publish: vi.fn().mockResolvedValue(1),
     };
-    
+
     vi.mocked(getRedisClient).mockReturnValue(mockRedis as any);
     vi.mocked(moderationService.isUserMuted).mockResolvedValue(false);
-    vi.mocked(roomService.getRoomConfig).mockResolvedValue(null);
+    // getRoomConfig doesn't exist in room-service, skip this mock
     vi.mocked(supabaseHelpers.create).mockResolvedValue({ id: 'test-message-id' } as any);
   });
 
@@ -55,15 +55,17 @@ describe('Message Service', () => {
 
     it('should throw error if user is muted', async () => {
       vi.mocked(moderationService.isUserMuted).mockResolvedValue(true);
-      
+
       const messageData = {
         roomId: 'test-room-id',
         senderId: 'test-user-id',
         content: 'Hello, world!',
       };
 
-      await expect(sendMessageToRoom(messageData)).rejects.toThrow('You are temporarily muted in this room');
-      
+      await expect(sendMessageToRoom(messageData)).rejects.toThrow(
+        'You are temporarily muted in this room'
+      );
+
       expect(supabaseHelpers.create).not.toHaveBeenCalled();
       expect(mockRedis.publish).not.toHaveBeenCalled();
     });
@@ -87,7 +89,7 @@ describe('Message Service', () => {
         { id: '1', content: 'Message 1' },
         { id: '2', content: 'Message 2' },
       ];
-      
+
       vi.mocked(supabaseHelpers.findMany).mockResolvedValue(mockMessages as any);
 
       const result = await getRoomMessages('test-room-id');
@@ -108,7 +110,7 @@ describe('Message Service', () => {
 
     it('should handle array of roomIds for batch query', async () => {
       const mockMessages = [{ id: '1', content: 'Message 1' }];
-      
+
       // Mock the supabase RPC call
       const { supabase } = await import('../../config/db.js');
       vi.mocked(supabase.rpc).mockResolvedValue({ data: mockMessages, error: null } as any);
@@ -119,4 +121,3 @@ describe('Message Service', () => {
     });
   });
 });
-

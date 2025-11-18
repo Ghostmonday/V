@@ -51,6 +51,7 @@ struct ChatView: View {
                         .textFieldStyle(.roundedBorder)
                         .font(.body) // Dynamic Type support
                         .accessibilityLabel("Message input")
+                        .accessibilityIdentifier("Message...")
                         .accessibilityHint("Type your message here")
                     
                     Button("Send") {
@@ -103,13 +104,10 @@ struct ChatView: View {
         
         Task {
             do {
-                // Get current user ID from auth token
-                guard let userId = AuthTokenManager.shared.token.flatMap({ token in
-                    // Extract user ID from JWT token (simplified - in production, decode JWT properly)
-                    // For now, use a placeholder UUID - should be extracted from token claims
-                    return UUID() // TODO: Extract from JWT claims
-                }) else {
-                    print("Failed to get user ID")
+                // Get current user ID from Supabase session
+                guard let session = SupabaseAuthService.shared.currentSession,
+                      let userId = UUID(uuidString: session.userId) else {
+                    print("Failed to get user ID from session")
                     return
                 }
                 

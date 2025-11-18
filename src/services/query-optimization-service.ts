@@ -32,21 +32,21 @@ export async function getMessagesPaginated(
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(roomId)) {
       throw new Error('Invalid room ID format');
     }
-    
+
     // VALIDATION CHECKPOINT: Validate limit value (1-100)
     const limit = Math.max(1, Math.min(100, options.limit || 50));
     const { cursor, direction = 'backward' } = options;
-    
+
     // VALIDATION CHECKPOINT: Validate cursor format if provided
     if (cursor && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(cursor)) {
       throw new Error('Invalid cursor format. Must be ISO timestamp.');
     }
-    
+
     // VALIDATION CHECKPOINT: Validate pagination direction
     if (direction !== 'forward' && direction !== 'backward') {
       throw new Error('Invalid pagination direction. Must be "forward" or "backward".');
     }
-    
+
     let query = supabase
       .from('messages')
       .select('*')
@@ -72,23 +72,22 @@ export async function getMessagesPaginated(
     }
 
     const messages = data || [];
-    
+
     // VALIDATION CHECKPOINT: Validate result set structure
     if (!Array.isArray(messages)) {
       throw new Error('Query returned non-array result');
     }
-    
+
     const hasMore = messages.length > limit;
     const resultMessages = hasMore ? messages.slice(0, limit) : messages;
 
     // Generate cursors
-    const nextCursor = hasMore && resultMessages.length > 0
-      ? resultMessages[resultMessages.length - 1].created_at
-      : undefined;
-    const prevCursor = resultMessages.length > 0
-      ? resultMessages[0].created_at
-      : undefined;
-    
+    const nextCursor =
+      hasMore && resultMessages.length > 0
+        ? resultMessages[resultMessages.length - 1].created_at
+        : undefined;
+    const prevCursor = resultMessages.length > 0 ? resultMessages[0].created_at : undefined;
+
     // VALIDATION CHECKPOINT: Validate cursor calculation
     if (nextCursor && typeof nextCursor !== 'string') {
       logError('Invalid next cursor type', new Error(`Expected string, got ${typeof nextCursor}`));
@@ -142,4 +141,3 @@ export async function getConversationHistory(
     return [];
   }
 }
-

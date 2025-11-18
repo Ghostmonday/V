@@ -170,9 +170,10 @@ struct ChatInputView: View {
     
     private func sendMessage(_ message: String) async {
         do {
-            // Get current user ID
-            guard let userId = AuthTokenManager.shared.token.flatMap({ _ in UUID() }) else {
-                print("[ChatInput] No auth token available")
+            // Get current user ID from Supabase session
+            guard let session = SupabaseAuthService.shared.currentSession,
+                  let userId = UUID(uuidString: session.userId) else {
+                print("[ChatInput] No auth session available")
                 return
             }
             

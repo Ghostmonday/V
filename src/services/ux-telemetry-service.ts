@@ -1,9 +1,9 @@
 /**
  * UX Telemetry Service
- * 
+ *
  * Service layer for storing and querying UX telemetry events.
  * Completely separate from system/infra telemetry.
- * 
+ *
  * @module ux-telemetry-service
  */
 
@@ -24,10 +24,10 @@ export async function insertUXTelemetryEvent(
     if (Math.random() >= 0.1) {
       return { success: true }; // Sampled out - return success without DB write
     }
-    
+
     // Redact PII (server-side safety net)
     const { event: redactedEvent, stats } = redactUXTelemetryEvent(event);
-    
+
     // Insert into database
     const { error } = await supabase.from('ux_telemetry').insert({
       trace_id: redactedEvent.traceId,
@@ -44,20 +44,23 @@ export async function insertUXTelemetryEvent(
       room_id: redactedEvent.roomId || null,
       event_time: redactedEvent.timestamp,
     });
-    
+
     if (error) {
       logError('[UX Telemetry] Failed to insert event', error);
       return { success: false, error: error.message };
     }
-    
+
     if (stats.wasModified) {
       logInfo(`[UX Telemetry] Event inserted with PII redaction: ${redactedEvent.eventType}`);
     }
-    
+
     return { success: true };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    logError('[UX Telemetry] Error inserting event', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      '[UX Telemetry] Error inserting event',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return { success: false, error: errorMessage };
   }
 }
@@ -66,9 +69,7 @@ export async function insertUXTelemetryEvent(
  * Insert a batch of UX telemetry events
  * Samples 10% of events to reduce DB writes while maintaining signal quality
  */
-export async function insertUXTelemetryBatch(
-  events: UXTelemetryEvent[]
-): Promise<{
+export async function insertUXTelemetryBatch(events: UXTelemetryEvent[]): Promise<{
   success: boolean;
   inserted: number;
   failed: number;
@@ -77,7 +78,7 @@ export async function insertUXTelemetryBatch(
   try {
     // Sample 10% of events (90% reduction in DB writes)
     const sampledEvents = events.filter(() => Math.random() < 0.1);
-    
+
     if (sampledEvents.length === 0) {
       return {
         success: true,
@@ -86,19 +87,19 @@ export async function insertUXTelemetryBatch(
         errors: [],
       };
     }
-    
+
     // Redact PII from batch
     const { events: redactedEvents, stats } = redactUXTelemetryBatch(sampledEvents);
-    
+
     if (stats.wasModified) {
       logInfo(
         `[UX Telemetry] Batch redaction: ${stats.fieldsRedacted} fields, ` +
-        `${stats.totalPiiInstances} PII instances removed`
+          `${stats.totalPiiInstances} PII instances removed`
       );
     }
-    
+
     // Transform events for database
-    const dbEvents = redactedEvents.map(event => ({
+    const dbEvents = redactedEvents.map((event) => ({
       trace_id: event.traceId,
       session_id: event.sessionId,
       event_type: event.eventType,
@@ -113,13 +114,10 @@ export async function insertUXTelemetryBatch(
       room_id: event.roomId || null,
       event_time: event.timestamp,
     }));
-    
+
     // Batch insert
-    const { data, error } = await supabase
-      .from('ux_telemetry')
-      .insert(dbEvents)
-      .select('id');
-    
+    const { data, error } = await supabase.from('ux_telemetry').insert(dbEvents).select('id');
+
     if (error) {
       logError('[UX Telemetry] Failed to insert batch', error);
       return {
@@ -129,12 +127,14 @@ export async function insertUXTelemetryBatch(
         errors: [error.message],
       };
     }
-    
+
     const inserted = data?.length || 0;
     const failed = sampledEvents.length - inserted;
-    
-    logInfo(`[UX Telemetry] Batch inserted: ${inserted} events (sampled from ${events.length}), ${failed} failed`);
-    
+
+    logInfo(
+      `[UX Telemetry] Batch inserted: ${inserted} events (sampled from ${events.length}), ${failed} failed`
+    );
+
     return {
       success: failed === 0,
       inserted,
@@ -167,12 +167,12 @@ export async function getEventsBySession(
       .eq('session_id', sessionId)
       .order('event_time', { ascending: true })
       .limit(limit);
-    
+
     if (error) {
       logError('[UX Telemetry] Error fetching events by session', error);
       return null;
     }
-    
+
     // Transform database records to UXTelemetryEvent format
     return (data || []).map(transformDbToEvent);
   } catch (error) {
@@ -191,7 +191,7 @@ export async function getEventsByCategory(
 ): Promise<UXTelemetryEvent[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     const { data, error } = await supabase
       .from('ux_telemetry')
       .select('*')
@@ -199,12 +199,12 @@ export async function getEventsByCategory(
       .gte('event_time', since)
       .order('event_time', { ascending: false })
       .limit(limit);
-    
+
     if (error) {
       logError('[UX Telemetry] Error fetching events by category', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getEventsByCategory', error);
@@ -226,12 +226,12 @@ export async function getEventsByTrace(
       .eq('trace_id', traceId)
       .order('event_time', { ascending: true })
       .limit(limit);
-    
+
     if (error) {
       logError('[UX Telemetry] Error fetching events by trace', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getEventsByTrace', error);
@@ -249,7 +249,7 @@ export async function getEventsByUser(
 ): Promise<UXTelemetryEvent[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     const { data, error } = await supabase
       .from('ux_telemetry')
       .select('*')
@@ -257,12 +257,12 @@ export async function getEventsByUser(
       .gte('event_time', since)
       .order('event_time', { ascending: false })
       .limit(limit);
-    
+
     if (error) {
       logError('[UX Telemetry] Error fetching events by user', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getEventsByUser', error);
@@ -276,25 +276,25 @@ export async function getEventsByUser(
 export async function getRecentSummary(hours: number = 24): Promise<any[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     const { data, error } = await supabase.rpc('get_ux_recent_summary', {
       p_hours: hours,
     });
-    
+
     if (error) {
       // Fallback to manual query if RPC doesn't exist
       const { data: viewData, error: viewError } = await supabase
         .from('ux_telemetry_recent_summary')
         .select('*');
-      
+
       if (viewError) {
         logError('[UX Telemetry] Error fetching recent summary', viewError);
         return null;
       }
-      
+
       return viewData;
     }
-    
+
     return data;
   } catch (error) {
     logError('[UX Telemetry] Error in getRecentSummary', error);
@@ -307,15 +307,13 @@ export async function getRecentSummary(hours: number = 24): Promise<any[] | null
  */
 export async function getCategorySummary(): Promise<any[] | null> {
   try {
-    const { data, error } = await supabase
-      .from('ux_telemetry_category_summary')
-      .select('*');
-    
+    const { data, error } = await supabase.from('ux_telemetry_category_summary').select('*');
+
     if (error) {
       logError('[UX Telemetry] Error fetching category summary', error);
       return null;
     }
-    
+
     return data;
   } catch (error) {
     logError('[UX Telemetry] Error in getCategorySummary', error);
@@ -332,7 +330,7 @@ export async function getAIFeedbackEvents(
 ): Promise<UXTelemetryEvent[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     const { data, error } = await supabase
       .from('ux_telemetry')
       .select('*')
@@ -340,12 +338,12 @@ export async function getAIFeedbackEvents(
       .gte('event_time', since)
       .order('event_time', { ascending: false })
       .limit(limit);
-    
+
     if (error) {
       logError('[UX Telemetry] Error fetching AI feedback events', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getAIFeedbackEvents', error);
@@ -363,26 +361,24 @@ export async function getEmotionalEvents(
 ): Promise<UXTelemetryEvent[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     let query = supabase
       .from('ux_telemetry')
       .select('*')
       .eq('category', 'cognitive_state')
       .gte('event_time', since);
-    
+
     if (sessionId) {
       query = query.eq('session_id', sessionId);
     }
-    
-    const { data, error } = await query
-      .order('event_time', { ascending: true })
-      .limit(limit);
-    
+
+    const { data, error } = await query.order('event_time', { ascending: true }).limit(limit);
+
     if (error) {
       logError('[UX Telemetry] Error fetching emotional events', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getEmotionalEvents', error);
@@ -400,26 +396,24 @@ export async function getJourneyEvents(
 ): Promise<UXTelemetryEvent[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     let query = supabase
       .from('ux_telemetry')
       .select('*')
       .eq('category', 'journey_analytics')
       .gte('event_time', since);
-    
+
     if (sessionId) {
       query = query.eq('session_id', sessionId);
     }
-    
-    const { data, error } = await query
-      .order('event_time', { ascending: true })
-      .limit(limit);
-    
+
+    const { data, error } = await query.order('event_time', { ascending: true }).limit(limit);
+
     if (error) {
       logError('[UX Telemetry] Error fetching journey events', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getJourneyEvents', error);
@@ -436,7 +430,7 @@ export async function getPerformanceEvents(
 ): Promise<UXTelemetryEvent[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     const { data, error } = await supabase
       .from('ux_telemetry')
       .select('*')
@@ -444,12 +438,12 @@ export async function getPerformanceEvents(
       .gte('event_time', since)
       .order('event_time', { ascending: false })
       .limit(limit);
-    
+
     if (error) {
       logError('[UX Telemetry] Error fetching performance events', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getPerformanceEvents', error);
@@ -466,7 +460,7 @@ export async function getBehaviorEvents(
 ): Promise<UXTelemetryEvent[] | null> {
   try {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    
+
     const { data, error } = await supabase
       .from('ux_telemetry')
       .select('*')
@@ -474,12 +468,12 @@ export async function getBehaviorEvents(
       .gte('event_time', since)
       .order('event_time', { ascending: false })
       .limit(limit);
-    
+
     if (error) {
       logError('[UX Telemetry] Error fetching behavior events', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in getBehaviorEvents', error);
@@ -499,11 +493,11 @@ export async function getAISuggestionMetrics(hours: number = 168): Promise<{
   try {
     const events = await getAIFeedbackEvents(hours);
     if (!events) return null;
-    
-    const accepted = events.filter(e => e.eventType === 'ai_suggestion_accepted').length;
-    const rejected = events.filter(e => e.eventType === 'ai_suggestion_rejected').length;
+
+    const accepted = events.filter((e) => e.eventType === 'ai_suggestion_accepted').length;
+    const rejected = events.filter((e) => e.eventType === 'ai_suggestion_rejected').length;
     const totalSuggestions = accepted + rejected;
-    
+
     return {
       totalSuggestions,
       accepted,
@@ -517,48 +511,12 @@ export async function getAISuggestionMetrics(hours: number = 168): Promise<{
 }
 
 /**
- * Aggregate sentiment metrics
+ * Aggregate sentiment metrics (REMOVED - gamification element)
+ * This function has been removed as part of removing gamification elements.
  */
-export async function getSentimentMetrics(hours: number = 168): Promise<{
-  avgSentiment: number;
-  volatility: number;
-  positiveTrend: boolean;
-} | null> {
-  try {
-    const events = await getEmotionalEvents(undefined, hours);
-    if (!events) return null;
-    
-    const sentimentEvents = events.filter(
-      e => e.eventType === 'message_sentiment_before' || e.eventType === 'message_sentiment_after'
-    );
-    
-    const scores = sentimentEvents
-      .map(e => (e.metadata as any).sentimentScore)
-      .filter(s => typeof s === 'number');
-    
-    if (scores.length === 0) return null;
-    
-    const avgSentiment = scores.reduce((a, b) => a + b, 0) / scores.length;
-    const variance = scores.reduce((sum, score) => sum + Math.pow(score - avgSentiment, 2), 0) / scores.length;
-    const volatility = Math.sqrt(variance);
-    
-    // Check if trend is positive (last 25% vs first 25%)
-    const quarterSize = Math.floor(scores.length / 4);
-    const firstQuarter = scores.slice(0, quarterSize);
-    const lastQuarter = scores.slice(-quarterSize);
-    const positiveTrend = 
-      lastQuarter.reduce((a, b) => a + b, 0) / lastQuarter.length > 
-      firstQuarter.reduce((a, b) => a + b, 0) / firstQuarter.length;
-    
-    return {
-      avgSentiment,
-      volatility,
-      positiveTrend,
-    };
-  } catch (error) {
-    logError('[UX Telemetry] Error in getSentimentMetrics', error);
-    return null;
-  }
+export async function getSentimentMetrics(hours: number = 168): Promise<null> {
+  // Gamification removed - sentiment metrics no longer tracked
+  return null;
 }
 
 /**
@@ -572,11 +530,11 @@ export async function getFunnelMetrics(hours: number = 168): Promise<{
   try {
     const events = await getJourneyEvents(undefined, hours);
     if (!events) return null;
-    
-    const checkpoints = events.filter(e => e.eventType === 'funnel_checkpoint_hit').length;
-    const dropoffs = events.filter(e => e.eventType === 'dropoff_point_detected').length;
+
+    const checkpoints = events.filter((e) => e.eventType === 'funnel_checkpoint_hit').length;
+    const dropoffs = events.filter((e) => e.eventType === 'dropoff_point_detected').length;
     const total = checkpoints + dropoffs;
-    
+
     return {
       totalCheckpoints: checkpoints,
       totalDropoffs: dropoffs,
@@ -600,20 +558,24 @@ export async function getPerformanceMetrics(hours: number = 24): Promise<{
   try {
     const events = await getPerformanceEvents(hours);
     if (!events) return null;
-    
-    const loadTimeEvents = events.filter(e => e.eventType === 'load_time_perceived_vs_actual');
-    const latencyEvents = events.filter(e => e.eventType === 'interaction_latency_ms');
-    const stutterEvents = events.filter(e => e.eventType === 'stuttered_input');
-    const longStateEvents = events.filter(e => e.eventType === 'long_state_without_progress');
-    
-    const avgLoadTime = loadTimeEvents.length > 0
-      ? loadTimeEvents.reduce((sum, e) => sum + ((e.metadata as any).actualMs || 0), 0) / loadTimeEvents.length
-      : 0;
-    
-    const avgInteractionLatency = latencyEvents.length > 0
-      ? latencyEvents.reduce((sum, e) => sum + ((e.metadata as any).duration || 0), 0) / latencyEvents.length
-      : 0;
-    
+
+    const loadTimeEvents = events.filter((e) => e.eventType === 'load_time_perceived_vs_actual');
+    const latencyEvents = events.filter((e) => e.eventType === 'interaction_latency_ms');
+    const stutterEvents = events.filter((e) => e.eventType === 'stuttered_input');
+    const longStateEvents = events.filter((e) => e.eventType === 'long_state_without_progress');
+
+    const avgLoadTime =
+      loadTimeEvents.length > 0
+        ? loadTimeEvents.reduce((sum, e) => sum + ((e.metadata as any).actualMs || 0), 0) /
+          loadTimeEvents.length
+        : 0;
+
+    const avgInteractionLatency =
+      latencyEvents.length > 0
+        ? latencyEvents.reduce((sum, e) => sum + ((e.metadata as any).duration || 0), 0) /
+          latencyEvents.length
+        : 0;
+
     return {
       avgLoadTime,
       avgInteractionLatency,
@@ -634,15 +596,15 @@ export async function deleteUserTelemetry(userId: string): Promise<number> {
     const { data, error } = await supabase.rpc('delete_user_ux_telemetry', {
       p_user_id: userId,
     });
-    
+
     if (error) {
       logError('[UX Telemetry] Error deleting user telemetry', error);
       return 0;
     }
-    
+
     const deletedCount = data || 0;
     logInfo(`[UX Telemetry] Deleted ${deletedCount} events for user ${userId}`);
-    
+
     return deletedCount;
   } catch (error) {
     logError('[UX Telemetry] Error in deleteUserTelemetry', error);
@@ -653,21 +615,19 @@ export async function deleteUserTelemetry(userId: string): Promise<number> {
 /**
  * Export user's UX telemetry (GDPR compliance)
  */
-export async function exportUserTelemetry(
-  userId: string
-): Promise<UXTelemetryEvent[] | null> {
+export async function exportUserTelemetry(userId: string): Promise<UXTelemetryEvent[] | null> {
   try {
     const { data, error } = await supabase
       .from('ux_telemetry')
       .select('*')
       .eq('user_id', userId)
       .order('event_time', { ascending: true });
-    
+
     if (error) {
       logError('[UX Telemetry] Error exporting user telemetry', error);
       return null;
     }
-    
+
     return (data || []).map(transformDbToEvent);
   } catch (error) {
     logError('[UX Telemetry] Error in exportUserTelemetry', error);
@@ -695,4 +655,3 @@ function transformDbToEvent(dbRecord: any): UXTelemetryEvent {
     roomId: dbRecord.room_id,
   };
 }
-

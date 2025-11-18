@@ -1,7 +1,7 @@
 /**
  * Sentiment Analysis Service
  * Real NLP-based sentiment analysis with caching and error fallback
- * 
+ *
  * Uses 'sentiment' npm package for Node.js sentiment analysis
  * Maps polarity: >0.6 = happy, <-0.6 = sad, else neutral
  */
@@ -66,13 +66,13 @@ export async function analyzeSentiment(text: string): Promise<SentimentResult> {
       // Use real sentiment analysis
       const sentiment = new Sentiment();
       const result = sentiment.analyze(text);
-      
+
       // Sentiment package returns score: positive = positive, negative = negative
       // Normalize to -1 to 1 range
       const score = result.score || 0;
       const maxScore = Math.max(Math.abs(score), 10); // Normalize by max expected score
       polarity = Math.max(-1, Math.min(1, score / maxScore));
-      
+
       // Calculate confidence based on word count
       const wordCount = result.words?.length || 0;
       confidence = Math.min(1, wordCount / 10); // More words = higher confidence
@@ -128,7 +128,7 @@ function hashText(text: string): string {
   let hash = 0;
   for (let i = 0; i < text.length; i++) {
     const char = text.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   return Math.abs(hash).toString(36);
@@ -138,13 +138,35 @@ function hashText(text: string): string {
  * Fallback sentiment calculation (simple keyword matching)
  */
 function calculateBasicSentiment(text: string): number {
-  const positiveWords = ['love', 'happy', 'great', 'amazing', 'wonderful', 'excellent', 'fantastic', 'good', 'nice', 'awesome'];
-  const negativeWords = ['hate', 'sad', 'bad', 'terrible', 'awful', 'horrible', 'worst', 'disappointed', 'angry', 'frustrated'];
-  
+  const positiveWords = [
+    'love',
+    'happy',
+    'great',
+    'amazing',
+    'wonderful',
+    'excellent',
+    'fantastic',
+    'good',
+    'nice',
+    'awesome',
+  ];
+  const negativeWords = [
+    'hate',
+    'sad',
+    'bad',
+    'terrible',
+    'awful',
+    'horrible',
+    'worst',
+    'disappointed',
+    'angry',
+    'frustrated',
+  ];
+
   const lowerText = text.toLowerCase();
-  const positiveCount = positiveWords.filter(w => lowerText.includes(w)).length;
-  const negativeCount = negativeWords.filter(w => lowerText.includes(w)).length;
-  
+  const positiveCount = positiveWords.filter((w) => lowerText.includes(w)).length;
+  const negativeCount = negativeWords.filter((w) => lowerText.includes(w)).length;
+
   if (positiveCount + negativeCount === 0) return 0;
   return (positiveCount - negativeCount) / (positiveCount + negativeCount + 1);
 }
@@ -153,6 +175,5 @@ function calculateBasicSentiment(text: string): number {
  * Batch analyze multiple texts
  */
 export async function analyzeSentimentBatch(texts: string[]): Promise<SentimentResult[]> {
-  return Promise.all(texts.map(text => analyzeSentiment(text)));
+  return Promise.all(texts.map((text) => analyzeSentiment(text)));
 }
-

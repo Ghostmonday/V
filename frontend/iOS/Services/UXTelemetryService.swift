@@ -417,20 +417,7 @@ class UXTelemetryService {
     
     // MARK: - Emotional & Cognitive State
     
-    static func logSentiment(
-        sentimentScore: Double,
-        beforeAfter: String,
-        metadata: [String: Any] = [:]
-    ) {
-        var meta = metadata
-        meta["sentimentScore"] = sentimentScore
-        let eventType: UXEventType = beforeAfter == "before" ? .messageSentimentBefore : .messageSentimentAfter
-        shared.logEvent(
-            eventType: eventType,
-            category: .cognitiveState,
-            metadata: meta
-        )
-    }
+    // logSentiment removed - gamification element
     
     static func logEmotionCurve(
         emotionCurve: [[String: Any]],

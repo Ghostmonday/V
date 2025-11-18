@@ -30,7 +30,10 @@ export async function getEntitlements(userId: string): Promise<Record<string, an
 
     return data?.entitlements || {};
   } catch (error) {
-    logError('Failed to get entitlements', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to get entitlements',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return {};
   }
 }
@@ -71,18 +74,16 @@ export async function updateSubscription(
       updateData.product_id = productId;
     }
 
-    const { error } = await supabase
-      .from('monetization_subscriptions')
-      .upsert(updateData, {
-        onConflict: 'user_id',
-      });
+    const { error } = await supabase.from('monetization_subscriptions').upsert(updateData, {
+      onConflict: 'user_id',
+    });
 
     if (error) {
       throw error;
     }
 
     logInfo(`Updated subscription for user ${userId}: ${plan} - ${status}`);
-    
+
     // Log telemetry event
     await logTelemetryEvent('subscription_updated', {
       userId,
@@ -94,7 +95,10 @@ export async function updateSubscription(
       // Don't fail if telemetry fails
     });
   } catch (error) {
-    logError('Failed to update subscription', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to update subscription',
+      error instanceof Error ? error : new Error(String(error))
+    );
     throw error;
   }
 }
@@ -105,7 +109,7 @@ export async function updateSubscription(
 export async function hasEntitlement(userId: string, productId: string): Promise<boolean> {
   try {
     const entitlements = await getEntitlements(userId);
-    
+
     // Check if productId is in entitlements JSONB
     if (entitlements && typeof entitlements === 'object') {
       return productId in entitlements || entitlements[productId] === true;
@@ -124,17 +128,21 @@ export async function hasEntitlement(userId: string, productId: string): Promise
       if (data.product_id === productId) {
         return true;
       }
-      
+
       // Check plan-based mapping
       if (productId === 'pro_monthly' || productId === 'pro_annual') {
-        return data.plan === 'pro_monthly' || data.plan === 'pro_annual' || data.plan === 'professional';
+        return (
+          data.plan === 'pro_monthly' || data.plan === 'pro_annual' || data.plan === 'professional'
+        );
       }
     }
 
     return false;
   } catch (error) {
-    logError('Failed to check entitlement', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to check entitlement',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return false;
   }
 }
-

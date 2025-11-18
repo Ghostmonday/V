@@ -41,4 +41,3 @@ export async function getVIBESAnalytics(): Promise<VIBESAnalytics> {
     throw error;
   }
 }
-

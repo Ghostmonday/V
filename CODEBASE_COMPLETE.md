@@ -25085,11 +25085,9 @@ export async function findMany<T = unknown>(
     }
 
     // Start with base query: SELECT * FROM table
-    let query = supabase
-      .from(table)
-      .select(options?.includeTotal ? '*,count' : '*', {
-        count: options?.includeTotal ? 'exact' : undefined,
-      });
+    let query = supabase.from(table).select(options?.includeTotal ? '*,count' : '*', {
+      count: options?.includeTotal ? 'exact' : undefined,
+    });
 
     // Apply filters (WHERE conditions)
     // Builds: WHERE key1 = value1 AND key2 = value2 ...

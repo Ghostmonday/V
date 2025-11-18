@@ -65,7 +65,10 @@ export function endQueryTracking(queryId: string): number {
       params: context.params ? sanitizeParams(context.params) : undefined,
     };
 
-    logWarning(`Slow query detected: ${context.table}.${context.operation} took ${duration}ms`, logEntry);
+    logWarning(
+      `Slow query detected: ${context.table}.${context.operation} took ${duration}ms`,
+      logEntry
+    );
     console.warn(JSON.stringify(logEntry));
   }
 
@@ -86,7 +89,7 @@ function truncateQuery(query: string, maxLength: number = 200): string {
  * Sanitize query parameters (remove sensitive data)
  */
 function sanitizeParams(params: any[]): any[] {
-  return params.map(param => {
+  return params.map((param) => {
     if (typeof param === 'string' && param.length > 50) {
       return param.substring(0, 50) + '...';
     }
@@ -114,4 +117,3 @@ export function getSlowQueryStats(): {
     averageDuration: 0,
   };
 }
-

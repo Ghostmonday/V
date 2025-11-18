@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import FirebaseAuth
 
 struct User: Codable, Identifiable {
     let id: UUID
@@ -48,18 +47,18 @@ struct User: Codable, Identifiable {
     }
 }
 
-// MARK: - Firebase User Conversion Extension
+// MARK: - Supabase User Conversion Extension
 
 extension User {
-    /// Convert Firebase User to app User model
-    static func from(firebaseUser: FirebaseAuth.User) -> User {
-        // Use Firebase UID as UUID (or generate from string)
+    /// Convert Supabase user data to app User model
+    static func from(supabaseUserId: String, email: String?, displayName: String? = nil, avatar: String? = nil) -> User {
+        // Use Supabase user ID as UUID (or generate from string)
         let userId: UUID
-        if let uuid = UUID(uuidString: firebaseUser.uid) {
+        if let uuid = UUID(uuidString: supabaseUserId) {
             userId = uuid
         } else {
-            // Generate deterministic UUID from Firebase UID
-            let uid = firebaseUser.uid
+            // Generate deterministic UUID from Supabase user ID
+            let uid = supabaseUserId
             let formattedUID = String(format: "%@-%@-%@-%@-%@",
                 String(uid.prefix(8)),
                 String(uid.dropFirst(8).prefix(4)),
@@ -69,13 +68,13 @@ extension User {
             userId = UUID(uuidString: formattedUID) ?? UUID()
         }
         
-        let displayName = firebaseUser.displayName ?? firebaseUser.email?.components(separatedBy: "@").first ?? "User"
-        let avatar = firebaseUser.photoURL?.absoluteString ?? ""
+        let name = displayName ?? email?.components(separatedBy: "@").first ?? "User"
+        let avatarURL = avatar ?? ""
         
         return User(
             id: userId,
-            name: displayName,
-            avatar: avatar,
+            name: name,
+            avatar: avatarURL,
             mood: "calm"
         )
     }

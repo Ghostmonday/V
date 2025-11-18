@@ -4,13 +4,15 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { rateLimit, userRateLimit, ipRateLimit } from '../rate-limiter.js';
 import {
   createMockRequest,
   createMockResponse,
   createMockNext,
   createMockRedis,
 } from '../../tests/__helpers__/test-setup.js';
+
+// Import the functions after mocking to avoid circular dependency
+let rateLimit: any, userRateLimit: any, ipRateLimit: any;
 
 // Mock Redis
 vi.mock('../../config/db.ts', () => ({
@@ -32,6 +34,14 @@ describe('Rate Limiter', () => {
   let req: any;
   let res: any;
   let next: any;
+
+  beforeAll(async () => {
+    // Load the functions after mocking to avoid circular dependency
+    const rateLimiterModule = await import('../rate-limiter.js');
+    rateLimit = rateLimiterModule.rateLimit;
+    userRateLimit = rateLimiterModule.userRateLimit;
+    ipRateLimit = rateLimiterModule.ipRateLimit;
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();

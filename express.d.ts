@@ -28,32 +28,74 @@ declare module 'express' {
   export type NextFunction = (err?: any) => void;
 
   export interface Application {
-    use(...handlers: Array<((req: Request, res: Response, next?: NextFunction) => void | Promise<void>) | ((err: any, req: Request, res: Response, next: NextFunction) => void) | Router>): void;
+    use(
+      ...handlers: Array<
+        | ((req: Request, res: Response, next?: NextFunction) => void | Promise<void>)
+        | ((err: any, req: Request, res: Response, next: NextFunction) => void)
+        | Router
+      >
+    ): void;
     listen(port: number, callback?: () => void): void;
     json(): any;
-    post(path: string, ...handlers: Array<(req: Request, res: Response, next?: NextFunction) => void | Promise<void>>): void;
-    get(path: string, ...handlers: Array<(req: Request, res: Response, next?: NextFunction) => void | Promise<void>>): void;
+    post(
+      path: string,
+      ...handlers: Array<(req: Request, res: Response, next?: NextFunction) => void | Promise<void>>
+    ): void;
+    get(
+      path: string,
+      ...handlers: Array<(req: Request, res: Response, next?: NextFunction) => void | Promise<void>>
+    ): void;
   }
 
   export interface Router {
-    get(path: string, ...handlers: Array<((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router>): void;
-    post(path: string, ...handlers: Array<((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router>): void;
-    put(path: string, ...handlers: Array<((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router>): void;
-    delete(path: string, ...handlers: Array<((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router>): void;
-    patch(path: string, ...handlers: Array<((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router>): void;
-    use(...handlers: Array<((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router>): void;
+    get(
+      path: string,
+      ...handlers: Array<
+        ((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router
+      >
+    ): void;
+    post(
+      path: string,
+      ...handlers: Array<
+        ((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router
+      >
+    ): void;
+    put(
+      path: string,
+      ...handlers: Array<
+        ((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router
+      >
+    ): void;
+    delete(
+      path: string,
+      ...handlers: Array<
+        ((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router
+      >
+    ): void;
+    patch(
+      path: string,
+      ...handlers: Array<
+        ((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router
+      >
+    ): void;
+    use(
+      ...handlers: Array<
+        ((req: Request | any, res: Response, next?: NextFunction) => void | Promise<void>) | Router
+      >
+    ): void;
   }
 
   export interface Application {
-    use(...handlers: Array<(req: Request, res: Response, next?: NextFunction) => void | Promise<void>>): void;
+    use(
+      ...handlers: Array<(req: Request, res: Response, next?: NextFunction) => void | Promise<void>>
+    ): void;
     listen(port: number, callback?: () => void): void;
   }
 
   function express(): Application;
   export default express;
   export function Router(): Router;
-  
+
   // Export Application type for use in tests
   export type { Application };
 }
-

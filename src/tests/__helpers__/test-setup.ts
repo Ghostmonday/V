@@ -12,7 +12,7 @@ import type { RedisClientType } from 'redis';
 export function createMockRedis(): Partial<RedisClientType> {
   const store = new Map<string, string>();
   const sortedSets = new Map<string, Map<string, number>>();
-  
+
   return {
     get: vi.fn(async (key: string) => {
       return store.get(key) || null;
@@ -106,7 +106,7 @@ export function createMockRedis(): Partial<RedisClientType> {
  */
 export function createMockSupabase() {
   const mockData: Record<string, any[]> = {};
-  
+
   return {
     from: vi.fn((table: string) => ({
       select: vi.fn().mockReturnThis(),
@@ -124,23 +124,25 @@ export function createMockSupabase() {
       }),
     })),
     auth: {
-      signInWithPassword: vi.fn(async ({ email, password }: { email: string; password: string }) => {
-        if (email === 'test@example.com' && password === 'password123') {
-          return {
-            data: {
-              user: {
-                id: 'user-123',
-                email,
+      signInWithPassword: vi.fn(
+        async ({ email, password }: { email: string; password: string }) => {
+          if (email === 'test@example.com' && password === 'password123') {
+            return {
+              data: {
+                user: {
+                  id: 'user-123',
+                  email,
+                },
               },
-            },
-            error: null,
+              error: null,
+            };
+          }
+          return {
+            data: { user: null },
+            error: { message: 'Invalid credentials' },
           };
         }
-        return {
-          data: { user: null },
-          error: { message: 'Invalid credentials' },
-        };
-      }),
+      ),
     },
     // Helper to set mock data
     _setMockData: (table: string, data: any[]) => {
@@ -179,7 +181,7 @@ export const testFixtures = {
  * Wait for async operations
  */
 export function wait(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -220,4 +222,3 @@ export function createMockResponse() {
 export function createMockNext() {
   return vi.fn();
 }
-

@@ -8,7 +8,11 @@ import crypto from 'crypto';
 import { supabase } from '../config/db.ts';
 import { logError, logInfo } from '../shared/logger.js';
 import { getApiKey } from './api-keys-service.js';
-import { getOptimalEncryptionAlgorithm, encryptWithHardwareAcceleration, decryptWithHardwareAcceleration } from './hardware-accelerated-encryption.js';
+import {
+  getOptimalEncryptionAlgorithm,
+  encryptWithHardwareAcceleration,
+  decryptWithHardwareAcceleration,
+} from './hardware-accelerated-encryption.js';
 
 const ALGORITHM = 'aes-256-gcm'; // Default, will use hardware-accelerated if available
 const IV_LENGTH = 16;
@@ -22,15 +26,15 @@ async function getEncryptionKey(): Promise<Buffer> {
   try {
     // Try to get from vault first
     let key = await getApiKey('encryption_master_key', 'production');
-    
+
     if (!key) {
       // Generate new key if not exists
       key = crypto.randomBytes(32).toString('hex');
-      
+
       // Store in vault (would need to implement vault storage)
       logInfo('Generated new encryption key - store securely in vault');
     }
-    
+
     // Convert hex string to buffer
     return Buffer.from(key, 'hex');
   } catch (error: any) {
@@ -53,16 +57,16 @@ export async function encryptField(value: string): Promise<string> {
   try {
     const key = await getEncryptionKey();
     const salt = crypto.randomBytes(SALT_LENGTH);
-    
+
     // Derive key from master key and salt
     const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
-    
+
     // Use hardware-accelerated encryption if available
     const { encrypted, iv, authTag, algorithm } = await encryptWithHardwareAcceleration(
       value,
       derivedKey
     );
-    
+
     // Combine: salt:iv:authTag:encrypted:algorithm
     return `${salt.toString('hex')}:${iv.toString('hex')}:${authTag?.toString('hex') || ''}:${encrypted.toString('hex')}:${algorithm}`;
   } catch (error: any) {
@@ -112,10 +116,10 @@ export async function decryptField(encryptedValue: string): Promise<string> {
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
     const encrypted = Buffer.from(encryptedHex, 'hex');
-    
+
     const key = await getEncryptionKey();
     const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
-    
+
     // Use hardware-accelerated decryption if algorithm supports it
     if (algorithm && algorithm.includes('gcm')) {
       try {
@@ -132,17 +136,17 @@ export async function decryptField(encryptedValue: string): Promise<string> {
         logError('Hardware decryption failed, using software fallback', hwError);
       }
     }
-    
+
     // Software decryption (fallback or legacy format)
     const algo = algorithm || ALGORITHM;
     const decipher = crypto.createDecipheriv(algo, derivedKey, iv);
     if (authTag.length > 0) {
       decipher.setAuthTag(authTag);
     }
-    
+
     let decrypted = decipher.update(encrypted, null, 'utf8');
     decrypted += decipher.final('utf8');
-    
+
     return decrypted;
   } catch (error: any) {
     logError('Decryption failed', error);
@@ -158,7 +162,7 @@ export async function encryptPIIFields<T extends Record<string, any>>(
   fieldsToEncrypt: string[]
 ): Promise<T> {
   const encrypted = { ...data };
-  
+
   for (const field of fieldsToEncrypt) {
     if (encrypted[field] && typeof encrypted[field] === 'string') {
       try {
@@ -169,7 +173,7 @@ export async function encryptPIIFields<T extends Record<string, any>>(
       }
     }
   }
-  
+
   return encrypted;
 }
 
@@ -181,7 +185,7 @@ export async function decryptPIIFields<T extends Record<string, any>>(
   fieldsToDecrypt: string[]
 ): Promise<T> {
   const decrypted = { ...data };
-  
+
   for (const field of fieldsToDecrypt) {
     if (decrypted[field] && typeof decrypted[field] === 'string') {
       try {
@@ -192,7 +196,7 @@ export async function decryptPIIFields<T extends Record<string, any>>(
       }
     }
   }
-  
+
   return decrypted;
 }
 
@@ -208,7 +212,7 @@ export function hashPII(value: string): string {
  */
 export function redactPII(text: string, patterns: RegExp[] = []): string {
   let redacted = text;
-  
+
   // Default patterns
   const defaultPatterns = [
     /\b\d{3}-\d{2}-\d{4}\b/g, // SSN
@@ -216,13 +220,12 @@ export function redactPII(text: string, patterns: RegExp[] = []): string {
     /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, // Email
     /\b\d{3}-\d{3}-\d{4}\b/g, // Phone
   ];
-  
+
   const allPatterns = [...defaultPatterns, ...patterns];
-  
+
   for (const pattern of allPatterns) {
     redacted = redacted.replace(pattern, '[REDACTED]');
   }
-  
+
   return redacted;
 }
-

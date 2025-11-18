@@ -41,7 +41,10 @@ export async function verifyAppleTokenWithJWKS(token: string): Promise<any> {
     logInfo('Apple token verified successfully', { sub: payload.sub });
     return payload;
   } catch (error) {
-    logError('Apple JWKS verification failed', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Apple JWKS verification failed',
+      error instanceof Error ? error : new Error(String(error))
+    );
     throw new Error(error instanceof Error ? error.message : 'Failed to verify Apple token');
   }
 }

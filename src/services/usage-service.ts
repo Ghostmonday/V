@@ -18,7 +18,7 @@ export async function trackUsage(
       user_id: userId,
       event_type: eventType,
       metadata: { amount, ...metadata },
-      ts: new Date().toISOString()
+      ts: new Date().toISOString(),
     });
   } catch (error) {
     logError('Failed to track usage', error instanceof Error ? error : new Error(String(error)));
@@ -33,23 +33,27 @@ export async function getUsageCount(
 ): Promise<number> {
   try {
     const now = new Date();
-    const startDate = period === 'month'
-      ? new Date(now.getFullYear(), now.getMonth(), 1)
-      : new Date(now.setHours(0, 0, 0, 0));
+    const startDate =
+      period === 'month'
+        ? new Date(now.getFullYear(), now.getMonth(), 1)
+        : new Date(now.setHours(0, 0, 0, 0));
 
     const stats = await findMany<{ metadata: { amount?: number } }>('usage_stats', {
       filter: {
         user_id: userId,
         event_type: eventType,
-        ts: { gte: startDate.toISOString() }
-      }
+        ts: { gte: startDate.toISOString() },
+      },
     });
 
     return stats.reduce((sum, stat) => {
       return sum + (stat.metadata?.amount || 1);
     }, 0);
   } catch (error) {
-    logError('Failed to get usage count', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to get usage count',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return 0;
   }
 }
@@ -73,7 +77,7 @@ export async function checkUsageLimit(
         aiMessages: 'ai_message',
         maxRooms: 'room_created',
         storageMB: 'file_upload',
-        voiceCallMinutes: 'voice_call'
+        voiceCallMinutes: 'voice_call',
       };
       used = await getUsageCount(userId, eventTypeMap[limitType] || limitType, 'month');
     }
@@ -81,11 +85,13 @@ export async function checkUsageLimit(
     return {
       allowed: used < limit,
       limit,
-      used
+      used,
     };
   } catch (error) {
-    logError('Failed to check usage limit', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to check usage limit',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return { allowed: false, limit: 0, used: 0 };
   }
 }
-

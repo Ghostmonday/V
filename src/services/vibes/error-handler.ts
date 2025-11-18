@@ -19,7 +19,9 @@ export class VIBESError extends Error {
 
 export class ConversationNotFoundError extends VIBESError {
   constructor(conversationId: string) {
-    super('CONVERSATION_NOT_FOUND', `Conversation not found: ${conversationId}`, 404, { conversationId });
+    super('CONVERSATION_NOT_FOUND', `Conversation not found: ${conversationId}`, 404, {
+      conversationId,
+    });
   }
 }
 
@@ -39,7 +41,7 @@ export function handleVIBESError(error: unknown): VIBESError {
     500,
     error
   );
-  
+
   logError('Unhandled VIBES error', error);
   return vibesError;
 }

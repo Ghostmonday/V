@@ -23,11 +23,12 @@ router.post('/verify', async (req: Request, res: Response) => {
 
   try {
     // Generate required fields if not provided
-    const transaction_id = req.body.transaction_id || `txn_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const transaction_id =
+      req.body.transaction_id || `txn_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const product_id = req.body.product_id || 'default_product';
     const purchase_date = req.body.purchase_date || new Date().toISOString();
     const status = req.body.status || 'verified';
-    
+
     const { data, error } = await supabase
       .from('iap_receipts')
       .insert([{ user_id, receipt_data, transaction_id, product_id, purchase_date, status }])
@@ -44,4 +45,3 @@ router.post('/verify', async (req: Request, res: Response) => {
 });
 
 export default router;
-

@@ -1,705 +1,600 @@
 # VibeZ
 
-**Real-time communication platform with AI-powered sentiment analysis**
-
-VibeZ is an enterprise-grade real-time messaging platform focused on meaningful conversations and emotional connection. Built with TypeScript, Express, WebSockets, and Supabase, VibeZ combines instant messaging with real-time sentiment analysis to help users understand conversation dynamics, emotional intensity, and create lasting memories through collectible digital cards.
+> Real-time chat and communication platform with WebSocket support, emotional state tracking, and comprehensive security features
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Development](#development)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Security & Compliance](#security--compliance)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
-- [License](#license)
+- [🚀 Quick Start](#-quick-start)
+- [📖 Overview](#-overview)
+- [✨ Key Features](#-key-features)
+- [📁 Project Structure](#-project-structure)
+- [🛠️ Installation & Setup](#️-installation--setup)
+- [🏃 Running the Project](#-running-the-project)
+- [🧪 Testing](#-testing)
+- [🚀 Deployment](#-deployment)
+- [🔧 Configuration](#-configuration)
+- [🔒 Security](#-security)
+- [📚 Documentation](#-documentation)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [📈 Status & Progress](#-status--progress)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [📋 Appendix: Complete Original README](#-appendix-complete-original-readme)
 
 ---
 
-## Overview
+## 🚀 Quick Start
 
-VibeZ enables users to:
+Get up and running quickly with these essential commands:
 
-- **Real-time messaging** with WebSocket-based instant communication
-- **AI-powered sentiment analysis** that analyzes conversation dynamics in real-time
-- **Emotional intelligence** tracking sentiment, emotional intensity, and conversation patterns
-- **Voice & video** calls via LiveKit and Agora integration with Perfect Forward Secrecy
-- **Privacy-first** design with GDPR/CCPA compliance
+```bash
+# Check if everything is set up
+./scripts/test-quick-check.sh
 
-### Key Features
+# Run iOS tests (super easy!)
+./scripts/run-ios-tests.sh
 
-- **Real-time Sentiment Chat**: WebSocket-based messaging with live sentiment analysis and emotional tracking
-- **AI-Powered Sentiment Analysis**: Real-time analysis of conversation sentiment, emotional intensity, and dynamics
-- **Conversation Intelligence**: Understand conversation patterns, emotional peaks, and meaningful moments
-- **Moderation**: AI-powered content moderation with Perspective API and DeepSeek integration
-- **Voice/Video**: LiveKit and Agora integration for voice and video calls with Perfect Forward Secrecy
-- **Privacy**: End-to-end encryption, PII encryption at rest, GDPR/CCPA compliance
-- **Zero-Knowledge Proofs**: Selective disclosure for user profiles without revealing actual data
-- **Hardware-Accelerated Encryption**: AES-256-GCM with AES-NI hardware acceleration
-- **Perfect Forward Secrecy**: Ephemeral keys for media streams ensuring past calls remain secure
-- **Scalability**: Designed for high concurrency with WebSocket clustering and Redis pub/sub
-
----
-
-## Architecture
-
-### System Components
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   iOS Client    │     │   Web Client     │     │  Admin Portal   │
-│   (Swift)       │────▶│   (Next.js)      │────▶│   (Next.js)     │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-         │                       │                       │
-         └──────────────────────┼──────────────────────┘
-                                 │
-                    ┌────────────▼────────────┐
-                    │   Express API Server    │
-                    │   (TypeScript/Node.js)  │
-                    └────────────┬────────────┘
-                                 │
-         ┌───────────────────────┼───────────────────────┐
-         │                       │                       │
-┌────────▼────────┐   ┌─────────▼─────────┐   ┌─────────▼─────────┐
-│   WebSocket     │   │   Supabase        │   │   Redis           │
-│   Gateway       │   │   PostgreSQL      │   │   Pub/Sub & Cache │
-└─────────────────┘   └───────────────────┘   └───────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌────────────▼────────────┐
-                    │   External Services    │
-                    │  - OpenAI/DALL-E       │
-                    │  - Perspective API     │
-                    │  - LiveKit/Agora       │
-                    └────────────────────────┘
+# Run backend tests
+npm test
 ```
 
-### Core Services
+**New to testing?** See [`RUN_TESTS_NOW.md`](./RUN_TESTS_NOW.md) for the fastest way to get started!
 
-- **API Server**: Express.js server handling HTTP requests and WebSocket connections
-- **WebSocket Gateway**: Real-time messaging and presence updates
-- **Database**: Supabase PostgreSQL with Row Level Security (RLS) policies
-- **Cache**: Redis for caching, pub/sub, and rate limiting
-- **AI Services**: OpenAI for sentiment analysis
-- **Moderation**: Perspective API and DeepSeek for content moderation
+### Quick Links
 
----
-
-## Tech Stack
-
-### Backend
-
-- **Runtime**: Node.js 20+
-- **Framework**: Express.js 5.x
-- **Language**: TypeScript 5.9
-- **Database**: PostgreSQL (via Supabase)
-- **Cache/Pub-Sub**: Redis 7+
-- **WebSockets**: ws (native WebSocket library)
-- **Authentication**: JWT with refresh token rotation
-- **Monitoring**: Prometheus metrics
-
-### Frontend
-
-- **iOS**: Swift, SwiftUI
-- **Web**: Next.js 16, React 19, TypeScript
-- **Real-time**: Socket.io client, LiveKit client
-
-### Infrastructure
-
-- **Database**: Supabase (PostgreSQL)
-- **File Storage**: AWS S3 (optional)
-- **Voice/Video**: LiveKit, Agora
-- **AI**: Perspective API
-- **Monitoring**: Prometheus, Grafana (planned)
-
-### Development Tools
-
-- **Build System**: Turbo (monorepo)
-- **Package Manager**: npm
-- **Testing**: Vitest
-- **Linting**: ESLint
-- **Formatting**: Prettier
+- **[handover.md](./handover.md)** - Complete codebase guide for new engineers (architecture, file reference, UI mockups)
+- **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing guide (copy & paste commands)
+- **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Detailed testing guide for iOS and backend
+- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit and penetration testing guide
+- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known security vulnerabilities and fixes
 
 ---
 
-## Project Structure
+## 📖 Overview
+
+VibeZ is a real-time chat and communication platform backend built with TypeScript/Node.js, Express, and WebSockets. The platform provides:
+
+- **Real-time messaging** via WebSocket connections with protobuf-encoded messages
+- **HTTP REST API** for room management, user data, moderation, subscriptions, and more
+- **Authentication & Authorization** via Supabase JWT tokens with role-based access control
+- **Emotional State Tracking** ("Vibes") - tracks and analyzes emotional states in conversations
+- **Voice & Video** integration via Agora and LiveKit for real-time communication
+- **Moderation & Safety** with automated content filtering, rate limiting, and admin tools
+- **Privacy & Security** with end-to-end encryption, GDPR compliance, and zero-knowledge proofs
+- **Scalability** with Redis clustering, connection pooling, and horizontal scaling support
+
+---
+
+## ✨ Key Features
+
+- 🔐 **Secure Authentication** - Supabase JWT-based authentication with role-based access control
+- 💬 **Real-time Messaging** - WebSocket-based messaging with protobuf encoding
+- 🎭 **Emotional State Tracking** - Advanced "Vibes" system for emotional analysis
+- 🎥 **Voice & Video** - Integrated Agora and LiveKit support
+- 🛡️ **Moderation Tools** - Automated content filtering and admin moderation capabilities
+- 🔒 **Privacy First** - End-to-end encryption, GDPR compliance, zero-knowledge proofs
+- ⚡ **High Performance** - Redis clustering, connection pooling, horizontal scaling
+- 📊 **Monitoring** - Prometheus metrics and comprehensive telemetry
+
+---
+
+## 📁 Project Structure
 
 ```
 VibeZ/
-├── server/                 # Express API server
-│   ├── index.ts            # Server entry point
-│   └── package.json
-├── src/
-│   ├── server/             # Server configuration
-│   │   └── index.ts        # Main Express app
-│   ├── routes/             # API route handlers
-│   │   ├── user-authentication-routes.ts
-│   │   ├── message-routes.ts
-│   │   ├── vibes/          # VIBES feature routes
-│   │   └── ...
-│   ├── services/           # Business logic services
-│   │   ├── message-service.ts
-│   │   ├── moderation.service.ts
-│   │   ├── vibes/          # VIBES feature services
-│   │   └── ...
+├── apps/                    # Application packages
+│   └── api/                 # API application
+├── frontend/                # Frontend applications
+│   └── iOS/                 # iOS application
+├── packages/                # Shared packages
+│   ├── ai-mod/              # AI moderation package
+│   ├── core/                # Core shared utilities
+│   └── supabase/            # Supabase integration
+├── server/                  # Server code
+├── src/                     # Main source code
+│   ├── config/              # Configuration files
 │   ├── middleware/          # Express middleware
-│   │   ├── auth.ts
-│   │   ├── rate-limiter.ts
-│   │   └── ...
-│   ├── ws/                 # WebSocket handlers
-│   │   ├── gateway.ts
-│   │   └── handlers/
-│   ├── jobs/               # Background jobs
-│   │   ├── partition-management-cron.ts
-│   │   └── ...
-│   ├── config/             # Configuration
-│   │   ├── vibes.config.ts
-│   │   └── ...
-│   └── tests/              # Test files
-├── frontend/
-│   └── iOS/                # iOS Swift application
-│       ├── Views/
-│       ├── Services/
-│       ├── Models/
-│       └── ...
-├── v-app/                   # Next.js web application
-│   ├── app/
-│   └── package.json
-├── sql/                     # Database schema and migrations
-│   ├── migrations/
-│   └── ...
+│   ├── routes/              # API route handlers
+│   ├── services/            # Business logic services
+│   ├── telemetry/           # Telemetry and monitoring
+│   ├── tests/               # Test files
+│   ├── types/               # TypeScript type definitions
+│   ├── utils/               # Utility functions
+│   ├── workers/             # Background workers
+│   └── ws/                  # WebSocket handlers
+├── sql/                     # Database migrations and SQL
 ├── scripts/                 # Utility scripts
-├── specs/                   # API specifications
-│   └── api/
-│       └── openapi.yaml
-├── docker-compose.yml       # Local development setup
-├── BUILD.plan              # Unified build plan (see below)
-└── README.md               # This file
+├── docs/                    # Documentation
+├── cypress/                 # E2E tests
+└── infra/                   # Infrastructure as code
 ```
+
+For detailed architecture and file reference, see [handover.md](./handover.md).
 
 ---
 
-## Getting Started
+## 🛠️ Installation & Setup
 
 ### Prerequisites
 
-- **Node.js**: 20.x or higher
-- **npm**: 9.x or higher
-- **PostgreSQL**: 14+ (or Supabase account)
-- **Redis**: 7+ (for local development)
-- **TypeScript**: 5.9+
+- Node.js (v20+)
+- npm or yarn
+- PostgreSQL (via Supabase)
+- Redis
+- Docker (for validation/testing)
 
-### Environment Setup
+### Setup Steps
 
 1. **Clone the repository**
-
    ```bash
    git clone <repository-url>
    cd VibeZ
    ```
 
 2. **Install dependencies**
-
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
-
    ```bash
    cp env.template .env
+   # Edit .env with your configuration
    ```
 
-   Edit `.env` and configure:
-   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-   - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
-   - `JWT_SECRET`: Generate a secure random string
-   - `REDIS_URL`: Redis connection URL (default: `redis://localhost:6379`)
-   - `PERSPECTIVE_API_KEY`: Perspective API key (for moderation)
-   - `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`: LiveKit credentials (optional)
-   - `AGORA_APP_ID`, `AGORA_APP_CERTIFICATE`: Agora credentials (optional)
-
-4. **Set up the database**
-
+4. **Set up database**
    ```bash
-   # Run migrations in Supabase SQL editor or via CLI
-   # See sql/migrations/ for migration files
+   # Run SQL migrations
+   # See sql/ directory for migration files
    ```
 
-5. **Start Redis** (if running locally)
+5. **Set up validation database (optional)**
    ```bash
-   redis-server
+   ./scripts/setup-validation-db.sh
    ```
-
-### Running Locally
-
-**Start all services** (using Turbo):
-
-```bash
-npm run dev
-```
-
-**Start individual services**:
-
-```bash
-# API server only
-cd server
-npm run dev
-
-# Web app only
-cd v-app
-npm run dev
-```
-
-**Using Docker Compose**:
-
-```bash
-docker-compose up
-```
-
-The API server will be available at `http://localhost:3000`
 
 ---
 
-## Development
+## 🏃 Running the Project
 
-### Monorepo Structure
-
-VibeZ uses Turbo for monorepo management. Workspaces include:
-
-- `server/`: Express API server
-- `v-app/`: Next.js web application
-- `packages/core/`: Shared core utilities
-- `packages/supabase/`: Supabase client utilities
-
-### Available Scripts
-
-**Root level**:
-
-- `npm run dev`: Start all services in development mode
-- `npm run build`: Build all packages
-- `npm run test`: Run all tests
-- `npm run lint`: Lint all packages
-- `npm run typecheck`: Type check all packages
-
-**Server** (`server/`):
-
-- `npm run dev`: Start server with hot reload
-- `npm run build`: Compile TypeScript to JavaScript
-- `npm start`: Start production server
-- `npm run lint`: Lint server code
-
-**Web App** (`v-app/`):
-
-- `npm run dev`: Start Next.js dev server
-- `npm run build`: Build for production
-- `npm start`: Start production server
-
-### Code Style
-
-- **TypeScript**: Strict mode enabled
-- **Linting**: ESLint with TypeScript rules
-- **Formatting**: Prettier (run `npm run format`)
-
-### Database Migrations
-
-Migrations are located in `sql/migrations/`. To create a new migration:
-
-1. Create a new file: `sql/migrations/YYYY-MM-DD-description.sql`
-2. Add your SQL changes
-3. Run the migration in Supabase SQL editor or via CLI
-
-### WebSocket Development
-
-WebSocket handlers are in `src/ws/handlers/`. The gateway is configured in `src/ws/gateway.ts`.
-
-Test WebSocket connections:
+### Development Mode
 
 ```bash
-# Using wscat
-wscat -c ws://localhost:3000
+# Start all services
+npm run dev
+
+# Start specific workspace
+turbo dev --filter=api
 ```
+
+### Production Build
+
+```bash
+# Build all packages
+npm run build
+
+# Type check
+npm run typecheck
+
+# Lint
+npm run lint
+```
+
+### Server Entry Points
+
+- **Main Server**: `src/http-websocket-server.ts` - Express HTTP server and WebSocket gateway
+- **Legacy Socket.IO**: `server/socketio-stub-server.ts` - Socket.IO stub server (may be deprecated)
 
 ---
 
-## Testing
+## 🧪 Testing
 
-### Running Tests
+### Quick Test Commands
 
 ```bash
-# Run all tests
+# Quick setup check
+./scripts/test-quick-check.sh
+
+# Run iOS tests
+./scripts/run-ios-tests.sh
+
+# Run backend tests
 npm test
 
 # Run tests in watch mode
 npm run test:watch
 
-# Run tests with coverage
+# Run with coverage
 npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E auth flow tests
+npm run test:e2e:auth
+
+# Run full auth E2E tests
+npm run test:e2e:auth:full
 ```
 
-### Test Structure
+### Testing Documentation
 
-- **Unit Tests**: `src/services/__tests__/`, `src/middleware/__tests__/`
-- **Integration Tests**: `src/tests/`
-- **E2E Tests**: Planned (see BUILD.plan)
-- **Phase Validation**: `scripts/validate-phases-1-3.ts` - Validates phases 1-3 completion
+- **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing guide with copy-paste commands
+- **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Comprehensive testing guide
+  - iOS testing (3 methods)
+  - Backend testing
+  - Troubleshooting tips
 
-### Phase 1-3 Validation
+### Test Coverage
 
-Validate that phases 1, 2, and 3 are complete:
-
-**Using Docker (Recommended - Self-contained environment)**:
-
-```bash
-# Full validation with Docker containers (PostgreSQL + Redis)
-npm run validate:docker:full
-
-# Or step by step:
-npm run validate:docker:up      # Start containers
-npm run validate:docker:setup   # Initialize database
-npm run validate:docker:run     # Run validations
-npm run validate:docker:down    # Stop containers
-```
-
-**Using Existing Database**:
-
-```bash
-# Quick start (all validations)
-npm run validate:phases-1-3:all
-
-# Or individual scripts
-npm run validate:phases-1-3  # TypeScript validation
-psql $DATABASE_URL -f sql/validate-phases-1-3.sql  # SQL validation
-```
-
-**What gets validated:**
-
-- Phase 1: Security & Authentication (token rotation, password security, RBAC, brute-force protection, HTTPS/TLS)
-- Phase 2: WebSocket & Messaging (rate limiting, connection health, delivery acks, scaling)
-- Phase 3: Database & Performance (indexes, pagination, archival, caching)
-
-See `VALIDATION_QUICK_START.md` and `VALIDATION_DOCKER.md` for detailed instructions.
-
-### Writing Tests
-
-Tests use Vitest. Example:
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { myFunction } from '../my-service';
-
-describe('myFunction', () => {
-  it('should do something', () => {
-    expect(myFunction()).toBe(expected);
-  });
-});
-```
+- **Backend**: 83 tests passing (target: 60% coverage)
+- **iOS**: 10 login tests, 17 tests skipped for unimplemented features (target: 40% coverage)
+- **E2E**: Cypress tests for auth flow
 
 ---
 
-## Deployment
+## 🚀 Deployment
 
-### Production Checklist
-
-Before deploying to production:
-
-- [ ] Set all required environment variables
-- [ ] Run database migrations
-- [ ] Configure Redis for production
-- [ ] Set up monitoring (Prometheus/Grafana)
-- [ ] Configure HTTPS/TLS certificates
-- [ ] Set up error alerting (Slack/PagerDuty)
-- [ ] Enable rate limiting
-- [ ] Configure CORS for production domains
-- [ ] Set up backup strategy for database
-- [ ] Review security settings (see Security section)
-
-### Environment Variables
-
-See `env.template` for all available environment variables. Production-specific variables:
-
-- `NODE_ENV=production`
-- `JWT_SECRET`: Must be a secure random string (32+ bytes)
-- `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key
-- `REDIS_URL`: Production Redis URL
-- `PERSPECTIVE_API_KEY`: Perspective API key
-
-### Docker Deployment
-
-Build and run with Docker:
+### Docker
 
 ```bash
-docker build -t vibez-api .
-docker run -p 3000:3000 --env-file .env vibez-api
+# Build Docker image
+docker build -t vibez .
+
+# Run with docker-compose
+docker-compose up -d
+
+# Validation docker setup
+npm run validate:docker:full
 ```
 
 ### Infrastructure
 
-Infrastructure as Code is in `infra/aws/` (Terraform). See `infra/aws/README.md` for deployment instructions.
+Infrastructure as code is available in `infra/aws/`:
+- Terraform configurations
+- AWS deployment scripts
+- User data scripts
 
 ---
 
-## Security & Compliance
+## 🔧 Configuration
+
+### Environment Variables
+
+Copy `env.template` to `.env` and configure:
+
+- Database connection (Supabase)
+- Redis configuration
+- JWT secrets
+- API keys (Agora, LiveKit)
+- Security settings
+
+### Validation
+
+```bash
+# Validate phases 1-3
+npm run validate:phases-1-3
+
+# Run all validations
+./scripts/run-all-validations.sh
+
+# Docker validation
+npm run validate:docker:full
+```
+
+---
+
+## 🔒 Security
+
+### Security Status
+
+- ✅ **js-yaml vulnerability** - Fixed with `npm audit fix`
+- ⚠️ **csurf cookie vulnerability** - Low severity, requires breaking change
+- ⚠️ **esbuild/vitest vulnerabilities** - Dev dependencies only
+- ✅ **git-secrets setup** - Script created for secret detection
+
+### Security Documentation
+
+- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit process and penetration testing guide
+- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known vulnerabilities and fixes
+- **[docs/RLS_SECURITY_SUMMARY.md](./docs/RLS_SECURITY_SUMMARY.md)** - Row-Level Security audit (50+ tables, 100+ policies)
 
 ### Security Features
 
-- **Authentication**: JWT with refresh token rotation
-- **Authorization**: Role-based access control (RBAC)
-- **Encryption**: PII encryption at rest, end-to-end encryption for messages
-- **Hardware-Accelerated Encryption**: AES-256-GCM with automatic AES-NI detection (10-100x faster)
-- **Perfect Forward Secrecy**: Ephemeral ECDH keys for media streams, deleted after call ends
-- **Zero-Knowledge Proofs**: Selective disclosure for user attributes without revealing values
-- **Rate Limiting**: Per-user and per-IP rate limiting
-- **Brute-Force Protection**: Account lockout after failed attempts
-- **Content Moderation**: AI-powered toxicity detection
-- **Security Headers**: HSTS, CSP, X-Frame-Options
-- **CSRF Protection**: CSRF tokens for state-changing requests
-
-### Compliance
-
-- **GDPR**: Data export and deletion endpoints (`/api/users/{id}/data`)
-- **CCPA**: Similar data rights as GDPR
-- **Data Retention**: Configurable retention policies
-- **Audit Logging**: Comprehensive audit logs for security events
-
-### Security Best Practices
-
-1. **Never commit secrets**: Use environment variables or vault
-2. **Rotate tokens regularly**: Refresh tokens rotate on use
-3. **Monitor for anomalies**: Set up alerts for suspicious activity
-4. **Keep dependencies updated**: Regularly update npm packages
-5. **Review access logs**: Monitor authentication and authorization events
-
-### Reporting Security Issues
-
-Report security vulnerabilities to: [security@vibez.app] (see `/.well-known/security.txt`)
+- Row-Level Security (RLS) policies on all tables
+- CSRF protection (Helmet middleware)
+- Rate limiting
+- Input validation and sanitization
+- End-to-end encryption support
+- GDPR compliance features
 
 ---
 
-## API Documentation
+## 📚 Documentation
 
-### OpenAPI Specification
+### Essential Reading
 
-API documentation is available in OpenAPI 3.0 format:
+1. **[handover.md](./handover.md)** - Complete codebase guide
+   - Architecture overview
+   - File reference (all 167+ TypeScript files documented)
+   - Web and iOS UI mockups
+   - Perfect for onboarding new engineers
 
-- **File**: `specs/api/openapi.yaml`
-- **View**: Host Swagger UI at `/api/docs` (planned)
+2. **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing commands
+   - Copy & paste commands to run tests
+   - No Xcode knowledge required
 
-### Key Endpoints
+3. **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Comprehensive testing guide
+   - iOS testing (3 methods)
+   - Backend testing
+   - Troubleshooting tips
 
-**Authentication**:
+### Security
 
-- `POST /auth/apple` - Apple Sign-In
-- `POST /auth/google` - Google Sign-In
-- `POST /auth/login` - Email/password login
-- `POST /auth/refresh` - Refresh access token
+- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit process and penetration testing guide
+- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known vulnerabilities and fixes
+  - csurf cookie vulnerability (low severity, requires breaking change)
+  - esbuild/vitest vulnerabilities (dev dependencies only)
+  - js-yaml fixed with `npm audit fix`
 
-**Messaging**:
+### Database & Infrastructure
 
-- `POST /messaging/send` - Send message
-- `GET /messaging/:roomId` - Get messages for room
+- **[docs/RLS_SECURITY_SUMMARY.md](./docs/RLS_SECURITY_SUMMARY.md)** - Row-Level Security audit (50+ tables, 100+ policies)
+- **[docs/SQL_OPTIMIZATION_QUICK_START.md](./docs/SQL_OPTIMIZATION_QUICK_START.md)** - SQL optimization quick start guide
+- **[docs/SQL_AUDIT_AND_OPTIMIZATION.md](./docs/SQL_AUDIT_AND_OPTIMIZATION.md)** - Comprehensive SQL audit and optimization report
+- **[REDIS_CLUSTERING_SUMMARY.md](./REDIS_CLUSTERING_SUMMARY.md)** - Redis clustering implementation
 
-**VIBES**:
+### Reference
 
-- `GET /vibes/conversations` - List conversations
-- `POST /vibes/conversations` - Create conversation
+- **[CODEBASE_QUICKREF.md](./CODEBASE_QUICKREF.md)** - Codebase statistics and quick reference
+- **[docs/READING_GUIDE.md](./docs/READING_GUIDE.md)** - Guide to understanding VibeZ development state
 
-**Admin**:
+### Archived Documentation
 
-- `GET /admin/moderation/queue` - Get moderation queue
-- `POST /admin/moderation/review/:id` - Review flagged message
-
-**User Data** (GDPR/CCPA):
-
-- `GET /api/users/:id/data` - Export user data
-- `DELETE /api/users/:id/data` - Delete user data
-
-**Privacy** (Zero-Knowledge Proofs & Encryption):
-
-- `POST /api/privacy/selective-disclosure` - Generate ZKP proofs for selective disclosure
-- `POST /api/privacy/verify-disclosure` - Verify selective disclosure proofs
-- `GET /api/privacy/encryption-status` - Get hardware acceleration status
-- `GET /api/privacy/zkp/commitments/:userId` - Get stored proof commitments
-
-### WebSocket Events
-
-**Client → Server**:
-
-- `message:send` - Send message
-- `presence:update` - Update presence status
-- `typing:start` - Start typing indicator
-- `typing:stop` - Stop typing indicator
-
-**Server → Client**:
-
-- `message:new` - New message received
-- `message:delivered` - Message delivery confirmation
-- `presence:update` - Presence status update
-- `error` - Error notification
+Historical documentation, completion summaries, and old test reports have been archived to `docs/archive/historical/` for reference.
 
 ---
 
-## Build Plan
+## 🐛 Troubleshooting
 
-For a comprehensive list of remaining work items, implementation tasks, and roadmap, see **[BUILD.plan](./BUILD.plan)**.
+### Common Issues
 
-The build plan includes:
+1. **iOS tests need app launch debugging**
+   - See `docs/TEST_RESULTS_SUMMARY.md` for details
 
-- Security & authentication hardening ✅
-- WebSocket & messaging optimization ✅
-- Database & performance improvements ✅
-- AI & VIBES features integration (in progress)
-- Moderation & safety enhancements
-- Observability & operations
-- Testing & quality assurance
-- Privacy & compliance
-- Performance & scalability
-- Documentation & developer experience
+2. **Test failures**
+   - Run `./scripts/test-quick-check.sh` to verify setup
+   - Check [TESTING_QUICK_START.md](./TESTING_QUICK_START.md) for troubleshooting tips
 
----
+3. **Database connection issues**
+   - Verify Supabase configuration in `.env`
+   - Check SQL migrations in `sql/` directory
 
-## Documentation
-
-### Main Documentation
-
-- **[BUILD.plan](./BUILD.plan)** - Complete implementation roadmap
-- **[CODEBASE_COMPLETE.md](./CODEBASE_COMPLETE.md)** - Comprehensive codebase documentation
-- **[Execution Plan](./docs/execution/COMPLETE_EXECUTION_PLAN.md)** - Parallel execution strategy for Phases 4-10
-
-### Privacy & Security
-
-- **[Privacy Implementation Summary](./docs/PRIVACY_IMPLEMENTATION_SUMMARY.md)** - Zero-knowledge proofs, hardware acceleration, and PFS
-- **[Privacy Validation Report](./docs/PRIVACY_VALIDATION_REPORT.md)** - Privacy features validation results
-- **[Privacy Enhancements](./docs/PRIVACY_ENHANCEMENTS.md)** - Detailed privacy feature documentation
-
-### Validation & Testing
-
-- **[Validation Summary](./docs/validation/VALIDATION_SUMMARY.md)** - Validation suite overview
-- **[Validation Checklist](./docs/validation/VALIDATION_CHECKLIST.md)** - Manual validation procedures
-- **[Docker Setup](./docs/validation/DOCKER_SETUP.md)** - Docker validation environment
-- **[Test Results](./docs/validation/TEST_RESULTS.md)** - Latest test results
-
-### Other Documentation
-
-- **[Security Audit](./SECURITY_AUDIT.md)** - Security assessment
-- **[Codebase Quick Reference](./CODEBASE_QUICKREF.md)** - Quick reference guide
+4. **WebSocket connection issues**
+   - Verify Redis is running
+   - Check WebSocket gateway configuration
 
 ---
 
-## Contributing
+## 📈 Status & Progress
+
+**Last Updated:** November 18, 2025
+
+### Backend Status
+
+- ✅ WebSocket reconnection enhancement fully implemented
+- ✅ 24/24 backend reconnection tests passing
+- ✅ Authentication service: 25 tests passing
+- ✅ RLS policies & DB security validated
+- ⚠️ Security vulnerabilities identified (see [docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md))
+- 🔄 Test coverage expansion in progress (83 tests passing total)
+
+### iOS Status
+
+- ✅ Accessibility identifiers added to LoginView
+- ✅ UI tests updated (10 login tests, 17 tests skipped for unimplemented features)
+- ✅ Automated test scripts created
+- ⚠️ iOS tests need app launch debugging (see `docs/TEST_RESULTS_SUMMARY.md`)
+- 🔄 Test coverage expansion in progress
+
+### Database Status
+
+- ✅ RLS hardened, policies triple-reviewed
+
+### Security Status
+
+- ✅ js-yaml vulnerability fixed (npm audit fix)
+- ⚠️ csurf cookie vulnerability (low severity, requires breaking change)
+- ⚠️ esbuild/vitest vulnerabilities (dev dependencies only)
+- ✅ git-secrets setup script created
+
+### Documentation Status
+
+- ✅ Comprehensive testing guides created
+- ✅ Automated test scripts (run-ios-tests.sh, test-quick-check.sh)
+- ✅ Easy-to-follow documentation for new developers
+- ✅ Codebase refactored for clarity (see [handover.md](./handover.md))
+- ✅ All historical docs archived to `docs/archive/historical/`
+
+### Next Steps
+
+- Debug iOS test launch issue (see `docs/TEST_RESULTS_SUMMARY.md`)
+- Expand backend test coverage (target: 60%)
+- Expand iOS test coverage (target: 40%)
+- Address csurf deprecation (migrate to modern CSRF protection)
+- Perform cross-platform integration testing
+
+---
+
+## 🤝 Contributing
 
 ### Development Workflow
 
-1. Create a feature branch from `main`
+1. Create a feature branch
 2. Make your changes
-3. Write/update tests
-4. Ensure all tests pass (`npm test`)
-5. Ensure linting passes (`npm run lint`)
+3. Run tests: `npm test`
+4. Run linting: `npm run lint`
+5. Run type checking: `npm run typecheck`
 6. Submit a pull request
 
-### Code Review
+### Code Style
 
-All code changes require review before merging. Reviewers will check:
+- TypeScript with strict type checking
+- ESLint for code quality
+- Prettier for formatting
+- Husky for git hooks
 
-- Code quality and style
-- Test coverage
-- Security implications
-- Performance impact
+### Testing Requirements
+
+- Write tests for new features
+- Maintain or improve test coverage
+- Run all tests before submitting PR
 
 ---
 
-## License
+## 📄 License
 
 See [LICENSE](./LICENSE) for details.
 
 ---
 
-## Support
+## 📋 Appendix: Complete Original README
 
-- **Documentation**: See `BUILD.plan` for implementation details
-- **Issues**: Report bugs via GitHub Issues
-- **Security**: Report vulnerabilities to security@vibez.app
+<details>
+<summary>Click to expand original README content</summary>
+
+```markdown
+---
+## License
+
+See [LICENSE](./LICENSE) for details.
+---
+
+## Quick Links
+
+- **[handover.md](./handover.md)** - Complete codebase guide for new engineers (architecture, file reference, UI mockups)
+- **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing guide (copy & paste commands)
+- **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Detailed testing guide for iOS and backend
+- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit and penetration testing guide
+- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known security vulnerabilities and fixes
 
 ---
 
----
+## Current Status (Nov 18, 2025)
 
-## Privacy & Security Enhancements
+**Backend:**
 
-### Zero-Knowledge Proofs (ZKPs)
+- ✅ WebSocket reconnection enhancement fully implemented
+- ✅ 24/24 backend reconnection tests passing
+- ✅ Authentication service: 25 tests passing
+- ✅ RLS policies & DB security validated
+- ⚠️ Security vulnerabilities identified (see docs/SECURITY_FIXES.md)
+- 🔄 Test coverage expansion in progress (83 tests passing total)
 
-VibeZ implements zero-knowledge proofs for selective profile disclosure, allowing users to prove attributes (age, verification status, subscription tier) without revealing actual values.
+**iOS:**
 
-**Features**:
+- ✅ Accessibility identifiers added to LoginView
+- ✅ UI tests updated (10 login tests, 17 tests skipped for unimplemented features)
+- ✅ Automated test scripts created
+- ⚠️ iOS tests need app launch debugging (see docs/TEST_RESULTS_SUMMARY.md)
+- 🔄 Test coverage expansion in progress
 
-- Commitment-based proofs stored in database
-- Selective disclosure - prove only requested attributes
-- Non-replay protection via timestamps and nonces
-- API endpoints for proof generation and verification
+**Database:**
 
-**Usage**:
+- ✅ RLS hardened, policies triple-reviewed
 
-```typescript
-// Generate proof
-POST /api/privacy/selective-disclosure
-{
-  "attributeTypes": ["age", "verified"],
-  "purpose": "Age verification"
-}
+**Security:**
 
-// Verify proof
-POST /api/privacy/verify-disclosure
-{
-  "disclosureProof": { ... },
-  "expectedCommitments": { ... }
-}
-```
+- ✅ js-yaml vulnerability fixed (npm audit fix)
+- ⚠️ csurf cookie vulnerability (low severity, requires breaking change)
+- ⚠️ esbuild/vitest vulnerabilities (dev dependencies only)
+- ✅ git-secrets setup script created
 
-### Hardware-Accelerated Encryption
+**Documentation:**
 
-Automatic detection and use of AES-NI hardware acceleration for AES-256-GCM encryption, providing 10-100x performance improvement with graceful fallback to software encryption.
+- ✅ Comprehensive testing guides created
+- ✅ Automated test scripts (run-ios-tests.sh, test-quick-check.sh)
+- ✅ Easy-to-follow documentation for new developers
+- ✅ Codebase refactored for clarity (see [handover.md](./handover.md))
+- ✅ All historical docs archived to `docs/archive/historical/`
 
-**Features**:
+**Next Steps:**
 
-- Automatic AES-NI detection
-- Hardware-accelerated AES-256-GCM encryption
-- Transparent integration - no code changes needed
-- Performance benchmarking
+- Debug iOS test launch issue (see docs/TEST_RESULTS_SUMMARY.md)
+- Expand backend test coverage (target: 60%)
+- Expand iOS test coverage (target: 40%)
+- Address csurf deprecation (migrate to modern CSRF protection)
+- Perform cross-platform integration testing
 
-**Status Check**:
+**Quick Test Commands:**
 
 ```bash
-GET /api/privacy/encryption-status
+# Check if everything is set up
+./scripts/test-quick-check.sh
+
+# Run iOS tests (super easy!)
+./scripts/run-ios-tests.sh
+
+# Run backend tests
+npm test
 ```
 
-### Perfect Forward Secrecy (PFS)
-
-Media streams (voice/video calls) use Perfect Forward Secrecy with ephemeral ECDH keys, ensuring that even if long-term keys are compromised, past calls remain secure.
-
-**Features**:
-
-- Ephemeral key pairs per call session (ECDH)
-- Shared secret derivation using HKDF
-- Hardware-accelerated media encryption
-- Automatic key cleanup after call ends
-
-**Security Properties**:
-
-- Each call gets unique ephemeral keys
-- Keys deleted immediately after call ends
-- Past calls remain secure even if long-term keys compromised
-- Media streams encrypted with hardware-accelerated AES-256-GCM
-
-For detailed documentation, see [Privacy Implementation Summary](./docs/PRIVACY_IMPLEMENTATION_SUMMARY.md).
+**New to testing?** See `RUN_TESTS_NOW.md` for the fastest way to get started!
 
 ---
 
-**Last Updated**: 2025-01-XX
+## Documentation
+
+### Essential Reading
+
+1. **[handover.md](./handover.md)** - Complete codebase guide
+   - Architecture overview
+   - File reference (all 167+ TypeScript files documented)
+   - Web and iOS UI mockups
+   - Perfect for onboarding new engineers
+
+2. **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing commands
+   - Copy & paste commands to run tests
+   - No Xcode knowledge required
+
+3. **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Comprehensive testing guide
+   - iOS testing (3 methods)
+   - Backend testing
+   - Troubleshooting tips
+
+### Security
+
+- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit process and penetration testing guide
+- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known vulnerabilities and fixes
+  - csurf cookie vulnerability (low severity, requires breaking change)
+  - esbuild/vitest vulnerabilities (dev dependencies only)
+  - js-yaml fixed with `npm audit fix`
+
+### Database & Infrastructure
+
+- **[docs/RLS_SECURITY_SUMMARY.md](./docs/RLS_SECURITY_SUMMARY.md)** - Row-Level Security audit (50+ tables, 100+ policies)
+- **[docs/SQL_OPTIMIZATION_QUICK_START.md](./docs/SQL_OPTIMIZATION_QUICK_START.md)** - SQL optimization quick start guide
+- **[docs/SQL_AUDIT_AND_OPTIMIZATION.md](./docs/SQL_AUDIT_AND_OPTIMIZATION.md)** - Comprehensive SQL audit and optimization report
+- **[REDIS_CLUSTERING_SUMMARY.md](./REDIS_CLUSTERING_SUMMARY.md)** - Redis clustering implementation
+
+### Reference
+
+- **[CODEBASE_QUICKREF.md](./CODEBASE_QUICKREF.md)** - Codebase statistics and quick reference
+- **[docs/READING_GUIDE.md](./docs/READING_GUIDE.md)** - Guide to understanding VibeZ development state
+
+### Archived Documentation
+
+Historical documentation, completion summaries, and old test reports have been archived to `docs/archive/historical/` for reference.
+
+---
+
+**Last updated:** November 18, 2025
+```
+
+</details>
+
+---
+
+**Last updated:** November 18, 2025

@@ -14,13 +14,16 @@ const redis = getRedisClient();
  */
 export async function markDelivered(messageId: string, userId: string): Promise<void> {
   try {
-    await supabase.from('message_receipts').upsert({
-      message_id: messageId,
-      user_id: userId,
-      delivered_at: new Date().toISOString()
-    }, {
-      onConflict: 'message_id,user_id'
-    });
+    await supabase.from('message_receipts').upsert(
+      {
+        message_id: messageId,
+        user_id: userId,
+        delivered_at: new Date().toISOString(),
+      },
+      {
+        onConflict: 'message_id,user_id',
+      }
+    );
 
     // Broadcast delivery receipt via Redis
     await redis.publish(
@@ -29,7 +32,7 @@ export async function markDelivered(messageId: string, userId: string): Promise<
         type: 'delivered',
         message_id: messageId,
         user_id: userId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
     );
   } catch (error: any) {
@@ -43,14 +46,17 @@ export async function markDelivered(messageId: string, userId: string): Promise<
  */
 export async function markRead(messageId: string, userId: string): Promise<void> {
   try {
-    await supabase.from('message_receipts').upsert({
-      message_id: messageId,
-      user_id: userId,
-      read_at: new Date().toISOString(),
-      seen_at: new Date().toISOString() // Also set seen_at for consistency
-    }, {
-      onConflict: 'message_id,user_id'
-    });
+    await supabase.from('message_receipts').upsert(
+      {
+        message_id: messageId,
+        user_id: userId,
+        read_at: new Date().toISOString(),
+        seen_at: new Date().toISOString(), // Also set seen_at for consistency
+      },
+      {
+        onConflict: 'message_id,user_id',
+      }
+    );
 
     // Broadcast read receipt via Redis
     await redis.publish(
@@ -59,7 +65,7 @@ export async function markRead(messageId: string, userId: string): Promise<void>
         type: 'read',
         message_id: messageId,
         user_id: userId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
     );
 
@@ -75,16 +81,16 @@ export async function markRead(messageId: string, userId: string): Promise<void>
  */
 export async function markMultipleRead(messageIds: string[], userId: string): Promise<void> {
   try {
-    const receipts = messageIds.map(messageId => ({
+    const receipts = messageIds.map((messageId) => ({
       message_id: messageId,
       user_id: userId,
       read_at: new Date().toISOString(),
-      seen_at: new Date().toISOString()
+      seen_at: new Date().toISOString(),
     }));
 
     // Batch upsert
     await supabase.from('message_receipts').upsert(receipts, {
-      onConflict: 'message_id,user_id'
+      onConflict: 'message_id,user_id',
     });
 
     // Broadcast each receipt
@@ -95,7 +101,7 @@ export async function markMultipleRead(messageIds: string[], userId: string): Pr
           type: 'read',
           message_id: messageId,
           user_id: userId,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         })
       );
     }
@@ -110,12 +116,14 @@ export async function markMultipleRead(messageIds: string[], userId: string): Pr
 /**
  * Get read receipts for a message
  */
-export async function getReadReceipts(messageId: string): Promise<Array<{
-  user_id: string;
-  delivered_at: string | null;
-  read_at: string | null;
-  seen_at: string | null;
-}>> {
+export async function getReadReceipts(messageId: string): Promise<
+  Array<{
+    user_id: string;
+    delivered_at: string | null;
+    read_at: string | null;
+    seen_at: string | null;
+  }>
+> {
   try {
     const { data, error } = await supabase
       .from('message_receipts')
@@ -142,16 +150,13 @@ export async function getRoomReadStatus(
 ): Promise<Record<string, { read_at: string | null; seen_at: string | null }>> {
   try {
     // Get all messages in room
-    const { data: messages } = await supabase
-      .from('messages')
-      .select('id')
-      .eq('room_id', roomId);
+    const { data: messages } = await supabase.from('messages').select('id').eq('room_id', roomId);
 
     if (!messages || messages.length === 0) {
       return {};
     }
 
-    const messageIds = messages.map(m => m.id);
+    const messageIds = messages.map((m) => m.id);
 
     // Get receipts for these messages
     const { data: receipts } = await supabase
@@ -161,12 +166,12 @@ export async function getRoomReadStatus(
       .eq('user_id', userId);
 
     const status: Record<string, { read_at: string | null; seen_at: string | null }> = {};
-    
+
     if (receipts) {
       for (const receipt of receipts) {
         status[receipt.message_id] = {
           read_at: receipt.read_at,
-          seen_at: receipt.seen_at
+          seen_at: receipt.seen_at,
         };
       }
     }
@@ -177,4 +182,3 @@ export async function getRoomReadStatus(
     return {};
   }
 }
-

@@ -28,19 +28,28 @@ export async function verifyAppleReceipt(
 ): Promise<{ verified: boolean; tier?: SubscriptionTier }> {
   // Compute receipt hash for deduplication
   const receiptHash = crypto.createHash('sha256').update(receiptData).digest('hex');
-  
+
   // Check if receipt was already processed (deduplication)
   try {
     const existing = await findOne('iap_receipts', { receipt_hash: receiptHash });
     if (existing && existing.verified) {
-      logInfo('Apple IAP', `Duplicate receipt detected for user ${userId}, returning cached result`);
-      return { verified: true, tier: existing.product_id === 'com.vibez.pro.monthly' ? SubscriptionTier.PRO : undefined };
+      logInfo(
+        'Apple IAP',
+        `Duplicate receipt detected for user ${userId}, returning cached result`
+      );
+      return {
+        verified: true,
+        tier: existing.product_id === 'com.vibez.pro.monthly' ? SubscriptionTier.PRO : undefined,
+      };
     }
   } catch (dedupeError) {
     // If receipt_hash column doesn't exist yet, continue processing
-    logInfo('Apple IAP', 'Receipt hash check failed (column may not exist), proceeding with verification');
+    logInfo(
+      'Apple IAP',
+      'Receipt hash check failed (column may not exist), proceeding with verification'
+    );
   }
-  
+
   const isProduction = process.env.NODE_ENV === 'production';
   const verifyURL = isProduction
     ? 'https://buy.itunes.apple.com/verifyReceipt'
@@ -51,8 +60,8 @@ export async function verifyAppleReceipt(
 
   const payload = JSON.stringify({
     'receipt-data': receiptData,
-    'password': appleSharedSecret,
-    'exclude-old-transactions': true
+    password: appleSharedSecret,
+    'exclude-old-transactions': true,
   });
 
   return new Promise((resolve) => {
@@ -60,7 +69,7 @@ export async function verifyAppleReceipt(
       verifyURL,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       },
       (res) => {
         let data = '';
@@ -84,7 +93,7 @@ export async function verifyAppleReceipt(
                   receipt_hash: receiptHash, // Store hash for duplicate detection
                   verified: true,
                   transaction_id: result.receipt.in_app[0].transaction_id,
-                  product_id: productId
+                  product_id: productId,
                 });
 
                 logInfo('Apple IAP', `Subscription verified for user ${userId}`);
@@ -102,7 +111,10 @@ export async function verifyAppleReceipt(
               resolve({ verified: false });
             }
           } catch (error) {
-            logError('Apple IAP', `Parse error: ${error instanceof Error ? error.message : String(error)}`);
+            logError(
+              'Apple IAP',
+              `Parse error: ${error instanceof Error ? error.message : String(error)}`
+            );
             resolve({ verified: false });
           }
         });
@@ -118,4 +130,3 @@ export async function verifyAppleReceipt(
     req.end();
   });
 }
-

@@ -40,7 +40,7 @@ ALTER TABLE messages
   ADD COLUMN IF NOT EXISTS conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
   ADD COLUMN IF NOT EXISTS message_type TEXT DEFAULT 'text' CHECK (message_type IN ('text', 'voice', 'image')),
   ADD COLUMN IF NOT EXISTS voice_url TEXT,
-  ADD COLUMN IF NOT EXISTS sentiment_score NUMERIC,
+  -- sentiment_score removed (gamification element)
   ADD COLUMN IF NOT EXISTS is_analyzed BOOLEAN DEFAULT false;
 
 -- Create index for conversation lookups
@@ -53,18 +53,17 @@ CREATE TABLE IF NOT EXISTS sentiment_analysis (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
   analysis_data JSONB NOT NULL,
-  sentiment_score NUMERIC NOT NULL,
-  emotional_intensity NUMERIC NOT NULL,
+  -- sentiment_score and emotional_intensity removed (gamification elements)
   surprise_factor NUMERIC NOT NULL,
   keywords TEXT[],
   breakup_detected BOOLEAN DEFAULT false,
-  safety_flags TEXT[],
+  -- safety_flags removed (gamification element)
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE(conversation_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_sentiment_conversation ON sentiment_analysis(conversation_id);
-CREATE INDEX IF NOT EXISTS idx_sentiment_score ON sentiment_analysis(sentiment_score DESC);
+-- idx_sentiment_score removed (sentiment_score column removed)
 
 -- ===============================================
 -- 5. CARDS (the collectibles)
@@ -144,7 +143,7 @@ CREATE TABLE IF NOT EXISTS boosts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  boost_type TEXT NOT NULL CHECK (boost_type IN ('scream_multiplier', 'rarity_boost', 'print_order')),
+  boost_type TEXT NOT NULL CHECK (boost_type IN ('rarity_boost')), -- Gamification removed: scream_multiplier, print_order
   amount_paid NUMERIC NOT NULL,
   payment_provider TEXT,
   payment_id TEXT,

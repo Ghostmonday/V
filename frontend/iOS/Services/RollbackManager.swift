@@ -3,6 +3,7 @@ import OSLog
 
 /// Rollback Manager
 /// Manages rollback checkpoints and rollback logic for failed UI changes
+@MainActor
 class RollbackManager {
     static let shared = RollbackManager()
     
@@ -18,7 +19,7 @@ class RollbackManager {
             componentId: componentId,
             modification: modification,
             timestamp: Date(),
-            state: .active
+            state: RollbackCheckpoint.CheckpointState.active
         )
         
         checkpoints.append(checkpoint)

@@ -47,7 +47,7 @@ export interface RoomState {
  * Generate Agora RTC token for joining a room
  * Note: Agora uses WebRTC which provides Perfect Forward Secrecy by default
  * via DTLS-SRTP with ephemeral keys. This function generates the auth token.
- * 
+ *
  * For PFS, ensure WebRTC is configured with:
  * - DTLS-SRTP (default in Agora)
  * - Ephemeral key exchange (handled by WebRTC protocol)
@@ -92,7 +92,7 @@ export async function getRoomState(roomId: string): Promise<RoomState | null> {
   try {
     const key = `room:${roomId}:state`;
     const stateJson = await getRedis().get(key);
-    
+
     if (!stateJson) {
       // Try to load from Supabase and initialize Redis
       const { data: room } = await supabase
@@ -132,7 +132,10 @@ export async function updateRoomState(roomId: string, state: RoomState): Promise
     const key = `room:${roomId}:state`;
     await getRedis().setex(key, 86400, JSON.stringify(state)); // 24h expiry
   } catch (error) {
-    logError('Failed to update room state', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to update room state',
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
 
@@ -156,7 +159,7 @@ export async function addRoomMember(
     }
 
     // Check if user already in room
-    const existingMember = state.members.find(m => m.userId === userId);
+    const existingMember = state.members.find((m) => m.userId === userId);
     if (existingMember) {
       return { success: true }; // Already in room
     }
@@ -174,13 +177,16 @@ export async function addRoomMember(
     await updateRoomState(roomId, state);
 
     // Persist to Supabase (async, don't block)
-    persistRoomMemberToSupabase(roomId, userId, uid).catch(err => {
+    persistRoomMemberToSupabase(roomId, userId, uid).catch((err) => {
       logError('Failed to persist room member', err);
     });
 
     return { success: true };
   } catch (error) {
-    logError('Failed to add room member', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to add room member',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return { success: false, error: 'Failed to join room' };
   }
 }
@@ -195,15 +201,18 @@ export async function removeRoomMember(roomId: string, userId: string): Promise<
       return;
     }
 
-    state.members = state.members.filter(m => m.userId !== userId);
+    state.members = state.members.filter((m) => m.userId !== userId);
     await updateRoomState(roomId, state);
 
     // Persist to Supabase (async, don't block)
-    removeRoomMemberFromSupabase(roomId, userId).catch(err => {
+    removeRoomMemberFromSupabase(roomId, userId).catch((err) => {
       logError('Failed to remove room member', err);
     });
   } catch (error) {
-    logError('Failed to remove room member', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to remove room member',
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
 
@@ -221,7 +230,7 @@ export async function updateMemberMute(
       return { success: false };
     }
 
-    const member = state.members.find(m => m.userId === userId);
+    const member = state.members.find((m) => m.userId === userId);
     if (member) {
       member.isMuted = isMuted;
       await updateRoomState(roomId, state);
@@ -230,7 +239,10 @@ export async function updateMemberMute(
 
     return { success: false };
   } catch (error) {
-    logError('Failed to update member mute', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to update member mute',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return { success: false };
   }
 }
@@ -254,7 +266,7 @@ export async function updateMemberVideo(
       return { success: false };
     }
 
-    const member = state.members.find(m => m.userId === userId);
+    const member = state.members.find((m) => m.userId === userId);
     if (member) {
       member.isVideoEnabled = isVideoEnabled;
       await updateRoomState(roomId, state);
@@ -263,7 +275,10 @@ export async function updateMemberVideo(
 
     return { success: false };
   } catch (error) {
-    logError('Failed to update member video', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to update member video',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return { success: false };
   }
 }
@@ -276,7 +291,10 @@ export async function getRoomMembers(roomId: string): Promise<RoomMember[]> {
     const state = await getRoomState(roomId);
     return state?.members || [];
   } catch (error) {
-    logError('Failed to get room members', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to get room members',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return [];
   }
 }
@@ -284,7 +302,11 @@ export async function getRoomMembers(roomId: string): Promise<RoomMember[]> {
 /**
  * Persist room member to Supabase (async)
  */
-async function persistRoomMemberToSupabase(roomId: string, userId: string, uid: number): Promise<void> {
+async function persistRoomMemberToSupabase(
+  roomId: string,
+  userId: string,
+  uid: number
+): Promise<void> {
   try {
     await supabase.from('room_members').upsert({
       room_id: roomId,
@@ -294,7 +316,10 @@ async function persistRoomMemberToSupabase(roomId: string, userId: string, uid: 
     });
   } catch (error) {
     // Silent fail - Redis is source of truth
-    logError('Failed to persist room member to Supabase', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to persist room member to Supabase',
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
 
@@ -303,14 +328,12 @@ async function persistRoomMemberToSupabase(roomId: string, userId: string, uid: 
  */
 async function removeRoomMemberFromSupabase(roomId: string, userId: string): Promise<void> {
   try {
-    await supabase
-      .from('room_members')
-      .delete()
-      .eq('room_id', roomId)
-      .eq('user_id', userId);
+    await supabase.from('room_members').delete().eq('room_id', roomId).eq('user_id', userId);
   } catch (error) {
     // Silent fail - Redis is source of truth
-    logError('Failed to remove room member from Supabase', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to remove room member from Supabase',
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
-

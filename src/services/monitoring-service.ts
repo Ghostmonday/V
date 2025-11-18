@@ -46,7 +46,6 @@ export const toxicityScoreHistogram = new client.Histogram({
   buckets: [0, 0.3, 0.5, 0.7, 0.9, 1.0],
 });
 
-
 // Error metrics
 export const errorCounter = new client.Counter({
   name: 'errors_total',
@@ -113,7 +112,12 @@ export function recordError(type: string, endpoint: string): void {
 /**
  * Record request duration
  */
-export function recordRequestDuration(method: string, route: string, status: number, duration: number): void {
+export function recordRequestDuration(
+  method: string,
+  route: string,
+  status: number,
+  duration: number
+): void {
   requestDuration.observe({ method, route, status: status.toString() }, duration / 1000);
 }
 
@@ -130,5 +134,3 @@ export function updateWebSocketConnections(count: number): void {
 export function recordDatabaseQuery(table: string, operation: string, duration: number): void {
   databaseQueryDuration.observe({ table, operation }, duration / 1000);
 }
-
-

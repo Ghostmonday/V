@@ -14,25 +14,25 @@ let s3Client: AWS.S3 | null = null;
 
 async function getS3Client(): Promise<AWS.S3> {
   if (s3Client) return s3Client;
-  
+
   const awsKeys = await getAwsKeys();
   if (!awsKeys.accessKeyId || !awsKeys.secretAccessKey) {
     throw new Error('AWS credentials not found in vault');
   }
-  
+
   s3Client = new AWS.S3({
     accessKeyId: awsKeys.accessKeyId,
     secretAccessKey: awsKeys.secretAccessKey,
     region: awsKeys.region || 'us-east-1',
   });
-  
+
   return s3Client;
 }
 
 /**
  * Upload a file to S3 and store metadata in database
  * Returns the file URL and database ID
- * 
+ *
  * @param file - File to upload
  * @param options - Optional configuration (userId for voice hash, mimeType)
  */
@@ -51,11 +51,11 @@ export async function uploadFileToStorage(
     }
 
     let fileBuffer = file.buffer;
-    
+
     // Apply voice hash encoding if this is a voice message
-    const isVoiceMessage = options?.mimeType?.startsWith('audio/') || 
-                          file.mimetype?.startsWith('audio/');
-    
+    const isVoiceMessage =
+      options?.mimeType?.startsWith('audio/') || file.mimetype?.startsWith('audio/');
+
     if (isVoiceMessage && options?.enableVoiceHash && options?.userId) {
       logInfo('Encoding voice hash for voice message', { userId: options.userId });
       fileBuffer = await encodeVoiceHash(file.buffer, options.userId);
@@ -63,31 +63,31 @@ export async function uploadFileToStorage(
 
     // Generate unique S3 key
     const s3Key = `${Date.now()}_${file.originalname}`;
-    
+
     // Get AWS bucket from vault
     const awsKeys = await getAwsKeys();
     const bucket = awsKeys.bucket || 'vibez-files';
-    
+
     // Upload to S3
     const uploadParams = {
       Bucket: bucket,
       Key: s3Key,
-      Body: fileBuffer
+      Body: fileBuffer,
     };
-    
+
     const uploadResult = await s3.upload(uploadParams).promise(); // No timeout - can hang indefinitely
     const fileUrl = (uploadResult as any).Location;
 
     // Store file metadata in database
-    const fileRecord = await create('files', { 
+    const fileRecord = await create('files', {
       url: fileUrl,
       mime_type: options?.mimeType || file.mimetype,
-      has_voice_hash: isVoiceMessage && options?.enableVoiceHash || false
+      has_voice_hash: (isVoiceMessage && options?.enableVoiceHash) || false,
     }); // Race: S3 upload succeeds but DB insert fails = orphaned file
 
     return {
       url: fileUrl,
-      id: fileRecord.id
+      id: fileRecord.id,
     };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -98,7 +98,7 @@ export async function uploadFileToStorage(
 
 /**
  * Verify voice hash for downloaded file
- * 
+ *
  * @param fileBuffer - File buffer from S3
  * @param expectedUserId - Expected user ID
  * @returns true if hash is valid, false otherwise
@@ -111,7 +111,10 @@ export async function verifyFileVoiceHash(
     return await verifyVoiceHash(fileBuffer, expectedUserId);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    logError('Voice hash verification failed', error instanceof Error ? error : new Error(errorMessage));
+    logError(
+      'Voice hash verification failed',
+      error instanceof Error ? error : new Error(errorMessage)
+    );
     return false;
   }
 }
@@ -122,7 +125,7 @@ export async function verifyFileVoiceHash(
 export async function getFileUrlById(fileId: string): Promise<string> {
   try {
     const fileRecord = await findOne<{ url: string }>('files', { id: fileId });
-    
+
     if (!fileRecord) {
       return '';
     }
@@ -149,18 +152,18 @@ export async function deleteFileById(fileId: string): Promise<void> {
 
     // Extract S3 key from URL
     const s3Key = fileRecord.url.split('/').pop();
-    
+
     if (s3Key) {
       // Get AWS bucket from vault
       const s3 = await getS3Client();
       const awsKeys = await getAwsKeys();
       const bucket = awsKeys.bucket || 'vibez-files';
-      
+
       // Delete from S3
       await s3
         .deleteObject({
           Bucket: bucket,
-          Key: s3Key
+          Key: s3Key,
         })
         .promise(); // Silent fail: S3 delete fails but DB delete proceeds = inconsistent state
     }
@@ -173,4 +176,3 @@ export async function deleteFileById(fileId: string): Promise<void> {
     throw new Error(errorMessage || 'Failed to delete file');
   }
 }
-

@@ -168,10 +168,6 @@ export async function getGrokKey(): Promise<string> {
   return await getApiKey('GROK_API_KEY');
 }
 
-export async function getOpenAIKey(): Promise<string> {
-  return await getApiKey('OPENAI_KEY');
-}
-
 export async function getAwsKeys(): Promise<{
   accessKeyId: string;
   secretAccessKey: string;
@@ -225,4 +221,3 @@ export async function initializeApiKeys(): Promise<void> {
     logError('Failed to initialize API keys', error);
   }
 }
-

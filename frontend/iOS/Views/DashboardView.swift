@@ -178,16 +178,28 @@ struct DashboardView: View {
                 Text(subscriptionManager.upgradeMessage(for: feature))
             }
         }
+        .onReceive(Timer.publish(every: 60.0, on: .main, in: .common).autoconnect()) { _ in
+            // Calculate message velocity every 60 seconds
+            if let startTime = messageVelocityStartTime {
+                let elapsed = Date().timeIntervalSince(startTime)
+                if elapsed > 0 {
+                    messageVelocity = Double(messageCount) / (elapsed / 60.0)
+                }
+                messageCount = 0
+                messageVelocityStartTime = Date()
+            } else {
+                messageVelocityStartTime = Date()
+            }
+        }
         .onDisappear {
-            // Clean up timer to prevent memory leaks
-            messageCountTimer?.invalidate()
-            messageCountTimer = nil
+            // Clean up cancellables (timers are handled via Combine)
+            cancellables.removeAll()
         }
     }
     
     @State private var cancellables = Set<AnyCancellable>()
-    @State private var messageCountTimer: Timer?
     @State private var messageCount: Int = 0
+    @State private var messageVelocityStartTime: Date?
     
     private func loadMetrics() async {
         isLoading = true
@@ -259,7 +271,7 @@ struct DashboardView: View {
         // Create minimal Room with required fields (using snake_case for Codable)
         // Room struct uses CodingKeys, so we need to create it properly
         // Since all fields are optional, we can use minimal values
-        var room = Room(
+        let room = Room(
             id: UUID(),
             name: name,
             owner_id: UUID(),
@@ -295,21 +307,9 @@ struct DashboardView: View {
             }
             .store(in: &cancellables)
         
-        // Start message velocity tracking
-        startMessageVelocityTracking()
-    }
-    
-    private func startMessageVelocityTracking() {
-        messageCountTimer?.invalidate()
-        let startTime = Date()
-        
-        messageCountTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            Task { @MainActor in
-                let elapsed = Date().timeIntervalSince(startTime)
-                self.messageVelocity = elapsed > 0 ? Double(self.messageCount) / (elapsed / 60.0) : 0.0
-                self.messageCount = 0
-            }
+        // Initialize message velocity tracking start time
+        if messageVelocityStartTime == nil {
+            messageVelocityStartTime = Date()
         }
     }
     

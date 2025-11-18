@@ -53,7 +53,7 @@ class LiveKitRoomManager: ObservableObject {
         print("[LiveKit] Joined room: \(config.roomName)")
         
         // Log telemetry
-        await UXTelemetryService.logRoomEntry(roomId: config.roomName, metadata: [
+        UXTelemetryService.logRoomEntry(roomId: config.roomName, metadata: [
             "audioEnabled": config.audioEnabled,
             "videoEnabled": config.videoEnabled,
             "pushToTalk": config.pushToTalk
@@ -78,7 +78,7 @@ class LiveKitRoomManager: ObservableObject {
         // TODO: Implement LiveKit audio toggle
         // await room?.localParticipant?.setMicrophoneEnabled(localAudioEnabled)
         
-        await UXTelemetryService.logStateTransition(
+        UXTelemetryService.logStateTransition(
             componentId: "AudioControl",
             stateBefore: localAudioEnabled ? "muted" : "enabled",
             stateAfter: localAudioEnabled ? "enabled" : "muted",
@@ -104,7 +104,7 @@ class LiveKitRoomManager: ObservableObject {
             localAudioEnabled = true
         }
         
-        await UXTelemetryService.logStateTransition(
+        UXTelemetryService.logStateTransition(
             componentId: "PushToTalk",
             stateBefore: isPushToTalkMode ? "disabled" : "enabled",
             stateAfter: enabled ? "enabled" : "disabled",
@@ -132,7 +132,7 @@ class LiveKitRoomManager: ObservableObject {
         // TODO: Implement LiveKit video toggle
         // await room?.localParticipant?.setCameraEnabled(localVideoEnabled)
         
-        await UXTelemetryService.logStateTransition(
+        UXTelemetryService.logStateTransition(
             componentId: "VideoControl",
             stateBefore: localVideoEnabled ? "disabled" : "enabled",
             stateAfter: localVideoEnabled ? "enabled" : "disabled",
@@ -188,12 +188,9 @@ class LiveKitRoomManager: ObservableObject {
     
     deinit {
         // Ensure room is disconnected when manager is deallocated
-        Task { @MainActor in
-            if isConnected {
-                await leaveRoom()
-            }
-        }
-        cancellables.removeAll()
+        // Note: Can't mutate @MainActor properties from nonisolated deinit
+        // Cancellables will be automatically cleaned up when object is deallocated
+        // No need to explicitly remove them here
     }
 }
 

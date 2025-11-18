@@ -4,6 +4,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    env: {
+      NEXT_PUBLIC_SUPABASE_URL: 'https://test.supabase.co',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
+      SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',
+      JWT_SECRET: 'test-jwt-secret-key-for-testing-only',
+      ENCRYPTION_MASTER_KEY: 'test-encryption-key-32-bytes-long!!',
+    },
     include: [
       'src/**/__tests__/**/*.test.ts',
       'src/**/__tests__/**/*.spec.ts',
@@ -31,4 +38,3 @@ export default defineConfig({
     },
   },
 });
-

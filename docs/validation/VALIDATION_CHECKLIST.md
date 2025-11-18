@@ -620,5 +620,5 @@ After completing all checks:
 ---
 
 **Last Updated:** 2025-01-XX  
-**Validated By:** ********\_********  
+**Validated By:** **\*\*\*\***\_**\*\*\*\***  
 **Status:** ⬜ In Progress | ⬜ Complete | ⬜ Blocked

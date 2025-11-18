@@ -1,7 +1,7 @@
 /**
  * Perspective API Service
  * Google Perspective API integration for toxicity detection
- * 
+ *
  * Install: npm install @tensorflow-models/toxicity (or use REST API)
  * API Key: Get from Google Cloud Console
  */
@@ -29,7 +29,7 @@ export interface PerspectiveResult {
 export async function analyzeWithPerspective(text: string): Promise<PerspectiveResult | null> {
   try {
     const apiKey = await getApiKey('perspective_api_key', 'production');
-    
+
     if (!apiKey) {
       logWarning('Perspective API key not found - skipping analysis');
       return null;
@@ -58,7 +58,7 @@ export async function analyzeWithPerspective(text: string): Promise<PerspectiveR
     );
 
     const attributes = response.data?.attributeScores || {};
-    
+
     const toxicity = attributes.TOXICITY?.summaryScore?.value || 0;
     const severeToxicity = attributes.SEVERE_TOXICITY?.summaryScore?.value || 0;
     const identityAttack = attributes.IDENTITY_ATTACK?.summaryScore?.value || 0;
@@ -137,4 +137,3 @@ export async function getModerationThresholds(roomId?: string): Promise<{
     };
   }
 }
-

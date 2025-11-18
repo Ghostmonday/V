@@ -1,7 +1,7 @@
 /**
  * OpenTelemetry Integration
  * Phase 6.4: External telemetry service integration
- * 
+ *
  * Note: This is a placeholder implementation. In production, you would:
  * 1. Install @opentelemetry/api and related packages
  * 2. Configure exporters (OTLP, Jaeger, etc.)
@@ -96,4 +96,3 @@ export function configureOpenTelemetry(newConfig: Partial<TelemetryConfig>): voi
     initializeOpenTelemetry();
   }
 }
-

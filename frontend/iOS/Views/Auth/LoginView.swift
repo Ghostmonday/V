@@ -2,21 +2,24 @@
 //  LoginView.swift
 //  VibeZ iOS
 //
-//  Firebase authentication login view with VibeZ theme
+//  Supabase authentication login view with VibeZ theme
 //
 
 import SwiftUI
 import AuthenticationServices
 
 struct LoginView: View {
+	@StateObject private var authService = SupabaseAuthService.shared
 	@State private var email: String = ""
 	@State private var password: String = ""
 	@State private var showResetPasswordAlert: Bool = false
 	@State private var resetPasswordEmail: String = ""
 	@State private var showPasswordResetConfirmation: Bool = false
+	@State private var showErrorAlert: Bool = false
+	@State private var errorMessage: String = ""
+	@State private var isLoading: Bool = false
 	@FocusState private var emailIsFocused: Bool
 	@FocusState private var passwordIsFocused: Bool
-	@EnvironmentObject var authViewModel: FirebaseAuthViewModel
 	
 	var body: some View {
 		ZStack {
@@ -41,10 +44,12 @@ struct LoginView: View {
 						.font(.system(size: 48, weight: .bold))
 						.foregroundColor(Color("VibeZGold"))
 						.shadow(color: Color("VibeZGlow").opacity(0.6), radius: 8)
+						.accessibilityIdentifier("VibeZ")
 					
 					Text("Welcome back")
 						.font(.system(size: 24, weight: .medium))
 						.foregroundColor(.white.opacity(0.8))
+						.accessibilityIdentifier("Welcome back")
 				}
 				.padding(.bottom, 40)
 				
@@ -56,6 +61,7 @@ struct LoginView: View {
 						.keyboardType(.emailAddress)
 						.submitLabel(.next)
 						.focused($emailIsFocused)
+						.accessibilityIdentifier("Email Address")
 						.onSubmit {
 							emailIsFocused = false
 							passwordIsFocused = true
@@ -65,6 +71,7 @@ struct LoginView: View {
 						.withVibeZSecureFieldStyles()
 						.submitLabel(.go)
 						.focused($passwordIsFocused)
+						.accessibilityIdentifier("Password")
 						.onSubmit {
 							signIn()
 						}
@@ -83,8 +90,8 @@ struct LoginView: View {
 					.padding(.bottom, 8)
 					
 					// Error Display
-					if let error = authViewModel.error {
-						Text(error.localizedDescription ?? "An error occurred")
+					if !errorMessage.isEmpty {
+						Text(errorMessage)
 							.font(.footnote)
 							.foregroundColor(.red)
 							.padding(.vertical, 8)
@@ -96,9 +103,10 @@ struct LoginView: View {
 					
 					// Sign In Button
 					Button(action: signIn) {
-						if authViewModel.isLoading {
+						if isLoading {
 							ProgressView()
 								.tint(.white)
+								.accessibilityIdentifier("Loading Indicator")
 						} else {
 							Text("Sign In")
 								.foregroundColor(.black)
@@ -107,7 +115,8 @@ struct LoginView: View {
 								.padding()
 						}
 					}
-					.disabled(email.isEmpty || password.isEmpty || authViewModel.isLoading)
+					.disabled(email.isEmpty || password.isEmpty || isLoading)
+					.accessibilityIdentifier("Sign In")
 					.background(
 						Capsule()
 							.fill(Color("VibeZGold"))
@@ -127,7 +136,8 @@ struct LoginView: View {
 									.stroke(Color("VibeZGold"), lineWidth: 2)
 							)
 					}
-					.disabled(email.isEmpty || password.isEmpty || authViewModel.isLoading)
+					.disabled(email.isEmpty || password.isEmpty || isLoading)
+					.accessibilityIdentifier("Sign Up")
 				}
 				.padding(.horizontal, 32)
 				
@@ -159,8 +169,7 @@ struct LoginView: View {
 			
 			Button("Reset") {
 				Task {
-					await authViewModel.sendPasswordReset(email: resetPasswordEmail)
-					showPasswordResetConfirmation = true
+					await resetPassword()
 				}
 			}
 		} message: {
@@ -171,32 +180,81 @@ struct LoginView: View {
 		} message: {
 			Text("Check your email for a link to reset your password.")
 		}
+		.alert("Error", isPresented: $showErrorAlert) {
+			Button("OK", role: .cancel) {}
+		} message: {
+			Text(errorMessage)
+		}
+		.onAppear {
+			// Skip auto-login in UI testing mode
+			if !ProcessInfo.isUITesting {
+				// Auto-login if session can be restored
+				Task {
+					await authService.restoreSession()
+					if authService.isAuthenticated {
+						// Session restored, user will be navigated automatically
+					}
+				}
+			}
+		}
 		.onTapGesture {
 			hideKeyboard()
 		}
 	}
 	
-	// Helper methods
+	// MARK: - Helper Methods
+	
 	private func signIn() {
+		guard !email.isEmpty && !password.isEmpty else { return }
+		
+		isLoading = true
+		errorMessage = ""
+		
 		Task {
-			await authViewModel.login(with: .emailAndPassword(
-				email: email,
-				password: password
-			))
+			do {
+				_ = try await authService.signInWithEmail(email: email, password: password)
+				// Success - navigation handled by parent view based on authService.isAuthenticated
+			} catch let error as AuthError {
+				errorMessage = error.localizedDescription ?? "Sign in failed"
+				showErrorAlert = true
+			} catch {
+				errorMessage = error.localizedDescription
+				showErrorAlert = true
+			}
+			
+			isLoading = false
 		}
 	}
 	
 	private func signUp() {
+		guard !email.isEmpty && !password.isEmpty else { return }
+		
+		isLoading = true
+		errorMessage = ""
+		
 		Task {
 			do {
-				try await authViewModel.signUp(
-					email: email,
-					password: password
-				)
+				try await authService.signUpWithEmail(email: email, password: password)
+				// After sign up, automatically sign in
+				_ = try await authService.signInWithEmail(email: email, password: password)
+			} catch let error as AuthError {
+				errorMessage = error.localizedDescription ?? "Sign up failed"
+				showErrorAlert = true
 			} catch {
-				// Error handling is already done in the ViewModel
+				errorMessage = error.localizedDescription
+				showErrorAlert = true
 			}
+			
+			isLoading = false
 		}
+	}
+	
+	private func resetPassword() async {
+		guard !resetPasswordEmail.isEmpty else { return }
+		
+		// TODO: Implement password reset via Supabase
+		// For now, show confirmation
+		showPasswordResetConfirmation = true
 	}
 }
 
@@ -237,8 +295,4 @@ extension SecureField {
 
 #Preview {
 	LoginView()
-		.environmentObject(FirebaseAuthViewModel(
-			authRepository: FirebaseAuthRepository()
-		))
 }
-

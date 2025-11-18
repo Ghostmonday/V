@@ -2,7 +2,7 @@ import SwiftUI
 import AuthenticationServices
 
 struct OnboardingView: View {
-    @EnvironmentObject var firebaseAuthViewModel: FirebaseAuthViewModel
+    @StateObject private var authService = SupabaseAuthService.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showContent = false
     @State private var pulseAnimation = false
@@ -10,7 +10,7 @@ struct OnboardingView: View {
     
     // Check auth state - if already logged in, skip onboarding instantly
     private var isAuthenticated: Bool {
-        firebaseAuthViewModel.state == .signedIn || AuthTokenManager.shared.token != nil
+        authService.isAuthenticated
     }
     
     var body: some View {
@@ -112,7 +112,7 @@ struct OnboardingView: View {
                 .offset(y: showContent ? 0 : 30)
                 .opacity(showContent ? 1.0 : 0.0)
                 
-                // Auth buttons row - Use Firebase auth
+                // Auth buttons row - Use Supabase auth
                 VStack(spacing: 12) {
                     // Sign In With Apple button
                     SignInWithAppleButton(
@@ -123,11 +123,15 @@ struct OnboardingView: View {
                         onCompletion: { result in
                             if case .success = result {
                                 Task { @MainActor in
-                                    await firebaseAuthViewModel.login(with: .signInWithApple)
-                                    if firebaseAuthViewModel.state == .signedIn {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                            hasCompletedOnboarding = true
+                                    do {
+                                        _ = try await authService.signInWithApple()
+                                        if authService.isAuthenticated {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                hasCompletedOnboarding = true
+                                            }
                                         }
+                                    } catch {
+                                        // Error handling is done in the service
                                     }
                                 }
                             }
@@ -138,31 +142,6 @@ struct OnboardingView: View {
                     .cornerRadius(8)
                     .accessibilityLabel("Sign In With Apple")
                     .accessibilityHint("Double tap to sign in with your Apple ID")
-                    
-                    // Sign In With Google button
-                    Button(action: {
-                        Task { @MainActor in
-                            await firebaseAuthViewModel.login(with: .signInWithGoogle)
-                            if firebaseAuthViewModel.state == .signedIn {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    hasCompletedOnboarding = true
-                                }
-                            }
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "globe")
-                                .font(.system(size: 18))
-                            Text("Sign in with Google")
-                                .foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.black)
-                        .cornerRadius(8)
-                    }
-                    .accessibilityLabel("Sign In With Google")
-                    .accessibilityHint("Double tap to sign in with your Google account")
                 }
                 .padding(.horizontal, 40)
                 .padding(.bottom, 20)
@@ -240,4 +219,3 @@ struct OnboardingView: View {
 #Preview {
     OnboardingView()
 }
-

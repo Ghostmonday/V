@@ -47,3 +47,17 @@ scripts/archive/
 # Validation results (can be regenerated)
 validation-results-*.json
 
+frontend/iOS/.build/
+
+# Xcode user-specific files
+*.xcuserstate
+*.xcuserdatad/
+**/xcuserdata/
+**/Bookmarks/
+
+# Test results and temporary files
+test-results/
+*.test-help.txt
+
+# Cypress screenshots (keep fixtures and support)
+cypress/screenshots/

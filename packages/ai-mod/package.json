@@ -13,7 +13,6 @@
     "lint": "eslint src --max-warnings=0"
   },
   "dependencies": {
-    "openai": "^4.20.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

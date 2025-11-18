@@ -4,7 +4,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { issueTokenPair, rotateRefreshToken, revokeRefreshToken } from '../refresh-token-service.js';
+import {
+  issueTokenPair,
+  rotateRefreshToken,
+  revokeRefreshToken,
+} from '../refresh-token-service.js';
 import { createHash } from 'crypto';
 
 // Mock Supabase
@@ -12,8 +16,18 @@ const mockSupabase = {
   from: vi.fn(),
 };
 
+const mockSupabaseAdmin = {
+  auth: {
+    updateUserById: vi.fn(),
+  },
+};
+
 vi.mock('../shared/supabase-client.js', () => ({
   supabase: mockSupabase,
+}));
+
+vi.mock('../../config/supabase-admin.js', () => ({
+  supabaseAdmin: mockSupabaseAdmin,
 }));
 
 vi.mock('../shared/logger.js', () => ({
@@ -48,7 +62,7 @@ describe('Refresh Token Service', () => {
       } as any);
 
       const result = await issueTokenPair('user-123', '127.0.0.1', 'test-agent');
-      
+
       expect(result).toBeDefined();
       expect(result.accessToken).toBeDefined();
       expect(result.refreshToken).toBeDefined();
@@ -76,7 +90,7 @@ describe('Refresh Token Service', () => {
       } as any);
 
       await issueTokenPair('user-123', '127.0.0.1', 'test-agent');
-      
+
       const insertCall = mockInsert.mock.calls[0][0];
       expect(insertCall.token_hash).toBeDefined();
       expect(insertCall.token_hash).not.toBe(insertCall.refreshToken); // Should be hashed
@@ -88,7 +102,7 @@ describe('Refresh Token Service', () => {
     it('should rotate refresh token and issue new pair', async () => {
       const oldTokenHash = createHash('sha256').update('old-refresh-token').digest('hex');
       const newTokenHash = createHash('sha256').update('new-refresh-token').digest('hex');
-      
+
       const mockSelect = vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
@@ -139,7 +153,7 @@ describe('Refresh Token Service', () => {
       } as any);
 
       const result = await rotateRefreshToken('old-refresh-token', '127.0.0.1', 'test-agent');
-      
+
       expect(result).toBeDefined();
       expect(result?.accessToken).toBeDefined();
       expect(result?.refreshToken).toBeDefined();
@@ -162,14 +176,14 @@ describe('Refresh Token Service', () => {
       } as any);
 
       const result = await rotateRefreshToken('invalid-token', '127.0.0.1', 'test-agent');
-      
+
       expect(result).toBeNull();
     });
 
     it('should reject expired refresh token', async () => {
       const expiredDate = new Date(Date.now() - 24 * 60 * 60 * 1000); // 1 day ago
       const tokenHash = createHash('sha256').update('expired-token').digest('hex');
-      
+
       const mockSelect = vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
@@ -189,7 +203,7 @@ describe('Refresh Token Service', () => {
       } as any);
 
       const result = await rotateRefreshToken('expired-token', '127.0.0.1', 'test-agent');
-      
+
       expect(result).toBeNull();
     });
   });
@@ -197,7 +211,7 @@ describe('Refresh Token Service', () => {
   describe('revokeRefreshToken', () => {
     it('should revoke refresh token', async () => {
       const tokenHash = createHash('sha256').update('token-to-revoke').digest('hex');
-      
+
       const mockUpdate = vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({
           data: { id: 'token-123' },
@@ -210,7 +224,7 @@ describe('Refresh Token Service', () => {
       } as any);
 
       const result = await revokeRefreshToken('token-to-revoke');
-      
+
       expect(result).toBe(true);
       expect(mockUpdate).toHaveBeenCalled();
     });
@@ -228,9 +242,8 @@ describe('Refresh Token Service', () => {
       } as any);
 
       const result = await revokeRefreshToken('non-existent-token');
-      
+
       expect(result).toBe(false);
     });
   });
 });
-

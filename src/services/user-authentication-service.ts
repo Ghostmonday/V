@@ -1,11 +1,11 @@
 /**
  * User Authentication Service
  * Handles Apple Sign-In verification, username/password login, and JWT token generation
- * 
+ *
  * New simplified functions:
  * - authenticate(email, password) - Supabase email/password authentication
  * - issueToken(user) - Simple JWT token generation
- * 
+ *
  * Legacy functions (kept for backward compatibility):
  * - verifyAppleSignInToken() - Apple Sign-In
  * - authenticateWithCredentials() - Username/password (legacy)
@@ -64,11 +64,14 @@ async function getEncryptionKey(): Promise<Buffer> {
       const scryptAsync = promisify(scrypt);
       const salt = Buffer.from('vibez-encryption-salt', 'utf8'); // Fixed salt for consistency
       const derivedKey = (await scryptAsync(masterKey, salt, 32)) as Buffer;
-      
+
       encryptionKeyCache = derivedKey;
       return derivedKey;
     } catch (error) {
-      logError('Failed to get encryption key', error instanceof Error ? error : new Error(String(error)));
+      logError(
+        'Failed to get encryption key',
+        error instanceof Error ? error : new Error(String(error))
+      );
       throw error;
     }
   })();
@@ -85,13 +88,13 @@ export async function encryptSensitiveData(plaintext: string): Promise<string> {
   try {
     const key = await getEncryptionKey();
     const iv = randomBytes(IV_LENGTH);
-    
+
     const cipher = createCipheriv(ALGORITHM, key, iv);
     let encrypted = cipher.update(plaintext, 'utf8');
     encrypted = Buffer.concat([encrypted, cipher.final()]);
-    
+
     const tag = cipher.getAuthTag();
-    
+
     // Combine IV, tag, and encrypted data
     const combined = Buffer.concat([iv, tag, encrypted]);
     return combined.toString('base64');
@@ -110,18 +113,18 @@ export async function decryptSensitiveData(encryptedData: string): Promise<strin
   try {
     const key = await getEncryptionKey();
     const combined = Buffer.from(encryptedData, 'base64');
-    
+
     // Extract IV, tag, and encrypted data
     const iv = combined.subarray(0, IV_LENGTH);
     const tag = combined.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
     const encrypted = combined.subarray(IV_LENGTH + TAG_LENGTH);
-    
+
     const decipher = createDecipheriv(ALGORITHM, key, iv);
     decipher.setAuthTag(tag);
-    
+
     let decrypted = decipher.update(encrypted);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
-    
+
     return decrypted.toString('utf8');
   } catch (error) {
     logError('Decryption failed', error instanceof Error ? error : new Error(String(error)));
@@ -196,14 +199,22 @@ export function issueToken(user: { id: string; tier?: string; handle?: string })
 // LiveKit token generation helper (optional - requires @livekit/server-sdk package)
 async function createLiveKitToken(userId: string, roomId?: string): Promise<string> {
   try {
-    const livekitModule = await import('@livekit/server-sdk') as { TokenGenerator?: new (apiKey: string, apiSecret: string) => { createToken: (grants: unknown, options: unknown) => string } };
+    const livekitModule = (await import('@livekit/server-sdk')) as {
+      TokenGenerator?: new (
+        apiKey: string,
+        apiSecret: string
+      ) => { createToken: (grants: unknown, options: unknown) => string };
+    };
     const TokenGenerator = livekitModule.TokenGenerator;
     if (TokenGenerator) {
       const livekitKeys = await getLiveKitKeys();
       if (livekitKeys.apiKey && livekitKeys.apiSecret) {
         const tokenGenerator = new TokenGenerator(livekitKeys.apiKey, livekitKeys.apiSecret);
         const room = roomId || 'default';
-        return tokenGenerator.createToken({ video: { roomJoin: true, room } }, { identity: userId });
+        return tokenGenerator.createToken(
+          { video: { roomJoin: true, room } },
+          { identity: userId }
+        );
       }
     }
   } catch {
@@ -216,7 +227,10 @@ async function createLiveKitToken(userId: string, roomId?: string): Promise<stri
  * Verify Apple ID token using Apple's JWKS and create user session
  * Returns JWT token and LiveKit room token
  */
-export async function verifyAppleSignInToken(token: string, ageVerified?: boolean): Promise<{ jwt: string; livekitToken: string }> {
+export async function verifyAppleSignInToken(
+  token: string,
+  ageVerified?: boolean
+): Promise<{ jwt: string; livekitToken: string }> {
   try {
     if (!token) {
       throw new Error('Apple authentication token is required');
@@ -224,7 +238,7 @@ export async function verifyAppleSignInToken(token: string, ageVerified?: boolea
 
     // Verify Apple ID token using JWKS
     const payload = await verifyAppleTokenWithJWKS(token);
-    
+
     const appleUserId = payload.sub;
 
     // Create or update user record with age verification
@@ -236,7 +250,10 @@ export async function verifyAppleSignInToken(token: string, ageVerified?: boolea
       await upsert('users', userData, 'id'); // Race: concurrent sign-ins can conflict
     } catch (upsertError: unknown) {
       // Non-critical: user might already exist
-      logInfo('User record update (non-critical):', upsertError instanceof Error ? upsertError.message : String(upsertError)); // Silent fail: user creation fails but JWT still issued
+      logInfo(
+        'User record update (non-critical):',
+        upsertError instanceof Error ? upsertError.message : String(upsertError)
+      ); // Silent fail: user creation fails but JWT still issued
     }
 
     // Generate application JWT token (from vault)
@@ -256,11 +273,16 @@ export async function verifyAppleSignInToken(token: string, ageVerified?: boolea
 
     return {
       jwt: applicationToken,
-      livekitToken: liveKitRoomToken
+      livekitToken: liveKitRoomToken,
     };
   } catch (error: unknown) {
-    logError('Apple Sign-In verification failed', error instanceof Error ? error : new Error(String(error)));
-    throw new Error(error instanceof Error ? error.message : 'Failed to verify Apple authentication token');
+    logError(
+      'Apple Sign-In verification failed',
+      error instanceof Error ? error : new Error(String(error))
+    );
+    throw new Error(
+      error instanceof Error ? error.message : 'Failed to verify Apple authentication token'
+    );
   }
 }
 
@@ -296,21 +318,21 @@ export async function authenticateWithCredentials(
       credentialsSchema,
       'authenticateWithCredentials'
     );
-    
+
     // VALIDATION POINT 2: Validate username format (no special chars)
     if (!/^[a-zA-Z0-9_-]+$/.test(validatedCreds.username)) {
       throw new Error('Invalid username format');
     }
-    
+
     const user = await findOne<{ id: string; password_hash?: string; password?: string }>('users', {
-      username: validatedCreds.username
+      username: validatedCreds.username,
     });
 
     // VALIDATION POINT 3: Validate user exists
     if (!user) {
       throw new Error('Invalid username or password');
     }
-    
+
     // VALIDATION POINT 4: Validate user structure from DB
     const validatedUser = validateAfterDB(user, userSchema, 'users.findByUsername');
 
@@ -356,15 +378,14 @@ export async function authenticateWithCredentials(
       throw new Error('JWT_SECRET not found in vault');
     }
 
-    const applicationToken = jwt.sign(
-      { userId: user.id },
-      jwtSecret,
-      { expiresIn: '7d' }
-    );
+    const applicationToken = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '7d' });
 
     return { jwt: applicationToken };
   } catch (error: unknown) {
-    logError('Credential authentication failed', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Credential authentication failed',
+      error instanceof Error ? error : new Error(String(error))
+    );
     throw new Error(error instanceof Error ? error.message : 'Login failed');
   }
 }
@@ -384,12 +405,12 @@ export async function registerUser(
     if (!passwordStrength.valid) {
       throw new Error(`Password does not meet requirements: ${passwordStrength.errors.join(', ')}`);
     }
-    
+
     // VALIDATION CHECKPOINT: Validate username format
     if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
       throw new Error('Username can only contain letters, numbers, underscores, and hyphens');
     }
-    
+
     // Check if user already exists
     const existingUser = await findOne('users', { username });
     if (existingUser) {
@@ -412,7 +433,7 @@ export async function registerUser(
     const userData: Record<string, unknown> = {
       username,
       password_hash,
-      subscription: 'free'
+      subscription: 'free',
     };
     if (ageVerified !== undefined) {
       userData.age_verified = ageVerified;
@@ -425,11 +446,7 @@ export async function registerUser(
       throw new Error('JWT_SECRET not found in vault');
     }
 
-    const applicationToken = jwt.sign(
-      { userId: user.id },
-      jwtSecret,
-      { expiresIn: '7d' }
-    );
+    const applicationToken = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '7d' });
 
     return { jwt: applicationToken };
   } catch (error: unknown) {

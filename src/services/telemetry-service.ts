@@ -12,7 +12,7 @@ import { logError } from '../shared/logger.js';
 const telemetryEventCounter = new client.Counter({
   name: 'telemetry_events_total',
   help: 'Total number of telemetry events recorded',
-  labelNames: ['event']
+  labelNames: ['event'],
 });
 
 export interface TelemetryMetadata {
@@ -46,14 +46,15 @@ export async function logTelemetryEvent(
   telemetryEventCounter.inc({ event: eventType });
 
   // Phase 6.4: Event sampling (10% of events, preserve all critical events)
-  const isCriticalEvent = eventType.includes('error') || 
-                          eventType.includes('critical') || 
-                          eventType.includes('security') ||
-                          eventType.includes('auth_failure');
-  
+  const isCriticalEvent =
+    eventType.includes('error') ||
+    eventType.includes('critical') ||
+    eventType.includes('security') ||
+    eventType.includes('auth_failure');
+
   const samplingRate = parseFloat(process.env.TELEMETRY_SAMPLING_RATE || '0.1'); // Default 10%
   const shouldSample = isCriticalEvent || Math.random() < samplingRate;
-  
+
   if (!shouldSample) {
     // Sampled out - don't persist to DB, but metrics are still recorded
     return;
@@ -74,7 +75,7 @@ export async function logTelemetryEvent(
   // Persist to Supabase with retry logic (async, can fail gracefully)
   const maxRetries = 3;
   let lastError: Error | null = null;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const { error } = await supabase.from('telemetry').insert({
@@ -93,11 +94,14 @@ export async function logTelemetryEvent(
         // If it's a transient error, retry; otherwise, log and give up
         if (attempt < maxRetries && (error.code === 'PGRST301' || error.code === 'PGRST302')) {
           // PGRST301/302 are connection errors - retry with exponential backoff
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+          await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 100));
           continue;
         } else {
           // Non-retryable error or max retries reached
-          logError(`Failed to log telemetry event (attempt ${attempt}/${maxRetries}): ${error.code || 'unknown'} - ${error.message}`, error);
+          logError(
+            `Failed to log telemetry event (attempt ${attempt}/${maxRetries}): ${error.code || 'unknown'} - ${error.message}`,
+            error
+          );
           break;
         }
       } else {
@@ -106,27 +110,34 @@ export async function logTelemetryEvent(
       }
     } catch (error: any) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       // Retry on network errors or timeouts
-      if (attempt < maxRetries && (
-        error.message?.includes('network') ||
-        error.message?.includes('timeout') ||
-        error.message?.includes('ECONNREFUSED')
-      )) {
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+      if (
+        attempt < maxRetries &&
+        (error.message?.includes('network') ||
+          error.message?.includes('timeout') ||
+          error.message?.includes('ECONNREFUSED'))
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 100));
         continue;
       } else {
-        logError(`Telemetry logging error (attempt ${attempt}/${maxRetries}): ${lastError.message}`, lastError);
+        logError(
+          `Telemetry logging error (attempt ${attempt}/${maxRetries}): ${lastError.message}`,
+          lastError
+        );
         break;
       }
     }
   }
-  
+
   // If we get here, all retries failed
   // Don't throw - telemetry failures shouldn't break main operations
   // But log detailed error for monitoring
   if (lastError) {
-    logError(`Telemetry logging failed after ${maxRetries} retries. Event: ${eventType}, User: ${userId || 'none'}, Room: ${roomId || 'none'}`, lastError);
+    logError(
+      `Telemetry logging failed after ${maxRetries} retries. Event: ${eventType}, User: ${userId || 'none'}, Room: ${roomId || 'none'}`,
+      lastError
+    );
   }
 }
 
@@ -245,20 +256,14 @@ export async function logUserLeftRoom(
   });
 }
 
-export async function logUserIdle(
-  userId: string,
-  roomId: string
-): Promise<void> {
+export async function logUserIdle(userId: string, roomId: string): Promise<void> {
   await logTelemetryEvent('user_idle', {
     userId,
     roomId,
   });
 }
 
-export async function logUserBack(
-  userId: string,
-  roomId: string
-): Promise<void> {
+export async function logUserBack(userId: string, roomId: string): Promise<void> {
   await logTelemetryEvent('user_back', {
     userId,
     roomId,
@@ -549,9 +554,7 @@ export async function logReconnectAttempt(
   });
 }
 
-export async function logMobileForeground(
-  userId: string
-): Promise<void> {
+export async function logMobileForeground(userId: string): Promise<void> {
   await logTelemetryEvent('mobile_foreground', {
     userId,
     metadata: {
@@ -560,9 +563,7 @@ export async function logMobileForeground(
   });
 }
 
-export async function logMobileBackground(
-  userId: string
-): Promise<void> {
+export async function logMobileBackground(userId: string): Promise<void> {
   await logTelemetryEvent('mobile_background', {
     userId,
     metadata: {

@@ -30,7 +30,9 @@ export async function getAllConfiguration(): Promise<Record<string, any>> {
  * Update configuration values
  * Accepts an object where keys are config names and values are config values
  */
-export async function updateConfiguration(configurationUpdates: Record<string, any>): Promise<void> {
+export async function updateConfiguration(
+  configurationUpdates: Record<string, any>
+): Promise<void> {
   try {
     for (const [key, value] of Object.entries(configurationUpdates)) {
       await upsert('config', { key, value }, 'key'); // Race: concurrent updates can overwrite each other
@@ -40,4 +42,3 @@ export async function updateConfiguration(configurationUpdates: Record<string, a
     throw new Error(error.message || 'Failed to update configuration'); // Error branch: partial updates not rolled back
   }
 }
-

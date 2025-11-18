@@ -15,14 +15,18 @@ export async function updatePresence(userId: string, status: string) {
   await redis.publish('presence_updates', JSON.stringify({ userId, status, ts: Date.now() }));
 }
 
-export async function updateRoomPresence(roomId: string, userId: string, status: string): Promise<void> {
+export async function updateRoomPresence(
+  roomId: string,
+  userId: string,
+  status: string
+): Promise<void> {
   // Set Redis key with TTL to prevent orphaned keys (1 hour expiration)
   await redis.hset(`presence:${roomId}`, userId, status);
   await redis.expire(`presence:${roomId}`, 3600); // 1 hour TTL
-  
+
   // Also set individual user presence key with TTL
   await redis.set(`presence:${userId}`, status, 'EX', 3600); // 1 hour TTL
-  
+
   await supabase.from('presence_logs').insert({ user_id: userId, room_id: roomId, status });
   await logAudit('presence_update', userId, { room_id: roomId, status });
 }
@@ -35,13 +39,13 @@ export async function getOnlineStatus(userId: string): Promise<string> {
   // Check individual user presence key first (more efficient)
   const userStatus = await redis.get(`presence:${userId}`);
   if (userStatus) return userStatus;
-  
+
   // Fallback: check room presence keys (less efficient, but comprehensive)
   const keys = await redis.keys('presence:*');
   for (const key of keys) {
     // Skip individual user keys (already checked above)
     if (key === `presence:${userId}`) continue;
-    
+
     const status = await redis.hget(key, userId);
     if (status) return status;
   }
@@ -55,25 +59,28 @@ export async function getOnlineStatus(userId: string): Promise<string> {
  */
 export async function cleanupOrphanedPresenceKeys(): Promise<number> {
   let cleanedCount = 0;
-  
+
   try {
     // Get all presence keys
     const keys = await redis.keys('presence:*');
-    
+
     for (const key of keys) {
       // Check if key has TTL (if TTL is -1, it's a permanent key - skip)
       const ttl = await redis.ttl(key);
-      
+
       // If key has no TTL or is expired, remove it
       if (ttl === -1 || ttl === -2) {
         await redis.del(key);
         cleanedCount++;
       }
     }
-    
+
     return cleanedCount;
   } catch (error) {
-    logError('Failed to cleanup orphaned presence keys', error instanceof Error ? error : new Error(String(error)));
+    logError(
+      'Failed to cleanup orphaned presence keys',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return cleanedCount;
   }
 }
@@ -84,7 +91,7 @@ export async function cleanupOrphanedPresenceKeys(): Promise<number> {
  */
 export async function listRooms(): Promise<any[]> {
   const { warmCache } = await import('./cache-service.js');
-  
+
   const cacheKey = 'rooms:public:active_users';
   return await warmCache(
     cacheKey,

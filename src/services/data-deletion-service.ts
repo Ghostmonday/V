@@ -28,9 +28,8 @@ export async function softDeleteUserData(
     const deletionResults: Record<string, number> = {};
 
     // 1. Mark user as deleted in deleted_users table
-    const { error: deletedUserError } = await supabase
-      .from('deleted_users')
-      .upsert({
+    const { error: deletedUserError } = await supabase.from('deleted_users').upsert(
+      {
         user_id: userId,
         deleted_at: new Date().toISOString(),
         retention_until: retentionUntil.toISOString(),
@@ -38,9 +37,11 @@ export async function softDeleteUserData(
         metadata: {
           retentionDays: DEFAULT_RETENTION_DAYS,
         },
-      }, {
+      },
+      {
         onConflict: 'user_id',
-      });
+      }
+    );
 
     if (deletedUserError) {
       errors.push(`Failed to mark user as deleted: ${deletedUserError.message}`);
@@ -92,10 +93,7 @@ export async function softDeleteUserData(
     deletionResults.conversationParticipants = conversationParticipantCount || 0;
 
     // 6. Delete files metadata (actual files may remain in storage)
-    const { count: fileCount } = await supabase
-      .from('files')
-      .delete()
-      .eq('user_id', userId);
+    const { count: fileCount } = await supabase.from('files').delete().eq('user_id', userId);
 
     deletionResults.files = fileCount || 0;
 
@@ -164,11 +162,7 @@ export async function softDeleteUserData(
 export async function anonymizeUserPII(userId: string): Promise<boolean> {
   try {
     // Anonymize email if exists (encrypt with placeholder)
-    const { data: user } = await supabase
-      .from('users')
-      .select('email')
-      .eq('id', userId)
-      .single();
+    const { data: user } = await supabase.from('users').select('email').eq('id', userId).single();
 
     if (user?.email) {
       // Encrypt email with a placeholder value
@@ -223,11 +217,12 @@ export async function permanentlyDeleteUserData(userId: string): Promise<boolean
     // For now, we keep the soft-deleted record for audit purposes
     // Actual hard deletion can be implemented based on legal requirements
 
-    logInfo(`User data permanently deleted for user ${userId} (soft-delete record retained for audit)`);
+    logInfo(
+      `User data permanently deleted for user ${userId} (soft-delete record retained for audit)`
+    );
     return true;
   } catch (error: any) {
     logError('Failed to permanently delete user data', error);
     return false;
   }
 }
-

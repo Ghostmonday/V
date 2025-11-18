@@ -54,10 +54,12 @@ class PresenceViewModel: ObservableObject {
             // If no users from rooms, try direct presence status endpoint
             if allUsers.isEmpty {
                 // Fallback: Try to get current user's presence
-                if let currentUserId = AuthTokenManager.shared.token {
-                    if let status = await fetchUserPresenceStatus(userId: UUID(uuidString: currentUserId) ?? UUID()) {
-                        // Create a mock user for testing if needed
-                        // In production, this would come from user profile API
+                if let session = SupabaseAuthService.shared.currentSession {
+                    if let userId = UUID(uuidString: session.userId) {
+                        if let status = await fetchUserPresenceStatus(userId: userId) {
+                            // Create a mock user for testing if needed
+                            // In production, this would come from user profile API
+                        }
                     }
                 }
             }
@@ -163,8 +165,8 @@ class PresenceViewModel: ObservableObject {
                 let status: String
             }
             
-            // Get current user ID (should be stored after auth)
-            let userId = AuthTokenManager.shared.token ?? UUID().uuidString
+            // Get current user ID from Supabase session
+            let userId = SupabaseAuthService.shared.currentSession?.userId ?? UUID().uuidString
             
             let request = PresenceUpdateRequest(userId: userId, status: "online")
             try await APIClient.shared.request(

@@ -44,7 +44,7 @@ export async function fullTextSearch(options: SearchOptions): Promise<SearchResu
 
     // Cache key for Redis (also used for deduplication)
     const cacheKey = `search:${type}:${query}:${roomId || 'all'}:${userId || 'all'}:${limit}:${offset}`;
-    
+
     // Check cache
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -61,7 +61,7 @@ export async function fullTextSearch(options: SearchOptions): Promise<SearchResu
     if (pendingSearches.size >= MAX_PENDING_SEARCHES) {
       // Clear oldest entries (simple cleanup - in production, use LRU cache)
       const keysToDelete = Array.from(pendingSearches.keys()).slice(0, 20);
-      keysToDelete.forEach(key => pendingSearches.delete(key));
+      keysToDelete.forEach((key) => pendingSearches.delete(key));
       logInfo(`Cleaned up ${keysToDelete.length} pending searches`);
     }
 
@@ -74,22 +74,26 @@ export async function fullTextSearch(options: SearchOptions): Promise<SearchResu
     // Search messages
     if (type === 'all' || type === 'messages') {
       searchPromises.push(
-        supabase.rpc('search_messages_fulltext', {
-          search_query: query,
-          filter_room_id: roomId || null,
-          filter_user_id: userId || null,
-          result_limit: limit
-        }).then((result: unknown) => ({ type: 'messages', ...(result as Record<string, unknown>) }))
+        supabase
+          .rpc('search_messages_fulltext', {
+            search_query: query,
+            filter_room_id: roomId || null,
+            filter_user_id: userId || null,
+            result_limit: limit,
+          })
+          .then((result: unknown) => ({ type: 'messages', ...(result as Record<string, unknown>) }))
       );
     }
 
     // Search rooms
     if (type === 'all' || type === 'rooms') {
       searchPromises.push(
-        supabase.rpc('search_rooms_fulltext', {
-          search_query: query,
-          result_limit: limit
-        }).then((result: unknown) => ({ type: 'rooms', ...(result as Record<string, unknown>) }))
+        supabase
+          .rpc('search_rooms_fulltext', {
+            search_query: query,
+            result_limit: limit,
+          })
+          .then((result: unknown) => ({ type: 'rooms', ...(result as Record<string, unknown>) }))
       );
     }
 
@@ -129,43 +133,49 @@ export async function fullTextSearch(options: SearchOptions): Promise<SearchResu
 
       // Process messages
       if (resultType === 'messages') {
-        results.push(...data.map((m: any) => ({
-          id: m.id,
-          type: 'message' as const,
-          content: m.content_preview || '',
-          metadata: {
-            room_id: m.room_id,
-            sender_id: m.sender_id,
-            created_at: m.created_at
-          },
-          rank: m.rank
-        })));
+        results.push(
+          ...data.map((m: any) => ({
+            id: m.id,
+            type: 'message' as const,
+            content: m.content_preview || '',
+            metadata: {
+              room_id: m.room_id,
+              sender_id: m.sender_id,
+              created_at: m.created_at,
+            },
+            rank: m.rank,
+          }))
+        );
       }
 
       // Process rooms
       if (resultType === 'rooms') {
-        results.push(...data.map((r: any) => ({
-          id: r.id,
-          type: 'room' as const,
-          content: r.title || r.slug || '',
-          metadata: {
-            slug: r.slug,
-            created_at: r.created_at
-          },
-          rank: r.rank
-        })));
+        results.push(
+          ...data.map((r: any) => ({
+            id: r.id,
+            type: 'room' as const,
+            content: r.title || r.slug || '',
+            metadata: {
+              slug: r.slug,
+              created_at: r.created_at,
+            },
+            rank: r.rank,
+          }))
+        );
       }
 
       // Process users
       if (resultType === 'users') {
-        results.push(...data.map((u: any) => ({
-          id: u.id,
-          type: 'user' as const,
-          content: u.display_name || u.username || '',
-          metadata: {
-            username: u.username
-          }
-        })));
+        results.push(
+          ...data.map((u: any) => ({
+            id: u.id,
+            type: 'user' as const,
+            content: u.display_name || u.username || '',
+            metadata: {
+              username: u.username,
+            },
+          }))
+        );
       }
     }
 
@@ -200,21 +210,17 @@ export async function searchRoomMessages(
     query,
     type: 'messages',
     roomId,
-    limit
+    limit,
   });
 }
 
 /**
  * Search public rooms
  */
-export async function searchRooms(
-  query: string,
-  limit: number = 20
-): Promise<SearchResult[]> {
+export async function searchRooms(query: string, limit: number = 20): Promise<SearchResult[]> {
   return fullTextSearch({
     query,
     type: 'rooms',
-    limit
+    limit,
   });
 }
-

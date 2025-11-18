@@ -14,7 +14,8 @@ extension View {
 
 struct AmbientParticlesModifier: ViewModifier {
     func body(content: Content) -> some View {
-        content.overlay(AmbientParticles())
+        // AmbientParticles component - placeholder for future implementation
+        content
     }
 }
 

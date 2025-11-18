@@ -37,7 +37,7 @@ export async function flagMessage(
   try {
     // Convert 'system' string to null for database
     const flaggedByValue = flaggedBy === 'system' ? null : flaggedBy;
-    
+
     const { data, error } = await supabase
       .from('flagged_messages')
       .insert({
@@ -137,4 +137,3 @@ export async function reviewFlaggedMessage(
     return false;
   }
 }
-

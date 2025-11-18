@@ -3,12 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		00009671F1822AB9B6EEA80A /* IAPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FD77880143EFC245E614902 /* IAPService.swift */; };
-		0F9AC45590819425F2824D93 /* AmbientParticles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CBD9B2962D1484037D3BAD /* AmbientParticles.swift */; };
 		11225195830646EF84061AE5 /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE7E65325EB4EC1D3535C9EF /* WebSocketManager.swift */; };
 		13D1597E13D15F9B2953101C /* AIReasoner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9D6BD8CF2F41791AE22627 /* AIReasoner.swift */; };
 		153F9B3F30496DA0C283A860 /* ThreadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13AEFFB1B221F98FF5FCBDC /* ThreadView.swift */; };
@@ -16,29 +15,50 @@
 		1E164921E1294776AE58A700 /* PresenceIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E255AD5BE937CDEB9033B2D /* PresenceIndicatorView.swift */; };
 		204DB5FAB077E85EF339F4F5 /* SystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73DBE88AE9B0C4F81A7A724E /* SystemMonitor.swift */; };
 		2374500CBAD21CB462258C6D /* LiveKitRoomManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984152983CF02FF0C0BC653D /* LiveKitRoomManager.swift */; };
+		2407926F2ECBE24C0041EACB /* SupabaseAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407926E2ECBE24C0041EACB /* SupabaseAuthService.swift */; };
+		240792702ECBE24C0041EACB /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407926D2ECBE24C0041EACB /* KeychainHelper.swift */; };
+		240792772ECBE5F80041EACB /* ViewGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792762ECBE5F80041EACB /* ViewGenerator.swift */; };
+		240792782ECBE5F80041EACB /* RoomRestorationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792752ECBE5F80041EACB /* RoomRestorationService.swift */; };
+		240792792ECBE5F80041EACB /* NetworkReachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792732ECBE5F80041EACB /* NetworkReachability.swift */; };
+		2407927A2ECBE5F80041EACB /* RollbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792742ECBE5F80041EACB /* RollbackManager.swift */; };
+		2407927B2ECBE5F80041EACB /* ABTestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792712ECBE5F80041EACB /* ABTestManager.swift */; };
+		240792842ECBE9ED0041EACB /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792832ECBE9ED0041EACB /* SettingsView.swift */; };
+		240792852ECBE9ED0041EACB /* CreateRoomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407927E2ECBE9ED0041EACB /* CreateRoomSheet.swift */; };
+		240792862ECBE9ED0041EACB /* AgoraRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407927D2ECBE9ED0041EACB /* AgoraRoomView.swift */; };
+		240792872ECBE9ED0041EACB /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792812ECBE9ED0041EACB /* PaywallView.swift */; };
+		240792882ECBE9ED0041EACB /* NicknameManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407927F2ECBE9ED0041EACB /* NicknameManagementView.swift */; };
+		240792892ECBE9ED0041EACB /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792822ECBE9ED0041EACB /* SearchView.swift */; };
+		2407928A2ECBE9ED0041EACB /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792802ECBE9ED0041EACB /* OnboardingFlowView.swift */; };
+		240792902ECBEAE60041EACB /* PricingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407928E2ECBEAE60041EACB /* PricingSheet.swift */; };
+		240792A72ECBEB500041EACB /* LoadingSkeleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792982ECBEB500041EACB /* LoadingSkeleton.swift */; };
+		240792A82ECBEB500041EACB /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792A52ECBEB500041EACB /* ToastView.swift */; };
+		240792A92ECBEB500041EACB /* QuickJumpBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407929A2ECBEB500041EACB /* QuickJumpBar.swift */; };
+		240792AA2ECBEB500041EACB /* ErrorRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792962ECBEB500041EACB /* ErrorRecoveryView.swift */; };
+		240792AB2ECBEB500041EACB /* FormStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407929F2ECBEB500041EACB /* FormStateModifier.swift */; };
+		240792AD2ECBEB500041EACB /* ButtonStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407929E2ECBEB500041EACB /* ButtonStateModifier.swift */; };
+		240792AE2ECBEB500041EACB /* FileUploadComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792972ECBEB500041EACB /* FileUploadComponent.swift */; };
+		240792AF2ECBEB500041EACB /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792952ECBEB500041EACB /* EmojiPickerView.swift */; };
+		240792B02ECBEB500041EACB /* GlobalStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792A32ECBEB500041EACB /* GlobalStyles.swift */; };
+		240792B12ECBEB500041EACB /* AutonomousLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792932ECBEB500041EACB /* AutonomousLabel.swift */; };
+		240792B22ECBEB500041EACB /* LoadingSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792992ECBEB500041EACB /* LoadingSpinner.swift */; };
+		240792B32ECBEB500041EACB /* InputStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792A02ECBEB500041EACB /* InputStateModifier.swift */; };
+		240792B42ECBEB500041EACB /* VideoTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407929C2ECBEB500041EACB /* VideoTileView.swift */; };
+		240792B52ECBEB500041EACB /* AutonomousValidationLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792942ECBEB500041EACB /* AutonomousValidationLabel.swift */; };
+		240792B62ECBEB500041EACB /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792A42ECBEB500041EACB /* LoadingView.swift */; };
+		240792B72ECBEB500041EACB /* ReadReceiptIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2407929B2ECBEB500041EACB /* ReadReceiptIndicator.swift */; };
+		240792B82ECBEB500041EACB /* PresenceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792A12ECBEB500041EACB /* PresenceModifier.swift */; };
+		240792BC2ECBECA50041EACB /* AgoraRoomManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792BB2ECBECA50041EACB /* AgoraRoomManager.swift */; };
+		240792C22ECBEC000041EACB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792C02ECBEC000041EACB /* LoginView.swift */; };
+		240792C32ECBEC000041EACB /* SocialLoginsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240792C12ECBEC000041EACB /* SocialLoginsView.swift */; };
 		2487A6664355C77B288B918D /* AILog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCDA62476F3EFFB74E3D2F91 /* AILog.swift */; };
 		24DA69C72EC0B1AF00C2D473 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 24DA69C62EC0B1AF00C2D473 /* Assets.xcassets */; };
 		24DCD1D32EC08D8A00072E81 /* SubscriptionTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1D22EC08D8A00072E81 /* SubscriptionTier.swift */; };
-		24DCD1D82EC08DCD00072E81 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1D42EC08DCD00072E81 /* HomeView.swift */; };
 		24DCD1D92EC08DCD00072E81 /* HostingGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1D52EC08DCD00072E81 /* HostingGuideView.swift */; };
 		24DCD1DA2EC08DCD00072E81 /* RoomSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1D62EC08DCD00072E81 /* RoomSettingsView.swift */; };
 		24DCD1DB2EC08DCD00072E81 /* SubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1D72EC08DCD00072E81 /* SubscriptionView.swift */; };
 		24DCD1E02EC08E4A00072E81 /* RoomTierView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1DC2EC08E4A00072E81 /* RoomTierView.swift */; };
 		24DCD1E12EC08E4A00072E81 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1DE2EC08E4A00072E81 /* WelcomeView.swift */; };
 		24DCD1E22EC08E4A00072E81 /* TierSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1DD2EC08E4A00072E81 /* TierSelectionView.swift */; };
-		24DCD1F32EC08E8E00072E81 /* InputStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1ED2EC08E8E00072E81 /* InputStateModifier.swift */; };
-		24DCD1F42EC08E8E00072E81 /* ButtonStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1EB2EC08E8E00072E81 /* ButtonStateModifier.swift */; };
-		24DCD1F52EC08E8E00072E81 /* VideoTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1E92EC08E8E00072E81 /* VideoTileView.swift */; };
-		24DCD1F62EC08E8E00072E81 /* PresenceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1EE2EC08E8E00072E81 /* PresenceModifier.swift */; };
-		24DCD1F72EC08E8E00072E81 /* LoadingSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1E82EC08E8E00072E81 /* LoadingSpinner.swift */; };
-		24DCD1F82EC08E8E00072E81 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1F12EC08E8E00072E81 /* ToastView.swift */; };
-		24DCD1F92EC08E8E00072E81 /* AutonomousLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1E52EC08E8E00072E81 /* AutonomousLabel.swift */; };
-		24DCD1FA2EC08E8E00072E81 /* GlobalStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1F02EC08E8E00072E81 /* GlobalStyles.swift */; };
-		24DCD1FB2EC08E8E00072E81 /* FormStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1EC2EC08E8E00072E81 /* FormStateModifier.swift */; };
-		24DCD1FC2EC08E8E00072E81 /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1E72EC08E8E00072E81 /* EmojiPickerView.swift */; };
-		24DCD1FD2EC08E8E00072E81 /* AutonomousValidationLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1E62EC08E8E00072E81 /* AutonomousValidationLabel.swift */; };
-		24DCD1FE2EC08E8E00072E81 /* AnimationModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DCD1E32EC08E8E00072E81 /* AnimationModifiers.swift */; };
-		285D3CE20C70B65ECDF2BC2E /* LoadingSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC1160825B340AB88F54D2C /* LoadingSpinner.swift */; };
 		2CC19A4BA86FE3930611A1D2 /* SystemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2BBDB5C23621297974FA7FD /* SystemService.swift */; };
 		2E144FB520FC854C10E162FC /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95A05E59151B18214FE6E63 /* MessageBubbleView.swift */; };
 		366EFD5118DA2F5240B29042 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CED1E6D1F5D4661CCF4CA53 /* ProfileView.swift */; };
@@ -56,10 +76,8 @@
 		6A0995000AC02E2F831D5A81 /* VoiceVideoPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C672CDFB1A6E213D1E5200 /* VoiceVideoPanelView.swift */; };
 		6A83E91A6A696CD8B1DB67BC /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B4857C2232E9B345D7CD5D /* ChatView.swift */; };
 		6C800EAF09CEB7F1671220E2 /* VibeZApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56024B43ECEDF76205A81A4E /* VibeZApp.swift */; };
-		6F5A8620F89CF407F473BD9A /* VideoTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E9D48815D5D249C161267B /* VideoTileView.swift */; };
 		7027A9A2CAD75F130AA852F8 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E70900A38C9C0200E6C19C3 /* User.swift */; };
 		7BBE0C8FD4A81368A2BFE3FA /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29453C184FDF88D12E8AC14E /* AIService.swift */; };
-		7F70B3E8193CCB7D10B45811 /* FormStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F77F6A2D6ACA200ED3D1B /* FormStateModifier.swift */; };
 		89C8DBDB0313786B72377FA0 /* IAPReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE85D27035396040E23110E0 /* IAPReceipt.swift */; };
 		8AC2151BB19E841020491C74 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C848D3A289169E425CE298A /* SubscriptionManager.swift */; };
 		8ADF3BA913A60996F1A683B8 /* TelemetryMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B37FA15A2E0A81B35B615E /* TelemetryMetric.swift */; };
@@ -75,20 +93,24 @@
 		C568BC16207F80599FD824C9 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BBFF343617525E55A657727 /* View+Extensions.swift */; };
 		CAC307077FDFF916EE6E335F /* ChatInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C9231BD88CA86A5C63C0AF /* ChatInputView.swift */; };
 		CCB84AE834C2EEF7EE7FE7E2 /* UXTelemetryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEEAB309605D79405D40A88 /* UXTelemetryService.swift */; };
-		CD63829E6D79CC4E5E744613 /* ButtonStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECF260031F3D01271EC70D6 /* ButtonStateModifier.swift */; };
+		CONSTANTS1234567890 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONSTANTS9876543210 /* Constants.swift */; };
 		D0F94987399C6253AF6F9296 /* RoomListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75BBD2701C24BE93E85D0B1 /* RoomListView.swift */; };
-		DD7E3956C4EF87D95F7496DE /* PresenceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67E67CEADDF50FCAEE1D29AA /* PresenceModifier.swift */; };
 		E3843E37BC5AF9D678D88A80 /* SpeechManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBF1970EF08175A74597DBB4 /* SpeechManager.swift */; };
-		E510D1729C27022EE6F0B6E6 /* InputStateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C71D83C19E295A0F519671 /* InputStateModifier.swift */; };
 		E8815F90453F3535B1B00ED1 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3101C4CB8B4E3BCC8F81BB4B /* Message.swift */; };
-		EB9881465CB1D21AA52F132C /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD344E33900D51AF48094A5 /* EmojiPickerView.swift */; };
 		EE76B7357315F6F9E21CCADD /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0992E747737CA1FEA99621EE /* DashboardView.swift */; };
 		FDD73A44220AB0FD11612E4E /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6829671CDDD5591FC744CD /* MainTabView.swift */; };
 		FFFCAB553B2C5C5757E4074E /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26609E8679DE6D519E524F41 /* APIClient.swift */; };
-		CONSTANTS1234567890 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONSTANTS9876543210 /* Constants.swift */; };
-		APPLEAUTH123456789 /* AppleAuthHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLEAUTH987654321 /* AppleAuthHelper.swift */; };
-		GOOGLEAUTH123456789 /* GoogleAuthHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = GOOGLEAUTH987654321 /* GoogleAuthHelper.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		240792C52ECC6F9C0041EACB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F00651205327E9962163C8D6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B2A77191C3B48D16BA24DF46;
+			remoteInfo = VibeZ;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		00B32979B4C94818A093D322 /* UXEventType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UXEventType.swift; sourceTree = "<group>"; };
@@ -96,9 +118,45 @@
 		0992E747737CA1FEA99621EE /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		0C848D3A289169E425CE298A /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		14F2CC020D00B79E3B622756 /* RoomManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomManager.swift; sourceTree = "<group>"; };
+		2407926D2ECBE24C0041EACB /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		2407926E2ECBE24C0041EACB /* SupabaseAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseAuthService.swift; sourceTree = "<group>"; };
+		240792712ECBE5F80041EACB /* ABTestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ABTestManager.swift; sourceTree = "<group>"; };
+		240792732ECBE5F80041EACB /* NetworkReachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkReachability.swift; sourceTree = "<group>"; };
+		240792742ECBE5F80041EACB /* RollbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollbackManager.swift; sourceTree = "<group>"; };
+		240792752ECBE5F80041EACB /* RoomRestorationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomRestorationService.swift; sourceTree = "<group>"; };
+		240792762ECBE5F80041EACB /* ViewGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewGenerator.swift; sourceTree = "<group>"; };
+		2407927D2ECBE9ED0041EACB /* AgoraRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgoraRoomView.swift; sourceTree = "<group>"; };
+		2407927E2ECBE9ED0041EACB /* CreateRoomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRoomSheet.swift; sourceTree = "<group>"; };
+		2407927F2ECBE9ED0041EACB /* NicknameManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicknameManagementView.swift; sourceTree = "<group>"; };
+		240792802ECBE9ED0041EACB /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		240792812ECBE9ED0041EACB /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		240792822ECBE9ED0041EACB /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		240792832ECBE9ED0041EACB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		2407928E2ECBEAE60041EACB /* PricingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingSheet.swift; sourceTree = "<group>"; };
+		240792912ECBEB500041EACB /* AnimationModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationModifiers.swift; sourceTree = "<group>"; };
+		240792932ECBEB500041EACB /* AutonomousLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutonomousLabel.swift; sourceTree = "<group>"; };
+		240792942ECBEB500041EACB /* AutonomousValidationLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutonomousValidationLabel.swift; sourceTree = "<group>"; };
+		240792952ECBEB500041EACB /* EmojiPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPickerView.swift; sourceTree = "<group>"; };
+		240792962ECBEB500041EACB /* ErrorRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorRecoveryView.swift; sourceTree = "<group>"; };
+		240792972ECBEB500041EACB /* FileUploadComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadComponent.swift; sourceTree = "<group>"; };
+		240792982ECBEB500041EACB /* LoadingSkeleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSkeleton.swift; sourceTree = "<group>"; };
+		240792992ECBEB500041EACB /* LoadingSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSpinner.swift; sourceTree = "<group>"; };
+		2407929A2ECBEB500041EACB /* QuickJumpBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickJumpBar.swift; sourceTree = "<group>"; };
+		2407929B2ECBEB500041EACB /* ReadReceiptIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadReceiptIndicator.swift; sourceTree = "<group>"; };
+		2407929C2ECBEB500041EACB /* VideoTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoTileView.swift; sourceTree = "<group>"; };
+		2407929E2ECBEB500041EACB /* ButtonStateModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStateModifier.swift; sourceTree = "<group>"; };
+		2407929F2ECBEB500041EACB /* FormStateModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormStateModifier.swift; sourceTree = "<group>"; };
+		240792A02ECBEB500041EACB /* InputStateModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputStateModifier.swift; sourceTree = "<group>"; };
+		240792A12ECBEB500041EACB /* PresenceModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceModifier.swift; sourceTree = "<group>"; };
+		240792A32ECBEB500041EACB /* GlobalStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalStyles.swift; sourceTree = "<group>"; };
+		240792A42ECBEB500041EACB /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		240792A52ECBEB500041EACB /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
+		240792BB2ECBECA50041EACB /* AgoraRoomManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgoraRoomManager.swift; sourceTree = "<group>"; };
+		240792C02ECBEC000041EACB /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		240792C12ECBEC000041EACB /* SocialLoginsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialLoginsView.swift; sourceTree = "<group>"; };
+		240792C12ECC6F9C0041EACB /* VibeZTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VibeZTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DA69C62EC0B1AF00C2D473 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		24DCD1D22EC08D8A00072E81 /* SubscriptionTier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionTier.swift; sourceTree = "<group>"; };
-		24DCD1D42EC08DCD00072E81 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		24DCD1D52EC08DCD00072E81 /* HostingGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingGuideView.swift; sourceTree = "<group>"; };
 		24DCD1D62EC08DCD00072E81 /* RoomSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomSettingsView.swift; sourceTree = "<group>"; };
 		24DCD1D72EC08DCD00072E81 /* SubscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
@@ -118,9 +176,6 @@
 		24DCD1F02EC08E8E00072E81 /* GlobalStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalStyles.swift; sourceTree = "<group>"; };
 		24DCD1F12EC08E8E00072E81 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		26609E8679DE6D519E524F41 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-		CONSTANTS9876543210 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		APPLEAUTH987654321 /* AppleAuthHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthHelper.swift; sourceTree = "<group>"; };
-		GOOGLEAUTH987654321 /* GoogleAuthHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAuthHelper.swift; sourceTree = "<group>"; };
 		29453C184FDF88D12E8AC14E /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIService.swift; sourceTree = "<group>"; };
 		29895A3E64873D515E91F640 /* VibeZ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VibeZ.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E6829671CDDD5591FC744CD /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -139,7 +194,6 @@
 		6E70900A38C9C0200E6C19C3 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		730BB1926C583E8E19417286 /* VoiceRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRoomView.swift; sourceTree = "<group>"; };
 		73DBE88AE9B0C4F81A7A724E /* SystemMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitor.swift; sourceTree = "<group>"; };
-		79CBD9B2962D1484037D3BAD /* AmbientParticles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientParticles.swift; sourceTree = "<group>"; };
 		79D618D840F08568D9251900 /* DeepSeekClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekClient.swift; sourceTree = "<group>"; };
 		7FD77880143EFC245E614902 /* IAPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPService.swift; sourceTree = "<group>"; };
 		86A1DDBA86CCE3F951AAB99D /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
@@ -158,6 +212,7 @@
 		C6B4857C2232E9B345D7CD5D /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		CECB981F4AEC756501372966 /* MessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManager.swift; sourceTree = "<group>"; };
 		CECF260031F3D01271EC70D6 /* ButtonStateModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStateModifier.swift; sourceTree = "<group>"; };
+		CONSTANTS9876543210 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D9B37FA15A2E0A81B35B615E /* TelemetryMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryMetric.swift; sourceTree = "<group>"; };
 		DBF1970EF08175A74597DBB4 /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = "<group>"; };
 		DE8BA86972CC0B65CD0B2580 /* ProgrammaticUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammaticUIView.swift; sourceTree = "<group>"; };
@@ -176,6 +231,20 @@
 		FEC1160825B340AB88F54D2C /* LoadingSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSpinner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		240792C22ECC6F9C0041EACB /* VibeZTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VibeZTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		240792BE2ECC6F9C0041EACB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
 		19F424E520D4EB5AD67F9E76 = {
 			isa = PBXGroup;
@@ -188,6 +257,7 @@
 				47BB697406A9D5A1D7580D68 /* Services */,
 				52A17400A7DAEA5472CACEAC /* ViewModels */,
 				3968FD58E5D53DF78279C67B /* Views */,
+				240792C22ECC6F9C0041EACB /* VibeZTests */,
 				EF1D9764F19F4DBE75600F0C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -214,10 +284,9 @@
 		227E1D98F88F58DB81A13D59 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				240792BB2ECBECA50041EACB /* AgoraRoomManager.swift */,
 				5D9D6BD8CF2F41791AE22627 /* AIReasoner.swift */,
 				26609E8679DE6D519E524F41 /* APIClient.swift */,
-				APPLEAUTH987654321 /* AppleAuthHelper.swift */,
-				GOOGLEAUTH987654321 /* GoogleAuthHelper.swift */,
 				CONSTANTS9876543210 /* Constants.swift */,
 				79D618D840F08568D9251900 /* DeepSeekClient.swift */,
 				984152983CF02FF0C0BC653D /* LiveKitRoomManager.swift */,
@@ -229,6 +298,72 @@
 				EE7E65325EB4EC1D3535C9EF /* WebSocketManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		2407928F2ECBEAE60041EACB /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				2407928E2ECBEAE60041EACB /* PricingSheet.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		240792922ECBEB500041EACB /* Animations */ = {
+			isa = PBXGroup;
+			children = (
+				240792912ECBEB500041EACB /* AnimationModifiers.swift */,
+			);
+			path = Animations;
+			sourceTree = "<group>";
+		};
+		2407929D2ECBEB500041EACB /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				240792932ECBEB500041EACB /* AutonomousLabel.swift */,
+				240792942ECBEB500041EACB /* AutonomousValidationLabel.swift */,
+				240792952ECBEB500041EACB /* EmojiPickerView.swift */,
+				240792962ECBEB500041EACB /* ErrorRecoveryView.swift */,
+				240792972ECBEB500041EACB /* FileUploadComponent.swift */,
+				240792982ECBEB500041EACB /* LoadingSkeleton.swift */,
+				240792992ECBEB500041EACB /* LoadingSpinner.swift */,
+				2407929A2ECBEB500041EACB /* QuickJumpBar.swift */,
+				2407929B2ECBEB500041EACB /* ReadReceiptIndicator.swift */,
+				2407929C2ECBEB500041EACB /* VideoTileView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		240792A22ECBEB500041EACB /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				2407929E2ECBEB500041EACB /* ButtonStateModifier.swift */,
+				2407929F2ECBEB500041EACB /* FormStateModifier.swift */,
+				240792A02ECBEB500041EACB /* InputStateModifier.swift */,
+				240792A12ECBEB500041EACB /* PresenceModifier.swift */,
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
+		240792A62ECBEB500041EACB /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				240792922ECBEB500041EACB /* Animations */,
+				2407929D2ECBEB500041EACB /* Components */,
+				240792A22ECBEB500041EACB /* Modifiers */,
+				240792A32ECBEB500041EACB /* GlobalStyles.swift */,
+				240792A42ECBEB500041EACB /* LoadingView.swift */,
+				240792A52ECBEB500041EACB /* ToastView.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		240792C42ECBEC000041EACB /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				240792C02ECBEC000041EACB /* LoginView.swift */,
+				240792C12ECBEC000041EACB /* SocialLoginsView.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 		24DCD1DF2EC08E4A00072E81 /* Onboarding */ = {
@@ -287,7 +422,15 @@
 		3968FD58E5D53DF78279C67B /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				24DCD1D42EC08DCD00072E81 /* HomeView.swift */,
+				240792A62ECBEB500041EACB /* Shared */,
+				2407927D2ECBE9ED0041EACB /* AgoraRoomView.swift */,
+				2407928F2ECBEAE60041EACB /* Profile */,
+				2407927E2ECBE9ED0041EACB /* CreateRoomSheet.swift */,
+				2407927F2ECBE9ED0041EACB /* NicknameManagementView.swift */,
+				240792802ECBE9ED0041EACB /* OnboardingFlowView.swift */,
+				240792812ECBE9ED0041EACB /* PaywallView.swift */,
+				240792822ECBE9ED0041EACB /* SearchView.swift */,
+				240792832ECBE9ED0041EACB /* SettingsView.swift */,
 				24DCD1D52EC08DCD00072E81 /* HostingGuideView.swift */,
 				24DCD1D62EC08DCD00072E81 /* RoomSettingsView.swift */,
 				24DCD1D72EC08DCD00072E81 /* SubscriptionView.swift */,
@@ -308,6 +451,7 @@
 				4F056329B1AF1FE8F0C9EF99 /* VoiceView.swift */,
 				CF2C5433ABB870E5BCE15041 /* Shared */,
 				24DCD1DF2EC08E4A00072E81 /* Onboarding */,
+				240792C42ECBEC000041EACB /* Auth */,
 				24DCD1F22EC08E8E00072E81 /* Shared */,
 			);
 			path = Views;
@@ -316,6 +460,13 @@
 		47BB697406A9D5A1D7580D68 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				240792712ECBE5F80041EACB /* ABTestManager.swift */,
+				240792732ECBE5F80041EACB /* NetworkReachability.swift */,
+				240792742ECBE5F80041EACB /* RollbackManager.swift */,
+				240792752ECBE5F80041EACB /* RoomRestorationService.swift */,
+				240792762ECBE5F80041EACB /* ViewGenerator.swift */,
+				2407926D2ECBE24C0041EACB /* KeychainHelper.swift */,
+				2407926E2ECBE24C0041EACB /* SupabaseAuthService.swift */,
 				29453C184FDF88D12E8AC14E /* AIService.swift */,
 				86A1DDBA86CCE3F951AAB99D /* AuthService.swift */,
 				7FD77880143EFC245E614902 /* IAPService.swift */,
@@ -330,7 +481,6 @@
 		4C70FDF171E92DD8960C6E9D /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				79CBD9B2962D1484037D3BAD /* AmbientParticles.swift */,
 				03F1BB0FFFE6DAF780B09DAB /* MoodGradient.swift */,
 				F86CC97B5B10B5A517682A19 /* VoiceOrb.swift */,
 			);
@@ -392,6 +542,7 @@
 			isa = PBXGroup;
 			children = (
 				29895A3E64873D515E91F640 /* VibeZ.app */,
+				240792C12ECC6F9C0041EACB /* VibeZTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -414,6 +565,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		240792C02ECC6F9C0041EACB /* VibeZTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 240792C92ECC6F9C0041EACB /* Build configuration list for PBXNativeTarget "VibeZTests" */;
+			buildPhases = (
+				240792BD2ECC6F9C0041EACB /* Sources */,
+				240792BE2ECC6F9C0041EACB /* Frameworks */,
+				240792BF2ECC6F9C0041EACB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				240792C62ECC6F9C0041EACB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				240792C22ECC6F9C0041EACB /* VibeZTests */,
+			);
+			name = VibeZTests;
+			packageProductDependencies = (
+			);
+			productName = VibeZTests;
+			productReference = 240792C12ECC6F9C0041EACB /* VibeZTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		B2A77191C3B48D16BA24DF46 /* VibeZ */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 70F70E15DCF9079FBA31BD30 /* Build configuration list for PBXNativeTarget "VibeZ" */;
@@ -439,14 +613,19 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					240792C02ECC6F9C0041EACB = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = B2A77191C3B48D16BA24DF46;
+					};
 					B2A77191C3B48D16BA24DF46 = {
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = CA4F5D17ED88FF52FABB675C /* Build configuration list for PBXProject "VibeZ" */;
+			buildConfigurationList = CA4F5D17ED88FF52FABB675C /* Build configuration list for PBXProject "Sinapse" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -460,11 +639,19 @@
 			projectRoot = "";
 			targets = (
 				B2A77191C3B48D16BA24DF46 /* VibeZ */,
+				240792C02ECC6F9C0041EACB /* VibeZTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		240792BF2ECC6F9C0041EACB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		72B847B6F181B6BFAC92EBDA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -477,6 +664,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		240792BD2ECC6F9C0041EACB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B2EB563FD800C1D7A00BD82B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -485,13 +679,31 @@
 				13D1597E13D15F9B2953101C /* AIReasoner.swift in Sources */,
 				7BBE0C8FD4A81368A2BFE3FA /* AIService.swift in Sources */,
 				FFFCAB553B2C5C5757E4074E /* APIClient.swift in Sources */,
-				APPLEAUTH123456789 /* AppleAuthHelper.swift in Sources */,
-				GOOGLEAUTH123456789 /* GoogleAuthHelper.swift in Sources */,
 				CONSTANTS1234567890 /* Constants.swift in Sources */,
-				0F9AC45590819425F2824D93 /* AmbientParticles.swift in Sources */,
 				A131775CB135C519859E88A8 /* AnimationModifiers.swift in Sources */,
 				39785BB25D3191CEF3828A37 /* AuthService.swift in Sources */,
-				CD63829E6D79CC4E5E744613 /* ButtonStateModifier.swift in Sources */,
+				240792772ECBE5F80041EACB /* ViewGenerator.swift in Sources */,
+				240792782ECBE5F80041EACB /* RoomRestorationService.swift in Sources */,
+				240792792ECBE5F80041EACB /* NetworkReachability.swift in Sources */,
+				2407927A2ECBE5F80041EACB /* RollbackManager.swift in Sources */,
+				2407927B2ECBE5F80041EACB /* ABTestManager.swift in Sources */,
+				240792A72ECBEB500041EACB /* LoadingSkeleton.swift in Sources */,
+				240792A82ECBEB500041EACB /* ToastView.swift in Sources */,
+				240792A92ECBEB500041EACB /* QuickJumpBar.swift in Sources */,
+				240792AA2ECBEB500041EACB /* ErrorRecoveryView.swift in Sources */,
+				240792AB2ECBEB500041EACB /* FormStateModifier.swift in Sources */,
+				240792AD2ECBEB500041EACB /* ButtonStateModifier.swift in Sources */,
+				240792AE2ECBEB500041EACB /* FileUploadComponent.swift in Sources */,
+				240792AF2ECBEB500041EACB /* EmojiPickerView.swift in Sources */,
+				240792B02ECBEB500041EACB /* GlobalStyles.swift in Sources */,
+				240792B12ECBEB500041EACB /* AutonomousLabel.swift in Sources */,
+				240792B22ECBEB500041EACB /* LoadingSpinner.swift in Sources */,
+				240792B32ECBEB500041EACB /* InputStateModifier.swift in Sources */,
+				240792B42ECBEB500041EACB /* VideoTileView.swift in Sources */,
+				240792B52ECBEB500041EACB /* AutonomousValidationLabel.swift in Sources */,
+				240792B62ECBEB500041EACB /* LoadingView.swift in Sources */,
+				240792B72ECBEB500041EACB /* ReadReceiptIndicator.swift in Sources */,
+				240792B82ECBEB500041EACB /* PresenceModifier.swift in Sources */,
 				CAC307077FDFF916EE6E335F /* ChatInputView.swift in Sources */,
 				6A83E91A6A696CD8B1DB67BC /* ChatView.swift in Sources */,
 				6767F13ED95099F8FD5A2011 /* Color+Extensions.swift in Sources */,
@@ -501,14 +713,10 @@
 				24DCD1E12EC08E4A00072E81 /* WelcomeView.swift in Sources */,
 				24DCD1E22EC08E4A00072E81 /* TierSelectionView.swift in Sources */,
 				386714B62758D1DE229CF111 /* DeepSeekClient.swift in Sources */,
-				EB9881465CB1D21AA52F132C /* EmojiPickerView.swift in Sources */,
 				BBA71A7ED495991AFDE973BD /* EmotionalAIViewModel.swift in Sources */,
-				7F70B3E8193CCB7D10B45811 /* FormStateModifier.swift in Sources */,
 				89C8DBDB0313786B72377FA0 /* IAPReceipt.swift in Sources */,
 				00009671F1822AB9B6EEA80A /* IAPService.swift in Sources */,
-				E510D1729C27022EE6F0B6E6 /* InputStateModifier.swift in Sources */,
 				2374500CBAD21CB462258C6D /* LiveKitRoomManager.swift in Sources */,
-				285D3CE20C70B65ECDF2BC2E /* LoadingSpinner.swift in Sources */,
 				FDD73A44220AB0FD11612E4E /* MainTabView.swift in Sources */,
 				E8815F90453F3535B1B00ED1 /* Message.swift in Sources */,
 				2E144FB520FC854C10E162FC /* MessageBubbleView.swift in Sources */,
@@ -517,7 +725,7 @@
 				18CDB7C9F0346271C92C99D4 /* MoodGradient.swift in Sources */,
 				B8CC60BD9083F75390853E0E /* OnboardingView.swift in Sources */,
 				1E164921E1294776AE58A700 /* PresenceIndicatorView.swift in Sources */,
-				DD7E3956C4EF87D95F7496DE /* PresenceModifier.swift in Sources */,
+				240792BC2ECBECA50041EACB /* AgoraRoomManager.swift in Sources */,
 				3B7E2B6DE9D00987F84882E6 /* PresenceOrbView.swift in Sources */,
 				5711FCE430D58B5C07C0A4D8 /* PresenceViewModel.swift in Sources */,
 				366EFD5118DA2F5240B29042 /* ProfileView.swift in Sources */,
@@ -530,20 +738,19 @@
 				6C800EAF09CEB7F1671220E2 /* VibeZApp.swift in Sources */,
 				E3843E37BC5AF9D678D88A80 /* SpeechManager.swift in Sources */,
 				8AC2151BB19E841020491C74 /* SubscriptionManager.swift in Sources */,
-				24DCD1F32EC08E8E00072E81 /* InputStateModifier.swift in Sources */,
-				24DCD1F42EC08E8E00072E81 /* ButtonStateModifier.swift in Sources */,
-				24DCD1F52EC08E8E00072E81 /* VideoTileView.swift in Sources */,
-				24DCD1F62EC08E8E00072E81 /* PresenceModifier.swift in Sources */,
-				24DCD1F72EC08E8E00072E81 /* LoadingSpinner.swift in Sources */,
-				24DCD1F82EC08E8E00072E81 /* ToastView.swift in Sources */,
-				24DCD1F92EC08E8E00072E81 /* AutonomousLabel.swift in Sources */,
-				24DCD1FA2EC08E8E00072E81 /* GlobalStyles.swift in Sources */,
-				24DCD1FB2EC08E8E00072E81 /* FormStateModifier.swift in Sources */,
-				24DCD1FC2EC08E8E00072E81 /* EmojiPickerView.swift in Sources */,
-				24DCD1FD2EC08E8E00072E81 /* AutonomousValidationLabel.swift in Sources */,
-				24DCD1FE2EC08E8E00072E81 /* AnimationModifiers.swift in Sources */,
+				240792902ECBEAE60041EACB /* PricingSheet.swift in Sources */,
+				240792842ECBE9ED0041EACB /* SettingsView.swift in Sources */,
+				240792852ECBE9ED0041EACB /* CreateRoomSheet.swift in Sources */,
+				240792862ECBE9ED0041EACB /* AgoraRoomView.swift in Sources */,
+				240792872ECBE9ED0041EACB /* PaywallView.swift in Sources */,
+				240792882ECBE9ED0041EACB /* NicknameManagementView.swift in Sources */,
+				240792892ECBE9ED0041EACB /* SearchView.swift in Sources */,
+				2407928A2ECBE9ED0041EACB /* OnboardingFlowView.swift in Sources */,
+				2407926F2ECBE24C0041EACB /* SupabaseAuthService.swift in Sources */,
+				240792702ECBE24C0041EACB /* KeychainHelper.swift in Sources */,
+				240792C22ECBEC000041EACB /* LoginView.swift in Sources */,
+				240792C32ECBEC000041EACB /* SocialLoginsView.swift in Sources */,
 				204DB5FAB077E85EF339F4F5 /* SystemMonitor.swift in Sources */,
-				24DCD1D82EC08DCD00072E81 /* HomeView.swift in Sources */,
 				24DCD1D92EC08DCD00072E81 /* HostingGuideView.swift in Sources */,
 				24DCD1DA2EC08DCD00072E81 /* RoomSettingsView.swift in Sources */,
 				24DCD1DB2EC08DCD00072E81 /* SubscriptionView.swift in Sources */,
@@ -553,7 +760,6 @@
 				640FE2B37FE52E148C605ECC /* UXEventType.swift in Sources */,
 				CCB84AE834C2EEF7EE7FE7E2 /* UXTelemetryService.swift in Sources */,
 				7027A9A2CAD75F130AA852F8 /* User.swift in Sources */,
-				6F5A8620F89CF407F473BD9A /* VideoTileView.swift in Sources */,
 				C568BC16207F80599FD824C9 /* View+Extensions.swift in Sources */,
 				B92C97DA4EF1256E79251D67 /* VoiceOrb.swift in Sources */,
 				A8F3D961E5F9895CB0ACFD41 /* VoiceRoomView.swift in Sources */,
@@ -565,14 +771,79 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		240792C62ECC6F9C0041EACB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B2A77191C3B48D16BA24DF46 /* VibeZ */;
+			targetProxy = 240792C52ECC6F9C0041EACB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		240792C72ECC6F9C0041EACB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.NeuralDraftLLC.VibeZTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VibeZ.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VibeZ";
+			};
+			name = Debug;
+		};
+		240792C82ECC6F9C0041EACB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.NeuralDraftLLC.VibeZTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VibeZ.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VibeZ";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		44897F78367D45F656AD85E8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = R7KX4HNBFY;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "VibeZ needs camera access for video chat and avatar photos";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VibeZ needs microphone access for voice messages and voice chat";
@@ -629,6 +900,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = R7KX4HNBFY;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -651,6 +923,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -663,7 +936,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = R7KX4HNBFY;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "VibeZ needs camera access for video chat and avatar photos";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VibeZ needs microphone access for voice messages and voice chat";
@@ -720,6 +992,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = R7KX4HNBFY;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -735,6 +1008,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -744,6 +1018,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		240792C92ECC6F9C0041EACB /* Build configuration list for PBXNativeTarget "VibeZTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				240792C72ECC6F9C0041EACB /* Debug */,
+				240792C82ECC6F9C0041EACB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		70F70E15DCF9079FBA31BD30 /* Build configuration list for PBXNativeTarget "VibeZ" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -753,7 +1036,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		CA4F5D17ED88FF52FABB675C /* Build configuration list for PBXProject "VibeZ" */ = {
+		CA4F5D17ED88FF52FABB675C /* Build configuration list for PBXProject "Sinapse" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4D2E825084597E77918BCEEF /* Debug */,

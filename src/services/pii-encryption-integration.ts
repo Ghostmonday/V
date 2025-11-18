@@ -25,7 +25,7 @@ export async function encryptPIIBeforeSave(
   data: Record<string, any>
 ): Promise<Record<string, any>> {
   const fieldsToEncrypt = PII_FIELDS[tableName as keyof typeof PII_FIELDS] || [];
-  
+
   if (fieldsToEncrypt.length === 0) {
     return data;
   }
@@ -58,7 +58,7 @@ export async function decryptPIIAfterRead(
   data: Record<string, any> | Record<string, any>[]
 ): Promise<Record<string, any> | Record<string, any>[]> {
   const fieldsToDecrypt = PII_FIELDS[tableName as keyof typeof PII_FIELDS] || [];
-  
+
   if (fieldsToDecrypt.length === 0) {
     return data;
   }
@@ -66,7 +66,7 @@ export async function decryptPIIAfterRead(
   // Handle array of records
   if (Array.isArray(data)) {
     return Promise.all(
-      data.map(record => decryptPIIAfterRead(tableName, record) as Promise<Record<string, any>>)
+      data.map((record) => decryptPIIAfterRead(tableName, record) as Promise<Record<string, any>>)
     );
   }
 
@@ -170,4 +170,3 @@ export async function migratePIIToEncrypted(): Promise<{ encrypted: number; erro
 
   return { encrypted, errors };
 }
-

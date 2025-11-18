@@ -18,11 +18,11 @@ import { logInfo } from '../shared/logger.js';
  */
 async function streamToUint8Array(stream: NodeJS.ReadableStream): Promise<Uint8Array> {
   const chunks: Buffer[] = [];
-  
+
   for await (const chunk of stream) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   }
-  
+
   return new Uint8Array(Buffer.concat(chunks));
 }
 
@@ -31,12 +31,14 @@ async function streamToUint8Array(stream: NodeJS.ReadableStream): Promise<Uint8A
  * Uses performance.now() for precise timing
  */
 function compressionBenchmark(algo: string, ratio: number, latency: number): void {
-  logInfo(`[Compression Benchmark] Algorithm: ${algo}, Ratio: ${ratio.toFixed(4)}, Latency: ${latency.toFixed(2)}ms`);
+  logInfo(
+    `[Compression Benchmark] Algorithm: ${algo}, Ratio: ${ratio.toFixed(4)}, Latency: ${latency.toFixed(2)}ms`
+  );
 }
 
 /**
  * Compress and store payload to Supabase Storage
- * 
+ *
  * @param payload - String or Uint8Array to compress
  * @param bucket - Supabase Storage bucket name
  * @param path - Storage path for the file
@@ -52,7 +54,7 @@ export async function compressAndStore(
   // Detect payload type
   let type: 'text' | 'binary' | 'voice';
   const mime = options.mime;
-  
+
   if (mime) {
     if (mime.startsWith('text/')) {
       type = 'text';
@@ -67,12 +69,13 @@ export async function compressAndStore(
   }
 
   // Prepare bytes and original size
-  const bytes = typeof payload === 'string' 
-    ? new TextEncoder().encode(payload) 
-    : payload instanceof Uint8Array 
-      ? payload 
-      : new Uint8Array(Buffer.from(payload));
-  
+  const bytes =
+    typeof payload === 'string'
+      ? new TextEncoder().encode(payload)
+      : payload instanceof Uint8Array
+        ? payload
+        : new Uint8Array(Buffer.from(payload));
+
   const originalSize = bytes.length;
 
   // Select algorithm and compress
@@ -109,13 +112,11 @@ export async function compressAndStore(
   compressionBenchmark(algo, ratio, latency);
 
   // Store in Supabase Storage
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(path, compressed, {
-      contentType: 'application/octet-stream',
-      upsert: true,
-      metadata: { compression: algo },
-    });
+  const { data, error } = await supabase.storage.from(bucket).upload(path, compressed, {
+    contentType: 'application/octet-stream',
+    upsert: true,
+    metadata: { compression: algo },
+  });
 
   if (error) {
     throw new Error(`Failed to upload to Supabase Storage: ${error.message}`);
@@ -127,4 +128,3 @@ export async function compressAndStore(
 
   return data;
 }
-

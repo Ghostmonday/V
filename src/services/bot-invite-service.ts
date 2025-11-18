@@ -27,7 +27,7 @@ export async function createBotInvite(
         room_id: roomId,
         bot_name: botName,
         created_by: createdBy,
-        template_id: templateId
+        template_id: templateId,
       },
       JWT_SECRET,
       { expiresIn: `${expiresInHours}h` }
@@ -47,7 +47,7 @@ export async function createBotInvite(
         bot_config: botConfig,
         template_id: templateId,
         expires_at: expiresAt.toISOString(),
-        status: 'pending'
+        status: 'pending',
       })
       .select()
       .single();
@@ -90,10 +90,7 @@ export async function useBotInvite(token: string) {
 
     if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
       // Mark as expired
-      await supabase
-        .from('bot_invites')
-        .update({ status: 'expired' })
-        .eq('id', invite.id);
+      await supabase.from('bot_invites').update({ status: 'expired' }).eq('id', invite.id);
       throw new Error('Invite has expired');
     }
 
@@ -102,7 +99,7 @@ export async function useBotInvite(token: string) {
       .from('bot_invites')
       .update({
         status: 'used',
-        used_at: new Date().toISOString()
+        used_at: new Date().toISOString(),
       })
       .eq('id', invite.id);
 
@@ -110,7 +107,7 @@ export async function useBotInvite(token: string) {
       room_id: invite.room_id,
       bot_name: invite.bot_name,
       bot_config: invite.bot_config,
-      template_id: invite.template_id
+      template_id: invite.template_id,
     };
   } catch (error: any) {
     logError('Failed to use bot invite', error);
@@ -131,8 +128,8 @@ export async function getBotTemplates() {
       description: 'Sends welcome messages to new members',
       config: {
         welcome_message: 'Welcome to the room!',
-        trigger_on_join: true
-      }
+        trigger_on_join: true,
+      },
     },
     {
       id: 'moderation-bot',
@@ -140,9 +137,8 @@ export async function getBotTemplates() {
       description: 'Automatically moderates messages',
       config: {
         auto_moderate: true,
-        action_on_violation: 'warn'
-      }
-    }
+        action_on_violation: 'warn',
+      },
+    },
   ];
 }
-

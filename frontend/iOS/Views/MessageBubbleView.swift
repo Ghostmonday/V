@@ -88,13 +88,10 @@ struct MessageBubbleView: View {
     }
     
     private func getCurrentUserId() -> UUID {
-        // Get user ID from stored auth token
-        // In production, decode JWT to extract user ID
-        // For now, return a placeholder - should be stored in AuthService
-        if AuthTokenManager.shared.token != nil {
-            // TODO: Decode JWT and extract user ID from claims
-            // For now, use a placeholder UUID
-            return UUID() // Placeholder - should extract from JWT
+        // Get user ID from Supabase session
+        if let session = SupabaseAuthService.shared.currentSession,
+           let userId = UUID(uuidString: session.userId) {
+            return userId
         }
         return UUID() // Fallback
     }

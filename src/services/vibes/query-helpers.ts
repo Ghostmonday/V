@@ -30,4 +30,3 @@ export async function getConversationWithStats(conversationId: string) {
     participant_count: count || 0,
   };
 }
-

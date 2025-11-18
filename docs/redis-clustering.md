@@ -15,6 +15,7 @@ VibeZ supports three Redis deployment modes:
 ### Environment Variables
 
 #### Single Instance Mode (Default)
+
 ```bash
 REDIS_MODE=single
 REDIS_URL=redis://localhost:6379
@@ -22,6 +23,7 @@ REDIS_PASSWORD=optional_password
 ```
 
 #### Cluster Mode
+
 ```bash
 REDIS_MODE=cluster
 REDIS_CLUSTER_NODES=node1:7000,node2:7001,node3:7002
@@ -29,6 +31,7 @@ REDIS_PASSWORD=optional_password
 ```
 
 #### Sentinel Mode (Recommended for HA)
+
 ```bash
 REDIS_MODE=sentinel
 REDIS_SENTINELS=sentinel1:26379,sentinel2:26380,sentinel3:26381
@@ -61,16 +64,19 @@ Redis Sentinel provides automatic failover and is recommended for production dep
 ### Setup Instructions
 
 1. **Start Redis Master**:
+
 ```bash
 redis-server --port 6379 --requirepass yourpassword
 ```
 
 2. **Start Redis Replica**:
+
 ```bash
 redis-server --port 6380 --requirepass yourpassword --replicaof localhost 6379
 ```
 
 3. **Start Sentinel Instances**:
+
 ```bash
 # Sentinel 1
 redis-sentinel sentinel1.conf --port 26379
@@ -83,6 +89,7 @@ redis-sentinel sentinel3.conf --port 26381
 ```
 
 4. **Sentinel Configuration** (`sentinel1.conf`):
+
 ```
 port 26379
 sentinel monitor mymaster localhost 6379 2
@@ -93,6 +100,7 @@ sentinel failover-timeout mymaster 10000
 ```
 
 5. **Configure VibeZ**:
+
 ```bash
 REDIS_MODE=sentinel
 REDIS_SENTINELS=localhost:26379,localhost:26380,localhost:26381
@@ -126,6 +134,7 @@ Redis Cluster provides horizontal scaling with automatic sharding.
 ### Setup Instructions
 
 1. **Create Cluster Configuration**:
+
 ```bash
 # Create directories
 mkdir -p cluster/{7000,7001,7002,7003,7004,7005}
@@ -143,6 +152,7 @@ done
 ```
 
 2. **Start Cluster Nodes**:
+
 ```bash
 for port in 7000 7001 7002 7003 7004 7005; do
   redis-server cluster/$port/redis.conf &
@@ -150,6 +160,7 @@ done
 ```
 
 3. **Create Cluster**:
+
 ```bash
 redis-cli --cluster create \
   127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 \
@@ -158,6 +169,7 @@ redis-cli --cluster create \
 ```
 
 4. **Configure VibeZ**:
+
 ```bash
 REDIS_MODE=cluster
 REDIS_CLUSTER_NODES=localhost:7000,localhost:7001,localhost:7002
@@ -269,5 +281,3 @@ redis-cli -p 7000 CLUSTER INFO
 - **Connection Pooling**: Singleton pattern for connection reuse
 - **Retry Strategy**: Exponential backoff prevents thundering herd
 - **Health Checks**: 30-second intervals balance responsiveness and overhead
-
-

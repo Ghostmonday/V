@@ -11,13 +11,16 @@ import { logError, logInfo } from '../shared/logger.js';
  */
 export async function pinRoom(userId: string, roomId: string) {
   try {
-    const { error } = await supabase.from('pinned_items').upsert({
-      user_id: userId,
-      room_id: roomId,
-      pinned_at: new Date().toISOString()
-    }, {
-      onConflict: 'user_id,room_id'
-    });
+    const { error } = await supabase.from('pinned_items').upsert(
+      {
+        user_id: userId,
+        room_id: roomId,
+        pinned_at: new Date().toISOString(),
+      },
+      {
+        onConflict: 'user_id,room_id',
+      }
+    );
 
     if (error) {
       throw error;
@@ -61,7 +64,8 @@ export async function getPinnedRooms(userId: string) {
   try {
     const { data, error } = await supabase
       .from('pinned_items')
-      .select(`
+      .select(
+        `
         room_id,
         pinned_at,
         rooms (
@@ -70,7 +74,8 @@ export async function getPinnedRooms(userId: string) {
           title,
           created_at
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('pinned_at', { ascending: false });
 
@@ -102,4 +107,3 @@ export async function isRoomPinned(userId: string, roomId: string): Promise<bool
     return false;
   }
 }
-

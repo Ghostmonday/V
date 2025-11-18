@@ -22,12 +22,7 @@ declare module 'ws' {
   }
 
   export class WebSocketServer {
-    constructor(options?: {
-      port?: number;
-      host?: string;
-      path?: string;
-      noServer?: boolean;
-    });
+    constructor(options?: { port?: number; host?: string; path?: string; noServer?: boolean });
     on(event: 'connection', listener: (ws: WebSocket, req: any) => void): this;
     on(event: 'error', listener: (error: Error) => void): this;
     emit(event: string, ...args: any[]): boolean;
@@ -65,7 +60,7 @@ declare module 'zod' {
     export function boolean(): ZodBoolean;
     export function object<T extends Record<string, any>>(shape: T): ZodObject<T>;
     export function union<T extends any[]>(types: T): any;
-    
+
     export namespace infer {
       type Type<T> = T extends ZodObject<infer U> ? U : any;
     }
@@ -105,14 +100,14 @@ declare module 'protobufjs' {
   }
 
   function load(path: string): Promise<Root>;
-  
+
   interface ProtobufDefault {
     Root: {
       new (): Root;
     };
     load(path: string): Promise<Root>;
   }
-  
+
   const protobuf: ProtobufDefault;
   export default protobuf;
 }
@@ -164,9 +159,13 @@ declare module 'prom-client' {
   const client: {
     Counter: new (options: { name: string; help: string; labelNames?: string[] }) => Counter;
     Gauge: new (options: { name: string; help: string; labelNames?: string[] }) => Gauge;
-    Histogram: new (options: { name: string; help: string; labelNames?: string[]; buckets?: number[] }) => Histogram;
+    Histogram: new (options: {
+      name: string;
+      help: string;
+      labelNames?: string[];
+      buckets?: number[];
+    }) => Histogram;
     Registry: typeof Registry;
   };
   export default client;
 }
-
