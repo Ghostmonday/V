@@ -12,7 +12,7 @@ jobs:
     name: TypeScript Code Analysis
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,7 +47,7 @@ jobs:
     name: Swift Code Analysis
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -82,7 +82,7 @@ jobs:
     name: SQL Migration Validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Install PostgreSQL Client
         run: |
@@ -109,7 +109,7 @@ jobs:
     name: Security Vulnerability Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Run Trivy Security Scan
         uses: aquasecurity/trivy-action@master
@@ -145,7 +145,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -164,7 +164,7 @@ jobs:
     name: Dependency Vulnerability Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -193,7 +193,7 @@ jobs:
     name: File Structure Validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Check for required files
         run: |
@@ -235,7 +235,7 @@ jobs:
     name: API Endpoint Validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Check API route consistency
         run: |
@@ -256,7 +256,7 @@ jobs:
     name: Database Schema Validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Validate migration files
         run: |

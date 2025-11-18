@@ -16,7 +16,7 @@ jobs:
         scan-type: [typescript, swift, sql, security, dependencies, structure]
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Node.js
         if: matrix.scan-type == 'typescript' || matrix.scan-type == 'security' || matrix.scan-type == 'dependencies'
@@ -137,7 +137,7 @@ jobs:
     needs: full-scan
     if: always()
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Compile Report
         run: |
