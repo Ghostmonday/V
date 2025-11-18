@@ -1,8 +1,9 @@
 import SwiftUI
+import PhotosUI
 
 /// Chat Input View
 /// Migrated from src/components/ChatInput.vue
-/// Text input with slash command detection and bot autocomplete
+/// Text input with slash command detection, bot autocomplete, file upload, and VIBE actions
 struct ChatInputView: View {
     @State private var input: String = ""
     @State private var showCommands: Bool = false
@@ -10,8 +11,14 @@ struct ChatInputView: View {
     @FocusState private var isFocused: Bool
     @State private var haptic = UIImpactFeedbackGenerator(style: .medium)
     
+    // File selection state
+    @State private var selectedItem: PhotosPickerItem?
+    @State private var selectedImageData: Data?
+    
     let onSend: ((String) -> Void)?
     let onFlagged: ((String) -> Void)? // Callback for flagged messages
+    let onVibe: (() -> Void)?
+    let onFileSelect: ((Data) -> Void)?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -20,16 +27,33 @@ struct ChatInputView: View {
                 commandSuggestionsView
             }
             
-            // Text input
-            HStack {
+            // Main Input Bar
+            HStack(spacing: 12) {
+                // File Upload Button
+                PhotosPicker(selection: $selectedItem, matching: .images) {
+                    Image(systemName: "paperclip.circle.fill")
+                        .font(.system(size: 28))
+                        .foregroundColor(.secondary)
+                }
+                .accessibilityLabel("Upload file")
+                .onChange(of: selectedItem) { _, newItem in
+                    Task {
+                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                            onFileSelect?(data)
+                            selectedItem = nil // Reset
+                        }
+                    }
+                }
+                
+                // Text Input
                 TextField("Type a message...", text: $input)
                     .focused($isFocused)
                     .textFieldStyle(.plain)
                     .font(.body) // Dynamic Type support
-                    .padding(12)
+                    .padding(10)
                     .background(Color(UIColor.systemGray6))
                     .cornerRadius(20)
-                    .onChange(of: input) { oldValue, newValue in
+                    .onChange(of: input) { _, newValue in
                         handleInputChange(newValue)
                     }
                     .onSubmit {
@@ -38,24 +62,30 @@ struct ChatInputView: View {
                     .accessibilityLabel("Message input")
                     .accessibilityHint("Type your message or use slash commands")
                 
-                Button(action: handleSend) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundColor(Color("VibeZGold"))
+                // VIBE Button (if input empty)
+                if input.isEmpty {
+                    Button(action: {
+                        haptic.impactOccurred()
+                        onVibe?()
+                    }) {
+                        Image(systemName: "heart.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(Color("VibeZGold")) // Vibe Color
+                    }
+                    .accessibilityLabel("Send Vibe")
+                } else {
+                    // Send Button (if input not empty)
+                    Button(action: handleSend) {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(Color("VibeZGold"))
+                    }
+                    .accessibilityLabel("Send message")
                 }
-                .disabled(input.isEmpty)
-                .accessibilityLabel("Send message")
-                .accessibilityHint(input.isEmpty ? "Enter a message first" : "Double tap to send")
-                .accessibilityAddTraits(.isButton)
-                .overlay(
-                    Circle()
-                        .fill(Color("VibeZGlow"))
-                        .frame(width: 40, height: 40)
-                        .scaleEffect(input.isEmpty ? 0.01 : 0.7)
-                        .opacity(input.isEmpty ? 0 : 0.3)
-                        .animation(.easeOut(duration: 0.4), value: input.isEmpty)
-                )
             }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(UIColor.systemBackground))
         }
     }
     
@@ -85,6 +115,7 @@ struct ChatInputView: View {
         .cornerRadius(8)
         .shadow(radius: 4)
         .padding(.bottom, 8)
+        .padding(.horizontal)
     }
     
     // MARK: - Methods
@@ -258,9 +289,14 @@ struct ModerationResponse: Codable {
             },
             onFlagged: { suggestion in
                 print("Flagged: \(suggestion)")
+            },
+            onVibe: {
+                print("Vibe Sent!")
+            },
+            onFileSelect: { _ in
+                print("File Selected")
             }
         )
         .padding()
     }
 }
-

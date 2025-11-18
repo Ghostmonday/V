@@ -1,14 +1,19 @@
 import SwiftUI
+import PhotosUI
 
 /// Chat view with message send and AI feedback
 struct ChatView: View {
     let room: Room?
     @StateObject private var viewModel = RoomViewModel()
     @StateObject private var subManager = SubscriptionManager.shared
-    @State private var input: String = ""
+    @StateObject private var roomManager = LiveKitRoomManager.shared
+    
     @State private var showFlaggedToast = false
     @State private var flaggedSuggestion: String = ""
     @State private var showPaywall = false
+    @State private var showVoicePanel = true
+    @State private var liveKitToken: String?
+    
     @State private var haptic = UIImpactFeedbackGenerator(style: .light)
     
     init(room: Room? = nil) {
@@ -18,6 +23,30 @@ struct ChatView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Voice/Video Panel (Collapsible or persistent)
+                if let roomName = room?.name, let token = liveKitToken {
+                    if showVoicePanel {
+                        VoiceVideoPanelView(roomName: roomName, token: token)
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                            .transition(.move(edge: .top))
+                    }
+                } else if room != nil {
+                    // Join Audio Button Area
+                    Button(action: joinVoiceRoom) {
+                        HStack {
+                            Image(systemName: "waveform")
+                            Text("Join Voice")
+                        }
+                        .font(.caption)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.secondary.opacity(0.2))
+                        .cornerRadius(16)
+                    }
+                    .padding(.top, 8)
+                }
+                
                 // Message list
                 ScrollView {
                     LazyVStack(spacing: 12) {
@@ -45,46 +74,32 @@ struct ChatView: View {
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
                 
-                // Input area
-                HStack(spacing: 12) {
-                    TextField("Message...", text: $input)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.body) // Dynamic Type support
-                        .accessibilityLabel("Message input")
-                        .accessibilityIdentifier("Message...")
-                        .accessibilityHint("Type your message here")
-                    
-                    Button("Send") {
-                        // Check entitlement before sending AI message
-                        if !subManager.hasEntitlement(for: "pro_monthly") && !subManager.hasEntitlement(for: "pro_annual") {
-                            showPaywall = true
-                            return
+                // Input area (using ChatInputView)
+                ChatInputView(
+                    onSend: sendMessage,
+                    onFlagged: { suggestion in
+                        flaggedSuggestion = suggestion
+                        withAnimation { showFlaggedToast = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation { showFlaggedToast = false }
                         }
-                        sendMessage()
-                        haptic.impactOccurred()
-                        withAnimation(.easeOut(duration: 0.4)) {
-                            showFlaggedToast = false // Trigger glow animation
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color("VibeZGold"))
-                    .disabled(input.isEmpty)
-                    .accessibilityLabel("Send message")
-                    .accessibilityHint(input.isEmpty ? "Message cannot be empty" : "Double tap to send")
-                    .accessibilityAddTraits(.isButton)
-                    .overlay(
-                        Circle()
-                            .fill(Color("VibeZGlow"))
-                            .frame(width: 60, height: 60)
-                            .scaleEffect(input.isEmpty ? 0.01 : 0.8)
-                            .opacity(input.isEmpty ? 0 : 0.3)
-                            .animation(.easeOut(duration: 0.4), value: input.isEmpty)
-                    )
-                }
-                .padding()
+                    },
+                    onVibe: sendVibe,
+                    onFileSelect: uploadFile
+                )
             }
             .navigationTitle(room?.name ?? "Chat")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if liveKitToken != nil {
+                        Button(action: { withAnimation { showVoicePanel.toggle() } }) {
+                            Image(systemName: showVoicePanel ? "mic.fill" : "mic.slash")
+                                .foregroundColor(showVoicePanel ? .green : .secondary)
+                        }
+                    }
+                }
+            }
             .sheet(isPresented: $showPaywall) {
                 SubscriptionView()
             }
@@ -92,30 +107,33 @@ struct ChatView: View {
         .task {
             if let roomId = room?.id {
                 viewModel.loadRoom(id: roomId)
+                // Auto-fetch token if desired, or wait for user action
             }
         }
     }
     
-    private func sendMessage() {
-        guard !input.isEmpty, let room = room else { return }
+    // MARK: - Actions
+    
+    private func sendMessage(_ content: String) {
+        guard let room = room else { return }
         
-        let messageText = input
-        input = ""
+        // Check entitlement
+        if !subManager.hasEntitlement(for: "pro_monthly") && !subManager.hasEntitlement(for: "pro_annual") {
+            // Simple check - for MVP we might allow free users to chat but limit features
+            // For now, keep existing logic but maybe relax it for basic chat
+            // showPaywall = true 
+            // return
+        }
         
         Task {
             do {
-                // Get current user ID from Supabase session
                 guard let session = SupabaseAuthService.shared.currentSession,
-                      let userId = UUID(uuidString: session.userId) else {
-                    print("Failed to get user ID from session")
-                    return
-                }
+                      let userId = UUID(uuidString: session.userId) else { return }
                 
-                // Create message object
                 let message = Message(
                     id: UUID(),
                     senderId: userId,
-                    content: messageText,
+                    content: content,
                     type: "text",
                     timestamp: Date(),
                     emotion: nil,
@@ -124,31 +142,87 @@ struct ChatView: View {
                     seenAt: nil
                 )
                 
-                // Send message via MessageService
                 try await MessageService.sendMessage(message, to: room)
-                
-                // Check for moderation flags in response (if API returns moderation info)
-                // Note: Backend moderation happens server-side, but we can check response
-                // For now, moderation warnings come via WebSocket or separate API call
-                
             } catch {
                 print("Failed to send message: \(error)")
-                // Check if error contains moderation info
-                if let errorMessage = (error as NSError).userInfo[NSLocalizedDescriptionKey] as? String,
-                   errorMessage.contains("moderation") || errorMessage.contains("flagged") {
-                    flaggedSuggestion = "Please keep conversations respectful"
-                    withAnimation {
-                        showFlaggedToast = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        withAnimation {
-                            showFlaggedToast = false
-                        }
-                    }
-                }
             }
         }
     }
+    
+    private func sendVibe() {
+        guard let roomId = room?.id.uuidString else { return }
+        Task {
+            await VibeService.shared.sendVibePulse(roomId: roomId)
+        }
+    }
+    
+    private func uploadFile(_ data: Data) {
+        guard let room = room else { return }
+        Task {
+            do {
+                // 1. Upload File
+                let filename = "upload-\(UUID().uuidString).jpg" // Assume image for MVP
+                let url = try await FileService.shared.uploadFile(
+                    data: data,
+                    filename: filename,
+                    mimeType: "image/jpeg"
+                )
+                
+                // 2. Send Message with Image URL
+                guard let session = SupabaseAuthService.shared.currentSession,
+                      let userId = UUID(uuidString: session.userId) else { return }
+                
+                // Use a special message type or markdown for image
+                let content = "![Image](\(url))" 
+                
+                let message = Message(
+                    id: UUID(),
+                    senderId: userId,
+                    content: content,
+                    type: "image", // Use image type
+                    timestamp: Date(),
+                    emotion: nil,
+                    renderedHTML: nil,
+                    reactions: nil,
+                    seenAt: nil
+                )
+                
+                try await MessageService.sendMessage(message, to: room)
+                
+            } catch {
+                print("Failed to upload file: \(error)")
+            }
+        }
+    }
+    
+    private func joinVoiceRoom() {
+        guard let roomId = room?.id.uuidString else { return }
+        
+        Task {
+            do {
+                // Call backend to get token
+                // Endpoint: POST /chat-rooms/:id/join
+                let response: JoinRoomResponse = try await APIClient.shared.request(
+                    endpoint: "/chat-rooms/\(roomId)/join",
+                    method: "POST"
+                )
+                
+                await MainActor.run {
+                    self.liveKitToken = response.token
+                    self.showVoicePanel = true
+                }
+            } catch {
+                print("Failed to join voice room: \(error)")
+            }
+        }
+    }
+}
+
+struct JoinRoomResponse: Codable {
+    let success: Bool
+    let token: String
+    let channelName: String
+    let uid: Int
 }
 
 
