@@ -19,7 +19,7 @@ import {
   ConnectionState,
   unregisterConnection,
   getRoomResubscribeBatch,
-} from '../../ws/connection-manager.js';
+} from '../../ws/websocket-connection-manager.js';
 
 describe('WebSocket Reconnection Tests', () => {
   let mockWs: WebSocket;

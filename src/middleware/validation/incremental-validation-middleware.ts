@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { logError } from '../../shared/logger-shared.js';
 
 export function validateServiceData<T>(data: any, schema: any, context: string): T {
@@ -16,4 +16,12 @@ export function validateBeforeDB<T>(data: any, schema: any, context: string): T 
 
 export function validateAfterDB<T>(data: any, schema: any, context: string): T {
     return validateServiceData(data, schema, context);
+}
+
+export function validateWSMessage<T>(data: any, schema: any): T {
+    try {
+        return schema.parse(data);
+    } catch (error) {
+        throw error;
+    }
 }

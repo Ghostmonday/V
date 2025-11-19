@@ -5,7 +5,7 @@
  */
 
 import { supabase } from '../config/database-config.js';
-import { logError, logInfo } from '../shared/logger-shared.js';
+import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 
 const MAX_TOKENS = 4000;
 const CHARS_PER_TOKEN = 4; // Rough estimate

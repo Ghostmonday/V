@@ -18,7 +18,7 @@ import { logError, logInfo } from '../../shared/logger-shared.js';
 import { validateWSMessage } from '../../middleware/validation/incremental-validation-middleware.js';
 import { isEncryptedPayload, isE2ERoom } from '../../services/e2e-encryption.js';
 import { publishToStream, routeToModeration } from '../../config/redis-streams-config.js';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 const redis = getRedisClient();
 
@@ -38,7 +38,7 @@ const wsEnvelopeSchema = z.object({
 export async function handleMessaging(ws: WebSocket & { userId?: string }, envelope: any) {
   try {
     // VALIDATION POINT 1: Validate WebSocket envelope structure
-    const validatedEnvelope = validateWSMessage(envelope, wsEnvelopeSchema);
+    const validatedEnvelope = validateWSMessage(envelope, wsEnvelopeSchema) as any;
 
     // VALIDATION POINT 2: Validate userId if present
     const userId = ws.userId;
@@ -69,8 +69,8 @@ export async function handleMessaging(ws: WebSocket & { userId?: string }, envel
     // VALIDATION POINT 4.5: Validate encryption for E2E rooms
     // Check if room requires encryption and validate payload is encrypted
     try {
-      const { getRoomById } = await import('../../services/room-service.js');
-      const room = await getRoomById(roomId);
+      const { getRoom } = await import('../../services/room-service.js');
+      const room = await getRoom(roomId);
 
       if (room && isE2ERoom(room)) {
         // Room requires E2E encryption - validate payload is encrypted

@@ -5,29 +5,29 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { WebSocketServer } from 'ws';
-import { setupWebSocketGateway } from '../../ws/gateway.js';
+import { setupWebSocketGateway } from '../../ws/websocket-gateway.js';
 
 // Mock dependencies
-vi.mock('../../ws/utils.js', () => ({
+vi.mock('../../ws/websocket-utils.js', () => ({
   registerWebSocketToRoom: vi.fn(),
   unregisterWebSocket: vi.fn(),
   initializeRedisSubscriber: vi.fn(),
 }));
 
-vi.mock('../../ws/handlers/messaging.js', () => ({
-  handleMessaging: vi.fn(async () => {}),
+vi.mock('../../ws/handlers/websocket-messaging-handler.js', () => ({
+  handleMessaging: vi.fn(async () => { }),
 }));
 
-vi.mock('../../ws/handlers/presence.js', () => ({
-  handlePresence: vi.fn(async () => {}),
+vi.mock('../../ws/handlers/websocket-presence-handler.js', () => ({
+  handlePresence: vi.fn(async () => { }),
 }));
 
-vi.mock('../../ws/handlers/read-receipts.js', () => ({
-  handleReadReceipt: vi.fn(async () => {}),
+vi.mock('../../ws/handlers/websocket-read-receipts-handler.js', () => ({
+  handleReadReceipt: vi.fn(async () => { }),
 }));
 
-vi.mock('../../ws/handlers/delivery-ack.js', () => ({
-  handleDeliveryAckMessage: vi.fn(async () => {}),
+vi.mock('../../ws/handlers/websocket-delivery-ack-handler.js', () => ({
+  handleDeliveryAckMessage: vi.fn(async () => { }),
 }));
 
 describe('WebSocket Integration Tests', () => {
@@ -108,7 +108,7 @@ describe('WebSocket Integration Tests', () => {
 
   describe('Message Handling', () => {
     it('should handle message sending', async () => {
-      const { handleMessaging } = await import('../../ws/handlers/messaging.js');
+      const { handleMessaging } = await import('../../ws/handlers/websocket-messaging-handler.js');
 
       const mockWs = {
         userId: 'user-123',
@@ -130,7 +130,7 @@ describe('WebSocket Integration Tests', () => {
     });
 
     it('should handle delivery acknowledgements', async () => {
-      const { handleDeliveryAckMessage } = await import('../../ws/handlers/delivery-ack.js');
+      const { handleDeliveryAckMessage } = await import('../../ws/handlers/websocket-delivery-ack-handler.js');
 
       const mockWs = {
         userId: 'user-123',
@@ -153,7 +153,7 @@ describe('WebSocket Integration Tests', () => {
 
   describe('Presence Handling', () => {
     it('should handle presence updates', async () => {
-      const { handlePresence } = await import('../../ws/handlers/presence.js');
+      const { handlePresence } = await import('../../ws/handlers/websocket-presence-handler.js');
 
       const mockWs = {
         userId: 'user-123',
@@ -176,7 +176,7 @@ describe('WebSocket Integration Tests', () => {
 
   describe('Read Receipts', () => {
     it('should handle read receipt updates', async () => {
-      const { handleReadReceipt } = await import('../../ws/handlers/read-receipts.js');
+      const { handleReadReceipt } = await import('../../ws/handlers/websocket-read-receipts-handler.js');
 
       const mockWs = {
         userId: 'user-123',

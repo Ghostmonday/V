@@ -299,7 +299,7 @@ export async function verifyAppleSignInToken(
 
 // import { validateServiceData, validateAfterDB } from '../middleware/validation/incremental-validation-middleware.js';
 // import { validatePasswordStrength } from '../middleware/validation/password-strength.js';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 // Validation schemas
 const credentialsSchema = z.object({

@@ -21,7 +21,7 @@ import {
   validateAfterDB,
 } from '../middleware/validation/incremental-validation-middleware.js';
 import { isEncryptedPayload, isE2ERoom } from './e2e-encryption.js';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 const redis = createRedisClient();
 
