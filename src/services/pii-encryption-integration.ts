@@ -3,9 +3,9 @@
  * Provides transparent encryption/decryption hooks for PII fields
  */
 
-import { supabase } from '../config/db.ts';
+import { supabase } from '../config/database-config.js';
 import { encryptField, decryptField } from './encryption-service.js';
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 /**
  * Fields that should be encrypted at rest

@@ -5,8 +5,8 @@
 
 import { WebSocket } from 'ws';
 import { markRead, markDelivered } from '../../services/read-receipts-service.js';
-import { broadcastToRoom } from '../utils.js';
-import { logError } from '../../shared/logger.js';
+import { broadcastToRoom } from '../websocket-utils.js';
+import { logError } from '../../shared/logger-shared.js';
 
 /**
  * Handle read receipt WebSocket message

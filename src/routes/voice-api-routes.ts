@@ -7,7 +7,7 @@
 import { Router, Response, NextFunction } from 'express';
 import { liveKitService } from '../services/livekit-service.js';
 import { authMiddleware } from '../middleware/auth/supabase-auth.js';
-import { logError } from '../shared/logger.js';
+import { logError } from '../shared/logger-shared.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { getLiveKitKeys } from '../services/api-keys-service.js';
 import { checkQuota, incrementUsage } from '../services/usageMeter.js';
@@ -129,7 +129,7 @@ router.post(
         try {
           const { endPFSCallSession } = await import('../services/pfs-media-service.js');
           await endPFSCallSession(call_id);
-          const { logInfo } = await import('../shared/logger.js');
+          const { logInfo } = await import('../shared/logger-shared.js');
           logInfo('PFS session ended and keys deleted', { call_id });
         } catch (pfsError) {
           logError('Failed to end PFS session', pfsError);

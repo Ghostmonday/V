@@ -13,7 +13,7 @@ import {
   getReadReceipts,
   getRoomReadStatus,
 } from '../services/read-receipts-service.js';
-import { logError } from '../shared/logger.js';
+import { logError } from '../shared/logger-shared.js';
 
 const router = Router();
 

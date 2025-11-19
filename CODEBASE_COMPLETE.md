@@ -1046,7 +1046,7 @@ See [VALIDATION_SUMMARY.md](#validation-summary-md) for details.
       "language": "Swift"
     },
     {
-      "path": "frontend/iOS/ViewModels/PresenceViewModel.swift",
+      "path": "frontend/iOS/Managers/PresenceViewModel.swift",
       "category": "Other",
       "lines": 191,
       "size": 7231,
@@ -34654,7 +34654,7 @@ END $$;
 - [frontend/iOS/VibeZApp.swift](#frontend-i----ibe--pp-swift) (101 lines)
 - [frontend/iOS/ViewModels/EmotionalAIViewModel.swift](#frontend-i----iew-odels--motional---iew-odel-swift) (19 lines)
 - [frontend/iOS/ViewModels/FirebaseAuthViewModel.swift](#frontend-i----iew-odels--irebase-uth-iew-odel-swift) (380 lines)
-- [frontend/iOS/ViewModels/PresenceViewModel.swift](#frontend-i----iew-odels--resence-iew-odel-swift) (192 lines)
+- [frontend/iOS/Managers/PresenceViewModel.swift](#frontend-i----iew-odels--resence-iew-odel-swift) (192 lines)
 - [frontend/iOS/ViewModels/RoomViewModel.swift](#frontend-i----iew-odels--oom-iew-odel-swift) (49 lines)
 - [frontend/iOS/Views/AgoraRoomView.swift](#frontend-i----iews--gora-oom-iew-swift) (357 lines)
 - [frontend/iOS/Views/Auth/LoginView.swift](#frontend-i----iews--uth--ogin-iew-swift) (245 lines)
@@ -44169,7 +44169,7 @@ class FirebaseAuthViewModel: ObservableObject {
 
 ---
 
-### <a id="frontend-i----iew-odels--resence-iew-odel-swift"></a>frontend/iOS/ViewModels/PresenceViewModel.swift
+### <a id="frontend-i----iew-odels--resence-iew-odel-swift"></a>frontend/iOS/Managers/PresenceViewModel.swift
 
 ```swift
 import Foundation

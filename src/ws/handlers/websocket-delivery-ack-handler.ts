@@ -5,7 +5,7 @@
 
 import { WebSocket } from 'ws';
 import { handleDeliveryAck } from '../../services/message-delivery-service.js';
-import { logError } from '../../shared/logger.js';
+import { logError } from '../../shared/logger-shared.js';
 import { z } from 'zod';
 
 // Delivery ack validation schema

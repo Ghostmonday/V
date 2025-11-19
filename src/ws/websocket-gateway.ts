@@ -7,32 +7,37 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import protobuf from 'protobufjs';
 import path from 'path';
-import { handlePresence } from './handlers/presence.js';
-import { handleMessaging } from './handlers/messaging.js';
-import { handleReadReceipt } from './handlers/read-receipts.js';
-import { handleDeliveryAckMessage } from './handlers/delivery-ack.js';
-import { logError, logInfo, logWarning } from '../shared/logger.js';
+import { handlePresence } from './handlers/websocket-presence-handler.js';
+import { handleMessaging } from './handlers/websocket-messaging-handler.js';
+import { handleReadReceipt } from './handlers/websocket-read-receipts-handler.js';
+import { handleDeliveryAckMessage } from './handlers/websocket-delivery-ack-handler.js';
+import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
 import {
   registerWebSocketToRoom,
   unregisterWebSocket,
   initializeRedisSubscriber,
-} from './utils.js';
+} from './websocket-utils.js';
+import { verifyToken } from '../services/user-authentication-service.js';
 import {
   registerConnection,
   updateConnectionState,
-  addRoomSubscription,
-  getSubscribedRooms,
+  removeConnection,
+  getConnection,
+  getConnectionsByUserId,
+  getConnectionsCount,
   getConnectionMetadata,
   updatePingPong,
   incrementReconnectAttempts,
   resetReconnectAttempts,
   unregisterConnection,
   getRoomResubscribeBatch,
+  addRoomSubscription,
+  getSubscribedRooms,
   calculateBackoffDelay,
   ConnectionState,
   drainRetryQueue,
-} from './connection-manager.js';
-import { getRedisSubscriber } from '../config/redis-pubsub.js';
+} from './websocket-connection-manager.js';
+import { getRedisSubscriber } from '../config/redis-pubsub-config.js';
 
 // Protobuf schema root (loaded from .proto file)
 // Null until schema is loaded
@@ -66,7 +71,7 @@ async function loadProto(): Promise<protobuf.Root> {
       // Load .proto file from specs directory
       // process.cwd() = project root (works in both dev and production builds)
       // Path is relative to project root: specs/proto/ws_envelope.proto
-      root = await protobuf.load(path.join(process.cwd(), 'specs/proto/ws_envelope.proto'));
+      root = (await protobuf.load(path.join(process.cwd(), 'specs/proto/ws_envelope.proto'))) as any;
       return root!;
     } catch (err) {
       // Reset promise on error so we can retry
@@ -118,8 +123,22 @@ export function setupWebSocketGateway(wss: WebSocketServer) {
         return;
       }
 
-      // TODO: Verify token with auth service
-      // For now, store userId on websocket for later use
+      // Verify token with auth service
+      try {
+        const decoded = await verifyToken(token);
+        // Verify that the token belongs to the user claiming it
+        if (decoded.userId !== userId) {
+          ws.send(JSON.stringify({ type: 'error', msg: 'invalid token for user' }));
+          ws.close(1008, 'Invalid token for user');
+          return;
+        }
+      } catch (err) {
+        ws.send(JSON.stringify({ type: 'error', msg: 'invalid token' }));
+        ws.close(1008, 'Invalid token');
+        return;
+      }
+
+      // Store userId on websocket for later use
       ws.userId = userId;
 
       // Register connection with connection manager (state: CONNECTING)
@@ -303,9 +322,8 @@ export function setupWebSocketGateway(wss: WebSocketServer) {
           const connectionDuration = Date.now() - connectionStartTime;
 
           // Import telemetry service dynamically
-          const { logEvent } = await import('../telemetry/index.js');
-          await logEvent({
-            event: 'websocket_connection_quality',
+          const { logTelemetryEvent } = await import('../telemetry/telemetry-exports.js');
+          await logTelemetryEvent('websocket_connection_quality', {
             userId: ws.userId,
             metadata: {
               quality_score: quality,

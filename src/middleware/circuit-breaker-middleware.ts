@@ -3,7 +3,7 @@
  * Prevents cascading failures by stopping requests to failing services
  */
 
-import { logError, logInfo, logWarning } from '../shared/logger.js';
+import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 
 export enum CircuitState {
   CLOSED = 'CLOSED', // Normal operation

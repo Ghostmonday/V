@@ -4,8 +4,8 @@
  * Run via Supabase Edge Functions, cron-job.org, or scheduled task
  */
 
-import { supabase } from '../config/db.ts';
-import { logInfo, logError } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logInfo, logError } from '../shared/logger-shared.js';
 
 /**
  * Expire temporary Pro-tier rooms

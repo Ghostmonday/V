@@ -11,7 +11,7 @@ import { createHash, randomBytes } from 'crypto';
  * @returns Hexadecimal hash string
  */
 export function hashSHA256(input: string): string {
-  return createHash('sha256').update(input).digest('hex');
+  return createHash('sha256').update(input).digest('hex') as string;
 }
 
 /**
@@ -24,7 +24,7 @@ export function hashWithSalt(input: string, salt?: string): { hash: string; salt
   const usedSalt = salt || randomBytes(16).toString('hex');
   const hash = createHash('sha256')
     .update(input + usedSalt)
-    .digest('hex');
+    .digest('hex') as string;
   return { hash, salt: usedSalt };
 }
 
@@ -80,23 +80,23 @@ export function anonymizePII<T extends Record<string, any>>(
   fields: string[] = ['email', 'phone', 'userId'],
   salt?: string
 ): T {
-  const anonymized = { ...data };
+  const anonymized = { ...data } as Record<string, any>;
 
   for (const field of fields) {
     if (anonymized[field] && typeof anonymized[field] === 'string') {
       if (field === 'email') {
-        anonymized[field] = anonymizeEmail(anonymized[field], salt) as any;
+        anonymized[field] = anonymizeEmail(anonymized[field], salt);
       } else if (field === 'phone') {
-        anonymized[field] = anonymizePhone(anonymized[field], salt) as any;
+        anonymized[field] = anonymizePhone(anonymized[field], salt);
       } else if (field === 'userId' || field === 'user_id') {
-        anonymized[field] = anonymizeUserId(anonymized[field], salt) as any;
+        anonymized[field] = anonymizeUserId(anonymized[field], salt);
       } else {
-        anonymized[field] = hashSHA256(anonymized[field]) as any;
+        anonymized[field] = hashSHA256(anonymized[field]);
       }
     }
   }
 
-  return anonymized;
+  return anonymized as T;
 }
 
 /**

@@ -33,17 +33,17 @@ struct DashboardView: View {
             .onEnded { value in
                 let velocity = value.predictedEndLocation.y - value.location.y
                 
-                // Log swipe gesture telemetry
-                UXTelemetryService.shared.logEvent(
-                    eventType: .uiClick,
-                    category: .clickstream,
-                    metadata: [
-                        "gestureType": "swipe",
-                        "velocity": velocity,
-                        "distance": value.translation.height
-                    ],
-                    componentId: "MetricsCard"
-                )
+                // TODO: Re-enable when UXTelemetryService build order issue is resolved
+                // UXTelemetryService.shared.logEvent(
+                //     eventType: .uiClick,
+                //     category: .clickstream,
+                //     metadata: [
+                //         "gestureType": "swipe",
+                //         "velocity": velocity,
+                //         "distance": value.translation.height
+                //     ],
+                //     componentId: "MetricsCard"
+                // )
                 
                 // Auto-expand/collapse if velocity > 500
                 if abs(velocity) > 500 {
@@ -67,9 +67,13 @@ struct DashboardView: View {
         GeometryReader { geometry in
             ZStack {
                 // Background gradient with emotion pulse
-                MoodGradient(mood: "neutral")
-                    .ignoresSafeArea()
-                    .animation(.easeInOut(duration: animationSpeedForEmotionPulse(emotionPulse)), value: emotionPulse)
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.Vibez.deepVoid, Color.Vibez.background]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                .animation(Animation.easeInOut(duration: animationSpeedForEmotionPulse(emotionPulse)), value: emotionPulse)
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -110,15 +114,16 @@ struct DashboardView: View {
                                     removal: .scale.combined(with: .opacity)
                                 ))
                                 .onAppear {
-                                    UXTelemetryService.shared.logEvent(
-                                        eventType: .uiClick,
-                                        category: .clickstream,
-                                        metadata: [
-                                            "component": "DashboardView",
-                                            "status": webSocket.isConnected ? "connected" : "disconnected"
-                                        ],
-                                        componentId: "SystemHealthCards"
-                                    )
+                                    // TODO: Re-enable when UXTelemetryService build order issue is resolved
+                                    // UXTelemetryService.shared.logEvent(
+                                    //     eventType: .uiClick,
+                                    //     category: .clickstream,
+                                    //     metadata: [
+                                    //         "component": "DashboardView",
+                                    //         "status": webSocket.isConnected ? "connected" : "disconnected"
+                                    //     ],
+                                    //     componentId: "SystemHealthCards"
+                                    // )
                                 }
                             
                             // Feature-gated advanced metrics
@@ -159,8 +164,11 @@ struct DashboardView: View {
             // Subscribe to emotion pulse updates from WebSocket
             webSocket.emotionPulsePublisher
                 .sink { event in
-                    emotionPulse = event.pulse
-                    pulseIntensity = event.intensity
+                    // Convert emotion string to EmotionPulse enum
+                    if let pulse = EmotionPulse(rawValue: event.emotion.lowercased()) {
+                        emotionPulse = pulse
+                    }
+                    pulseIntensity = event.intensity ?? 0.5
                 }
                 .store(in: &cancellables)
         }
@@ -243,28 +251,28 @@ struct DashboardView: View {
         
         isLoading = false
         
-        // Log telemetry
-        UXTelemetryService.shared.logEvent(
-            eventType: .roomEntry,
-            category: .engagement,
-            metadata: [
-                "roomCount": rooms.count,
-                "activeParticipants": activeParticipants
-            ],
-            componentId: "DashboardView"
-        )
-        
-        if cardExpanded {
-            UXTelemetryService.shared.logEvent(
-                eventType: .presencePing,
-                category: .presence,
-                metadata: [
-                    "distribution": presenceDistribution,
-                    "messageVelocity": messageVelocity
-                ],
-                componentId: "DashboardView"
-            )
-        }
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
+        // UXTelemetryService.shared.logEvent(
+        //     eventType: .roomEntry,
+        //     category: .engagement,
+        //     metadata: [
+        //         "roomCount": rooms.count,
+        //         "activeParticipants": activeParticipants
+        //     ],
+        //     componentId: "DashboardView"
+        // )
+        //
+        // if cardExpanded {
+        //     UXTelemetryService.shared.logEvent(
+        //         eventType: .presencePing,
+        //         category: .presence,
+        //         metadata: [
+        //             "distribution": presenceDistribution,
+        //             "messageVelocity": messageVelocity
+        //         ],
+        //         componentId: "DashboardView"
+        //     )
+        // }
     }
     
     private func createDummyRoom(name: String) -> Room {
@@ -325,16 +333,16 @@ struct DashboardView: View {
         // Update presence distribution from presence view model
         presenceDistribution = presenceViewModel.getPresenceDistribution()
         
-        // Log telemetry for incremental update
-        UXTelemetryService.shared.logEvent(
-            eventType: .roomEntry,
-            category: .engagement,
-            metadata: [
-                "roomCount": rooms.count,
-                "activeParticipants": activeParticipants
-            ],
-            componentId: "DashboardView"
-        )
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
+        // UXTelemetryService.shared.logEvent(
+        //     eventType: .roomEntry,
+        //     category: .engagement,
+        //     metadata: [
+        //         "roomCount": rooms.count,
+        //         "activeParticipants": activeParticipants
+        //     ],
+        //     componentId: "DashboardView"
+        // )
     }
     
 }
@@ -344,20 +352,22 @@ struct DashboardView: View {
 func colorForEmotionPulse(_ pulse: EmotionPulse) -> Color {
     switch pulse {
     case .neutral: return .gray
-    case .joyful: return .yellow
-    case .anxious: return .blue
+    case .happy: return .yellow
     case .excited: return .orange
     case .calm: return .green
+    case .focused: return .blue
+    case .energetic: return .purple
     }
 }
 
 func animationSpeedForEmotionPulse(_ pulse: EmotionPulse) -> Double {
     switch pulse {
     case .neutral: return 1.0
-    case .joyful: return 1.8
-    case .anxious: return 1.5
+    case .happy: return 1.8
     case .excited: return 2.0
     case .calm: return 0.5
+    case .focused: return 1.5
+    case .energetic: return 1.8
     }
 }
 
@@ -416,14 +426,14 @@ struct MetricsCard: View {
                         title: "Active Rooms",
                         value: "\(rooms.count)",
                         icon: "door.left.hand.open",
-                        color: .primaryVibeZ
+                        color: Color.Vibez.electricBlue
                     )
                     
                     MetricTile(
                         title: "Message Velocity",
                         value: String(format: "%.1f/min", messageVelocity),
                         icon: "message.fill",
-                        color: .primaryVibeZ
+                        color: Color.Vibez.electricBlue
                     )
                     
                     MetricTile(
@@ -715,7 +725,7 @@ struct UpgradePromptCard: View {
                     .padding(.vertical, 10)
                     .background(
                         LinearGradient(
-                            colors: [.blue, .primaryVibeZ],
+                            colors: [.blue, Color.Vibez.electricBlue],
                             startPoint: .leading,
                             endPoint: .trailing
                         )

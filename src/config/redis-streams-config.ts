@@ -15,7 +15,7 @@
  */
 
 import { getRedisClient } from './db.ts';
-import { logInfo, logError, logWarning } from '../shared/logger.js';
+import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
 
 const redis = getRedisClient();
 

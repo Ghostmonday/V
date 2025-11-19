@@ -111,7 +111,7 @@ class LiveKitRoomManager: ObservableObject {
                 "audioEnabled": "\(config.audioEnabled)",
                 "videoEnabled": "\(config.videoEnabled)",
                 "pushToTalk": "\(config.pushToTalk)"
-        ])
+            ])
             
         } catch {
             print("[LiveKit] Failed to join room: \(error)")
@@ -153,12 +153,13 @@ class LiveKitRoomManager: ObservableObject {
             try await localParticipant.setMicrophone(enabled: newState)
             self.localAudioEnabled = newState
         
-        UXTelemetryService.logStateTransition(
-            componentId: "AudioControl",
-                stateBefore: !newState ? "enabled" : "muted",
-                stateAfter: newState ? "enabled" : "muted",
-            category: .voiceAV
-        )
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
+        // UXTelemetryService.logStateTransition(
+        //     componentId: "AudioControl",
+        //     stateBefore: !newState ? "enabled" : "muted",
+        //     stateAfter: newState ? "enabled" : "muted",
+        //     category: UXEventCategory.voiceAV
+        // )
         
             return newState
         } catch {
@@ -201,12 +202,13 @@ class LiveKitRoomManager: ObservableObject {
         }
         #endif
         
-        UXTelemetryService.logStateTransition(
-            componentId: "PushToTalk",
-            stateBefore: isPushToTalkMode ? "disabled" : "enabled",
-            stateAfter: enabled ? "enabled" : "disabled",
-            category: .voiceAV
-        )
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
+        // UXTelemetryService.logStateTransition(
+        //     componentId: "PushToTalk",
+        //     stateBefore: isPushToTalkMode ? "disabled" : "enabled",
+        //     stateAfter: enabled ? "enabled" : "disabled",
+        //     category: UXEventCategory.voiceAV
+        // )
     }
     
     func activatePushToTalk() async {
@@ -242,12 +244,13 @@ class LiveKitRoomManager: ObservableObject {
             try await localParticipant.setCamera(enabled: newState)
             self.localVideoEnabled = newState
         
-        UXTelemetryService.logStateTransition(
-            componentId: "VideoControl",
-                stateBefore: !newState ? "enabled" : "disabled",
-                stateAfter: newState ? "enabled" : "disabled",
-            category: .voiceAV
-        )
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
+        // UXTelemetryService.logStateTransition(
+        //     componentId: "VideoControl",
+        //     stateBefore: !newState ? "enabled" : "disabled",
+        //     stateAfter: newState ? "enabled" : "disabled",
+        //     category: UXEventCategory.voiceAV
+        // )
         
             return newState
         } catch {

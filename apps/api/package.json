@@ -4,11 +4,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src --max-warnings=0"
+    "dev": "echo 'No source files - API code is in src/ directory at root'",
+    "build": "echo 'No source files to build'",
+    "start": "echo 'No source files to start'",
+    "typecheck": "echo 'No source files to typecheck'",
+    "lint": "echo 'No source files to lint'"
   },
   "dependencies": {
     "@vibez/core": "*",

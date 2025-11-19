@@ -3,8 +3,8 @@
  * Handles pinned rooms/channels for quick access
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 /**
  * Pin a room
@@ -105,5 +105,49 @@ export async function isRoomPinned(userId: string, roomId: string): Promise<bool
     return !!data;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Pin a message
+ */
+export async function pinMessage(messageId: string) {
+  try {
+    const { error } = await supabase
+      .from('messages')
+      .update({ is_pinned: true })
+      .eq('id', messageId);
+
+    if (error) {
+      throw error;
+    }
+
+    logInfo(`Message ${messageId} pinned`);
+    return { success: true };
+  } catch (error: any) {
+    logError('Failed to pin message', error);
+    throw error;
+  }
+}
+
+/**
+ * Unpin a message
+ */
+export async function unpinMessage(messageId: string) {
+  try {
+    const { error } = await supabase
+      .from('messages')
+      .update({ is_pinned: false })
+      .eq('id', messageId);
+
+    if (error) {
+      throw error;
+    }
+
+    logInfo(`Message ${messageId} unpinned`);
+    return { success: true };
+  } catch (error: any) {
+    logError('Failed to unpin message', error);
+    throw error;
   }
 }

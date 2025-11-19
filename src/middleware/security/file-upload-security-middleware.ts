@@ -4,8 +4,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { logError, logInfo } from '../../shared/logger.js';
-import { scanForToxicity } from '../../services/moderation.service.js';
+import { logError, logInfo } from '../../shared/logger-shared.js';
+import { scanForToxicity } from '../../services/moderation-service.js';
 import { getRoomConfig } from '../../services/room-service.js';
 
 const ALLOWED_MIME_TYPES = [

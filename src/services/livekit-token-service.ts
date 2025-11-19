@@ -4,7 +4,7 @@
  */
 
 import { AccessToken } from '@livekit/server-sdk';
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import { getLiveKitKeys } from './api-keys-service.js';
 import { hasEntitlement } from './entitlements.js';
 

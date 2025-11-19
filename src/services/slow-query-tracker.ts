@@ -3,7 +3,7 @@
  * Phase 6.2: Tracks and logs slow database queries (>100ms)
  */
 
-import { logWarning, logError } from '../shared/logger.js';
+import { logWarning, logError } from '../shared/logger-shared.js';
 import { recordDatabaseQuery } from './monitoring-service.js';
 
 interface QueryContext {

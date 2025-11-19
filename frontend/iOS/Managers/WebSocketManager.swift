@@ -678,3 +678,11 @@ struct TypingEvent: Codable {
     let roomId: String
     let isTyping: Bool
 }
+
+struct EmotionPulseEvent: Codable {
+    let userId: String
+    let roomId: String
+    let emotion: String
+    let intensity: Double?
+    let timestamp: Date
+}

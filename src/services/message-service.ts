@@ -3,34 +3,35 @@
  * Handles message persistence and real-time broadcasting
  */
 
-import { create, findMany } from '../shared/supabase-helpers.js';
-import { getRedisClient } from '../config/db.ts';
-import { logError, logWarning } from '../shared/logger.js';
+import { create, findMany } from '../shared/supabase-helpers-shared.js';
+import { createRedisClient } from '../config/redis-cluster.js';
+import { logError, logWarning } from '../shared/logger-shared.js';
 import {
   scanForToxicity,
   handleViolation,
   isUserMuted,
   getRoomById,
-} from './moderation.service.js';
+} from './moderation-service.js';
 import { getRoomConfig, isEnterpriseUser } from './room-service.js';
 import { getUserSubscription } from './subscription-service.js';
-import { supabase } from '../config/db.ts';
+import { supabase } from '../config/database-config.js';
 import {
   validateServiceData,
   validateBeforeDB,
   validateAfterDB,
-} from '../middleware/validation/incremental-validation.js';
+} from '../middleware/validation/incremental-validation-middleware.js';
 import { isEncryptedPayload, isE2ERoom } from './e2e-encryption.js';
 import { z } from 'zod';
 
-const redis = getRedisClient();
+const redis = createRedisClient();
 
 // Validation schemas for incremental validation
 const messageInputSchema = z.object({
   roomId: z.union([z.string().uuid(), z.string(), z.number()]),
   senderId: z.string().uuid(),
   content: z.string().min(1).max(10000),
-  ttl: z.number().int().positive().optional(), // Optional TTL in seconds for ephemeral messages
+  ttl: z.number().optional(), // Optional TTL in seconds for ephemeral messages
+  threadId: z.string().optional(),
 });
 
 const messageDBSchema = z.object({
@@ -39,6 +40,7 @@ const messageDBSchema = z.object({
   sender_id: z.string().uuid(),
   content: z.string().min(1),
   message_type: z.string(),
+  thread_id: z.string().uuid().optional(),
 });
 
 /**
@@ -53,10 +55,11 @@ export async function sendMessageToRoom(data: {
   senderId: string;
   content: string;
   ttl?: number; // Optional TTL in seconds for ephemeral messages
+  threadId?: string;
 }): Promise<void> {
   try {
     // VALIDATION POINT 1: Validate input data
-    const validatedInput = validateServiceData(data, messageInputSchema, 'sendMessageToRoom');
+    const validatedInput = validateServiceData(data, messageInputSchema, 'sendMessageToRoom') as any;
 
     // Handle roomId type conversion: if string, try parseInt; if that fails (NaN), use original string
     // This handles both numeric IDs (legacy) and UUID strings (new schema)
@@ -192,6 +195,7 @@ export async function sendMessageToRoom(data: {
       content: contentToStore, // Store encrypted (E2E) or compressed (non-E2E) content
       message_type: 'text',
       is_encrypted: requiresEncryption, // Flag to indicate encryption status
+      thread_id: validatedInput.threadId,
     };
 
     // Add expires_at if TTL was provided
@@ -202,7 +206,7 @@ export async function sendMessageToRoom(data: {
     // Update schema to include is_encrypted and expires_at flags
     const messageDBSchemaWithEncryption = messageDBSchema.extend({
       is_encrypted: z.boolean().optional(),
-      expires_at: z.string().datetime().optional(),
+      expires_at: z.string().optional(),
     });
 
     const validatedDBPayload = validateBeforeDB(
@@ -305,7 +309,7 @@ export async function getRoomMessages(
       limit: 50, // Max 50 messages per request (prevents large payloads)
     });
 
-    return messages;
+    return messages as any[];
   } catch (error: any) {
     logError('Failed to retrieve room messages', error);
     // Preserve original error message for debugging

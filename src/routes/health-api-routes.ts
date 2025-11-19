@@ -1,6 +1,6 @@
 import express from 'express';
-import { getRedisClient } from '../config/redis-pubsub.js';
-import { supabase } from '../config/db.ts';
+import { getRedisClient } from '../config/redis-pubsub-config.js';
+import { supabase } from '../config/database-config.js';
 import { getCacheMetrics } from '../services/cache-service.js';
 import { getShardHealth, isShardingEnabled } from '../services/sharding-service.js';
 import {

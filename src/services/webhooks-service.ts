@@ -5,7 +5,7 @@
 
 import { Request, Response } from 'express';
 import { updateSubscription } from './entitlements.js';
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import { logTelemetryEvent } from './telemetry-service.js';
 import crypto from 'crypto';
 

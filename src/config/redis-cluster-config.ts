@@ -7,7 +7,7 @@
  */
 
 import Redis, { Cluster, Sentinel } from 'ioredis';
-import { logError, logInfo, logWarning } from '../shared/logger.js';
+import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 
 export type RedisMode = 'single' | 'cluster' | 'sentinel';
 

@@ -4,8 +4,8 @@
  * Implements TTL-based expiration and smart invalidation
  */
 
-import { getRedisClient } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { getRedisClient } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 const redis = getRedisClient();
 const DEFAULT_TTL = 30; // 30 seconds default TTL

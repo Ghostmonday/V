@@ -3,8 +3,8 @@
  * Handles subscription status, plans, and IAP verification
  */
 
-import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { Router, Request, Response, NextFunction } from 'express';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import {
   getUserSubscription,
   getSubscriptionLimits,
@@ -13,14 +13,15 @@ import {
 } from '../services/subscription-service.js';
 import { getUsageCount, checkUsageLimit } from '../services/usage-service.js';
 import { verifyAppleReceipt } from '../services/apple-iap-service.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
+import { logError } from '../shared/logger-shared.js';
 
 const router = Router();
 router.use(authMiddleware);
 
-router.get('/status', async (req: AuthenticatedRequest, res) => {
+router.get('/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.user.userId;
+    const { userId } = (req as unknown as AuthenticatedRequest).user;
     const tier = await getUserSubscription(userId);
     const limits = await getSubscriptionLimits(userId);
     const usage = {
@@ -30,18 +31,20 @@ router.get('/status', async (req: AuthenticatedRequest, res) => {
     };
 
     res.json({ tier, limits, usage });
-  } catch (error) {
+  } catch (error: any) {
+    logError('Failed to get subscription status', error);
     res.status(500).json({ error: 'Failed to get subscription status' });
   }
 });
 
-router.post('/verify-receipt', async (req, res) => {
+router.post('/verify-receipt', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.userId;
+    const { userId } = (req as unknown as AuthenticatedRequest).user;
     const { receiptData } = req.body;
 
     if (!receiptData) {
-      return res.status(400).json({ error: 'receiptData required' });
+      res.status(400).json({ error: 'receiptData required' });
+      return;
     }
 
     const result = await verifyAppleReceipt(receiptData, userId);
@@ -50,12 +53,13 @@ router.post('/verify-receipt', async (req, res) => {
     } else {
       res.status(400).json({ error: 'Invalid receipt' });
     }
-  } catch (error) {
+  } catch (error: any) {
+    logError('Failed to verify receipt', error);
     res.status(500).json({ error: 'Failed to verify receipt' });
   }
 });
 
-router.get('/plans', async (req, res) => {
+router.get('/plans', async (req: Request, res: Response, next: NextFunction) => {
   res.json({
     plans: [
       {

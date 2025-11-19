@@ -873,7 +873,7 @@
       "language": "Swift"
     },
     {
-      "path": "frontend/iOS/ViewModels/PresenceViewModel.swift",
+      "path": "frontend/iOS/Managers/PresenceViewModel.swift",
       "category": "Other",
       "lines": 191,
       "size": 7231,

@@ -3,8 +3,8 @@
  * Wraps multi-step operations in transactions for atomicity
  */
 
-import { supabase } from '../config/db.ts';
-import { logError } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError } from '../shared/logger-shared.js';
 
 /**
  * Execute multiple operations in a transaction with retry logic

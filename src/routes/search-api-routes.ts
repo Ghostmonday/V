@@ -1,7 +1,7 @@
 import express from 'express';
 import { authMiddleware as authenticate } from '../middleware/auth/supabase-auth.js';
 import { fullTextSearch, searchRoomMessages, searchRooms } from '../services/search-service.js';
-import { logAudit } from '../shared/logger.js';
+import { logAudit } from '../shared/logger-shared.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 
 const router = express.Router();

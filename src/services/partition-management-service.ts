@@ -9,8 +9,8 @@
  * - get_table_size()
  */
 
-import { supabase } from '../config/db.ts';
-import { logInfo, logError, logWarning } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
 
 /**
  * Rotate partition: Create new partition for current month

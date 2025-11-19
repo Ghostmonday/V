@@ -3,9 +3,9 @@
  * Handles custom nicknames per room
  */
 
-import { supabase } from '../config/db.ts';
-import { getRedisClient } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { getRedisClient } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 const redis = getRedisClient();
 

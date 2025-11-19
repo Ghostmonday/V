@@ -5,9 +5,9 @@
  */
 
 import { RtcTokenBuilder, RtcRole } from 'agora-access-token';
-import { getRedisClient } from '../config/db.ts';
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { getRedisClient } from '../config/database-config.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import type Redis from 'ioredis';
 
 let redis: Redis | null = null;

@@ -10,8 +10,8 @@
  */
 
 import crypto from 'crypto';
-import { supabase } from '../config/db.ts';
-import { logError, logInfo, logAudit } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo, logAudit } from '../shared/logger-shared.js';
 import { issueToken } from './user-authentication-service.js';
 
 const REFRESH_TOKEN_EXPIRY_DAYS = 30;

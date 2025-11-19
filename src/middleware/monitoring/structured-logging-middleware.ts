@@ -5,7 +5,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
-import { logInfo, logError } from '../../shared/logger.js';
+import { logInfo, logError } from '../../shared/logger-shared.js';
 
 interface LogEntry {
   timestamp: string;

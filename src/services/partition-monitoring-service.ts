@@ -9,9 +9,9 @@
  * - Provide metrics for dynamic threshold adjustment
  */
 
-import { supabase } from '../config/db.ts';
-import { getRedisClient } from '../config/db.ts';
-import { logInfo, logError, logWarning } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { getRedisClient } from '../config/database-config.js';
+import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
 import { loadPartitionMetadata } from './partition-management-service.js';
 
 const redis = getRedisClient();

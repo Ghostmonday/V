@@ -4,8 +4,8 @@
  */
 
 import { Response, NextFunction } from 'express';
-import { getRedisClient } from '../../config/db.ts';
-import { logWarning } from '../../shared/logger.js';
+import { getRedisClient } from '../../config/database-config.js';
+import { logWarning } from '../../shared/logger-shared.js';
 import { AuthenticatedRequest } from '../../types/auth.types.js';
 import { getUserSubscription, SubscriptionTier } from '../../services/subscription-service.js';
 import * as Sentry from '@sentry/node';
@@ -200,7 +200,7 @@ export function ipRateLimit(max: number = 1000, windowMs: number = 60000) {
  * NEW: Simple default rate limiter middleware
  * - 60 requests per 60 seconds per IP
  * - Fails open if Redis is unavailable (logs error, allows request)
- * - Uses existing Redis client from config/db.js
+ * - Uses existing Redis client from config/database-config.js
  */
 import { Request } from 'express';
 

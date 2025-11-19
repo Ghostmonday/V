@@ -3,8 +3,8 @@
  * Stores flagged messages with reason for admin review
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 export interface FlaggedMessage {
   id: string;

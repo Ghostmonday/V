@@ -11,8 +11,8 @@ struct RoomListView: View {
                 // Background gradient
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color.voidBlack.opacity(0.8),
-                        Color.primaryVibeZ.opacity(0.1)
+                        Color.Vibez.deepVoid.opacity(0.8),
+                        Color.Vibez.electricBlue.opacity(0.1)
                     ]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -24,7 +24,7 @@ struct RoomListView: View {
                     VStack(spacing: 20) {
                         ProgressView()
                             .scaleEffect(1.5)
-                            .tint(.primaryVibeZ)
+                            .tint(.blue)
                         
                         Text("Loading rooms...")
                             .font(.headline) // Dynamic Type support
@@ -45,12 +45,12 @@ struct RoomListView: View {
                             .font(.system(size: 64))
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [.primaryVibeZ, .blue],
+                                    colors: [.blue, .cyan],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .shadow(color: .primaryVibeZ.opacity(0.3), radius: 10)
+                            .shadow(color: .blue.opacity(0.3), radius: 10)
                         
                         VStack(spacing: 8) {
                             Text("No rooms available")
@@ -185,7 +185,7 @@ struct RoomRow: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [.primaryVibeZ.opacity(0.6), .blue.opacity(0.4)],
+                                colors: [.blue.opacity(0.6), .cyan.opacity(0.4)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -270,7 +270,10 @@ struct RoomRow: View {
             .padding(.horizontal, 12)
         }
         .sheet(isPresented: $showSettings) {
-            RoomSettingsView(room: room)
+            // RoomSettingsView(room: room) // TODO: Implement RoomSettingsView
+            Text("Room Settings")
+                .foregroundColor(.white)
+                .padding()
         }
     }
     

@@ -4,11 +4,11 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { supabase } from '../config/db.ts';
+import { supabase } from '../config/database-config.js';
 import * as optimizerService from '../services/optimizer-service.js';
 import { telemetryHook } from '../telemetry/index.js';
 import { authMiddleware } from '../middleware/auth/supabase-auth.js';
-import { logError } from '../shared/logger.js';
+import { logError } from '../shared/logger-shared.js';
 
 const router = Router();
 
@@ -95,7 +95,7 @@ router.post('/demo-seed', async (_req: Request, res: Response) => {
  */
 async function rateLimitRoomActions(roomId: string): Promise<boolean> {
   // Dynamic import to avoid circular dependency
-  const { getRedisClient } = await import('../config/db.js');
+  const { getRedisClient } = await import('../config/database-config.js');
   const redisClient = getRedisClient();
 
   // Redis key format: "healing_action:{roomId}"

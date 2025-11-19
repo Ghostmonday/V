@@ -15,6 +15,7 @@ export interface Message {
   reactions?: MessageReaction[];
   is_edited?: boolean;
   is_flagged?: boolean;
+  is_pinned?: boolean;
   user?: {
     username?: string;
     avatar_url?: string;

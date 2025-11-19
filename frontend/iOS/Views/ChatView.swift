@@ -26,12 +26,20 @@ struct ChatView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Voice/Video Panel (Collapsible or persistent)
+                // TODO: Implement VoiceVideoPanelView
                 if let roomName = room?.name, let token = liveKitToken, let serverUrl = liveKitServerUrl {
                     if showVoicePanel {
-                        VoiceVideoPanelView(roomName: roomName, token: token, serverUrl: serverUrl)
-                            .padding(.horizontal)
-                            .padding(.top, 8)
-                            .transition(.move(edge: .top))
+                        // Placeholder for VoiceVideoPanelView
+                        VStack {
+                            Text("Voice/Video Panel")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("Room: \(roomName)")
+                                .font(.caption2)
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        .transition(.move(edge: .top))
                     }
                 } else if room != nil {
                 // Join Audio Button Area
@@ -96,7 +104,9 @@ struct ChatView: View {
                 }
             }
             .sheet(isPresented: $showPaywall) {
-                SubscriptionView()
+                // TODO: Implement subscription view
+                Text("Subscription Options")
+                    .padding()
             }
         }
         .task {
@@ -184,7 +194,7 @@ struct ChatView: View {
     }
     
     private func joinVoiceRoom() {
-        guard let roomId = room?.id.uuidString, let roomName = room?.name else { return }
+        guard let roomName = room?.name else { return }
         
         Task {
             do {

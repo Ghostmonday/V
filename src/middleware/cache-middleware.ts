@@ -5,7 +5,7 @@ import {
   generateETag,
   invalidatePattern,
 } from '../../services/cache-service.js';
-import { getRedisClient } from '../../config/db.ts';
+import { getRedisClient } from '../../config/database-config.js';
 
 const redis = getRedisClient();
 

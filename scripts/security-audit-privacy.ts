@@ -74,7 +74,7 @@ function auditFile(filePath: string): void {
   }
 
   try {
-    const content = readFileSync(filePath, 'utf-8');
+    const content = readFileSync(filePath, 'utf-8') as string;
     const lines = content.split('\n');
 
     // Check for hardcoded secrets
@@ -84,6 +84,7 @@ function auditFile(filePath: string): void {
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
       for (const match of matches) {
+        if (match.index === undefined) continue;
         const lineNum = content.substring(0, match.index).split('\n').length;
         // Skip if it's a comment or string assignment to a variable
         const line = lines[lineNum - 1];
@@ -95,11 +96,12 @@ function auditFile(filePath: string): void {
         ) {
           continue;
         }
+        const matchStr = typeof match[0] === 'string' ? match[0] : String(match[0]);
         issues.push({
           severity: 'critical',
           file: filePath,
           line: lineNum,
-          issue: `Potential hardcoded secret found: ${match[0].substring(0, 50)}`,
+          issue: `Potential hardcoded secret found: ${matchStr.substring(0, 50)}`,
           recommendation: 'Move secrets to environment variables or secure vault',
         });
       }
@@ -111,6 +113,7 @@ function auditFile(filePath: string): void {
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
       for (const match of matches) {
+        if (match.index === undefined) continue;
         const lineNum = content.substring(0, match.index).split('\n').length;
         const line = lines[lineNum - 1];
         // Skip if it's in a comment or variable name
@@ -120,11 +123,12 @@ function auditFile(filePath: string): void {
         ) {
           continue;
         }
+        const matchStr = typeof match[0] === 'string' ? match[0] : String(match[0]);
         issues.push({
           severity: 'high',
           file: filePath,
           line: lineNum,
-          issue: `Weak encryption algorithm detected: ${match[0]}`,
+          issue: `Weak encryption algorithm detected: ${matchStr}`,
           recommendation: 'Use AES-256-GCM or SHA-3 for encryption/hashing',
         });
       }
@@ -136,12 +140,14 @@ function auditFile(filePath: string): void {
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
       for (const match of matches) {
+        if (match.index === undefined) continue;
         const lineNum = content.substring(0, match.index).split('\n').length;
+        const matchStr = typeof match[0] === 'string' ? match[0] : String(match[0]);
         issues.push({
           severity: 'critical',
           file: filePath,
           line: lineNum,
-          issue: `Potential SQL injection risk: ${match[0]}`,
+          issue: `Potential SQL injection risk: ${matchStr}`,
           recommendation: 'Use parameterized queries or ORM',
         });
       }
@@ -153,6 +159,7 @@ function auditFile(filePath: string): void {
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
       for (const match of matches) {
+        if (match.index === undefined) continue;
         const lineNum = content.substring(0, match.index).split('\n').length;
         const line = lines[lineNum - 1];
         // Skip if it's redacted, hashed, or partial (not exposing actual secret)
@@ -167,11 +174,12 @@ function auditFile(filePath: string): void {
         ) {
           continue;
         }
+        const matchStr = typeof match[0] === 'string' ? match[0] : String(match[0]);
         issues.push({
           severity: 'high',
           file: filePath,
           line: lineNum,
-          issue: `Potential secret exposure in logs: ${match[0].substring(0, 50)}`,
+          issue: `Potential secret exposure in logs: ${matchStr.substring(0, 50)}`,
           recommendation: 'Never log secrets - use redaction or hashing',
         });
       }
@@ -183,17 +191,19 @@ function auditFile(filePath: string): void {
       const globalPattern = new RegExp(pattern.source, flags);
       const matches = Array.from(content.matchAll(globalPattern));
       for (const match of matches) {
+        if (match.index === undefined) continue;
         const lineNum = content.substring(0, match.index).split('\n').length;
         const line = lines[lineNum - 1];
         // Skip if it's in a comment or example
         if (line && line.trim().startsWith('//')) {
           continue;
         }
+        const matchStr = typeof match[0] === 'string' ? match[0] : String(match[0]);
         issues.push({
           severity: 'medium',
           file: filePath,
           line: lineNum,
-          issue: `Weak random number generation: ${match[0]}`,
+          issue: `Weak random number generation: ${matchStr}`,
           recommendation: 'Use crypto.randomBytes() for cryptographic randomness',
         });
       }

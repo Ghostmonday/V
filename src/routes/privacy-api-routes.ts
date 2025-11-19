@@ -6,8 +6,8 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import {
   generateSelectiveDisclosure,
   verifySelectiveDisclosure,

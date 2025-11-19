@@ -3,7 +3,7 @@
  * Prevents cascading failures by opening circuit when errors exceed threshold
  */
 
-import { logError, logWarning, logInfo } from '../shared/logger.js';
+import { logError, logWarning, logInfo } from '../shared/logger-shared.js';
 
 export interface CircuitBreakerOptions {
   failureThreshold: number; // Number of failures before opening circuit

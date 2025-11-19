@@ -12,20 +12,20 @@
  */
 
 import { z } from 'zod';
-import { validateServiceData } from './incremental-validation.js';
-import { logWarning } from '../../shared/logger.js';
+import { validateServiceData } from './incremental-validation-middleware.js';
+import { logWarning } from '../../shared/logger-shared.js';
 
 // Password strength schema
 const passwordStrengthSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .max(500, 'Password must be at most 500 characters')
-  .refine((pwd) => /[A-Z]/.test(pwd), 'Password must contain at least one uppercase letter')
-  .refine((pwd) => /[a-z]/.test(pwd), 'Password must contain at least one lowercase letter')
-  .refine((pwd) => /[0-9]/.test(pwd), 'Password must contain at least one number')
+  .min(8, { message: 'Password must be at least 8 characters' })
+  .max(500, { message: 'Password must be at most 500 characters' })
+  .refine((pwd) => /[A-Z]/.test(pwd), { message: 'Password must contain at least one uppercase letter' })
+  .refine((pwd) => /[a-z]/.test(pwd), { message: 'Password must contain at least one lowercase letter' })
+  .refine((pwd) => /[0-9]/.test(pwd), { message: 'Password must contain at least one number' })
   .refine(
     (pwd) => /[^A-Za-z0-9]/.test(pwd),
-    'Password must contain at least one special character'
+    { message: 'Password must contain at least one special character' }
   );
 
 export interface PasswordStrengthResult {

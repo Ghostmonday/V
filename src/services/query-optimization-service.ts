@@ -3,8 +3,8 @@
  * Cursor-based pagination and query optimization utilities
  */
 
-import { supabase } from '../config/db.ts';
-import { logError } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError } from '../shared/logger-shared.js';
 
 export interface PaginationOptions {
   limit: number;

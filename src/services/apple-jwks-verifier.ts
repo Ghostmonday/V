@@ -5,7 +5,7 @@
  */
 
 import { jwtVerify, createRemoteJWKSet } from 'jose';
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import { getAppleKeys } from './api-keys-service.js';
 
 const APPLE_KEYS_URL = 'https://appleid.apple.com/auth/keys';

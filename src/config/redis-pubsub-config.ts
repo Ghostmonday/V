@@ -5,7 +5,7 @@
 
 import { getRedisClient } from './db.ts';
 import { createRedisClient, parseRedisConfig, type RedisClusterConfig } from './redis-cluster.js';
-import { logError, logInfo, logWarning } from '../shared/logger.js';
+import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 import Redis, { Cluster } from 'ioredis';
 
 // Publisher instance (for sending messages to Redis channels)

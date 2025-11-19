@@ -5,15 +5,15 @@
  * direct WebSocket broadcasting (for single-server optimization)
  */
 
-import { getRedisPublisher, getRedisSubscriber } from '../config/redis-pubsub.js';
+import { getRedisPublisher, getRedisSubscriber } from '../config/redis-pubsub-config.js';
 import { WebSocket } from 'ws';
-import { logInfo, logError, logWarning } from '../shared/logger.js';
+import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
 import {
   queueBroadcast,
   drainRetryQueue,
   getConnectionMetadata,
   getRoomResubscribeBatch,
-} from './connection-manager.js';
+} from './websocket-connection-manager.js';
 
 // Configuration: Maximum connections per room
 const MAX_CONNECTIONS_PER_ROOM = parseInt(process.env.WS_MAX_CONNECTIONS_PER_ROOM || '1000', 10);

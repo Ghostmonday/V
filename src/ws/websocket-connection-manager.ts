@@ -6,7 +6,7 @@
  */
 
 import { WebSocket } from 'ws';
-import { logInfo, logError, logWarning } from '../shared/logger.js';
+import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
 
 /**
  * Connection state machine states
@@ -102,7 +102,42 @@ export function registerConnection(ws: WebSocket, userId: string): ConnectionMet
   userConnectionsMap.get(userId)!.add(ws);
 
   logInfo('Connection registered', { userId, state: metadata.state });
+  totalConnections++;
   return metadata;
+}
+
+/**
+ * Global connection counter
+ */
+let totalConnections = 0;
+
+/**
+ * Get total number of active connections
+ */
+export function getConnectionsCount(): number {
+  return totalConnections;
+}
+
+/**
+ * Get all connections for a specific user
+ */
+export function getConnectionsByUserId(userId: string): WebSocket[] {
+  const connections = userConnectionsMap.get(userId);
+  return connections ? Array.from(connections) : [];
+}
+
+/**
+ * Get connection metadata (alias)
+ */
+export function getConnection(ws: WebSocket): ConnectionMetadata | undefined {
+  return connectionRegistry.get(ws);
+}
+
+/**
+ * Remove connection (alias)
+ */
+export function removeConnection(ws: WebSocket): void {
+  unregisterConnection(ws);
 }
 
 /**
@@ -428,7 +463,9 @@ export function unregisterConnection(ws: WebSocket): void {
   metadata.subscribedRooms.clear();
 
   // WeakMap will automatically clean up when WebSocket is garbage collected
+  // WeakMap will automatically clean up when WebSocket is garbage collected
   logInfo('Connection unregistered', { userId: metadata.userId });
+  totalConnections = Math.max(0, totalConnections - 1);
 }
 
 /**

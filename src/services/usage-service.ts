@@ -4,7 +4,7 @@
  */
 
 import { create, findMany } from '../shared/supabase-helpers.js';
-import { logError } from '../shared/logger.js';
+import { logError } from '../shared/logger-shared.js';
 import { getSubscriptionLimits } from './subscription-service.js';
 
 export async function trackUsage(

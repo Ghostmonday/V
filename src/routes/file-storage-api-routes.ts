@@ -3,13 +3,13 @@
  * Handles file upload, retrieval, and deletion endpoints
  */
 
-import { Router, Response } from 'express';
+import { Router, Response, NextFunction } from 'express';
 import multer from 'multer';
 import * as fileStorageService from '../services/file-storage-service.js';
-import { telemetryHook } from '../telemetry/index.js';
-import { fileUploadSecurity } from '../middleware/security/file-upload-security.js';
-import supabaseAuthMiddleware from '../middleware/auth/supabase-auth.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { telemetryHook } from '../telemetry/telemetry-exports.js';
+import { fileUploadSecurity } from '../middleware/security/file-upload-security-middleware.js';
+import supabaseAuthMiddleware from '../middleware/auth/supabase-auth-middleware.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB max (enforced by middleware)
 const router = Router();
@@ -24,7 +24,7 @@ router.post(
   supabaseAuthMiddleware,
   fileUploadSecurity,
   upload.single('file'),
-  async (req: AuthenticatedRequest, res: Response, next) => {
+  async (req: AuthenticatedRequest, res: Response, next: any) => {
     try {
       telemetryHook('files_upload_start');
 
@@ -52,7 +52,7 @@ router.post(
  * GET /files/:id
  * Get file URL by database ID
  */
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', async (req, res, next: any) => {
   try {
     telemetryHook('files_get_start');
     const url = await fileStorageService.getFileUrlById(req.params.id);
@@ -67,7 +67,7 @@ router.get('/:id', async (req, res, next) => {
  * DELETE /files/:id
  * Delete a file from S3 and database
  */
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res, next: any) => {
   try {
     telemetryHook('files_delete_start');
     await fileStorageService.deleteFileById(req.params.id);

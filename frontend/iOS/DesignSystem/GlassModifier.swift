@@ -57,9 +57,9 @@ public enum GlassTint {
         case .dark:
             return .black.opacity(0.1)
         case .brand:
-            return Color("VibeZGold").opacity(0.15)
+            return Color("VibeZGold").opacity(0.1) // Reduced opacity for subtlety
         case .custom(let color):
-            return color.opacity(0.15)
+            return color.opacity(0.1)
         }
     }
 }
@@ -69,20 +69,32 @@ public enum GlassTint {
 /// Border styles for glass components
 public enum GlassBorder {
     case none
-    case subtle         // 0.5pt white border
-    case standard       // 1pt white border
+    case subtle         // Gradient border (top-left light, bottom-right dark)
+    case standard       // Stronger gradient border
     case glow(Color)    // Colored glow effect
     
-    var stroke: (color: Color, width: CGFloat)? {
+    var strokeStyle: (style: AnyShapeStyle, width: CGFloat)? {
         switch self {
         case .none:
             return nil
         case .subtle:
-            return (.white.opacity(0.2), 0.5)
+            return (AnyShapeStyle(
+                LinearGradient(
+                    colors: [.white.opacity(0.3), .white.opacity(0.05)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            ), 0.5)
         case .standard:
-            return (.white.opacity(0.3), 1.0)
+            return (AnyShapeStyle(
+                LinearGradient(
+                    colors: [.white.opacity(0.5), .white.opacity(0.1)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            ), 1.0)
         case .glow(let color):
-            return (color.opacity(0.6), 1.5)
+            return (AnyShapeStyle(color.opacity(0.5)), 1.5)
         }
     }
 }
@@ -115,18 +127,18 @@ struct GlassModifier: ViewModifier {
             .overlay(
                 // Optional border
                 Group {
-                    if let stroke = border.stroke {
+                    if let stroke = border.strokeStyle {
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .stroke(stroke.color, lineWidth: stroke.width)
+                            .strokeBorder(stroke.style, lineWidth: stroke.width)
                     }
                 }
             )
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .shadow(
-                color: shadow ? .black.opacity(0.1) : .clear,
-                radius: shadow ? 8 : 0,
+                color: shadow ? .black.opacity(0.15) : .clear,
+                radius: shadow ? 12 : 0,
                 x: 0,
-                y: shadow ? 4 : 0
+                y: shadow ? 6 : 0
             )
     }
 }
@@ -245,6 +257,7 @@ extension View {
     VStack(alignment: .leading, spacing: 8) {
         Text("Room Name")
             .font(.headline)
+            .foregroundColor(.primary)
         Text("Last message preview...")
             .font(.caption)
             .foregroundColor(.secondary)
@@ -257,10 +270,10 @@ extension View {
 
 #Preview("Glass Input") {
     TextField("Type a message...", text: .constant(""))
-        .padding()
-        .glassInput(tint: .light)
-        .padding()
-        .background(Color.gray.opacity(0.2))
+    .padding()
+    .glassInput(tint: .light)
+    .padding()
+    .background(Color.gray.opacity(0.2))
 }
 
 #Preview("Glass Panel") {
@@ -273,4 +286,3 @@ extension View {
     .padding()
     .background(Color.black)
 }
-

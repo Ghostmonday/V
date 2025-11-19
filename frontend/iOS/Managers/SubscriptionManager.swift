@@ -9,7 +9,6 @@
  * Owner: [OWNER:ios-team]
  */
 import StoreKit
-import SwiftUI
 import Foundation
 
 /// StoreKit 2 subscription manager with multi-tier support
@@ -63,18 +62,19 @@ class SubscriptionManager: ObservableObject {
                 print("[SubscriptionManager] ✅ Purchase successful: \(product.id)")
                 
                 // Log telemetry event (via UXTelemetryService)
-                Task {
-                    await UXTelemetryService.shared.logEvent(
-                        eventType: .uiClick,
-                        category: .clickstream,
-                        metadata: [
-                            "event": "purchase_success",
-                            "product_id": product.id,
-                            "transaction_id": String(transaction.id),
-                            "componentId": "SubscriptionManager"
-                        ]
-                    )
-                }
+                // TODO: Re-enable when UXTelemetryService is available
+                // Task {
+                //     await UXTelemetryService.shared.logEvent(
+                //         eventType: .uiClick,
+                //         category: .engagement,
+                //         metadata: [
+                //             "event": "purchase_success",
+                //             "product_id": product.id,
+                //             "transaction_id": String(transaction.id),
+                //             "componentId": "SubscriptionManager"
+                //         ]
+                //     )
+                // }
             } else {
                 print("[SubscriptionManager] ⚠️ Transaction unverified")
             }

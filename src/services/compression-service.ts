@@ -10,8 +10,8 @@ import { Readable } from 'stream';
 import { createGzip } from 'zlib';
 import * as lz4 from 'lz4';
 import * as snappy from 'snappyjs';
-import { supabase } from '../config/db.ts';
-import { logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logInfo } from '../shared/logger-shared.js';
 
 /**
  * Helper to convert ReadableStream to Uint8Array

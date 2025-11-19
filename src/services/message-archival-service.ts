@@ -9,13 +9,13 @@
  * - Archive integrity verification
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo, logWarning } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 import {
   validateServiceData,
   validateBeforeDB,
   validateAfterDB,
-} from '../middleware/validation/incremental-validation.js';
+} from '../middleware/validation/incremental-validation-middleware.js';
 import { encryptField, decryptField } from './encryption-service.js';
 import { z } from 'zod';
 import crypto from 'crypto';

@@ -4,8 +4,8 @@
  * Phase 3.4: Integrated Redis caching for hot data
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import { warmCache, invalidatePattern } from './cache-service.js';
 
 /**
@@ -119,7 +119,8 @@ export async function joinRoom(
 
     // Generate LiveKit token for calls
     const { generateLiveKitToken } = await import('./livekit-token-service.js');
-    const livekitToken = await generateLiveKitToken(userId, roomId, 'guest');
+    const tokenResponse = await generateLiveKitToken(userId, roomId, 'guest');
+    const livekitToken = typeof tokenResponse === 'string' ? tokenResponse : tokenResponse.token;
 
     logInfo(`User ${userId} joined room ${roomId}`);
     return { success: true, room, livekitToken: livekitToken || undefined };
@@ -191,4 +192,18 @@ export async function listRooms(isPrivate?: boolean): Promise<any[]> {
     logError('listRooms error', error instanceof Error ? error : new Error(String(error)));
     return [];
   }
+}
+
+/**
+ * Get room configuration (stub for message-service compatibility)
+ */
+export async function getRoomConfig(roomId: string): Promise<any> {
+  return getRoom(roomId);
+}
+
+/**
+ * Check if user is enterprise (stub for message-service compatibility)
+ */
+export async function isEnterpriseUser(userId: string): Promise<boolean> {
+  return false;
 }

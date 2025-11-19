@@ -9,14 +9,14 @@
  * - Retry backoff (exponential)
  */
 
-import { supabase } from '../config/db.ts';
-import { getRedisClient } from '../config/db.ts';
-import { logError, logWarning, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { getRedisClient } from '../config/database-config.js';
+import { logError, logWarning, logInfo } from '../shared/logger-shared.js';
 import {
   validateServiceData,
   validateBeforeDB,
   validateAfterDB,
-} from '../middleware/validation/incremental-validation.js';
+} from '../middleware/validation/incremental-validation-middleware.js';
 import { z } from 'zod';
 
 const redis = getRedisClient();

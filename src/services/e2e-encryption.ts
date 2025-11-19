@@ -3,7 +3,7 @@
  * Uses Signal Protocol (@signalapp/libsignal-client) for end-to-end encryption
  */
 
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 // Dynamic import for Signal Protocol library
 let libsignal: any = null;

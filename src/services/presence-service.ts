@@ -1,6 +1,6 @@
-import { getRedisClient } from '../config/db.ts';
-import { supabase } from '../config/db.ts';
-import { logAudit, logError } from '../shared/logger.js';
+import { getRedisClient } from '../config/database-config.js';
+import { supabase } from '../config/database-config.js';
+import { logAudit, logError } from '../shared/logger-shared.js';
 
 const redis = getRedisClient();
 

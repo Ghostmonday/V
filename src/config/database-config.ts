@@ -5,7 +5,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import Redis, { Cluster } from 'ioredis';
-import { logError, logInfo, logWarning } from '../shared/logger.js';
+import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 import { getSupabaseKeys, getRedisUrl } from '../services/api-keys-service.js';
 import {
   createRedisClient,

@@ -5,7 +5,7 @@
  */
 
 import client from 'prom-client';
-import { logError } from '../shared/logger.js';
+import { logError } from '../shared/logger-shared.js';
 
 // Rate limit metrics
 export const rateLimitCounter = new client.Counter({

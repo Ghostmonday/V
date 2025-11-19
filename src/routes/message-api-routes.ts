@@ -3,10 +3,10 @@
  * Handles message sending and retrieval endpoints
  */
 
-import { Router } from 'express';
+import { Router, NextFunction } from 'express';
 import * as messageService from '../services/message-service.js';
-import { telemetryHook } from '../telemetry/index.js';
-import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
+import { telemetryHook } from '../telemetry/telemetry-exports.js';
+import { rateLimit } from '../middleware/rate-limiting/rate-limiter-middleware.js';
 
 const router = Router();
 
@@ -17,12 +17,12 @@ router.use(rateLimit({ max: 100, windowMs: 60000 })); // 100 requests per minute
  * POST /messaging/send
  * Send a message to a room (queued for reliability)
  */
-router.post('/send', async (req, res, next) => {
+router.post('/send', async (req, res, next: any) => {
   try {
     telemetryHook('messaging_send_start');
 
     // Queue message instead of processing directly
-    const { queueMessage } = await import('../services/message-queue.js');
+    const { queueMessage } = await import('../services/message-queue-service.js');
     const result = await queueMessage(req.body); // Async handoff: message queued but not guaranteed to process
 
     telemetryHook('messaging_send_end');
@@ -41,7 +41,7 @@ router.post('/send', async (req, res, next) => {
  * Retrieve recent messages from a room
  * @param since - Optional ISO8601 timestamp to fetch messages after this time (lazy loading)
  */
-router.get('/:roomId', async (req, res, next) => {
+router.get('/:roomId', async (req, res, next: any) => {
   try {
     telemetryHook('messaging_get_start');
     const since = req.query.since as string | undefined;
@@ -56,19 +56,19 @@ router.get('/:roomId', async (req, res, next) => {
 /**
  * SIN-202: Reaction endpoints
  */
-router.post('/:message_id/react', async (req, res, next) => {
+router.post('/:message_id/react', async (req, res, next: any) => {
   try {
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     await messagesController.addReaction(req, res);
   } catch (error) {
     next(error);
   }
 });
 
-router.delete('/:message_id/react/:emoji', async (req, res, next) => {
+router.delete('/:message_id/react/:emoji', async (req, res, next: any) => {
   try {
     // Reuse addReaction with remove action
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     req.body.action = 'remove';
     await messagesController.addReaction(req, res);
   } catch (error) {
@@ -79,27 +79,27 @@ router.delete('/:message_id/react/:emoji', async (req, res, next) => {
 /**
  * SIN-302: Thread endpoints
  */
-router.post('/threads', async (req, res, next) => {
+router.post('/threads', async (req, res, next: any) => {
   try {
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     await messagesController.createThread(req, res);
   } catch (error) {
     next(error);
   }
 });
 
-router.get('/threads/:thread_id', async (req, res, next) => {
+router.get('/threads/:thread_id', async (req, res, next: any) => {
   try {
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     await messagesController.getThread(req, res);
   } catch (error) {
     next(error);
   }
 });
 
-router.get('/rooms/:room_id/threads', async (req, res, next) => {
+router.get('/rooms/:room_id/threads', async (req, res, next: any) => {
   try {
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     await messagesController.getRoomThreads(req, res);
   } catch (error) {
     next(error);
@@ -109,18 +109,18 @@ router.get('/rooms/:room_id/threads', async (req, res, next) => {
 /**
  * SIN-401: Message edit/delete
  */
-router.patch('/:message_id', async (req, res, next) => {
+router.patch('/:message_id', async (req, res, next: any) => {
   try {
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     await messagesController.editMessage(req, res);
   } catch (error) {
     next(error);
   }
 });
 
-router.delete('/:message_id', async (req, res, next) => {
+router.delete('/:message_id', async (req, res, next: any) => {
   try {
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     await messagesController.deleteMessage(req, res);
   } catch (error) {
     next(error);
@@ -130,9 +130,9 @@ router.delete('/:message_id', async (req, res, next) => {
 /**
  * SIN-402: Search messages
  */
-router.get('/search', async (req, res, next) => {
+router.get('/search', async (req, res, next: any) => {
   try {
-    const { messagesController } = await import('../services/messages-controller.js');
+    const { messagesController } = await import('../services/message-controller-service.js');
     await messagesController.searchMessages(req, res);
   } catch (error) {
     next(error);

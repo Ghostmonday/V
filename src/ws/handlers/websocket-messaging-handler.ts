@@ -10,14 +10,14 @@
 
 import { WebSocket } from 'ws';
 import crypto from 'crypto';
-import { getRedisClient } from '../../config/db.ts';
-import { broadcastToRoom } from '../utils.js';
-import { checkMessageRateLimit } from '../../middleware/rate-limiting/websocket-message-rate-limiter.js';
-import { scanForToxicity } from '../../services/moderation.service.js';
-import { logError, logInfo } from '../../shared/logger.js';
-import { validateWSMessage } from '../../middleware/validation/incremental-validation.js';
+import { getRedisClient } from '../../config/database-config.js';
+import { broadcastToRoom } from '../websocket-utils.js';
+import { checkMessageRateLimit } from '../../middleware/rate-limiting/websocket-message-rate-limiter-middleware.js';
+import { scanForToxicity } from '../../services/moderation-service.js';
+import { logError, logInfo } from '../../shared/logger-shared.js';
+import { validateWSMessage } from '../../middleware/validation/incremental-validation-middleware.js';
 import { isEncryptedPayload, isE2ERoom } from '../../services/e2e-encryption.js';
-import { publishToStream, routeToModeration } from '../../config/redis-streams.js';
+import { publishToStream, routeToModeration } from '../../config/redis-streams-config.js';
 import { z } from 'zod';
 
 const redis = getRedisClient();

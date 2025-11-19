@@ -96,7 +96,7 @@ function loadConfig(): Config {
   return configSchema.parse(rawConfig);
 }
 
-export const config = loadConfig() as const;
+export const config = loadConfig();
 
 // Export convenience getters
 export const getSupabaseConfig = () => config.supabase;

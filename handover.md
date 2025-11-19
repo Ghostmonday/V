@@ -21,8 +21,6 @@ The codebase follows a clear, flat structure where file names immediately indica
 
 - **`src/http-websocket-server.ts`** - Main server entry point. Bootstraps Express HTTP server and WebSocket gateway. Handles CORS, security middleware (Helmet, CSRF), rate limiting, route mounting, Prometheus metrics, and graceful shutdown. Also initializes cron jobs and background workers.
 
-- **`server/socketio-stub-server.ts`** - Legacy Socket.IO stub server (simple implementation, may be deprecated).
-
 ### Routes / APIs
 
 All route files follow the `*-api-routes.ts` pattern and are located in `src/routes/`:
@@ -605,10 +603,15 @@ This refactoring renamed **~150+ files** to follow clear, consistent naming patt
 - All imports updated across the codebase
 - Consistent naming patterns throughout
 
+**Historical Documentation:**
+
+Historical documentation, completion summaries, and old test reports have been archived. See `docs/ARCHIVE_INSTRUCTIONS.md` for details on accessing the archive repository.
+
 **TODOs for future cleanup:**
 1. Consider consolidating `rate-limiter-middleware.ts` and `express-rate-limit-middleware.ts` if both aren't needed
-2. Review `server/socketio-stub-server.ts` - may be deprecated
+2. Server architecture uses WebSocket-based messaging (no Socket.IO)
 3. Consider splitting large service files if they grow too complex
 4. Add JSDoc comments to all exported functions for better IDE support
 5. Consider creating index files for common imports (e.g., `middleware/index.ts`)
+
 

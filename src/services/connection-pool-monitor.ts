@@ -3,7 +3,7 @@
  * Phase 6.2: Monitors database connection pool health
  */
 
-import { logWarning, logError, logInfo } from '../shared/logger.js';
+import { logWarning, logError, logInfo } from '../shared/logger-shared.js';
 import { alertOnError } from '../middleware/monitoring/error-alerting.js';
 import client from 'prom-client';
 

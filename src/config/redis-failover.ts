@@ -4,7 +4,7 @@
  */
 
 import Redis, { Cluster } from 'ioredis';
-import { logError, logInfo, logWarning } from '../shared/logger.js';
+import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 import { checkRedisHealth, createRedisClient, parseRedisConfig } from './redis-cluster.js';
 
 export interface FailoverHandler {

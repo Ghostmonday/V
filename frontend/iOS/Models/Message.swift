@@ -25,8 +25,8 @@ struct Message: Codable, Identifiable {
     
     /// Check if message is from current user
     var isOwn: Bool {
-        // TODO: Compare with actual current user ID from AuthService
-        return false // Placeholder
+        guard let currentUserId = SupabaseAuthService.shared.currentSession?.userId else { return false }
+        return senderId.uuidString.lowercased() == currentUserId.lowercased()
     }
 }
 

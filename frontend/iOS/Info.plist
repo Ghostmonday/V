@@ -29,13 +29,19 @@
 				<dict>
 					<key>UISceneConfigurationName</key>
 					<string>Default Configuration</string>
-					<key>UISceneDelegateClassName</key>
-					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
 				</dict>
 			</array>
 		</dict>
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>NSCameraUsageDescription</key>
+	<string>VibeZ needs camera access for video chat and avatar photos</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VibeZ needs microphone access for voice messages and voice chat</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>VibeZ needs photo library access to share images</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

@@ -60,7 +60,7 @@ async function validatePhase5_1() {
     const content = fs.readFileSync(perspectiveServicePath, 'utf-8');
 
     // Check for analyzeWithPerspective function
-    const hasAnalyzeFunction = content.includes('analyzeWithPerspective');
+    const hasAnalyzeFunction = typeof content === 'string' && content.includes('analyzeWithPerspective');
     recordResult(
       'Phase 5',
       '5.1',

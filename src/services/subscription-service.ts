@@ -9,8 +9,8 @@
  * Owner: [OWNER:backend]
  */
 
-import { findOne, updateOne } from '../shared/supabase-helpers.js';
-import { logError } from '../shared/logger.js';
+import { findOne, updateOne } from '../shared/supabase-helpers-shared.js';
+import { logError } from '../shared/logger-shared.js';
 
 export enum SubscriptionTier {
   FREE = 'free',

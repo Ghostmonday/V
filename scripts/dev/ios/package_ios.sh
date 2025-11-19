@@ -28,7 +28,7 @@ mkdir -p "$TEMP_DIR"
 # Copy source files
 echo "📁 Copying source files..."
 cp -R Models "$TEMP_DIR/"
-cp -R ViewModels "$TEMP_DIR/"
+# ViewModels directory removed - PresenceViewModel moved to Managers/
 cp -R Views "$TEMP_DIR/"
 cp -R Services "$TEMP_DIR/"
 cp -R Managers "$TEMP_DIR/"

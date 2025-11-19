@@ -5,18 +5,18 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { sendMessageToRoom, getRoomMessages } from '../message-service.js';
-import * as moderationService from '../moderation.service.js';
+import * as moderationService from '../moderation-service.js';
 import * as roomService from '../room-service.js';
 import * as subscriptionService from '../subscription-service.js';
 import * as supabaseHelpers from '../../shared/supabase-helpers.js';
-import { getRedisClient } from '../../config/db.ts';
+import { getRedisClient } from '../../config/database-config.js';
 
 // Mock dependencies
-vi.mock('../moderation.service.js');
+vi.mock('../moderation-service.js');
 vi.mock('../room-service.js');
 vi.mock('../subscription-service.js');
 vi.mock('../../shared/supabase-helpers.js');
-vi.mock('../../config/db.js');
+vi.mock('../../config/database-config.js');
 vi.mock('../../shared/logger.js', () => ({
   logError: vi.fn(),
   logWarning: vi.fn(),
@@ -112,7 +112,7 @@ describe('Message Service', () => {
       const mockMessages = [{ id: '1', content: 'Message 1' }];
 
       // Mock the supabase RPC call
-      const { supabase } = await import('../../config/db.js');
+      const { supabase } = await import('../../config/database-config.js');
       vi.mocked(supabase.rpc).mockResolvedValue({ data: mockMessages, error: null } as any);
 
       const result = await getRoomMessages(['room-1', 'room-2']);

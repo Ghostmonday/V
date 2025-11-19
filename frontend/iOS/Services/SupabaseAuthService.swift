@@ -58,7 +58,7 @@ class SupabaseAuthService: ObservableObject {
     
     private init() {
         // Skip session restoration in UI testing mode to avoid blocking
-        if !ProcessInfo.isUITesting {
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
             // Restore session on init
             Task {
                 await restoreSession()
@@ -291,7 +291,7 @@ class SupabaseAuthService: ObservableObject {
     
     func restoreSession() async {
         // Skip network operations in UI testing mode
-        if ProcessInfo.isUITesting {
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
             logger.info("UI testing mode - skipping session restoration")
             return
         }
@@ -324,7 +324,7 @@ class SupabaseAuthService: ObservableObject {
     
     private func verifySession(_ session: UserSession) async -> Bool {
         // Skip network verification in UI testing mode
-        if ProcessInfo.isUITesting {
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
             return false
         }
         

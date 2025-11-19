@@ -122,9 +122,9 @@ class AgoraRoomManager: ObservableObject {
                 let errorMessage = try? JSONDecoder().decode(ErrorResponse.self, from: data)
                 return JoinResult(
                     success: false,
-                    token: nil,
-                    channelName: nil,
-                    uid: nil,
+                    token: nil as String?,
+                    channelName: nil as String?,
+                    uid: nil as Int?,
                     members: [],
                     isVideoEnabled: false,
                     isMuted: false,
@@ -134,9 +134,9 @@ class AgoraRoomManager: ObservableObject {
         } catch {
             return JoinResult(
                 success: false,
-                token: nil,
-                channelName: nil,
-                uid: nil,
+                token: nil as String?,
+                channelName: nil as String?,
+                uid: nil as Int?,
                 members: [],
                 isVideoEnabled: false,
                 isMuted: false,
@@ -261,6 +261,15 @@ struct JoinResponse: Codable {
     let uid: Int
     let members: [APIMember]
     let roomState: RoomState?
+}
+
+struct RoomMember {
+    let id: String
+    let userId: String
+    let uid: Int
+    let isMuted: Bool
+    let isVideoEnabled: Bool
+    let joinedAt: Int
 }
 
 struct APIMember: Codable {

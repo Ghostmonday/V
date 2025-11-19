@@ -6,8 +6,8 @@
  */
 
 import argon2 from 'argon2';
-import { supabase } from '../src/shared/supabase-client.js';
-import { logInfo, logError } from '../src/shared/logger.js';
+import { supabase } from '../src/shared/supabase-client-shared.js';
+import { logInfo, logError } from '../src/shared/logger-shared.js';
 
 async function migratePasswords() {
   try {

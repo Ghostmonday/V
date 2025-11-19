@@ -13,9 +13,9 @@
  * - Shard health: Monitors shard availability and performance
  */
 
-import { logInfo, logError, logWarning } from '../shared/logger.js';
-import { supabase } from '../config/db.ts';
-import { getRedisClient } from '../config/db.ts';
+import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
+import { supabase } from '../config/database-config.js';
+import { getRedisClient } from '../config/database-config.js';
 
 const redis = getRedisClient();
 

@@ -1,0 +1,699 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		02D2E2F11A4CC021523E00CB /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAC6E3CAA54B8BE9BA34243 /* DesignTokens.swift */; };
+		04028E55C26DACE90F96B93A /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F98426B20FDAA6C661C3E63 /* APIClient.swift */; };
+		07C6D8CD3CF0205F648C6CDE /* SystemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C872E3E7A399329052F762FB /* SystemService.swift */; };
+		0B0EC126115B08B45467C86E /* ColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67916DDBD8B19063D7023BC8 /* ColorPalette.swift */; };
+		0C07A8F8C4AC5DEE7CBE8337 /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392B6D8290CD0A9869DDBA98 /* WebSocketManager.swift */; };
+		1397A27597EADAE1C16A51E1 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0AA6A8D47DADA48C2AB030 /* KeychainHelper.swift */; };
+		1663A619F7C573BB45651F44 /* login_background.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 44E460D0C3FD75637E02EA2C /* login_background.mp4 */; };
+		169CDA21C5F0326E61E85FC7 /* TelemetryMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A350E68CF0EFB405D363249 /* TelemetryMetric.swift */; };
+		1882ACCD0A653F5C1DF7330F /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41B7EE61F70776BC8DC9DA1 /* Typography.swift */; };
+		19EE07F3C531A0185CDFF097 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA344E24F27891849FB4854E /* AIService.swift */; };
+		1AADCCC867BFC3842620D12E /* GlassModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D4126283A7A804B402450C /* GlassModifier.swift */; };
+		1B125362B3279C0BDDE52848 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA594B2D7A768E2B61F67E2 /* MainView.swift */; };
+		245580EB2ECDB44E00B979E9 /* PresenceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245580EA2ECDB44E00B979E9 /* PresenceViewModel.swift */; };
+		245580ED2ECDB4C000B979E9 /* EmotionPulse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245580EC2ECDB4C000B979E9 /* EmotionPulse.swift */; };
+		245580EF2ECDB4D000B979E9 /* RoomViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245580EE2ECDB4D000B979E9 /* RoomViewModel.swift */; };
+		26EAA6A7E2B6E40793FD8834 /* SupabaseAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21FF0A3A68B6F8A9BF36F2FD /* SupabaseAuthService.swift */; };
+		300C0AEF25217AF5765291B2 /* PrivacyOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6032261C8E4802CF9B6EF8 /* PrivacyOnboardingView.swift */; };
+		31340D1F90964AE4FC9A0828 /* OnboardingV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8B51BBB71E0CC54827441F5 /* OnboardingV2.swift */; };
+		34E9A67451A8195A76BB2149 /* AgoraRoomManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B181D29EE58F42758A500BBB /* AgoraRoomManager.swift */; };
+		36AC9F5831184D35E8FB8965 /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E17A211EE299018DC3EA1AA /* ExploreView.swift */; };
+		3B0B79E7EEF2ED29FB9A8992 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7923DCDB978F46A2F5A60 /* HomeView.swift */; };
+		3BAB719C62BAB1AACA108BB2 /* AILog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6705862177C68E95C955CE5E /* AILog.swift */; };
+		3F51330C223A3EC352AAD47B /* RoomListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B8DCA1FD5E88304EF2B3F9 /* RoomListView.swift */; };
+		43743ACF9B9D1EB5E55F2089 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE21859D026B71D52A111A12 /* AppState.swift */; };
+		455300CBA969ACCCB3BABC03 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B514D9AE9ABD3AC140B93F75 /* MainTabView.swift */; };
+		4BE7CEA0F8B08DA6DA9DC686 /* GlassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58252B37BF6FD06376981947 /* GlassView.swift */; };
+		51FDE915E60D8DC65041D446 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF0635E7CBF7B7E6AB044A1 /* AuthService.swift */; };
+		52BF3F0C467B6C34C1BEDFA4 /* Room.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9287B02C0E7C182BE169E9 /* Room.swift */; };
+		5837E2B4DCB178412CC50EF8 /* RollbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDFCE0AC19FD514A5FA794B9 /* RollbackManager.swift */; };
+		5903CF6C1FC2DDE53521DE95 /* RoomRestorationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF53B0D59DC9143EAB919566 /* RoomRestorationService.swift */; };
+		5C763EBA9DC9068DC2C7606F /* GuestActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED071709DB89D10D20ED1B5D /* GuestActivationView.swift */; };
+		5D5A57CCDF657344D2372C49 /* ExportOptions.plist in Resources */ = {isa = PBXBuildFile; fileRef = 067710D4EBD413627926A5E8 /* ExportOptions.plist */; };
+		6C0BBCFE2FBC3CF5FDACA73B /* PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049B1218B1F7337DBD46DC47 /* PrivacySettingsView.swift */; };
+		70E0A2E9AA646508B8AC7DA6 /* ChatInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42AEC4F90885CB56FE212AC /* ChatInputView.swift */; };
+		76D111F209D0674D5016780D /* GuestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EAE7ED07D130742D73E2EF /* GuestService.swift */; };
+		7A335BDD0EF19C3CEBD439E9 /* SpeechManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA73F49B528A792959B7AB1 /* SpeechManager.swift */; };
+		7EA1242CF8D7FD192784DF9E /* FeaturedSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1B5BC40FC0543E9C8C0209 /* FeaturedSlot.swift */; };
+		803F254C381A0324C8B44A7D /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C8368D6F6125A00C424973 /* ChatView.swift */; };
+		859BBABF9608AA6DB5F8331F /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A55021185F6EDD580E37E10 /* FileService.swift */; };
+		9287AFD6B2D29C51B683F531 /* LiveKitRoomManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7BB78C510F18A4554E29408 /* LiveKitRoomManager.swift */; };
+		A6A64908097C9B89792934CF /* IAPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87AE229745F7C6FAB93C495 /* IAPService.swift */; };
+		AD1829DD775CB209A6F5A0EC /* Package.resolved in Resources */ = {isa = PBXBuildFile; fileRef = CDA80F70E6AE60908BA3B1C0 /* Package.resolved */; };
+		B07F01EF8213BC27759F8B39 /* VibezBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE2EBC825B9BF503B3C259 /* VibezBackground.swift */; };
+		B1141F1453434D8ADA376CE6 /* RoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15F01E5BE7F632FF95C5CFAC /* RoomView.swift */; };
+		B1145C258F77BD9D43138C02 /* FeaturedCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02051AA354DD23E6AF8636F1 /* FeaturedCarousel.swift */; };
+		B2376225EBCFA66D0B8F77AB /* ABTestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40BD8EBBF2A7FE972D8100B8 /* ABTestManager.swift */; };
+		B39FC90CA644CF1EC04F8AD0 /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F531580EF2B5DB98D672DE0 /* MessageBubbleView.swift */; };
+		B3B0DE89B75E3A649AE473E7 /* SelfHostSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00EFAA28DFDFDFABF9588D21 /* SelfHostSettingsView.swift */; };
+		BD4C3F4A5A28B9FF76D0A365 /* MessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB4BC7DB86618A3D0D6CDC63 /* MessageService.swift */; };
+		C0DB3F8D900809F7EF6E00D0 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 210CEF9610EFA18AFA58DD06 /* SubscriptionManager.swift */; };
+		C247C8CC09DE95872E2D0380 /* MessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69A580709DE73A9B7954C92A /* MessageManager.swift */; };
+		C32AFAD6DDF199568A543EF9 /* AIReasoner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA553DD97D0302B91D1E770 /* AIReasoner.swift */; };
+		C6B67364822AC68EE6896952 /* RoomService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BBD17CA82DAC692B7C14D9B /* RoomService.swift */; };
+		C7FC240AE8F23944B7B9A913 /* DeepSeekClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B6EC396773579B6D0B0E98 /* DeepSeekClient.swift */; };
+		C9C291F8EABD916DEB9E4C7D /* NetworkReachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80990FF9FEAAE585DF3883B /* NetworkReachability.swift */; };
+		C9F394995F696FAD72F38B03 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4916B9C007C975ADB00F191 /* Message.swift */; };
+		D3D148A9767D68F49192315A /* QRCodeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD62841F728A3AC3F60224B /* QRCodeSheet.swift */; };
+		D5A06C866DCDB2B10D29D7AD /* IAPReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E2F1531ABC3AF7494FF451 /* IAPReceipt.swift */; };
+		DC530302B3D55BB1487B2E4B /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 6C50CF1E41CFDBEEAAD23088 /* Products.storekit */; };
+		E29B870FCF2FE3CDDA2D73AB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17C5A5EE84134EACE3A877A7 /* Assets.xcassets */; };
+		E33F36FA4D426D4DB9F49EEB /* SystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550A011CCB954F9E46E339E0 /* SystemMonitor.swift */; };
+		E5A2732B82D837F234FAA36A /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C6C0AC2FA79EFE307473BB /* DashboardView.swift */; };
+		EB619A1487F62A090A3CA06B /* RoomManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF95EEB379DE6BDAF589D3A /* RoomManager.swift */; };
+		ECF07177C5C61FAD6C17A589 /* LazySignupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBCF7FB449F0E60E67B21C9 /* LazySignupView.swift */; };
+		F78D955049F4BBAA4B74EE79 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA521A35B1472F8F7DA706FE /* User.swift */; };
+		F945C3ADF09B0C73D2E41E3A /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7D5F6444E7D0768E2C3A70 /* GlassCard.swift */; };
+		FE29DF5AE80078ECF2E62E41 /* VibezApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29CAD962117258CC087C9107 /* VibezApp.swift */; };
+		FE48F4B568658EA966957D12 /* SubscriptionTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C57A5E4225185A5E2D28420 /* SubscriptionTier.swift */; };
+		FFEF0F3F6E9742F8E20D8DF0 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD816B44893769688165AF1 /* ProfileView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		00D58D6C100D663C0CD9D379 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		00EFAA28DFDFDFABF9588D21 /* SelfHostSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfHostSettingsView.swift; sourceTree = "<group>"; };
+		02051AA354DD23E6AF8636F1 /* FeaturedCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedCarousel.swift; sourceTree = "<group>"; };
+		049B1218B1F7337DBD46DC47 /* PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacySettingsView.swift; sourceTree = "<group>"; };
+		067710D4EBD413627926A5E8 /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = ExportOptions.plist; sourceTree = "<group>"; };
+		0E17A211EE299018DC3EA1AA /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
+		0FF0635E7CBF7B7E6AB044A1 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		10E2F1531ABC3AF7494FF451 /* IAPReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPReceipt.swift; sourceTree = "<group>"; };
+		15F01E5BE7F632FF95C5CFAC /* RoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomView.swift; sourceTree = "<group>"; };
+		17C5A5EE84134EACE3A877A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		210CEF9610EFA18AFA58DD06 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		21FF0A3A68B6F8A9BF36F2FD /* SupabaseAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseAuthService.swift; sourceTree = "<group>"; };
+		245580EA2ECDB44E00B979E9 /* PresenceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceViewModel.swift; sourceTree = "<group>"; };
+		245580EC2ECDB4C000B979E9 /* EmotionPulse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionPulse.swift; sourceTree = "<group>"; };
+		245580EE2ECDB4D000B979E9 /* RoomViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomViewModel.swift; sourceTree = "<group>"; };
+		29CAD962117258CC087C9107 /* VibezApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibezApp.swift; sourceTree = "<group>"; };
+		2BBD17CA82DAC692B7C14D9B /* RoomService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomService.swift; sourceTree = "<group>"; };
+		392B6D8290CD0A9869DDBA98 /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
+		3EBCF7FB449F0E60E67B21C9 /* LazySignupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazySignupView.swift; sourceTree = "<group>"; };
+		40BD8EBBF2A7FE972D8100B8 /* ABTestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ABTestManager.swift; sourceTree = "<group>"; };
+		44E460D0C3FD75637E02EA2C /* login_background.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = login_background.mp4; sourceTree = "<group>"; };
+		4F98426B20FDAA6C661C3E63 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		51EAE7ED07D130742D73E2EF /* GuestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestService.swift; sourceTree = "<group>"; };
+		550A011CCB954F9E46E339E0 /* SystemMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitor.swift; sourceTree = "<group>"; };
+		58252B37BF6FD06376981947 /* GlassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassView.swift; sourceTree = "<group>"; };
+		5FF95EEB379DE6BDAF589D3A /* RoomManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomManager.swift; sourceTree = "<group>"; };
+		6705862177C68E95C955CE5E /* AILog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AILog.swift; sourceTree = "<group>"; };
+		67916DDBD8B19063D7023BC8 /* ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPalette.swift; sourceTree = "<group>"; };
+		69A580709DE73A9B7954C92A /* MessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManager.swift; sourceTree = "<group>"; };
+		69B8DCA1FD5E88304EF2B3F9 /* RoomListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomListView.swift; sourceTree = "<group>"; };
+		6C50CF1E41CFDBEEAAD23088 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
+		71DBB684444D444FFBF28A00 /* VibeZ.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VibeZ.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		78B6EC396773579B6D0B0E98 /* DeepSeekClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekClient.swift; sourceTree = "<group>"; };
+		7A350E68CF0EFB405D363249 /* TelemetryMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryMetric.swift; sourceTree = "<group>"; };
+		7BAE2EBC825B9BF503B3C259 /* VibezBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibezBackground.swift; sourceTree = "<group>"; };
+		7C57A5E4225185A5E2D28420 /* SubscriptionTier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionTier.swift; sourceTree = "<group>"; };
+		7F531580EF2B5DB98D672DE0 /* MessageBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubbleView.swift; sourceTree = "<group>"; };
+		87C8368D6F6125A00C424973 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		8C9287B02C0E7C182BE169E9 /* Room.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Room.swift; sourceTree = "<group>"; };
+		99D4126283A7A804B402450C /* GlassModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassModifier.swift; sourceTree = "<group>"; };
+		9A55021185F6EDD580E37E10 /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
+		A8B51BBB71E0CC54827441F5 /* OnboardingV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingV2.swift; sourceTree = "<group>"; };
+		AE21859D026B71D52A111A12 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		AE41922AAECC3014150F47BD /* VibeZ.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VibeZ.entitlements; sourceTree = "<group>"; };
+		AEF7923DCDB978F46A2F5A60 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		B181D29EE58F42758A500BBB /* AgoraRoomManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgoraRoomManager.swift; sourceTree = "<group>"; };
+		B514D9AE9ABD3AC140B93F75 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		BCD62841F728A3AC3F60224B /* QRCodeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeSheet.swift; sourceTree = "<group>"; };
+		C80990FF9FEAAE585DF3883B /* NetworkReachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkReachability.swift; sourceTree = "<group>"; };
+		C872E3E7A399329052F762FB /* SystemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemService.swift; sourceTree = "<group>"; };
+		C9C6C0AC2FA79EFE307473BB /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		CA521A35B1472F8F7DA706FE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		CAA73F49B528A792959B7AB1 /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = "<group>"; };
+		CC6032261C8E4802CF9B6EF8 /* PrivacyOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyOnboardingView.swift; sourceTree = "<group>"; };
+		CD7D5F6444E7D0768E2C3A70 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		CDA80F70E6AE60908BA3B1C0 /* Package.resolved */ = {isa = PBXFileReference; lastKnownFileType = text; path = Package.resolved; sourceTree = "<group>"; };
+		DB1B5BC40FC0543E9C8C0209 /* FeaturedSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedSlot.swift; sourceTree = "<group>"; };
+		DB4BC7DB86618A3D0D6CDC63 /* MessageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageService.swift; sourceTree = "<group>"; };
+		E41B7EE61F70776BC8DC9DA1 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		E42AEC4F90885CB56FE212AC /* ChatInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInputView.swift; sourceTree = "<group>"; };
+		E4916B9C007C975ADB00F191 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		EAA594B2D7A768E2B61F67E2 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		ED071709DB89D10D20ED1B5D /* GuestActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestActivationView.swift; sourceTree = "<group>"; };
+		EDAC6E3CAA54B8BE9BA34243 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		EE0AA6A8D47DADA48C2AB030 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		EF53B0D59DC9143EAB919566 /* RoomRestorationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomRestorationService.swift; sourceTree = "<group>"; };
+		F7BB78C510F18A4554E29408 /* LiveKitRoomManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveKitRoomManager.swift; sourceTree = "<group>"; };
+		F87AE229745F7C6FAB93C495 /* IAPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPService.swift; sourceTree = "<group>"; };
+		FA344E24F27891849FB4854E /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIService.swift; sourceTree = "<group>"; };
+		FBA553DD97D0302B91D1E770 /* AIReasoner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIReasoner.swift; sourceTree = "<group>"; };
+		FDFCE0AC19FD514A5FA794B9 /* RollbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollbackManager.swift; sourceTree = "<group>"; };
+		FFD816B44893769688165AF1 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0BDD63F4F7EBC3A0FF4F0471 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				049B1218B1F7337DBD46DC47 /* PrivacySettingsView.swift */,
+				00EFAA28DFDFDFABF9588D21 /* SelfHostSettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		0DEAA05C7F434EB82B942B33 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				CD7D5F6444E7D0768E2C3A70 /* GlassCard.swift */,
+				7BAE2EBC825B9BF503B3C259 /* VibezBackground.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		11C749839077EEB72F49972B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E42AEC4F90885CB56FE212AC /* ChatInputView.swift */,
+				87C8368D6F6125A00C424973 /* ChatView.swift */,
+				C9C6C0AC2FA79EFE307473BB /* DashboardView.swift */,
+				0E17A211EE299018DC3EA1AA /* ExploreView.swift */,
+				AEF7923DCDB978F46A2F5A60 /* HomeView.swift */,
+				B514D9AE9ABD3AC140B93F75 /* MainTabView.swift */,
+				EAA594B2D7A768E2B61F67E2 /* MainView.swift */,
+				7F531580EF2B5DB98D672DE0 /* MessageBubbleView.swift */,
+				A8B51BBB71E0CC54827441F5 /* OnboardingV2.swift */,
+				FFD816B44893769688165AF1 /* ProfileView.swift */,
+				69B8DCA1FD5E88304EF2B3F9 /* RoomListView.swift */,
+				DB7CFBD16E3A3DFE6A77370B /* Auth */,
+				6407A1D7A80C4EB701FDAAE1 /* Components */,
+				8D62DED063BCFF741CFB2519 /* Onboarding */,
+				B6590266D66D8F144EE0E461 /* Room */,
+				0BDD63F4F7EBC3A0FF4F0471 /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		12EEAAB1AB25AE6FF142C031 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				245580EC2ECDB4C000B979E9 /* EmotionPulse.swift */,
+				6705862177C68E95C955CE5E /* AILog.swift */,
+				DB1B5BC40FC0543E9C8C0209 /* FeaturedSlot.swift */,
+				10E2F1531ABC3AF7494FF451 /* IAPReceipt.swift */,
+				E4916B9C007C975ADB00F191 /* Message.swift */,
+				8C9287B02C0E7C182BE169E9 /* Room.swift */,
+				7C57A5E4225185A5E2D28420 /* SubscriptionTier.swift */,
+				7A350E68CF0EFB405D363249 /* TelemetryMetric.swift */,
+				CA521A35B1472F8F7DA706FE /* User.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2A9A96DFECABD86FEC6E5063 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				986350FF40F8D495D4C2925E /* Videos */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		4C5C38DF7AFA41B26D31CB12 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				40BD8EBBF2A7FE972D8100B8 /* ABTestManager.swift */,
+				FA344E24F27891849FB4854E /* AIService.swift */,
+				0FF0635E7CBF7B7E6AB044A1 /* AuthService.swift */,
+				9A55021185F6EDD580E37E10 /* FileService.swift */,
+				51EAE7ED07D130742D73E2EF /* GuestService.swift */,
+				F87AE229745F7C6FAB93C495 /* IAPService.swift */,
+				EE0AA6A8D47DADA48C2AB030 /* KeychainHelper.swift */,
+				DB4BC7DB86618A3D0D6CDC63 /* MessageService.swift */,
+				C80990FF9FEAAE585DF3883B /* NetworkReachability.swift */,
+				FDFCE0AC19FD514A5FA794B9 /* RollbackManager.swift */,
+				EF53B0D59DC9143EAB919566 /* RoomRestorationService.swift */,
+				2BBD17CA82DAC692B7C14D9B /* RoomService.swift */,
+				21FF0A3A68B6F8A9BF36F2FD /* SupabaseAuthService.swift */,
+				C872E3E7A399329052F762FB /* SystemService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		6407A1D7A80C4EB701FDAAE1 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				02051AA354DD23E6AF8636F1 /* FeaturedCarousel.swift */,
+				ED071709DB89D10D20ED1B5D /* GuestActivationView.swift */,
+				BCD62841F728A3AC3F60224B /* QRCodeSheet.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		66E2D0BDA20EB804F0A1B231 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				67916DDBD8B19063D7023BC8 /* ColorPalette.swift */,
+				EDAC6E3CAA54B8BE9BA34243 /* DesignTokens.swift */,
+				99D4126283A7A804B402450C /* GlassModifier.swift */,
+				58252B37BF6FD06376981947 /* GlassView.swift */,
+				E41B7EE61F70776BC8DC9DA1 /* Typography.swift */,
+				0DEAA05C7F434EB82B942B33 /* Components */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		79B79FC7FE181FA4AEC1A9F4 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				245580EA2ECDB44E00B979E9 /* PresenceViewModel.swift */,
+				245580EE2ECDB4D000B979E9 /* RoomViewModel.swift */,
+				B181D29EE58F42758A500BBB /* AgoraRoomManager.swift */,
+				FBA553DD97D0302B91D1E770 /* AIReasoner.swift */,
+				4F98426B20FDAA6C661C3E63 /* APIClient.swift */,
+				AE21859D026B71D52A111A12 /* AppState.swift */,
+				78B6EC396773579B6D0B0E98 /* DeepSeekClient.swift */,
+				F7BB78C510F18A4554E29408 /* LiveKitRoomManager.swift */,
+				69A580709DE73A9B7954C92A /* MessageManager.swift */,
+				5FF95EEB379DE6BDAF589D3A /* RoomManager.swift */,
+				CAA73F49B528A792959B7AB1 /* SpeechManager.swift */,
+				210CEF9610EFA18AFA58DD06 /* SubscriptionManager.swift */,
+				550A011CCB954F9E46E339E0 /* SystemMonitor.swift */,
+				392B6D8290CD0A9869DDBA98 /* WebSocketManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		8D62DED063BCFF741CFB2519 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				CC6032261C8E4802CF9B6EF8 /* PrivacyOnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		986350FF40F8D495D4C2925E /* Videos */ = {
+			isa = PBXGroup;
+			children = (
+				44E460D0C3FD75637E02EA2C /* login_background.mp4 */,
+			);
+			path = Videos;
+			sourceTree = "<group>";
+		};
+		B6590266D66D8F144EE0E461 /* Room */ = {
+			isa = PBXGroup;
+			children = (
+				15F01E5BE7F632FF95C5CFAC /* RoomView.swift */,
+			);
+			path = Room;
+			sourceTree = "<group>";
+		};
+		B95CD1786063C96FD34F7794 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				71DBB684444D444FFBF28A00 /* VibeZ.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C0FC8438211E059513C0190D /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				17C5A5EE84134EACE3A877A7 /* Assets.xcassets */,
+				067710D4EBD413627926A5E8 /* ExportOptions.plist */,
+				00D58D6C100D663C0CD9D379 /* Info.plist */,
+				CDA80F70E6AE60908BA3B1C0 /* Package.resolved */,
+				6C50CF1E41CFDBEEAAD23088 /* Products.storekit */,
+				AE41922AAECC3014150F47BD /* VibeZ.entitlements */,
+				29CAD962117258CC087C9107 /* VibezApp.swift */,
+			);
+			name = iOS;
+			path = .;
+			sourceTree = "<group>";
+		};
+		D974E2BF5ACC8AFA27D734DA = {
+			isa = PBXGroup;
+			children = (
+				66E2D0BDA20EB804F0A1B231 /* DesignSystem */,
+				C0FC8438211E059513C0190D /* iOS */,
+				79B79FC7FE181FA4AEC1A9F4 /* Managers */,
+				12EEAAB1AB25AE6FF142C031 /* Models */,
+				2A9A96DFECABD86FEC6E5063 /* Resources */,
+				4C5C38DF7AFA41B26D31CB12 /* Services */,
+				11C749839077EEB72F49972B /* Views */,
+				B95CD1786063C96FD34F7794 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DB7CFBD16E3A3DFE6A77370B /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				3EBCF7FB449F0E60E67B21C9 /* LazySignupView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		190762A22C874DB2E9DF9579 /* VibeZ */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 38A2240F891B5F9A10295E3F /* Build configuration list for PBXNativeTarget "VibeZ" */;
+			buildPhases = (
+				5086CDDBEF7651A38F32B11E /* Sources */,
+				28CE235E81A7AA268F710178 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VibeZ;
+			packageProductDependencies = (
+			);
+			productName = VibeZ;
+			productReference = 71DBB684444D444FFBF28A00 /* VibeZ.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC2B9FC1665E7E1AEAEBCC4E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					190762A22C874DB2E9DF9579 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = B9B097BBB37F8D2C6546E522 /* Build configuration list for PBXProject "VibeZ" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D974E2BF5ACC8AFA27D734DA;
+			minimizedProjectReferenceProxies = 1;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				190762A22C874DB2E9DF9579 /* VibeZ */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		28CE235E81A7AA268F710178 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E29B870FCF2FE3CDDA2D73AB /* Assets.xcassets in Resources */,
+				5D5A57CCDF657344D2372C49 /* ExportOptions.plist in Resources */,
+				AD1829DD775CB209A6F5A0EC /* Package.resolved in Resources */,
+				DC530302B3D55BB1487B2E4B /* Products.storekit in Resources */,
+				1663A619F7C573BB45651F44 /* login_background.mp4 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5086CDDBEF7651A38F32B11E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2376225EBCFA66D0B8F77AB /* ABTestManager.swift in Sources */,
+				3BAB719C62BAB1AACA108BB2 /* AILog.swift in Sources */,
+				C32AFAD6DDF199568A543EF9 /* AIReasoner.swift in Sources */,
+				19EE07F3C531A0185CDFF097 /* AIService.swift in Sources */,
+				04028E55C26DACE90F96B93A /* APIClient.swift in Sources */,
+				34E9A67451A8195A76BB2149 /* AgoraRoomManager.swift in Sources */,
+				43743ACF9B9D1EB5E55F2089 /* AppState.swift in Sources */,
+				51FDE915E60D8DC65041D446 /* AuthService.swift in Sources */,
+				245580ED2ECDB4C000B979E9 /* EmotionPulse.swift in Sources */,
+				70E0A2E9AA646508B8AC7DA6 /* ChatInputView.swift in Sources */,
+				803F254C381A0324C8B44A7D /* ChatView.swift in Sources */,
+				0B0EC126115B08B45467C86E /* ColorPalette.swift in Sources */,
+				E5A2732B82D837F234FAA36A /* DashboardView.swift in Sources */,
+				C7FC240AE8F23944B7B9A913 /* DeepSeekClient.swift in Sources */,
+				02D2E2F11A4CC021523E00CB /* DesignTokens.swift in Sources */,
+				36AC9F5831184D35E8FB8965 /* ExploreView.swift in Sources */,
+				B1145C258F77BD9D43138C02 /* FeaturedCarousel.swift in Sources */,
+				7EA1242CF8D7FD192784DF9E /* FeaturedSlot.swift in Sources */,
+				859BBABF9608AA6DB5F8331F /* FileService.swift in Sources */,
+				F945C3ADF09B0C73D2E41E3A /* GlassCard.swift in Sources */,
+				245580EB2ECDB44E00B979E9 /* PresenceViewModel.swift in Sources */,
+				245580EF2ECDB4D000B979E9 /* RoomViewModel.swift in Sources */,
+				1AADCCC867BFC3842620D12E /* GlassModifier.swift in Sources */,
+				4BE7CEA0F8B08DA6DA9DC686 /* GlassView.swift in Sources */,
+				5C763EBA9DC9068DC2C7606F /* GuestActivationView.swift in Sources */,
+				76D111F209D0674D5016780D /* GuestService.swift in Sources */,
+				3B0B79E7EEF2ED29FB9A8992 /* HomeView.swift in Sources */,
+				D5A06C866DCDB2B10D29D7AD /* IAPReceipt.swift in Sources */,
+				A6A64908097C9B89792934CF /* IAPService.swift in Sources */,
+				1397A27597EADAE1C16A51E1 /* KeychainHelper.swift in Sources */,
+				ECF07177C5C61FAD6C17A589 /* LazySignupView.swift in Sources */,
+				9287AFD6B2D29C51B683F531 /* LiveKitRoomManager.swift in Sources */,
+				455300CBA969ACCCB3BABC03 /* MainTabView.swift in Sources */,
+				1B125362B3279C0BDDE52848 /* MainView.swift in Sources */,
+				C9F394995F696FAD72F38B03 /* Message.swift in Sources */,
+				B39FC90CA644CF1EC04F8AD0 /* MessageBubbleView.swift in Sources */,
+				C247C8CC09DE95872E2D0380 /* MessageManager.swift in Sources */,
+				BD4C3F4A5A28B9FF76D0A365 /* MessageService.swift in Sources */,
+				C9C291F8EABD916DEB9E4C7D /* NetworkReachability.swift in Sources */,
+				31340D1F90964AE4FC9A0828 /* OnboardingV2.swift in Sources */,
+				300C0AEF25217AF5765291B2 /* PrivacyOnboardingView.swift in Sources */,
+				6C0BBCFE2FBC3CF5FDACA73B /* PrivacySettingsView.swift in Sources */,
+				FFEF0F3F6E9742F8E20D8DF0 /* ProfileView.swift in Sources */,
+				D3D148A9767D68F49192315A /* QRCodeSheet.swift in Sources */,
+				5837E2B4DCB178412CC50EF8 /* RollbackManager.swift in Sources */,
+				52BF3F0C467B6C34C1BEDFA4 /* Room.swift in Sources */,
+				3F51330C223A3EC352AAD47B /* RoomListView.swift in Sources */,
+				EB619A1487F62A090A3CA06B /* RoomManager.swift in Sources */,
+				5903CF6C1FC2DDE53521DE95 /* RoomRestorationService.swift in Sources */,
+				C6B67364822AC68EE6896952 /* RoomService.swift in Sources */,
+				B1141F1453434D8ADA376CE6 /* RoomView.swift in Sources */,
+				B3B0DE89B75E3A649AE473E7 /* SelfHostSettingsView.swift in Sources */,
+				7A335BDD0EF19C3CEBD439E9 /* SpeechManager.swift in Sources */,
+				C0DB3F8D900809F7EF6E00D0 /* SubscriptionManager.swift in Sources */,
+				FE48F4B568658EA966957D12 /* SubscriptionTier.swift in Sources */,
+				26EAA6A7E2B6E40793FD8834 /* SupabaseAuthService.swift in Sources */,
+				E33F36FA4D426D4DB9F49EEB /* SystemMonitor.swift in Sources */,
+				07C6D8CD3CF0205F648C6CDE /* SystemService.swift in Sources */,
+				169CDA21C5F0326E61E85FC7 /* TelemetryMetric.swift in Sources */,
+				1882ACCD0A653F5C1DF7330F /* Typography.swift in Sources */,
+				F78D955049F4BBAA4B74EE79 /* User.swift in Sources */,
+				FE29DF5AE80078ECF2E62E41 /* VibezApp.swift in Sources */,
+				B07F01EF8213BC27759F8B39 /* VibezBackground.swift in Sources */,
+				0C07A8F8C4AC5DEE7CBE8337 /* WebSocketManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8BBD418059509C2E2617C9BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		93DCF662FA093D26ED568FA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "VibeZ needs camera access for video chat and avatar photos";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VibeZ needs microphone access for voice messages and voice chat";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "VibeZ needs photo library access to share images";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vibez.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B56FDCCD2CC2179937654294 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "VibeZ needs camera access for video chat and avatar photos";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VibeZ needs microphone access for voice messages and voice chat";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "VibeZ needs photo library access to share images";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vibez.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E0026B366D76E5CB430B8C21 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		38A2240F891B5F9A10295E3F /* Build configuration list for PBXNativeTarget "VibeZ" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93DCF662FA093D26ED568FA1 /* Debug */,
+				B56FDCCD2CC2179937654294 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B9B097BBB37F8D2C6546E522 /* Build configuration list for PBXProject "VibeZ" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8BBD418059509C2E2617C9BB /* Debug */,
+				E0026B366D76E5CB430B8C21 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC2B9FC1665E7E1AEAEBCC4E /* Project object */;
+}

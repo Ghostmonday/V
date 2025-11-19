@@ -185,7 +185,6 @@ npm run lint
 ### Server Entry Points
 
 - **Main Server**: `src/http-websocket-server.ts` - Express HTTP server and WebSocket gateway
-- **Legacy Socket.IO**: `server/socketio-stub-server.ts` - Socket.IO stub server (may be deprecated)
 
 ---
 

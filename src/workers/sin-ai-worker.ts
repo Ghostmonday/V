@@ -4,8 +4,8 @@
  * Runs every 5 minutes
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import { getDeepSeekKey } from '../services/api-keys-service.js';
 
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';

@@ -5,8 +5,8 @@
  */
 
 import client from 'prom-client';
-import { supabase } from '../config/db.ts';
-import { logError } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError } from '../shared/logger-shared.js';
 
 // Prometheus counter metric for telemetry events
 const telemetryEventCounter = new client.Counter({

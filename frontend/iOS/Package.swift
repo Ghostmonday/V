@@ -31,7 +31,6 @@ let package = Package(
             sources: [
                 "VibeZApp.swift",
                 "Models",
-                "ViewModels",
                 "Views",
                 "Services",
                 "Managers",

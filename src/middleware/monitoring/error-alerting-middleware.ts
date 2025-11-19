@@ -3,7 +3,7 @@
  * Sends alerts to Slack/email for critical errors
  */
 
-import { logError } from '../../shared/logger.js';
+import { logError } from '../../shared/logger-shared.js';
 import axios from 'axios';
 
 interface AlertConfig {

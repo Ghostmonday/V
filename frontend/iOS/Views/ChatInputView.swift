@@ -119,12 +119,13 @@ struct ChatInputView: View {
             showCommands = false
         }
         
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
         // Log typing events
-        if newValue.isEmpty {
-            UXTelemetryService.logTypingStop()
-        } else if input.isEmpty {
-            UXTelemetryService.logTypingStart()
-        }
+        // if newValue.isEmpty {
+        //     UXTelemetryService.logTypingStop()
+        // } else if input.isEmpty {
+        //     UXTelemetryService.logTypingStart()
+        // }
     }
     
     private func loadBotCommands() async {
@@ -140,11 +141,12 @@ struct ChatInputView: View {
             }
         } catch {
             print("[ChatInput] Error loading commands: \(error)")
-            UXTelemetryService.logAPIFailure(
-                endpoint: "/api/bots/commands",
-                statusCode: 0,
-                metadata: ["error": error.localizedDescription]
-            )
+            // TODO: Re-enable when UXTelemetryService build order issue is resolved
+            // UXTelemetryService.logAPIFailure(
+            //     endpoint: "/api/bots/commands",
+            //     statusCode: 0,
+            //     metadata: ["error": error.localizedDescription]
+            // )
         }
     }
     
@@ -152,10 +154,11 @@ struct ChatInputView: View {
         input = command.command
         showCommands = false
         
-        UXTelemetryService.logClick(
-            componentId: "ChatInput-CommandSuggestion",
-            metadata: ["command": command.command]
-        )
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
+        // UXTelemetryService.logClick(
+        //     componentId: "ChatInput-CommandSuggestion",
+        //     metadata: ["command": command.command]
+        // )
     }
     
     private func handleSend() {
@@ -166,11 +169,12 @@ struct ChatInputView: View {
         // Haptic feedback on send
         haptic.impactOccurred()
         
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
         // Log telemetry
-        UXTelemetryService.logClick(
-            componentId: "ChatInput-SendButton",
-            metadata: ["messageLength": message.count]
-        )
+        // UXTelemetryService.logClick(
+        //     componentId: "ChatInput-SendButton",
+        //     metadata: ["messageLength": message.count]
+        // )
         
         // Send command if it's a slash command
         if message.hasPrefix("/") {
@@ -208,11 +212,12 @@ struct ChatInputView: View {
             if let moderation = moderationResponse, moderation.flagged {
                 // Message was flagged - call callback
                 onFlagged?(moderation.suggestion ?? "Please keep conversations respectful")
-                UXTelemetryService.logValidationError(
-                    componentId: "ChatInput-Message",
-                    errorType: "moderation_flagged",
-                    metadata: ["suggestion": moderation.suggestion ?? ""]
-                )
+                // TODO: Re-enable when UXTelemetryService build order issue is resolved
+                // UXTelemetryService.logValidationError(
+                //     componentId: "ChatInput-Message",
+                //     errorType: "moderation_flagged",
+                //     metadata: ["suggestion": moderation.suggestion ?? ""]
+                // )
             } else {
                 // Message is clean - proceed with send
                 onSend?(message)
@@ -238,19 +243,22 @@ struct ChatInputView: View {
             let (_, response) = try await URLSession.shared.data(for: request)
             
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                UXTelemetryService.logMessageSendAttempted(metadata: ["type": "slash_command"])
+                // TODO: Re-enable when UXTelemetryService build order issue is resolved
+                // UXTelemetryService.logMessageSendAttempted(metadata: ["type": "slash_command"])
             } else {
-                UXTelemetryService.logMessageSendFailed(
-                    error: "Invalid response",
-                    metadata: ["command": command]
-                )
+                // TODO: Re-enable when UXTelemetryService build order issue is resolved
+                // UXTelemetryService.logMessageSendFailed(
+                //     error: "Invalid response",
+                //     metadata: ["command": command]
+                // )
             }
         } catch {
             print("[ChatInput] Error sending command: \(error)")
-            UXTelemetryService.logMessageSendFailed(
-                error: error.localizedDescription,
-                metadata: ["command": command]
-            )
+            // TODO: Re-enable when UXTelemetryService build order issue is resolved
+            // UXTelemetryService.logMessageSendFailed(
+            //     error: error.localizedDescription,
+            //     metadata: ["command": command]
+            // )
         }
     }
 }

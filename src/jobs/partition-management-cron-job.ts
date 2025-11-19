@@ -16,8 +16,8 @@ import {
   calculateDynamicThresholds,
   getPartitionHealthSummary,
 } from '../services/partition-monitoring-service.js';
-import { logInfo, logError } from '../shared/logger.js';
-import { getRedisClient } from '../config/db.ts';
+import { logInfo, logError } from '../shared/logger-shared.js';
+import { getRedisClient } from '../config/database-config.js';
 
 const redis = getRedisClient();
 const LOCK_KEY = 'partition_management_lock';

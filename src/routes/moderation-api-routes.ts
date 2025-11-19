@@ -8,8 +8,8 @@ import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { flagMessage } from '../services/message-flagging-service.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
-import { logError, logInfo } from '../shared/logger.js';
-import { supabase } from '../config/db.ts';
+import { logError, logInfo } from '../shared/logger-shared.js';
+import { supabase } from '../config/database-config.js';
 
 const router = Router();
 

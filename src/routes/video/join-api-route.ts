@@ -4,9 +4,9 @@ import { Router } from 'express';
 
 import { AccessToken } from 'livekit-server-sdk';
 
-import { supabase } from '../../config/db.ts';
+import { supabase } from '../../config/database-config.js';
 
-import { healingLogger } from '../../shared/logger.js';
+import { healingLogger } from '../../shared/logger-shared.js';
 
 import { telemetryService } from '../../services/telemetry-service.js';
 

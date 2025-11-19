@@ -9,7 +9,7 @@
  * 4. Integrate with existing logging
  */
 
-import { logInfo, logWarning } from '../shared/logger.js';
+import { logInfo, logWarning } from '../shared/logger-shared.js';
 
 interface TelemetryConfig {
   enabled: boolean;

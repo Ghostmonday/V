@@ -6,8 +6,8 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth/supabase-auth.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
-import { supabase } from '../config/db.ts';
-import { logError, logInfo, logAudit } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo, logAudit } from '../shared/logger-shared.js';
 import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
 import { decryptField } from '../services/encryption-service.js';
 

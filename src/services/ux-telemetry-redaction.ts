@@ -15,7 +15,7 @@
  * @module ux-telemetry-redaction
  */
 
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import type { UXTelemetryEvent } from '../types/ux-telemetry.js';
 
 /**

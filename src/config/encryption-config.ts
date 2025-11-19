@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto';
-import { logInfo, logWarning } from '../shared/logger.js';
+import { logInfo, logWarning } from '../shared/logger-shared.js';
 
 /**
  * Encryption configuration interface

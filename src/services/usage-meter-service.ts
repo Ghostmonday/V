@@ -3,8 +3,8 @@
  * Tracks and enforces usage quotas for AI calls, voice minutes, and storage
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 /**
  * Increment usage for a user

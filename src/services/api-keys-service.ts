@@ -4,8 +4,8 @@
  * Replaces hardcoded environment variables
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 // Cache for keys (to avoid repeated DB calls)
 const keyCache = new Map<string, { value: string; expiresAt: number }>();

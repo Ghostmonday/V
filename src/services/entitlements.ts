@@ -3,8 +3,8 @@
  * Manages user subscription entitlements and syncs with Supabase
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import { logTelemetryEvent } from './telemetry-service.js';
 import type { AuthenticatedRequest } from '../types/auth.types.js';
 

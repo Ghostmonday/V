@@ -7,9 +7,9 @@
  */
 
 import axios from 'axios';
-import { logError, logWarning } from '../shared/logger.js';
+import { logError, logWarning } from '../shared/logger-shared.js';
 import { getApiKey } from './api-keys-service.js';
-import { supabase } from '../config/db.ts';
+import { supabase } from '../config/database-config.js';
 
 const PERSPECTIVE_API_URL = 'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze';
 

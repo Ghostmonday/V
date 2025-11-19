@@ -3,8 +3,8 @@
  * Provides consistent error handling and simplified query patterns
  */
 
-import { supabase } from '../config/db.ts';
-import { logError } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError } from '../shared/logger-shared.js';
 
 /**
  * Execute a Supabase select query and return single result

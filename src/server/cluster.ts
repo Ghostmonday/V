@@ -8,7 +8,7 @@
 
 import cluster from 'cluster';
 import os from 'os';
-import { logInfo, logError } from '../shared/logger.js';
+import { logInfo, logError } from '../shared/logger-shared.js';
 
 const ENABLE_CLUSTERING = process.env.ENABLE_CLUSTERING === 'true';
 const WORKER_COUNT = parseInt(process.env.CLUSTER_WORKER_COUNT || String(os.cpus().length), 10);

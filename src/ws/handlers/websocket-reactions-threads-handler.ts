@@ -4,8 +4,8 @@
  */
 
 import { WebSocket } from 'ws';
-import { redisSubscriber } from '../../config/redis-pubsub.js';
-import { logInfo, logError } from '../../shared/logger.js';
+import { redisSubscriber } from '../../config/redis-pubsub-config.js';
+import { logInfo, logError } from '../../shared/logger-shared.js';
 
 let isSubscribed = false;
 

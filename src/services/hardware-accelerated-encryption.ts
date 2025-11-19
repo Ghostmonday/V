@@ -5,7 +5,7 @@
  */
 
 import crypto from 'crypto';
-import { logInfo, logWarning } from '../shared/logger.js';
+import { logInfo, logWarning } from '../shared/logger-shared.js';
 import { getEncryptionConfig, getOptimalEncryptionAlgorithm } from '../config/encryption-config.js';
 
 /**

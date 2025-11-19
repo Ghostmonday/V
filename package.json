@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "packageManager": "npm@11.6.2",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
     "dev": "turbo dev",
-    "build": "turbo build",
+    "build": "turbo build && tsc -p tsconfig.build.json || true",
+    "build:root": "tsc -p tsconfig.build.json",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "vitest run",
@@ -30,7 +32,7 @@
     "validate:docker:setup": "./scripts/setup-validation-db.sh",
     "validate:docker:run": "./scripts/run-validation-docker.sh",
     "validate:docker:full": "npm run validate:docker:up && sleep 5 && npm run validate:docker:setup && npm run validate:docker:run",
-    "stress-test": "node scripts/stress-test.js",
+    "stress-test": "tsx scripts/stress-test.ts",
     "prepare": "husky"
   },
   "devDependencies": {

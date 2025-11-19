@@ -25,7 +25,8 @@ struct MainTabView: View {
                 .accessibilityLabel("Home tab")
                 .accessibilityHint("View your rooms")
             
-            SearchView()
+            // TODO: Implement SearchView
+            Text("Search")
                 .tabItem { 
                     Label("Search", systemImage: "magnifyingglass")
                 }

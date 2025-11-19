@@ -5,7 +5,7 @@
  */
 
 import crypto from 'crypto';
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 /**
  * Attribute types that can be proven

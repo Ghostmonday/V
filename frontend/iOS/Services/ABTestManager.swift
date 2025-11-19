@@ -1,5 +1,32 @@
 import Foundation
 
+/// A/B Test Variant
+enum ABTestVariant: String, Codable {
+    case control = "control"
+    case treatment = "treatment"
+}
+
+/// A/B Test Experiment Status
+enum ABTestExperimentStatus: String, Codable {
+    case active
+    case completed
+    case paused
+}
+
+/// A/B Test Recommendation
+struct ABTestRecommendation: Codable {
+    let target: String
+    let componentId: String?
+}
+
+/// A/B Test Experiment
+struct ABTestExperiment: Codable {
+    let id: String
+    var status: ABTestExperimentStatus
+    var conversions: [String: Int]
+    let recommendation: ABTestRecommendation
+}
+
 /// A/B Test Manager
 /// Manages A/B testing experiments, variant assignment, and conversion tracking
 @MainActor
@@ -52,7 +79,7 @@ class ABTestManager {
     
     /// Check if experiment should be rolled back
     func shouldRollback(_ experiment: ABTestExperiment) -> Bool {
-        guard experiment.status == ABTestExperiment.ExperimentStatus.active else {
+        guard experiment.status == .active else {
             return false
         }
         
@@ -107,7 +134,7 @@ class ABTestManager {
         // Conclude experiment after 1000 conversions
         if totalConversions >= 1000 {
             var updatedExperiment = experiment
-            updatedExperiment.status = ABTestExperiment.ExperimentStatus.completed
+            updatedExperiment.status = .completed
             experiments[experiment.id] = updatedExperiment
             
             print("[ABTestManager] Experiment \(experiment.id) completed")

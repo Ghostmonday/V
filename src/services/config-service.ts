@@ -4,7 +4,7 @@
  */
 
 import { findMany, upsert } from '../shared/supabase-helpers.js';
-import { logError } from '../shared/logger.js';
+import { logError } from '../shared/logger-shared.js';
 
 /**
  * Retrieve all configuration as a single object

@@ -1,7 +1,14 @@
 import Foundation
-import SwiftUI
 
-struct User: Codable, Identifiable {
+/// Presence Status Enum
+enum PresenceStatus: String, Codable {
+    case online
+    case offline
+    case away
+    case busy
+}
+
+struct User: Codable {
     let id: UUID
     let name: String
     let avatar: String

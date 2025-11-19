@@ -4,10 +4,10 @@
  */
 
 import { Request, Response } from 'express';
-import { supabase } from '../config/db.ts';
-import { redisPublisher } from '../config/redis-pubsub.js';
+import { supabase } from '../config/database-config.js';
+import { redisPublisher } from '../config/redis-pubsub-config.js';
 import { recordTelemetryEvent } from './telemetry-service.js';
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 import { findMany, PaginatedResult } from '../shared/supabase-helpers.js';
 import type {
   MessageReaction,

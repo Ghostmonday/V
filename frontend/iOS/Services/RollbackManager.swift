@@ -56,7 +56,7 @@ class RollbackManager {
     func rollbackExperiment(_ experimentId: String) async {
         // Find checkpoints related to this experiment
         let relatedCheckpoints = checkpoints.filter { checkpoint in
-            checkpoint.modification.componentId.contains(experimentId)
+            checkpoint.componentId.contains(experimentId)
         }
         
         for checkpoint in relatedCheckpoints {
@@ -97,7 +97,8 @@ class RollbackManager {
         Logger(subsystem: "com.vibez.app", category: "RollbackManager").info("[RollbackManager] Rolling back checkpoint: \(checkpoint.id)")
         
         // Revert modification
-        ComponentRegistry.shared.clearModification(for: checkpoint.componentId)
+        // TODO: ComponentRegistry not yet implemented - uncomment when available
+        // ComponentRegistry.shared.clearModification(for: checkpoint.componentId)
         
         // Notify views to update
         NotificationCenter.default.post(
@@ -108,18 +109,19 @@ class RollbackManager {
         // Mark checkpoint as rolled back
         markCheckpointRolledBack(checkpoint)
         
-        // Log rollback
-        Task { @MainActor in
-            UXTelemetryService.shared.logEvent(
-                eventType: .aiEditUndone,
-                category: .aiFeedback,
-                metadata: [
-                    "checkpointId": checkpoint.id,
-                    "componentId": checkpoint.componentId,
-                    "reason": "rollback"
-                ]
-            )
-        }
+        // Log rollback telemetry
+        // TODO: Re-enable when UXTelemetryService build order issue is resolved
+        // Task { @MainActor in
+        //     UXTelemetryService.shared.logEvent(
+        //         eventType: .aiEditUndone,
+        //         category: .aiFeedback,
+        //         metadata: [
+        //             "checkpointId": checkpoint.id,
+        //             "componentId": checkpoint.componentId,
+        //             "reason": "rollback"
+        //         ]
+        //     )
+        // }
     }
     
     private func markCheckpointStable(_ checkpoint: RollbackCheckpoint) {
@@ -140,6 +142,12 @@ class RollbackManager {
 }
 
 // MARK: - Supporting Types
+
+/// View modification data structure
+struct ViewModification: Codable {
+    let type: String
+    let data: [String: String]?
+}
 
 struct RollbackCheckpoint {
     let id: String

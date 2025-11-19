@@ -4,8 +4,8 @@
  * Hashes and logs to audit_logs table
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 const MAX_TOKENS = 4000;
 const CHARS_PER_TOKEN = 4; // Rough estimate

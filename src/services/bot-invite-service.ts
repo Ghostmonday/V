@@ -3,9 +3,9 @@
  * Handles bot invite tokens and templates
  */
 
-import { supabase } from '../config/db.ts';
+import { supabase } from '../config/database-config.js';
 import { sign } from 'jsonwebtoken';
-import { logError, logInfo } from '../shared/logger.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'bot-invite-secret';
 

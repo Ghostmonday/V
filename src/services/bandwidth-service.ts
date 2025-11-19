@@ -3,8 +3,8 @@
  * Handles low-bandwidth mode preferences and media downsampling
  */
 
-import { supabase } from '../config/db.ts';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 /**
  * Get user bandwidth preference

@@ -5,7 +5,7 @@
 
 import { Router, Response, NextFunction } from 'express';
 import { authMiddleware } from '../middleware/auth/supabase-auth.js';
-import { logError } from '../shared/logger.js';
+import { logError } from '../shared/logger-shared.js';
 import { AuthenticatedRequest } from '../types/auth.types.js';
 
 const router = Router();

@@ -4,9 +4,9 @@
  * Uses PostgreSQL GIN indexes and RLS-safe RPC functions
  */
 
-import { supabase } from '../config/db.js';
-import { getRedisClient } from '../config/db.js';
-import { logError, logInfo } from '../shared/logger.js';
+import { supabase } from '../config/database-config.js';
+import { getRedisClient } from '../config/database-config.js';
+import { logError, logInfo } from '../shared/logger-shared.js';
 
 const redis = getRedisClient();
 

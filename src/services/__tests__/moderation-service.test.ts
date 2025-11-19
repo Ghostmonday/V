@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { scanForToxicity } from '../moderation.service.js';
+import { scanForToxicity } from '../moderation-service.js';
 
 // Mock dependencies
 vi.mock('../perspective-api-service.js', () => ({
