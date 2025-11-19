@@ -24,7 +24,8 @@ struct Message: Codable, Identifiable {
     }
     
     /// Check if message is from current user
-    var isOwn: Bool {
+    @MainActor
+    func isOwn() -> Bool {
         guard let currentUserId = SupabaseAuthService.shared.currentSession?.userId else { return false }
         return senderId.uuidString.lowercased() == currentUserId.lowercased()
     }
