@@ -1,0 +1,191 @@
+name: Auto-Merge Conflict Resolution
+
+on:
+  push:
+    branches: [dev, chat-scaling]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-conflicts:
+    name: Check and Resolve Merge Conflicts
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Fetch all branches
+        run: |
+          git fetch origin main
+          git fetch origin dev || true
+          git fetch origin chat-scaling || true
+      
+      - name: Check dev branch conflicts with main
+        id: check-dev
+        if: github.ref == 'refs/heads/dev' || github.event_name == 'schedule'
+        run: |
+          git checkout dev || exit 0
+          git merge --no-commit --no-ff origin/main || {
+            echo "conflicts=true" >> $GITHUB_OUTPUT
+            git merge --abort
+            exit 0
+          }
+          git merge --abort || true
+          echo "conflicts=false" >> $GITHUB_OUTPUT
+      
+      - name: Auto-resolve dev conflicts (prefer main)
+        if: steps.check-dev.outputs.conflicts == 'true'
+        run: |
+          git checkout dev
+          git merge -X theirs origin/main -m "chore: auto-merge main into dev (prefer main)" || {
+            echo "::warning::Could not auto-resolve conflicts in dev branch"
+            exit 0
+          }
+          git push origin dev
+      
+      - name: Check chat-scaling branch conflicts with main
+        id: check-chat-scaling
+        if: github.ref == 'refs/heads/chat-scaling' || github.event_name == 'schedule'
+        run: |
+          git checkout chat-scaling || exit 0
+          git merge --no-commit --no-ff origin/main || {
+            echo "conflicts=true" >> $GITHUB_OUTPUT
+            git merge --abort
+            exit 0
+          }
+          git merge --abort || true
+          echo "conflicts=false" >> $GITHUB_OUTPUT
+      
+      - name: Auto-resolve chat-scaling conflicts (prefer main)
+        if: steps.check-chat-scaling.outputs.conflicts == 'true'
+        run: |
+          git checkout chat-scaling
+          git merge -X theirs origin/main -m "chore: auto-merge main into chat-scaling (prefer main)" || {
+            echo "::warning::Could not auto-resolve conflicts in chat-scaling branch"
+            exit 0
+          }
+          git push origin chat-scaling
+      
+      - name: Create issue if manual intervention needed
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 Merge Conflict Requires Manual Resolution';
+            const body = `
+            ## Merge Conflict Detected
+            
+            The automated conflict resolution workflow was unable to resolve conflicts.
+            
+            **Branch:** ${context.ref}
+            **Workflow:** ${context.workflow}
+            **Run:** ${context.runNumber}
+            
+            ### Action Required
+            Please manually resolve the conflicts and merge the branches.
+            
+            ### Steps:
+            1. \`git checkout ${context.ref.replace('refs/heads/', '')}\`
+            2. \`git merge main\`
+            3. Resolve conflicts manually
+            4. \`git commit\`
+            5. \`git push\`
+            `;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['merge-conflict', 'needs-attention']
+            });
+
+  rebase-pending-prs:
+    name: Rebase Pending PRs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Get open PRs
+        id: get-prs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              base: 'main'
+            });
+            
+            // Filter PRs that are behind main
+            const outdatedPrs = [];
+            for (const pr of prs) {
+              const { data: comparison } = await github.rest.repos.compareCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: pr.head.sha,
+                head: 'main'
+              });
+              
+              if (comparison.behind_by > 0) {
+                outdatedPrs.push({
+                  number: pr.number,
+                  branch: pr.head.ref,
+                  behind: comparison.behind_by
+                });
+              }
+            }
+            
+            core.setOutput('prs', JSON.stringify(outdatedPrs));
+            return outdatedPrs;
+      
+      - name: Comment on outdated PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prs = JSON.parse('${{ steps.get-prs.outputs.prs }}');
+            
+            for (const pr of prs) {
+              const comment = `
+              ## 🔄 Branch Update Needed
+              
+              This PR is ${pr.behind} commit(s) behind \`main\`.
+              
+              Please update your branch:
+              \`\`\`bash
+              git checkout ${pr.branch}
+              git rebase origin/main
+              git push --force-with-lease
+              \`\`\`
+              
+              Or use the "Update branch" button above.
+              `;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: comment
+              });
+            }
