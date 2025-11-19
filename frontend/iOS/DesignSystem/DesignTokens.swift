@@ -208,6 +208,11 @@ enum DSShadow {
         let radius: CGFloat
         let x: CGFloat
         let y: CGFloat
+        
+        static var card: Shadow { DSShadow.card }
+        static var elevated: Shadow { DSShadow.elevated }
+        static var overlay: Shadow { DSShadow.overlay }
+        static var glow: Shadow { DSShadow.glow }
     }
 }
 

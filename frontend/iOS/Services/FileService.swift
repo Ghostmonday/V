@@ -1,7 +1,8 @@
 import Foundation
 
 /// Service for file uploads and storage
-class FileService {
+@MainActor
+class FileService: @unchecked Sendable {
     static let shared = FileService()
     
     private init() {}

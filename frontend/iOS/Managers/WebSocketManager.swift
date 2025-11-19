@@ -3,6 +3,11 @@ import Combine
 import OSLog
 import UIKit
 
+// Import Message type from Models
+// Note: Message is defined in Models/Message.swift, not GlassApp.swift
+// Since both are in the same module, we'll use the one from Models/Message.swift
+// The GlassApp.swift Message is commented out, so this should work
+
 // EmotionPulse and EmotionPulseEvent are defined in Models/UXEventType.swift
 // ⚠️ DO NOT REDEFINE - You have been warned. This will haunt you.
 
@@ -53,7 +58,7 @@ class WebSocketManager: ObservableObject {
     private let networkReachability = NetworkReachability.shared
     private let roomRestoration = RoomRestorationService.shared
     
-    // Message streams
+    // Message streams - using Message from Models/Message.swift
     private let messageSubject = PassthroughSubject<Message, Never>()
     private let presenceSubject = PassthroughSubject<PresenceUpdate, Never>()
     private let voiceEventSubject = PassthroughSubject<VoiceEvent, Never>()

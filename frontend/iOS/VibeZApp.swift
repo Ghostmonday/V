@@ -29,15 +29,20 @@ struct UITestAppBypass {
 @main
 @available(iOS 17.0, *)
 struct VibeZApp: App {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    
     init() {
-        // CHUNK 1: REMOVED everything - testing if init() itself is the problem
-        // Empty init to see if app stays open
+        // Setup UI test mode bypass if needed
+        UITestAppBypass.setupIfNeeded()
     }
     
     var body: some Scene {
         WindowGroup {
-            // CHUNK 5: Simplest possible - no ProcessInfo checks
-            Text("TEST MODE ON - SIMPLEST")
+            if hasCompletedOnboarding {
+                MainTabView()
+            } else {
+                OnboardingV2()
+            }
         }
     }
 }

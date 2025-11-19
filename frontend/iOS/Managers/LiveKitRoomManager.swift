@@ -1,6 +1,8 @@
 import Foundation
 import Combine
+#if canImport(LiveKit)
 import LiveKit
+#endif
 import UIKit
 import AVFoundation
 
@@ -8,7 +10,7 @@ import AVFoundation
 /// Wraps LiveKit Swift SDK for voice/video functionality
 /// Provides high-level API matching Vue VideoRoomManager
 @MainActor
-class LiveKitRoomManager: ObservableObject, RoomDelegate {
+class LiveKitRoomManager: ObservableObject {
     static let shared = LiveKitRoomManager()
 
     @Published var isConnected: Bool = false
@@ -18,7 +20,11 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
     @Published var isPushToTalkMode: Bool = false
     @Published var cameraPosition: CameraPosition = .front
     
+    #if canImport(LiveKit)
     private var room: Room?
+    #else
+    private var room: Any?
+    #endif
     
     struct ParticipantInfo: Identifiable, Equatable {
         let id: String
@@ -28,7 +34,12 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
         var audioEnabled: Bool
         var videoEnabled: Bool
         var isSpeaking: Bool
+        #if canImport(LiveKit)
         var videoTrack: VideoTrack?
+        #else
+        // Use a simple type that can be compared for Equatable conformance
+        var videoTrack: String?
+        #endif
     }
     
     struct JoinConfig {
@@ -39,13 +50,18 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
         let pushToTalk: Bool
     }
     
-    private override init() {
-        super.init()
+    enum CameraPosition {
+        case front
+        case back
+    }
+    
+    private init() {
     }
     
     // MARK: - Connection
     
     func joinRoom(config: JoinConfig) async throws {
+        #if canImport(LiveKit)
         // Request permissions before joining room
         if config.audioEnabled {
             await requestMicrophonePermission()
@@ -102,10 +118,16 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
             self.room = nil
             throw error
         }
+        #else
+        // Stub implementation when LiveKit is not available
+        print("[LiveKit] LiveKit not available - stub implementation")
+        self.isConnected = false
+        #endif
     }
     
     func leaveRoom() async {
-        guard let room = room else { return }
+        #if canImport(LiveKit)
+        guard let room = room as? Room else { return }
         
         await room.disconnect()
         self.room = nil
@@ -113,12 +135,18 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
         self.participants.removeAll()
         
         print("[LiveKit] Left room")
+        #else
+        self.room = nil
+        self.isConnected = false
+        self.participants.removeAll()
+        #endif
     }
     
     // MARK: - Audio Control
     
     func toggleAudio() async -> Bool {
-        guard let room = room, let localParticipant = room.localParticipant else { return false }
+        #if canImport(LiveKit)
+        guard let room = room as? Room, let localParticipant = room.localParticipant else { return false }
         
         let newState = !localParticipant.isMicrophoneEnabled()
         do {
@@ -137,25 +165,41 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
             print("[LiveKit] Failed to toggle audio: \(error)")
             return localParticipant.isMicrophoneEnabled()
         }
+        #else
+        localAudioEnabled.toggle()
+        return localAudioEnabled
+        #endif
     }
     
     func enableAudio() async {
-        guard let room = room, let localParticipant = room.localParticipant else { return }
+        #if canImport(LiveKit)
+        guard let room = room as? Room, let localParticipant = room.localParticipant else { return }
         if !localParticipant.isMicrophoneEnabled() {
         _ = await toggleAudio()
         }
+        #else
+        if !localAudioEnabled {
+            _ = await toggleAudio()
+        }
+        #endif
     }
     
     func setPushToTalkMode(_ enabled: Bool) async {
         isPushToTalkMode = enabled
         
+        #if canImport(LiveKit)
         if enabled {
             // Mute immediately when entering PTT mode
-            if let room = room, let localParticipant = room.localParticipant {
+            if let room = room as? Room, let localParticipant = room.localParticipant {
                 try? await localParticipant.setMicrophone(enabled: false)
                 self.localAudioEnabled = false
             }
         }
+        #else
+        if enabled {
+            self.localAudioEnabled = false
+        }
+        #endif
         
         UXTelemetryService.logStateTransition(
             componentId: "PushToTalk",
@@ -166,21 +210,32 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
     }
     
     func activatePushToTalk() async {
-        guard isPushToTalkMode, let room = room, let localParticipant = room.localParticipant else { return }
+        #if canImport(LiveKit)
+        guard isPushToTalkMode, let room = room as? Room, let localParticipant = room.localParticipant else { return }
         try? await localParticipant.setMicrophone(enabled: true)
         self.localAudioEnabled = true
+        #else
+        guard isPushToTalkMode else { return }
+        self.localAudioEnabled = true
+        #endif
     }
     
     func deactivatePushToTalk() async {
-        guard isPushToTalkMode, let room = room, let localParticipant = room.localParticipant else { return }
+        #if canImport(LiveKit)
+        guard isPushToTalkMode, let room = room as? Room, let localParticipant = room.localParticipant else { return }
         try? await localParticipant.setMicrophone(enabled: false)
         self.localAudioEnabled = false
+        #else
+        guard isPushToTalkMode else { return }
+        self.localAudioEnabled = false
+        #endif
     }
     
     // MARK: - Video Control
     
     func toggleVideo() async -> Bool {
-        guard let room = room, let localParticipant = room.localParticipant else { return false }
+        #if canImport(LiveKit)
+        guard let room = room as? Room, let localParticipant = room.localParticipant else { return false }
         
         let newState = !localParticipant.isCameraEnabled()
         do {
@@ -199,47 +254,48 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
             print("[LiveKit] Failed to toggle video: \(error)")
             return localParticipant.isCameraEnabled()
         }
+        #else
+        localVideoEnabled.toggle()
+        return localVideoEnabled
+        #endif
     }
     
     func switchCamera() async {
-        guard let room = room, let localParticipant = room.localParticipant else { return }
-        
-        // LiveKit handles camera switching internally based on available devices
-        // Simplified toggle logic for iOS (typically toggles front/back)
-        
-        // Note: LiveKit Swift SDK's CameraCapturer usually handles this.
-        // We would access the video track's capturer if we need specific control,
-        // but usually `setCamera` options or internal toggle methods work.
-        // For MVP, we'll assume standard behavior or add specific track manipulation if needed.
-        
-        // A more robust way often involves:
-        // localParticipant.firstVideoTrack?.capturer as? CameraCapturer ... switchCamera()
+        #if canImport(LiveKit)
+        guard let room = room as? Room, let localParticipant = room.localParticipant else { return }
         
         if let track = localParticipant.firstCameraVideoTrack as? LocalVideoTrack,
            let capturer = track.capturer as? CameraCapturer {
             do {
                 try await capturer.switchCameraPosition()
-                self.cameraPosition = capturer.options.position
+                self.cameraPosition = capturer.options.position == .front ? .front : .back
             } catch {
                 print("[LiveKit] Failed to switch camera: \(error)")
             }
         }
+        #else
+        cameraPosition = cameraPosition == .front ? .back : .front
+        #endif
     }
     
     // MARK: - Permissions
     
     private func requestMicrophonePermission() async {
         #if os(iOS)
-        let status = await AVAudioSession.sharedInstance().requestRecordPermission()
-        if !status {
-            print("[LiveKit] Microphone permission denied")
+        await withCheckedContinuation { continuation in
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                if !granted {
+                    print("[LiveKit] Microphone permission denied")
+                }
+                continuation.resume()
+            }
         }
         #endif
     }
     
     private func requestCameraPermission() async {
         #if os(iOS)
-        let status = await AVCaptureDevice.requestAccess(for: .video)
+        let status = await AVCaptureDevice.requestAccess(for: AVMediaType.video)
         if !status {
             print("[LiveKit] Camera permission denied")
         }
@@ -249,7 +305,8 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
     // MARK: - Participant Management
     
     private func updateParticipants() {
-        guard let room = room else {
+        #if canImport(LiveKit)
+        guard let room = room as? Room else {
             self.participants = []
             return
         }
@@ -260,6 +317,7 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
         }
         
         self.participants = allParticipants.map { p in
+            #if canImport(LiveKit)
             ParticipantInfo(
                 id: p.sid ?? p.identity ?? UUID().uuidString,
                 identity: p.identity ?? "Unknown",
@@ -270,11 +328,28 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
                 isSpeaking: p.isSpeaking,
                 videoTrack: p.firstCameraVideoTrack as? VideoTrack
             )
+            #else
+            ParticipantInfo(
+                id: UUID().uuidString,
+                identity: "Unknown",
+                name: nil,
+                isLocal: false,
+                audioEnabled: false,
+                videoEnabled: false,
+                isSpeaking: false,
+                videoTrack: nil
+            )
+            #endif
         }
+        #else
+        // Stub implementation
+        self.participants = []
+        #endif
     }
     
-    // MARK: - RoomDelegate
-    
+    // MARK: - RoomDelegate Methods
+    // These methods implement RoomDelegate when LiveKit is available
+    #if canImport(LiveKit)
     nonisolated func room(_ room: Room, didUpdate connectionState: ConnectionState, oldValue: ConnectionState) {
         Task { @MainActor in
             self.isConnected = (connectionState == .connected)
@@ -300,12 +375,17 @@ class LiveKitRoomManager: ObservableObject, RoomDelegate {
     nonisolated func room(_ room: Room, participant: Participant, didUpdate publication: TrackPublication, muted: Bool) {
         Task { @MainActor in
             self.updateParticipants()
+        }
     }
-}
 
     nonisolated func room(_ room: Room, participant: Participant, didUpdate speakStatus: Bool) {
         Task { @MainActor in
             self.updateParticipants()
         }
     }
+    #endif
 }
+
+#if canImport(LiveKit)
+extension LiveKitRoomManager: RoomDelegate {}
+#endif

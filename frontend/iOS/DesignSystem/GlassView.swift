@@ -48,9 +48,10 @@ public struct GlassView<Content: View>: View {
     }
 }
 
-// MARK: - Convenience Initializers
+// MARK: - Convenience Factory
 
-extension GlassView {
+@MainActor
+public enum Glass {
     /// Glass card variant
     public static func card<Content: View>(
         tint: GlassTint = .none,
@@ -106,7 +107,13 @@ extension GlassView {
 // MARK: - Previews
 
 #Preview("Glass Card") {
-    GlassView.card {
+    GlassView(
+        material: .thin,
+        tint: .none,
+        border: .subtle,
+        cornerRadius: 16,
+        shadow: true
+    ) {
         VStack(alignment: .leading, spacing: 8) {
             Text("Room Name")
                 .font(.headline)
@@ -120,7 +127,13 @@ extension GlassView {
 }
 
 #Preview("Glass Panel") {
-    GlassView.panel {
+    GlassView(
+        material: .thick,
+        tint: .brand,
+        border: .glow(Color("VibeZGold")),
+        cornerRadius: 20,
+        shadow: true
+    ) {
         HStack {
             Image(systemName: "mic.fill")
                 .foregroundColor(.white)
@@ -133,7 +146,13 @@ extension GlassView {
 }
 
 #Preview("Glass Input") {
-    GlassView.input {
+    GlassView(
+        material: .ultraThin,
+        tint: .light,
+        border: .subtle,
+        cornerRadius: 20,
+        shadow: false
+    ) {
         TextField("Type a message...", text: .constant(""))
     }
     .padding()

@@ -1,4 +1,4 @@
-name: VibeZ
+name: Sinapse
 options:
   bundleIdPrefix: com.vibez
   deploymentTarget:
@@ -21,6 +21,35 @@ targets:
           - "validate_swift.sh"
           - "package_final.sh"
           - "create_xcode_project*.sh"
+          - "Tests/**"
+          - "VibeZTests/**"
+          - "Views/OnboardingFlowView.swift"
+          - "Views/ProgrammaticUIView.swift"
+          - "Views/Onboarding/WelcomeView.swift"
+          - "build/**"
+          - ".build/**"
+          - ".swiftpm/**"
+          - "**/*.sample"
+          - "**/*.proto"
+          - "**/*.go"
+          - "**/*.rs"
+          - "**/*.sh"
+          - "**/*.bazel"
+          - "**/hooks/**"
+          - "**/scripts/**"
+          - "**/abseil/**"
+          - "**/protobuf/**"
+          - "**/SourcePackages/**"
+          - "**/*.php"
+          - "**/*.cs"
+          - "**/*.pcm"
+          - "**/Logs/**"
+          - "**/SwiftExplicitPrecompiledModules/**"
+          - "**/.spi.yml"
+          - "**/CMakeLists.txt"
+          - "**/BUILD.bazel"
+          - "**/Tests/**"
+          - "**/LKTestHost/**"
     frameworks:
       - Foundation
       - SwiftUI

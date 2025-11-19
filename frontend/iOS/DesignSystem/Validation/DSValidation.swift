@@ -37,7 +37,7 @@ protocol DSValidationRule {
 
 // MARK: - Common Validation Rules
 
-struct DSMinLengthRule: DSValidationRule {
+struct DSMinLengthRule: DSValidationRule, Sendable {
     let minLength: Int
     let message: String
     
@@ -51,7 +51,7 @@ struct DSMinLengthRule: DSValidationRule {
     }
 }
 
-struct DSMaxLengthRule: DSValidationRule {
+struct DSMaxLengthRule: DSValidationRule, Sendable {
     let maxLength: Int
     let message: String
     
@@ -65,7 +65,7 @@ struct DSMaxLengthRule: DSValidationRule {
     }
 }
 
-struct DSPatternRule: DSValidationRule {
+struct DSPatternRule: DSValidationRule, Sendable {
     let pattern: String
     let message: String
     
@@ -114,6 +114,7 @@ struct DSCompositeValidator: DSValidationRule {
 
 // MARK: - Predefined Validators
 
+@MainActor
 enum DSPredefinedValidators {
     static let email = DSCompositeValidator(
         DSPatternRule(

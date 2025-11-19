@@ -13,12 +13,33 @@ struct PaywallView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                // Paywall Hero Image
-                Image("PaywallHero")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxHeight: 200)
-                    .padding(.horizontal)
+                // Programmatic Paywall Hero - Glass morphism
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color("VibeZGold").opacity(0.2),
+                                    Color("VibeZGoldDark").opacity(0.1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(height: 200)
+                        .blur(radius: 15)
+                    
+                    VStack(spacing: 16) {
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(Color("VibeZGold"))
+                        
+                        Text("Unlock Premium")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(.horizontal)
                 
                 // Header
                 VStack(spacing: 8) {

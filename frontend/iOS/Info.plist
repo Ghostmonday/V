@@ -36,46 +36,6 @@
 		</dict>
 	</dict>
 	<key>UILaunchScreen</key>
-	<dict>
-		<key>UIImageName</key>
-		<string>SplashBackground</string>
-		<key>UIColorName</key>
-		<string>VibeZDeep</string>
-	</dict>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<!-- Google Sign-In URL scheme - replace with your REVERSED_CLIENT_ID from GoogleService-Info.plist -->
-				<string>com.googleusercontent.apps.YOUR_REVERSED_CLIENT_ID</string>
-			</array>
-		</dict>
-	</array>
-	<!-- Google Sign-In Client ID - replace with GIDClientID from GoogleService-Info.plist -->
-	<key>GIDClientID</key>
-	<string>YOUR_GID_CLIENT_ID</string>
-	<!-- Background modes for voice rooms -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>audio</string>
-		<string>voip</string>
-	</array>
-	<!-- AVAudioSession category for background audio -->
-	<key>AVAudioSessionCategory</key>
-	<string>playback</string>
-	<!-- Privacy Permissions (Required for App Store) -->
-	<key>NSCameraUsageDescription</key>
-	<string>VibeZ needs camera access to enable video calls in rooms.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>VibeZ needs microphone access to enable voice calls in rooms.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>VibeZ needs photo library access to share images in conversations.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>VibeZ needs permission to save images to your photo library.</string>
+	<dict/>
 </dict>
 </plist>

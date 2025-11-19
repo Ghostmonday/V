@@ -1,8 +1,19 @@
 import SwiftUI
+import UIKit
 
 @available(iOS 17.0, *)
 struct MainTabView: View {
     @State private var selectedTab: Int = 0
+    
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        appearance.backgroundColor = UIColor.clear
+        
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -41,4 +52,3 @@ struct MainTabView: View {
         Text("iOS 17.0+ required")
     }
 }
-

@@ -32,8 +32,8 @@ extension UXTelemetryService {
         logEvent(
             eventType: eventType,
             category: .clickstream,
-            componentId: componentId,
-            metadata: metadata
+            metadata: metadata,
+            componentId: componentId
         )
     }
     
@@ -44,12 +44,12 @@ extension UXTelemetryService {
         logEvent(
             eventType: .uiClick,
             category: .clickstream,
-            componentId: componentId,
             metadata: [
                 "tapCount": tapCount,
                 "timeWindow": timeWindow,
                 "tapRate": tapRate
-            ]
+            ],
+            componentId: componentId
         )
     }
     
@@ -58,10 +58,10 @@ extension UXTelemetryService {
         logEvent(
             eventType: .messageVelocityViewed,
             category: .clickstream,
-            componentId: "DashboardView",
             metadata: [
                 "velocity": velocity
-            ]
+            ],
+            componentId: "DashboardView"
         )
     }
     
@@ -70,8 +70,8 @@ extension UXTelemetryService {
         logEvent(
             eventType: .presenceDistributionViewed,
             category: .clickstream,
-            componentId: "DashboardView",
-            metadata: distribution.mapValues { AnyCodable($0) }
+            metadata: distribution.mapValues { AnyCodable($0) },
+            componentId: "DashboardView"
         )
     }
     
@@ -80,11 +80,11 @@ extension UXTelemetryService {
         logEvent(
             eventType: .roomActivityViewed,
             category: .clickstream,
-            componentId: "DashboardView",
             metadata: [
                 "roomCount": roomCount,
                 "activeParticipants": activeParticipants
-            ]
+            ],
+            componentId: "DashboardView"
         )
     }
     
@@ -93,10 +93,10 @@ extension UXTelemetryService {
         logEvent(
             eventType: .systemHealthViewed,
             category: .system,
-            componentId: component,
             metadata: [
                 "status": status
-            ]
+            ],
+            componentId: component
         )
     }
 }

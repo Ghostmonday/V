@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import Foundation
 
 /// Chat view with message send and AI feedback
 struct ChatView: View {
@@ -33,19 +34,17 @@ struct ChatView: View {
                             .transition(.move(edge: .top))
                     }
                 } else if room != nil {
-                    // Join Audio Button Area
-                    Button(action: joinVoiceRoom) {
+                // Join Audio Button Area
+                Button(action: joinVoiceRoom) {
+                    Glass.input(padding: 8) {
                         HStack {
                             Image(systemName: "waveform")
                             Text("Join Voice")
                         }
                         .font(.caption)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.secondary.opacity(0.2))
-                        .cornerRadius(16)
                     }
-                    .padding(.top, 8)
+                }
+                .padding(.top, 8)
                 }
                 
                 // Message list
@@ -60,17 +59,13 @@ struct ChatView: View {
                 
                 // AI feedback toast
                 if showFlaggedToast {
-                    HStack {
-                        Text("AI: \(flaggedSuggestion)")
-                            .font(.caption)
-                            .foregroundColor(.orange)
+                    Glass.card(padding: 12) {
+                        HStack {
+                            Text("AI: \(flaggedSuggestion)")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
                     }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(.ultraThinMaterial)
-                    )
                     .padding(.horizontal)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }

@@ -386,7 +386,7 @@ struct MetricsCard: View {
         VStack(spacing: 0) {
             // Handle bar
             RoundedRectangle(cornerRadius: 2)
-                .fill(Color.gray.opacity(0.5))
+                .fill(Color.white.opacity(0.3))
                 .frame(width: 40, height: 4)
                 .padding(.top, 8)
             
@@ -466,14 +466,14 @@ struct MetricsCard: View {
                     )
                 
                 // Main glassmorphic background
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(.ultraThinMaterial)
-                    .opacity(0.8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.glassBorder, lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 10)
+                GlassView(
+                    material: .ultraThin,
+                    tint: .none,
+                    border: .subtle,
+                    cornerRadius: 24,
+                    shadow: true,
+                    padding: 0
+                ) { Color.clear }
             }
         )
         .padding(.horizontal, 16)
@@ -497,27 +497,26 @@ struct MetricTile: View {
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.title3)
-                Spacer()
+        Glass.card(padding: 16) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: icon)
+                        .foregroundColor(color)
+                        .font(.title3)
+                    Spacer()
+                }
+                
+                Text(value)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
-            
-            Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.glassBackground)
-        .cornerRadius(12)
     }
 }
 
@@ -527,21 +526,20 @@ struct PresenceDistributionView: View {
     let distribution: [String: Int]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Presence Distribution")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
-            VStack(spacing: 8) {
-                PresenceRow(status: "Online", count: distribution["online"] ?? 0, color: .green)
-                PresenceRow(status: "Away", count: distribution["away"] ?? 0, color: .yellow)
-                PresenceRow(status: "Busy", count: distribution["busy"] ?? 0, color: .red)
-                PresenceRow(status: "Offline", count: distribution["offline"] ?? 0, color: .gray)
+        Glass.card(padding: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Presence Distribution")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                
+                VStack(spacing: 8) {
+                    PresenceRow(status: "Online", count: distribution["online"] ?? 0, color: .green)
+                    PresenceRow(status: "Away", count: distribution["away"] ?? 0, color: .yellow)
+                    PresenceRow(status: "Busy", count: distribution["busy"] ?? 0, color: .red)
+                    PresenceRow(status: "Offline", count: distribution["offline"] ?? 0, color: .gray)
+                }
             }
         }
-        .padding()
-        .background(Color.glassBackground)
-        .cornerRadius(12)
     }
 }
 
@@ -599,33 +597,25 @@ struct SystemHealthCard: View {
     let color: Color
     
     var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .font(.title3)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.primary)
+        Glass.card(padding: 16) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.title3)
                 
-                Text(status)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Text(status)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
             }
-            
-            Spacer()
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .opacity(0.8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.glassBorder, lineWidth: 1)
-                )
-        )
     }
 }
 
@@ -633,43 +623,35 @@ struct SystemHealthCard: View {
 
 struct AdvancedMetricsCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(.blue)
-                    .font(.title3)
+        Glass.card(padding: 16) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .foregroundColor(.blue)
+                        .font(.title3)
+                    
+                    Text("Advanced Emotional Monitoring")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundColor(.green)
+                }
                 
-                Text("Advanced Emotional Monitoring")
-                    .font(.headline)
-                    .foregroundColor(.primary)
+                Text("Real-time emotional curves with predictive analytics")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
                 
-                Spacer()
-                
-                Image(systemName: "checkmark.seal.fill")
-                    .foregroundColor(.green)
-            }
-            
-            Text("Real-time emotional curves with predictive analytics")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            // Placeholder for advanced metrics
-            HStack(spacing: 20) {
-                MetricBadge(icon: "heart.fill", label: "Sentiment", value: "+12%")
-                MetricBadge(icon: "waveform.path", label: "Volatility", value: "Low")
-                MetricBadge(icon: "chart.bar.fill", label: "Trend", value: "↑")
+                // Placeholder for advanced metrics
+                HStack(spacing: 20) {
+                    MetricBadge(icon: "heart.fill", label: "Sentiment", value: "+12%")
+                    MetricBadge(icon: "waveform.path", label: "Volatility", value: "Low")
+                    MetricBadge(icon: "chart.bar.fill", label: "Trend", value: "↑")
+                }
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .opacity(0.8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.glassBorder, lineWidth: 1)
-                )
-        )
     }
 }
 
@@ -703,53 +685,45 @@ struct UpgradePromptCard: View {
     let onUpgradeRequested: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "lock.fill")
-                    .foregroundColor(.orange)
-                    .font(.title3)
-                
-                Text("Advanced Features")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                Spacer()
-            }
-            
-            Text(subscriptionManager.upgradeMessage(for: feature))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Button(action: onUpgradeRequested) {
+        Glass.card(padding: 16) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Image(systemName: "arrow.up.circle.fill")
-                    Text("Upgrade to Pro")
+                    Image(systemName: "lock.fill")
+                        .foregroundColor(.orange)
+                        .font(.title3)
+                    
+                    Text("Advanced Features")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
                 }
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(
-                    LinearGradient(
-                        colors: [.blue, .primaryVibeZ],
-                        startPoint: .leading,
-                        endPoint: .trailing
+                
+                Text(subscriptionManager.upgradeMessage(for: feature))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Button(action: onUpgradeRequested) {
+                    HStack {
+                        Image(systemName: "arrow.up.circle.fill")
+                        Text("Upgrade to Pro")
+                    }
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        LinearGradient(
+                            colors: [.blue, .primaryVibeZ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
-                )
-                .cornerRadius(10)
+                    .cornerRadius(10)
+                }
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .opacity(0.8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.orange.opacity(0.5), lineWidth: 1)
-                )
-        )
     }
 }
 

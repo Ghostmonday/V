@@ -18,6 +18,9 @@ extension Color {
     static let glassBackground = Color.white.opacity(0.1)
     static let glassBorder = Color.white.opacity(0.2)
     
+    // Note: init(hex:) moved to DesignSystem/DesignTokens.swift to avoid duplicates
+    // The DesignTokens version is more comprehensive (handles 3, 6, and 8 character hex codes)
+    /*
     init(hex: String) {
         let scanner = Scanner(string: hex)
         _ = scanner.scanString("#")
@@ -29,5 +32,6 @@ extension Color {
             blue: Double(rgb & 0xFF) / 255
         )
     }
+    */
 }
 

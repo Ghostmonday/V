@@ -66,23 +66,21 @@ struct RoomListView: View {
                         Button(action: {
                             showCreateSheet = true
                         }) {
-                            HStack {
-                                Image(systemName: "plus.circle.fill")
-                                Text("Create Room")
+                            GlassView(
+                                material: .regular,
+                                tint: .brand,
+                                border: .glow(Color("VibeZGold")),
+                                cornerRadius: 12,
+                                shadow: true,
+                                padding: 12
+                            ) {
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                    Text("Create Room")
+                                }
+                                .font(.headline)
+                                .foregroundColor(.white)
                             }
-                            .font(.headline) // Dynamic Type support
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 12)
-                            .background(
-                                LinearGradient(
-                                    colors: [.primaryVibeZ, .blue],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .cornerRadius(12)
-                            .shadow(color: .primaryVibeZ.opacity(0.3), radius: 8)
                         }
                         .accessibilityLabel("Create room")
                         .accessibilityHint("Double tap to create a new room")
@@ -97,10 +95,17 @@ struct RoomListView: View {
                         ForEach(rooms) { room in
                             RoomRow(room: room)
                                 .listRowBackground(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(.ultraThinMaterial)
-                                        .padding(.vertical, 4)
+                                    GlassView(
+                                        material: .ultraThin,
+                                        tint: .none,
+                                        border: .subtle,
+                                        cornerRadius: 12,
+                                        shadow: false,
+                                        padding: 4
+                                    ) { Color.clear }
+                                    .padding(.vertical, 4)
                                 )
+                                .listRowSeparator(.hidden)
                         }
                     }
                     .listStyle(.plain)
@@ -138,6 +143,7 @@ struct RoomListView: View {
     private func loadRooms() async {
         isLoading = true
         
+        // Load rooms
         do {
             rooms = try await RoomService.fetchRooms()
         } catch {
@@ -223,8 +229,8 @@ struct RoomRow: View {
                         
                         if room.isTemp, let countdown = room.expiryCountdown {
                             Text("• \(countdown)")
-                                .font(.caption)
-                                .foregroundColor(.orange)
+                            .font(.caption)
+                            .foregroundColor(.orange)
                         }
                     }
                     

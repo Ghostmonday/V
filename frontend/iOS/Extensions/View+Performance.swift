@@ -21,6 +21,7 @@ extension View {
 }
 
 /// Image Cache Helper
+@MainActor
 class ImageCache {
     static let shared = ImageCache()
     private let cache = NSCache<NSString, UIImage>()
@@ -48,33 +49,33 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
     @ViewBuilder let placeholder: () -> Placeholder
     @State private var cachedImage: UIImage?
     
+    @ViewBuilder
     var body: some View {
-        Group {
-            if let cachedImage = cachedImage {
-                // Use cached image immediately
-                content(Image(uiImage: cachedImage))
-            } else {
-                // Use AsyncImage for proper async loading (non-blocking UI thread)
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        placeholder()
-                    case .success(let asyncImage):
-                        // Load and cache image asynchronously
-                        Task { @MainActor [url] in
-                            await loadAndCacheImage(from: url)
+        if let cachedImage = cachedImage {
+            // Use cached image immediately
+            content(Image(uiImage: cachedImage))
+        } else {
+            // Use AsyncImage for proper async loading (non-blocking UI thread)
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .empty:
+                    placeholder()
+                case .success(let asyncImage):
+                    // Load and cache image asynchronously
+                    let imageUrl = url
+                    content(asyncImage)
+                        .task {
+                            await loadAndCacheImage(from: imageUrl)
                         }
-                        content(asyncImage)
-                    case .failure:
-                        placeholder()
-                    @unknown default:
-                        placeholder()
-                    }
+                case .failure:
+                    placeholder()
+                @unknown default:
+                    placeholder()
                 }
-                .onAppear {
-                    // Check cache first before AsyncImage loads
-                    checkCache()
-                }
+            }
+            .onAppear {
+                // Check cache first before AsyncImage loads
+                checkCache()
             }
         }
     }

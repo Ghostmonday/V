@@ -13,7 +13,8 @@
 import SwiftUI
 
 // MARK: - Glass Effect System
-
+// Note: Glass types moved to DesignSystem/GlassModifier.swift to avoid duplicates
+/*
 /// Glass material intensity levels
 enum GlassMaterial: CGFloat, CaseIterable {
     case ultraThin = 10.0
@@ -142,9 +143,12 @@ extension View {
         )
     }
 }
+*/
 
 // MARK: - Data Models
 
+// Note: Room struct removed - using Models/Room.swift instead
+/*
 struct Room: Identifiable, Codable {
     let id: UUID
     let name: String?
@@ -167,7 +171,10 @@ struct Room: Identifiable, Codable {
     var isTemp: Bool { room_tier == "pro" && expires_at != nil }
     var isModerated: Bool { ai_moderation == true }
 }
+*/
 
+// Note: Message struct removed - using Models/Message.swift instead
+/*
 struct Message: Identifiable, Codable {
     let id: UUID
     let senderId: UUID
@@ -184,19 +191,26 @@ struct Message: Identifiable, Codable {
         case emotion, renderedHTML = "rendered_html", reactions, seenAt = "seen_at"
     }
 }
+*/
 
+// Note: MessageReaction struct removed - using Models/Message.swift instead
+/*
 struct MessageReaction: Identifiable, Codable {
     let id: UUID
     let emoji: String
     let count: Int
     let userIds: [UUID]?
 }
+*/
 
+// Note: User struct removed - using Models/User.swift instead
+/*
 struct User: Identifiable, Codable {
     let id: UUID
     let handle: String?
     let metadata: [String: String]?
 }
+*/
 
 // MARK: - Mock Data Generators
 
@@ -239,8 +253,9 @@ class MockDataGenerator {
         (0..<count).map { i in
             User(
                 id: UUID(),
-                handle: "user\(i + 1)",
-                metadata: ["email": "user\(i + 1)@example.com"]
+                name: "user\(i + 1)",
+                avatar: "avatar_\(i + 1)",
+                mood: "Happy"
             )
         }
     }
@@ -272,6 +287,8 @@ struct ShimmerView: View {
     }
 }
 
+// Note: LoadingSkeleton moved to Views/Shared/Components/LoadingSkeleton.swift to avoid duplicates
+/*
 struct LoadingSkeleton: View {
     let width: CGFloat?
     let height: CGFloat
@@ -287,6 +304,7 @@ struct LoadingSkeleton: View {
             .cornerRadius(8)
     }
 }
+*/
 
 // MARK: - Empty States
 
@@ -343,7 +361,8 @@ struct AnimatedGradientBackground: View {
 }
 
 // MARK: - Main Tab View
-
+// Note: MainTabView moved to Views/MainTabView.swift to avoid duplicates
+/*
 struct MainTabView: View {
     @State private var selectedTab: Int = 0
     
@@ -370,9 +389,11 @@ struct MainTabView: View {
         .tint(Color(red: 1.0, green: 0.84, blue: 0.0))
     }
 }
+*/
 
 // MARK: - Room List View
-
+// Note: RoomListView moved to Views/RoomListView.swift to avoid duplicates
+/*
 struct RoomListView: View {
     @State private var rooms: [Room] = []
     @State private var isLoading = true
@@ -428,7 +449,10 @@ struct RoomListView: View {
         isLoading = false
     }
 }
+*/
 
+// Note: RoomRow moved to Views/RoomListView.swift to avoid duplicates
+/*
 struct RoomRow: View {
     let room: Room
     @State private var showSettings = false
@@ -512,9 +536,11 @@ struct RoomRow: View {
         }
     }
 }
+*/
 
 // MARK: - Chat View
-
+// Note: ChatView moved to Views/ChatView.swift to avoid duplicates
+/*
 struct ChatView: View {
     let room: Room?
     @State private var messages: [Message] = []
@@ -606,9 +632,11 @@ struct ChatView: View {
         }
     }
 }
+*/
 
 // MARK: - Message Bubble View
-
+// Note: MessageBubbleView moved to Views/MessageBubbleView.swift to avoid duplicates
+/*
 struct MessageBubbleView: View {
     let message: Message
     @State private var isOwn = false
@@ -709,9 +737,11 @@ struct MessageBubbleView: View {
         .padding(.horizontal)
     }
 }
+*/
 
 // MARK: - Chat Input View
-
+// Note: ChatInputView moved to Views/ChatInputView.swift to avoid duplicates
+/*
 struct ChatInputView: View {
     @Binding var text: String
     let onSend: (String) -> Void
@@ -754,9 +784,12 @@ struct ChatInputView: View {
         .padding()
     }
 }
+*/
 
-// MARK: - Voice Video Panel View
+// MARK: - Voice Video Panel View (Demo - actual implementation in Views/VoiceVideoPanelView.swift)
 
+// Note: Duplicate removed - using Views/VoiceVideoPanelView.swift instead
+/*
 struct VoiceVideoPanelView: View {
     @State private var isMuted = false
     @State private var isVideoOn = false
@@ -825,10 +858,11 @@ struct VoiceVideoPanelView: View {
             }
         }
     }
-}
+*/
 
 // MARK: - Settings View
-
+// Note: SettingsView moved to Views/SettingsView.swift to avoid duplicates
+/*
 struct SettingsView: View {
     @State private var aiModeration = false
     @State private var lowBandwidth = false
@@ -855,7 +889,7 @@ struct SettingsView: View {
                         }
                         
                         SettingsSection(title: "Privacy") {
-                            NavigationLink(destination: PrivacySettingsView()) {
+                            NavigationLink(destination: GlassPrivacySettingsView()) {
                                 HStack {
                                     Text("Privacy & Security")
                                     Spacer()
@@ -895,9 +929,11 @@ struct SettingsSection<Content: View>: View {
         }
     }
 }
+*/
 
 // MARK: - Profile View
-
+// Note: ProfileView moved to Views/ProfileView.swift to avoid duplicates
+/*
 struct ProfileView: View {
     var body: some View {
         NavigationStack {
@@ -952,9 +988,11 @@ struct ProfileView: View {
         }
     }
 }
+*/
 
 // MARK: - Search View
-
+// Note: SearchView moved to Views/SearchView.swift to avoid duplicates
+/*
 struct SearchView: View {
     @State private var searchText = ""
     @State private var results: [Room] = []
@@ -1013,9 +1051,11 @@ struct SearchView: View {
         }
     }
 }
+*/
 
 // MARK: - Thread View
-
+// Note: ThreadView moved to Views/ThreadView.swift to avoid duplicates
+/*
 struct ThreadView: View {
     let parentMessage: Message
     @State private var threadMessages: [Message] = []
@@ -1063,9 +1103,11 @@ struct ThreadView: View {
         isLoading = false
     }
 }
+*/
 
 // MARK: - Dashboard View
-
+// Note: DashboardView moved to Views/DashboardView.swift to avoid duplicates
+/*
 struct DashboardView: View {
     var body: some View {
         NavigationStack {
@@ -1086,6 +1128,7 @@ struct DashboardView: View {
         }
     }
 }
+*/
 
 struct MetricCard: View {
     let title: String
@@ -1110,7 +1153,8 @@ struct MetricCard: View {
 
 // MARK: - Privacy Settings View
 
-struct PrivacySettingsView: View {
+/*
+struct GlassPrivacySettingsView: View {
     @State private var e2eeEnabled = true
     @State private var metadataScrubbing = true
     @State private var sealedSender = true
@@ -1151,7 +1195,7 @@ struct PrivacySettingsView: View {
 
 // MARK: - Paywall View
 
-struct PaywallView: View {
+struct GlassPaywallView: View {
     @State private var selectedTier = "pro"
     
     var body: some View {
@@ -1246,6 +1290,7 @@ struct TierCard: View {
     }
 }
 
+*/
 // MARK: - Onboarding View
 
 struct OnboardingView: View {
@@ -1341,7 +1386,9 @@ struct OnboardingPageView: View {
 
 // MARK: - App Entry Point
 
-@main
+// Note: @main removed - VibeZApp.swift is the main entry point
+// Uncomment below to use this as a demo/preview app
+/*
 struct GlassApp: App {
     var body: some Scene {
         WindowGroup {
@@ -1349,6 +1396,7 @@ struct GlassApp: App {
         }
     }
 }
+*/
 
 // MARK: - Preview Providers
 

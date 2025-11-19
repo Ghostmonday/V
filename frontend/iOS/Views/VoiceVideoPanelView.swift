@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(LiveKit)
 import LiveKit
+#endif
 
 /// Panel for Voice and Video Controls
 struct VoiceVideoPanelView: View {

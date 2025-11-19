@@ -1,7 +1,7 @@
 import SwiftUI
 import AuthenticationServices
 
-struct OnboardingView: View {
+struct OnboardingV2: View {
     @StateObject private var authService = SupabaseAuthService.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showContent = false
@@ -26,6 +26,20 @@ struct OnboardingView: View {
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
+            
+            // Glass blur backdrop asset
+            Image("glass/BlurBackdrop")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+                .opacity(0.6)
+            
+            // Glass gradient overlay asset
+            Image("glass/GradientOverlay")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+                .blendMode(.overlay)
             
             // Animated golden glow effect
             Circle()
@@ -54,26 +68,53 @@ struct OnboardingView: View {
             VStack(spacing: 32) {
                 Spacer()
                 
-                // Welcome Hero Image
-                Image("WelcomeHero")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 300)
-                    .clipped()
-                    .opacity(showContent ? 1.0 : 0.0)
-                    .scaleEffect(showContent ? 1.0 : 0.9)
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showContent)
-                
-                // App Icon/Logo area
-                VStack(spacing: 16) {
-                    // Actual logo from assets
-                    Image(VibeZColors.logoImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 120, height: 120)
-                        .shadow(color: VibeZColors.glow.opacity(0.5), radius: 20)
-                        .scaleEffect(showContent ? 1.0 : 0.8)
+                // Programmatic Hero - Glass morphism circle
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color("VibeZGold").opacity(0.3),
+                                    Color("VibeZGold").opacity(0.1),
+                                    Color.clear
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 200, height: 200)
+                        .blur(radius: 20)
                         .opacity(showContent ? 1.0 : 0.0)
+                        .scaleEffect(showContent ? 1.0 : 0.9)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showContent)
+                }
+                .frame(height: 300)
+                
+                // App Icon/Logo area - Programmatic
+                VStack(spacing: 16) {
+                    // Programmatic logo - SF Symbol with glass effect
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color("VibeZGold").opacity(0.4),
+                                        Color("VibeZGoldDark").opacity(0.2)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 120, height: 120)
+                            .blur(radius: 10)
+                        
+                        Image(systemName: "message.fill")
+                            .font(.system(size: 60, weight: .bold))
+                            .foregroundColor(Color("VibeZGold"))
+                    }
+                    .shadow(color: Color("VibeZGlow").opacity(0.5), radius: 20)
+                    .scaleEffect(showContent ? 1.0 : 0.8)
+                    .opacity(showContent ? 1.0 : 0.0)
                     
                     // App name with glow effect
                     Text("VibeZ")
@@ -84,7 +125,7 @@ struct OnboardingView: View {
                         .opacity(showContent ? 1.0 : 0.0)
                     
                     // Tagline
-                    Text("Connect. Communicate. Collaborate.")
+                    Text("Experience Connection Reimagined.")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
@@ -103,7 +144,7 @@ struct OnboardingView: View {
                             .foregroundColor(ageVerified ? Color("VibeZGold") : .white.opacity(0.6))
                             .font(.system(size: 20))
                     }
-                    Text("I confirm I'm 18+")
+                    Text("I am 18 years or older")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.8))
                 }
@@ -139,7 +180,7 @@ struct OnboardingView: View {
                     )
                     .signInWithAppleButtonStyle(.white)
                     .frame(height: 50)
-                    .cornerRadius(8)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .accessibilityLabel("Sign In With Apple")
                     .accessibilityHint("Double tap to sign in with your Apple ID")
                 }
@@ -217,5 +258,6 @@ struct OnboardingView: View {
 }
 
 #Preview {
-    OnboardingView()
+    OnboardingV2()
 }
+

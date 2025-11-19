@@ -10,50 +10,77 @@ struct MessageBubbleView: View {
         getCurrentUserId()
     }
     
+    private var isCurrentUser: Bool {
+        message.senderId == currentUserId
+    }
+    
     var body: some View {
-        HStack(alignment: .bottom, spacing: 4) {
-            VStack(alignment: .leading, spacing: 4) {
-                // Message content with AttributedString for HTML/Markdown rendering
-                if let rendered = message.renderedHTML, !rendered.isEmpty {
-                    Text(parseHTML(rendered))
-                        .font(.body)
-                } else {
-                    Text(message.content)
-                        .font(.body)
-                }
+        HStack {
+            if isCurrentUser {
+                Spacer()
             }
-            .padding(12)
-            .background(bubbleBackground)
-            .foregroundColor(message.senderId == getCurrentUserId() ? .black : .white)
-            .cornerRadius(12)
             
-            // Read receipt indicator for own messages
-            // TODO: Add ReadReceiptIndicator.swift to Xcode project, then uncomment:
-            // if message.senderId == getCurrentUserId() {
-            //     ReadReceiptIndicator(message: message, currentUserId: currentUserId)
-            //         .padding(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 0))
-            // }
+            HStack(alignment: .bottom, spacing: 4) {
+                VStack(alignment: .leading, spacing: 4) {
+                    // Message content with AttributedString for HTML/Markdown rendering
+                    if let rendered = message.renderedHTML, !rendered.isEmpty {
+                        Text(parseHTML(rendered))
+                            .font(.body)
+                    } else {
+                        Text(message.content)
+                            .font(.body)
+                    }
+                }
+                .padding(12)
+                .background(bubbleBackground)
+                .foregroundColor(isCurrentUser ? .black : .white)
+                .cornerRadius(12)
+                
+                // Read receipt indicator for own messages
+                // TODO: Add ReadReceiptIndicator.swift to Xcode project, then uncomment:
+                // if isCurrentUser {
+                //     ReadReceiptIndicator(message: message, currentUserId: currentUserId)
+                //         .padding(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 0))
+                // }
+            }
+            .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: isCurrentUser ? .trailing : .leading)
+            
+            if !isCurrentUser {
+                Spacer()
+            }
         }
+        .padding(.horizontal)
     }
     
     private var bubbleBackground: some View {
         Group {
-            if message.senderId == getCurrentUserId() {
-                // Outgoing (user) - golden vibez
-                Color("VibeZGold")
-            } else if message.senderId.uuidString == "system" || message.type == "ai" {
-                // AI responses - subtle golden gradient
+            if isCurrentUser {
+                // Outgoing (user) - golden vibez gradient
                 LinearGradient(
-                    colors: [
-                        Color("VibeZGold").opacity(0.15),
-                        Color.clear
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
+                    colors: [Color("VibeZGold"), Color("VibeZGoldDark")],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
+            } else if message.senderId.uuidString == "system" || message.type == "ai" {
+                // AI responses - glass with glow
+                GlassView(
+                    material: .thin,
+                    tint: .brand,
+                    border: .glow(Color("VibeZGold")),
+                    cornerRadius: 12,
+                    shadow: true,
+                    padding: 0
+                ) { Color.clear }
             } else {
-                // Incoming (others) - subtle white
-                Color.white.opacity(0.12)
+                // Incoming (others) - glass
+                GlassView(
+                    material: .ultraThin,
+                    tint: .none,
+                    border: .subtle,
+                    cornerRadius: 12,
+                    shadow: false,
+                    padding: 0
+                ) { Color.clear }
             }
         }
     }
@@ -124,5 +151,5 @@ struct MessageBubbleView: View {
         ))
     }
     .padding()
+    .background(Color.black)
 }
-

@@ -7,6 +7,5 @@ enum VibeZColors {
     static let background = Color("VibeZDeep")
     static let accent = Color("VibeZGoldDark")
     static let glow = Color("VibeZGlow")
-    static let logoImage = "SplashBackground"
 }
 

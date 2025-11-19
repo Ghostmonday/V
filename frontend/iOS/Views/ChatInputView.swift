@@ -50,8 +50,9 @@ struct ChatInputView: View {
                     .textFieldStyle(.plain)
                     .font(.body) // Dynamic Type support
                     .padding(10)
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(20)
+                    .background(
+                        GlassView(material: .ultraThin, tint: .light, border: .subtle, cornerRadius: 20, shadow: false, padding: 0) { Color.clear }
+                    )
                     .onChange(of: input) { _, newValue in
                         handleInputChange(newValue)
                     }
@@ -99,9 +100,9 @@ struct ChatInputView: View {
                 }
             }
         }
-        .background(Color(UIColor.systemBackground))
-        .cornerRadius(8)
-        .shadow(radius: 4)
+        .background(
+            GlassView(material: .thin, tint: .none, border: .subtle, cornerRadius: 8, shadow: true, padding: 0) { Color.clear }
+        )
         .padding(.bottom, 8)
         .padding(.horizontal)
     }
