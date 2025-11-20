@@ -262,7 +262,7 @@ CREATE TABLE IF NOT EXISTS bots (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   url VARCHAR(500) NOT NULL,
-  token VARCHAR(255) UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
+  token VARCHAR(255) UNIQUE NOT NULL,
   created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   is_active BOOLEAN DEFAULT TRUE,
   permissions JSONB DEFAULT '{}'::jsonb,
