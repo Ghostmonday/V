@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS rooms (
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   is_public BOOLEAN NOT NULL DEFAULT true,
-  partition_month TEXT GENERATED ALWAYS AS (to_char(date_trunc('month', created_at), 'YYYY_MM')) STORED,
+  partition_month TEXT GENERATED ALWAYS AS (substring(cast(date_trunc('month', created_at) as text) from 1 for 7)) STORED,
   metadata JSONB DEFAULT '{}'::jsonb,
   fed_node_id TEXT,
   retention_hot_days INT,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS messages (
   flags JSONB DEFAULT '{}'::jsonb,
   is_flagged BOOLEAN NOT NULL DEFAULT FALSE,
   is_exported BOOLEAN NOT NULL DEFAULT FALSE,
-  partition_month TEXT NOT NULL GENERATED ALWAYS AS (to_char(date_trunc('month', created_at), 'YYYY_MM')) STORED,
+  partition_month TEXT NOT NULL GENERATED ALWAYS AS (substring(cast(date_trunc('month', created_at) as text) from 1 for 7)) STORED,
   fed_origin_hash TEXT,
   -- P0 Features
   reactions JSONB DEFAULT '[]'::jsonb,
