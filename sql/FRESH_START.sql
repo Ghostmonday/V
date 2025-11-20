@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS auth_audit_log (
 
 -- API Keys Vault
 CREATE TABLE IF NOT EXISTS api_keys (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     key_name VARCHAR(100) NOT NULL UNIQUE,
     key_category VARCHAR(50) NOT NULL,
     encrypted_value BYTEA NOT NULL,
