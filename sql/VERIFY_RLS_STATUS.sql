@@ -167,3 +167,4 @@ WHERE t.schemaname IN ('public', 'service')
 -- - Critical tables should have DELETE policies
 -- ===============================================
 
+

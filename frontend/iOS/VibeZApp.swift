@@ -7,10 +7,14 @@ struct VibezApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainView()
-                .environmentObject(appState)
-                .environmentObject(guestService)
-                .preferredColorScheme(.dark)
+            if ProcessInfo.processInfo.arguments.contains("-StressTest") {
+                StressTestView()
+            } else {
+                MainView()
+                    .environmentObject(appState)
+                    .environmentObject(guestService)
+                    .preferredColorScheme(.dark)
+            }
         }
     }
 }
