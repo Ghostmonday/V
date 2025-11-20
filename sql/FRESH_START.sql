@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
   hash TEXT NOT NULL,
   prev_hash TEXT,
   chain_hash TEXT NOT NULL,
-  node_id TEXT NOT NULL DEFAULT current_setting('app.node_id', true, true)
+  node_id TEXT NOT NULL DEFAULT 'local'
 );
 
 -- Raw logs: Transient intake before compression
