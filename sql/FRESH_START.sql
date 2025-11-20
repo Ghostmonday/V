@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS rooms (
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   is_public BOOLEAN NOT NULL DEFAULT true,
-  partition_month TEXT GENERATED ALWAYS AS (substring(cast(date_trunc('month', created_at) as text) from 1 for 7)) STORED,
+  partition_month TEXT,
   metadata JSONB DEFAULT '{}'::jsonb,
   fed_node_id TEXT,
   retention_hot_days INT,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS messages (
   flags JSONB DEFAULT '{}'::jsonb,
   is_flagged BOOLEAN NOT NULL DEFAULT FALSE,
   is_exported BOOLEAN NOT NULL DEFAULT FALSE,
-  partition_month TEXT NOT NULL GENERATED ALWAYS AS (substring(cast(date_trunc('month', created_at) as text) from 1 for 7)) STORED,
+  partition_month TEXT NOT NULL,
   fed_origin_hash TEXT,
   -- P0 Features
   reactions JSONB DEFAULT '[]'::jsonb,
@@ -823,6 +823,25 @@ BEGIN
         CREATE TRIGGER update_message_violations_updated_at BEFORE UPDATE ON message_violations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     END IF;
 END $$;
+
+-- Partition month triggers (to avoid GENERATED column immutability issues)
+CREATE OR REPLACE FUNCTION set_partition_month()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.partition_month := to_char(NEW.created_at, 'YYYY_MM');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER rooms_set_partition_month
+  BEFORE INSERT OR UPDATE ON rooms
+  FOR EACH ROW
+  EXECUTE FUNCTION set_partition_month();
+
+CREATE TRIGGER messages_set_partition_month
+  BEFORE INSERT OR UPDATE ON messages
+  FOR EACH ROW
+  EXECUTE FUNCTION set_partition_month();
 
 -- ===============================================
 -- 9. ROW LEVEL SECURITY (RLS)
