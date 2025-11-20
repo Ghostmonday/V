@@ -30,7 +30,7 @@ vi.mock('../../config/supabase-admin.js', () => ({
   supabaseAdmin: mockSupabaseAdmin,
 }));
 
-vi.mock('../shared/logger.js', () => ({
+vi.mock('../shared/logger-shared.js', () => ({
   logError: vi.fn(),
   logInfo: vi.fn(),
   logWarning: vi.fn(),

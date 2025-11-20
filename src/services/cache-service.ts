@@ -15,6 +15,9 @@ interface CacheOptions {
   keyPrefix?: string; // Key prefix for namespacing
 }
 
+let hits = 0;
+let misses = 0;
+
 /**
  * Get cached value
  */
@@ -22,16 +25,29 @@ export async function getCache<T>(key: string, options?: CacheOptions): Promise<
   try {
     const cacheKey = options?.keyPrefix ? `${options.keyPrefix}:${key}` : key;
     const cached = await redis.get(cacheKey);
-    
+
     if (cached) {
+      hits++;
       return JSON.parse(cached) as T;
     }
-    
+
+    misses++;
     return null;
   } catch (error) {
     logError('Cache get error', error instanceof Error ? error : new Error(String(error)));
+    misses++;
     return null; // Fail open - return null on cache error
   }
+}
+
+export function getCacheMetrics() {
+  const total = hits + misses;
+  return {
+    hits,
+    misses,
+    hitRate: total > 0 ? hits / total : 0,
+    total
+  };
 }
 
 /**
@@ -46,7 +62,7 @@ export async function setCache<T>(
     const cacheKey = options?.keyPrefix ? `${options.keyPrefix}:${key}` : key;
     const ttl = options?.ttl || DEFAULT_TTL;
     const serialized = JSON.stringify(value);
-    
+
     await redis.setex(cacheKey, ttl, serialized);
     return true;
   } catch (error) {
@@ -76,7 +92,7 @@ export async function invalidateCachePattern(pattern: string): Promise<number> {
   try {
     const keys = await redis.keys(pattern);
     if (keys.length === 0) return 0;
-    
+
     const deleted = await redis.del(...keys);
     logInfo(`Invalidated ${deleted} cache keys matching pattern: ${pattern}`);
     return deleted;
@@ -100,13 +116,13 @@ export async function cached<T>(
   if (cached !== null) {
     return cached;
   }
-  
+
   // Cache miss - execute function
   const result = await fn();
-  
+
   // Cache result
   await setCache(key, result, options);
-  
+
   return result;
 }
 
@@ -114,7 +130,7 @@ export async function cached<T>(
 export const CacheKeys = {
   roomList: (userId?: string) => userId ? `room:list:${userId}` : 'room:list:all',
   room: (roomId: string) => `room:${roomId}`,
-  messages: (roomId: string, since?: string) => 
+  messages: (roomId: string, since?: string) =>
     since ? `messages:${roomId}:${since}` : `messages:${roomId}:latest`,
   user: (userId: string) => `user:${userId}`,
 };

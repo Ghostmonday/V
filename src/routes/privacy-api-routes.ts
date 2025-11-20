@@ -18,10 +18,10 @@ import {
   sanitizedDisclosureRequestSchema,
   sanitizedVerifyDisclosureSchema,
   sanitizedBatchedVerifyDisclosureSchema,
-  sanitizeUUID,
-} from '../utils/input-sanitizer.js';
+  sanitizeInput,
+} from '../utils/input-sanitizer-utils.js';
 import { verifyBatchedSelectiveDisclosure } from '../services/zkp-service.js';
-import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
+import { rateLimit } from '../middleware/rate-limiting/rate-limiter-middleware.js';
 
 const router = Router();
 

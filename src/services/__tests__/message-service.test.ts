@@ -8,16 +8,16 @@ import { sendMessageToRoom, getRoomMessages } from '../message-service.js';
 import * as moderationService from '../moderation-service.js';
 import * as roomService from '../room-service.js';
 import * as subscriptionService from '../subscription-service.js';
-import * as supabaseHelpers from '../../shared/supabase-helpers.js';
+import * as supabaseHelpers from '../../shared/supabase-helpers-shared.js';
 import { getRedisClient } from '../../config/database-config.js';
 
 // Mock dependencies
 vi.mock('../moderation-service.js');
 vi.mock('../room-service.js');
 vi.mock('../subscription-service.js');
-vi.mock('../../shared/supabase-helpers.js');
+vi.mock('../../shared/supabase-helpers-shared.js');
 vi.mock('../../config/database-config.js');
-vi.mock('../../shared/logger.js', () => ({
+vi.mock('../../shared/logger-shared.js', () => ({
   logError: vi.fn(),
   logWarning: vi.fn(),
 }));

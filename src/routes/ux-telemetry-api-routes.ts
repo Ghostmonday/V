@@ -8,7 +8,7 @@
  */
 
 import express from 'express';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 import {
   insertUXTelemetryBatch,
   getEventsBySession,
@@ -21,8 +21,8 @@ import {
 import { logError, logInfo } from '../shared/logger-shared.js';
 import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import { AuthenticatedRequest } from '../types/auth-types.js';
-import type { UXTelemetryBatch } from '../types/ux-telemetry.js';
-import { UXEventCategory, UXEventType } from '../types/ux-telemetry.js';
+import type { UXTelemetryBatch } from '../types/ux-telemetry-types.js';
+import { UXEventCategory, UXEventType } from '../types/ux-telemetry-types.js';
 
 const router = express.Router();
 

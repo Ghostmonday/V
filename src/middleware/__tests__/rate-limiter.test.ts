@@ -15,7 +15,7 @@ import {
 let rateLimit: any, userRateLimit: any, ipRateLimit: any;
 
 // Mock Redis
-vi.mock('../../config/db.ts', () => ({
+vi.mock('../../config/database-config.js', () => ({
   getRedisClient: vi.fn(() => createMockRedis()),
 }));
 
@@ -37,7 +37,7 @@ describe('Rate Limiter', () => {
 
   beforeAll(async () => {
     // Load the functions after mocking to avoid circular dependency
-    const rateLimiterModule = await import('../rate-limiter.js');
+    const rateLimiterModule = await import('../rate-limiting/rate-limiter-middleware.js');
     rateLimit = rateLimiterModule.rateLimit;
     userRateLimit = rateLimiterModule.userRateLimit;
     ipRateLimit = rateLimiterModule.ipRateLimit;

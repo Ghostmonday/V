@@ -1,7 +1,7 @@
 import express from 'express';
 import { supabase } from '../config/database-config.js';
 import { authMiddleware as authenticate } from '../middleware/auth/supabase-auth-middleware.js';
-import { broadcastToRoom } from '../ws/utils.js';
+import { broadcastToRoom } from '../ws/websocket-utils.js';
 
 const router = express.Router();
 

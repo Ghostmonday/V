@@ -72,7 +72,7 @@ export async function generateLiveKitToken(
         pfsKeyId = ephemeralKeyPair.keyId;
 
         // Store private key temporarily in Redis (will be deleted after call ends)
-        const redis = (await import('../config/db.ts')).getRedisClient();
+        const redis = (await import('../config/database-config.js')).getRedisClient();
         const privateKeyKey = `pfs:call:${callId}:user:${userId}:private`;
         await redis.setex(
           privateKeyKey,

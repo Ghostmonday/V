@@ -7,9 +7,9 @@
  * Note: TypeScript -> compiled to dist/server/index.js for production.
  */
 
+import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
 import http from 'http';
 import { WebSocketServer } from 'ws';
 import * as client from 'prom-client';
@@ -60,7 +60,7 @@ import csurf from 'csurf';
 import { logInfo, logError } from './shared/logger-shared.js';
 import { LIMIT_REQUESTS_PER_MIN } from './server-config.js';
 
-dotenv.config();
+
 
 const app: any = express();
 const server = http.createServer(app as any);
@@ -148,6 +148,26 @@ app.use(structuredLogging);
 
 // Health endpoint - must be public (before rate limiting and auth)
 app.get('/health', (req: Request, res: Response) => res.json({ status: 'ok', ts: new Date().toISOString() }));
+
+import { checkSupabaseHealth, checkRedisHealthStatus } from './config/database-config.js';
+
+app.get('/healthz', async (req: Request, res: Response) => {
+  const [postgres, redis] = await Promise.all([
+    checkSupabaseHealth(),
+    checkRedisHealthStatus()
+  ]);
+
+  const status = postgres && redis ? 200 : 503;
+
+  res.status(status).json({
+    status: status === 200 ? 'ok' : 'error',
+    timestamp: new Date().toISOString(),
+    services: {
+      postgres: postgres ? 'up' : 'down',
+      redis: redis ? 'up' : 'down',
+    },
+  });
+});
 
 // Security.txt endpoint (RFC 9116)
 app.get('/.well-known/security.txt', (req: Request, res: Response) => {
@@ -409,8 +429,12 @@ app.get('/debug/stats', supabaseAuthMiddleware, async (req: Request, res: Respon
   }
 });
 
+app.get('/health', (req: Request, res: Response) => res.json({ status: 'ok', uptime: Math.floor(process.uptime() * 1000) }));
+
+// ... (rest of file)
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT as number, '0.0.0.0', () => {
   logInfo(`Server running on port ${PORT}`);
 });
 

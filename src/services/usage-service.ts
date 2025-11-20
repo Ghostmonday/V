@@ -3,7 +3,7 @@
  * Tracks user usage for subscription limits
  */
 
-import { create, findMany } from '../shared/supabase-helpers.js';
+import { create, findMany } from '../shared/supabase-helpers-shared.js';
 import { logError } from '../shared/logger-shared.js';
 import { getSubscriptionLimits } from './subscription-service.js';
 

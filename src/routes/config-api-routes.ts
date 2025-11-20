@@ -5,7 +5,7 @@
 
 import { Router } from 'express';
 import * as configService from '../services/config-service.js';
-import { telemetryHook } from '../telemetry/index.js';
+import { telemetryHook } from '../telemetry/telemetry-exports.js';
 
 const router = Router();
 

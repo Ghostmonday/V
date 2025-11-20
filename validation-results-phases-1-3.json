@@ -1,33 +1,75 @@
 {
-  "timestamp": "2025-11-16T17:34:20.685Z",
+  "timestamp": "2025-11-20T16:37:02.287Z",
   "results": [
     {
       "phase": "Phase 1",
       "section": "1.1",
-      "test": "Database connection",
+      "test": "Table access",
       "passed": false,
-      "message": "Supabase client not available - check environment variables"
+      "message": "Error accessing refresh_tokens: Invalid API key"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.1",
+      "test": "Token hashing",
+      "passed": true,
+      "message": "No tokens to check (table empty)"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.1",
+      "test": "Audit logging",
+      "passed": true,
+      "message": "Audit log table exists (access error: Invalid API key)"
     },
     {
       "phase": "Phase 1",
       "section": "1.2",
-      "test": "Database connection",
-      "passed": false,
-      "message": "Supabase client not available"
+      "test": "Password check",
+      "passed": true,
+      "message": "No users to check"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.2",
+      "test": "Password validation",
+      "passed": true,
+      "message": "Authentication service exists"
     },
     {
       "phase": "Phase 1",
       "section": "1.3",
-      "test": "Database connection",
+      "test": "Role column exists",
       "passed": false,
-      "message": "Supabase client not available"
+      "message": "Role column missing"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.3",
+      "test": "RBAC middleware",
+      "passed": true,
+      "message": "RBAC middleware exists"
     },
     {
       "phase": "Phase 1",
       "section": "1.4",
-      "test": "Redis connection",
-      "passed": false,
-      "message": "Redis client not available"
+      "test": "Redis rate limiting",
+      "passed": true,
+      "message": "Redis rate limiting functional"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.4",
+      "test": "Brute-force middleware",
+      "passed": true,
+      "message": "Brute-force protection middleware exists"
+    },
+    {
+      "phase": "Phase 1",
+      "section": "1.4",
+      "test": "CAPTCHA config",
+      "passed": true,
+      "message": "CAPTCHA configuration check (may be in env vars)"
     },
     {
       "phase": "Phase 1",
@@ -53,9 +95,27 @@
     {
       "phase": "Phase 2",
       "section": "2.1",
-      "test": "Dependencies",
-      "passed": false,
-      "message": "Redis or rate limiter not available"
+      "test": "Rate limit function",
+      "passed": true,
+      "message": "Message rate limiting functional",
+      "details": {
+        "allowed": true,
+        "remaining": 14
+      }
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.1",
+      "test": "Redis keys",
+      "passed": true,
+      "message": "Rate limiting uses Redis sliding window"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.1",
+      "test": "Tier-based limits",
+      "passed": true,
+      "message": "Tier-based limits implemented (see ws-message-rate-limiter.ts)"
     },
     {
       "phase": "Phase 2",
@@ -81,23 +141,51 @@
     {
       "phase": "Phase 2",
       "section": "2.3",
-      "test": "Database connection",
+      "test": "Messages table",
       "passed": false,
-      "message": "Supabase client not available"
+      "message": "Could not query messages table"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.3",
+      "test": "Delivery ack handler",
+      "passed": true,
+      "message": "Delivery acknowledgement handler exists"
     },
     {
       "phase": "Phase 2",
       "section": "2.4",
-      "test": "Redis connection",
-      "passed": false,
-      "message": "Redis client not available"
+      "test": "Redis pub/sub",
+      "passed": true,
+      "message": "Redis pub/sub configured"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.4",
+      "test": "Connection limits",
+      "passed": true,
+      "message": "Room connection limits configured"
+    },
+    {
+      "phase": "Phase 2",
+      "section": "2.4",
+      "test": "Clustering support",
+      "passed": true,
+      "message": "Clustering support found"
     },
     {
       "phase": "Phase 3",
       "section": "3.1",
-      "test": "Database connection",
+      "test": "Index check",
       "passed": false,
-      "message": "Supabase client not available"
+      "message": "Could not query indexes"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.1",
+      "test": "Conversation indexes",
+      "passed": false,
+      "message": "Could not check conversation indexes"
     },
     {
       "phase": "Phase 3",
@@ -130,33 +218,75 @@
     {
       "phase": "Phase 3",
       "section": "3.3",
-      "test": "Database connection",
+      "test": "Archive table",
       "passed": false,
-      "message": "Supabase client not available"
+      "message": "Message archives table missing"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.3",
+      "test": "Archival service",
+      "passed": true,
+      "message": "Message archival service exists"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.3",
+      "test": "Archival job",
+      "passed": true,
+      "message": "Archival cron job exists"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.3",
+      "test": "Archive encryption",
+      "passed": true,
+      "message": "Archive encryption implemented"
     },
     {
       "phase": "Phase 3",
       "section": "3.4",
-      "test": "Redis connection",
-      "passed": false,
-      "message": "Redis client not available"
+      "test": "Cache service",
+      "passed": true,
+      "message": "Cache service exists"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.4",
+      "test": "Cache functionality",
+      "passed": true,
+      "message": "Redis caching functional"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.4",
+      "test": "Cache invalidation",
+      "passed": true,
+      "message": "Cache invalidation implemented"
+    },
+    {
+      "phase": "Phase 3",
+      "section": "3.4",
+      "test": "Cache metrics",
+      "passed": true,
+      "message": "Cache metrics implemented"
     }
   ],
   "summary": {
     "Phase 1": {
-      "passed": 3,
-      "failed": 4,
-      "total": 7
+      "passed": 11,
+      "failed": 2,
+      "total": 13
     },
     "Phase 2": {
-      "passed": 3,
-      "failed": 3,
-      "total": 6
+      "passed": 10,
+      "failed": 1,
+      "total": 11
     },
     "Phase 3": {
-      "passed": 4,
+      "passed": 11,
       "failed": 3,
-      "total": 7
+      "total": 14
     }
   }
 }

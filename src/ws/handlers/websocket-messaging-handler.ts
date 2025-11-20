@@ -18,7 +18,7 @@ import { logError, logInfo } from '../../shared/logger-shared.js';
 import { validateWSMessage } from '../../middleware/validation/incremental-validation-middleware.js';
 import { isEncryptedPayload, isE2ERoom } from '../../services/e2e-encryption.js';
 import { publishToStream, routeToModeration } from '../../config/redis-streams-config.js';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 const redis = getRedisClient();
 

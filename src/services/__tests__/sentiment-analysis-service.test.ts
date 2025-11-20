@@ -10,7 +10,7 @@ import { createMockRedis } from '../../tests/__helpers__/test-setup.js';
 let analyzeSentiment: any, analyzeSentimentBatch: any;
 
 // Mock Redis
-vi.mock('../../config/db.ts', () => ({
+vi.mock('../../config/database-config.js', () => ({
   getRedisClient: vi.fn(() => createMockRedis()),
 }));
 

@@ -6,7 +6,7 @@
 import https from 'https';
 import crypto from 'crypto';
 import { updateSubscription, SubscriptionTier } from './subscription-service.js';
-import { create, findOne } from '../shared/supabase-helpers.js';
+import { create, findOne } from '../shared/supabase-helpers-shared.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
 import { getAppleSharedSecret } from './api-keys-service.js';
 import { supabase } from '../config/database-config.js';
