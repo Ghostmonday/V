@@ -4,9 +4,9 @@
  */
 
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import { getEntitlements, updateSubscription } from '../services/entitlements.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 import { logError } from '../shared/logger-shared.js';
 
 const router = Router();

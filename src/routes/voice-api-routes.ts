@@ -6,9 +6,9 @@
 
 import { Router, Response, NextFunction } from 'express';
 import { liveKitService } from '../services/livekit-service.js';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import { logError } from '../shared/logger-shared.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 import { getLiveKitKeys } from '../services/api-keys-service.js';
 import { checkQuota, incrementUsage } from '../services/usageMeter.js';
 import crypto from 'crypto';

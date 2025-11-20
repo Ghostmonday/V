@@ -6,7 +6,7 @@
 import { supabase } from '../config/database-config.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
 import { logTelemetryEvent } from './telemetry-service.js';
-import type { AuthenticatedRequest } from '../types/auth.types.js';
+import type { AuthenticatedRequest } from '../types/auth-types.js';
 
 /**
  * Get user entitlements from monetization_subscriptions table

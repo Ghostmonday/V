@@ -7,7 +7,7 @@ import { Router, type Request, type Response } from 'express';
 import { supabase } from '../config/database-config.js';
 import * as optimizerService from '../services/optimizer-service.js';
 import { telemetryHook } from '../telemetry/index.js';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import { logError } from '../shared/logger-shared.js';
 
 const router = Router();

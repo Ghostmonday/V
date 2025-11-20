@@ -4,9 +4,9 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { requireAdmin, requireModerator } from '../middleware/auth/admin-auth.js';
+import { requireAdmin, requireModerator } from '../middleware/auth/admin-auth-middleware.js';
 import { getFlaggedMessages, reviewFlaggedMessage } from '../services/message-flagging-service.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
 import { supabase } from '../config/database-config.js';
 

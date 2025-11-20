@@ -4,8 +4,8 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 import { supabase } from '../config/database-config.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
 import {
@@ -232,9 +232,9 @@ router.get(
         // Include fallback alert flag for UI
         fallbackAlert: !capabilities.hardwareAccelerated
           ? {
-              message: 'Hardware acceleration unavailable - using software encryption',
-              severity: 'warning',
-            }
+            message: 'Hardware acceleration unavailable - using software encryption',
+            severity: 'warning',
+          }
           : undefined,
       });
     } catch (error: any) {

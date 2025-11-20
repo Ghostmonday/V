@@ -5,7 +5,7 @@
  */
 
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../types/auth.types.js';
+import { AuthenticatedRequest } from '../../types/auth-types.js';
 import { findOne } from '../../shared/supabase-helpers.js';
 import { logError } from '../../shared/logger-shared.js';
 

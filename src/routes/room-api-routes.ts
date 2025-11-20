@@ -6,10 +6,10 @@
 
 import { Router, Response, NextFunction } from 'express';
 import { createRoom, joinRoom, getRoom } from '../services/room-service.js';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import { ageVerificationMiddleware } from '../middleware/validation/age-verification.js';
 import { logError } from '../shared/logger-shared.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 
 const router = Router();
 

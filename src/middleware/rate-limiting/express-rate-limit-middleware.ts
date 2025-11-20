@@ -8,7 +8,7 @@ import rateLimit from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import { getRedisClient } from '../../config/database-config.js';
 import { getUserSubscription, SubscriptionTier } from '../../services/subscription-service.js';
-import { AuthenticatedRequest } from '../../types/auth.types.js';
+import { AuthenticatedRequest } from '../../types/auth-types.js';
 import { Request, Response } from 'express';
 
 const redis = getRedisClient();

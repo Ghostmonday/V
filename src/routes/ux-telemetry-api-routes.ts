@@ -19,8 +19,8 @@ import {
   exportUserTelemetry,
 } from '../services/ux-telemetry-service.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 import type { UXTelemetryBatch } from '../types/ux-telemetry.js';
 import { UXEventCategory, UXEventType } from '../types/ux-telemetry.js';
 
