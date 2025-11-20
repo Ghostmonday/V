@@ -1,27 +1,31 @@
 -- ===============================================
--- VibeZ Complete Database Setup
--- This file consolidates all essential SQL scripts
--- Run this for a complete fresh installation
+-- VibeZ FRESH START SQL SETUP
+-- ===============================================
+-- This script sets up the entire VibeZ database schema from scratch.
+-- It includes all core tables, features, security policies, and functions.
+--
+-- PREREQUISITES:
+-- 1. Supabase project created.
+-- 2. Extensions: pgcrypto, pg_stat_statements, uuid-ossp, vector.
+-- 3. Roles: authenticated, service_role (standard Supabase roles).
+--
+-- INSTRUCTIONS:
+-- Run this script in the Supabase SQL Editor.
 -- ===============================================
 
--- Set configuration
+-- 1. CONFIGURATION & EXTENSIONS
 SET search_path TO service, public;
 
--- ===============================================
--- PHASE 1: CORE SCHEMA (from 01_sinapse_schema.sql)
--- ===============================================
-
--- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS vector; -- For AI embeddings
+CREATE EXTENSION IF NOT EXISTS vector;
 
 -- Create service schema for privileged operations
 CREATE SCHEMA IF NOT EXISTS service;
 
 -- ===============================================
--- CORE TABLES
+-- 2. CORE TABLES
 -- ===============================================
 
 -- Users: Profiles with trust metadata and federation support
@@ -34,8 +38,17 @@ CREATE TABLE IF NOT EXISTS users (
   metadata JSONB DEFAULT '{}'::jsonb,
   policy_flags JSONB DEFAULT '{}'::jsonb,
   last_seen TIMESTAMPTZ,
-  federation_id TEXT UNIQUE
+  federation_id TEXT UNIQUE,
+  role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'moderator', 'admin', 'owner'))
 );
+
+-- Ensure role column exists (if table already existed)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'role') THEN
+        ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'moderator', 'admin', 'owner'));
+    END IF;
+END $$;
 
 -- Rooms: Metadata with partition key and room-level retention overrides
 CREATE TABLE IF NOT EXISTS rooms (
@@ -80,7 +93,17 @@ CREATE TABLE IF NOT EXISTS messages (
   is_flagged BOOLEAN NOT NULL DEFAULT FALSE,
   is_exported BOOLEAN NOT NULL DEFAULT FALSE,
   partition_month TEXT NOT NULL GENERATED ALWAYS AS (to_char(date_trunc('month', created_at), 'YYYY_MM')) STORED,
-  fed_origin_hash TEXT
+  fed_origin_hash TEXT,
+  -- P0 Features
+  reactions JSONB DEFAULT '[]'::jsonb,
+  thread_id UUID,
+  reply_to UUID,
+  is_edited BOOLEAN DEFAULT FALSE,
+  -- VIBES Features
+  conversation_id UUID, -- FK added later
+  message_type TEXT DEFAULT 'text' CHECK (message_type IN ('text', 'voice', 'image')),
+  voice_url TEXT,
+  is_analyzed BOOLEAN DEFAULT false
 );
 
 -- Message receipts: Delivery and read states
@@ -136,86 +159,72 @@ CREATE TABLE IF NOT EXISTS logs_compressed (
   lifecycle_state TEXT NOT NULL DEFAULT 'hot'
 ) PARTITION BY RANGE (partition_month);
 
--- Default partition for overflow
 CREATE TABLE IF NOT EXISTS logs_compressed_default PARTITION OF logs_compressed DEFAULT;
 
--- Service tables
-CREATE TABLE IF NOT EXISTS service.encode_queue (
+-- ===============================================
+-- 3. AUTH & SECURITY TABLES
+-- ===============================================
+
+-- Refresh tokens for secure token rotation
+CREATE TABLE IF NOT EXISTS refresh_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  raw_id UUID NOT NULL REFERENCES logs_raw(id) ON DELETE CASCADE,
-  status TEXT NOT NULL DEFAULT 'pending',
-  attempts INT NOT NULL DEFAULT 0,
-  max_attempts INT NOT NULL DEFAULT 3,
-  last_attempt_at TIMESTAMPTZ,
-  error TEXT,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  family_id UUID NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_used_at TIMESTAMPTZ,
+  revoked_at TIMESTAMPTZ,
+  user_agent TEXT,
+  ip_address TEXT
+);
+
+-- Auth audit log
+CREATE TABLE IF NOT EXISTS auth_audit_log (
+  id BIGSERIAL PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  event_type TEXT NOT NULL,
+  ip_address TEXT,
+  user_agent TEXT,
+  success BOOLEAN NOT NULL DEFAULT true,
+  failure_reason TEXT,
+  metadata JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS service.moderation_queue (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
-  status TEXT NOT NULL DEFAULT 'pending',
-  attempts INT NOT NULL DEFAULT 0,
-  max_attempts INT NOT NULL DEFAULT 3,
-  last_attempt_at TIMESTAMPTZ,
-  error TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+-- API Keys Vault
+CREATE TABLE IF NOT EXISTS api_keys (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    key_name VARCHAR(100) NOT NULL UNIQUE,
+    key_category VARCHAR(50) NOT NULL,
+    encrypted_value BYTEA NOT NULL,
+    description TEXT,
+    environment VARCHAR(20) DEFAULT 'production' CHECK (environment IN ('development', 'staging', 'production')),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by UUID,
+    last_accessed_at TIMESTAMPTZ,
+    access_count INTEGER DEFAULT 0
 );
 
--- Retention and legal holds
-CREATE TABLE IF NOT EXISTS retention_schedule (
+-- Privacy: ZKP Commitments
+CREATE TABLE IF NOT EXISTS user_zkp_commitments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  resource_type TEXT NOT NULL,
-  resource_id UUID NOT NULL,
-  scheduled_for TIMESTAMPTZ NOT NULL,
-  action TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending',
-  on_hold BOOLEAN NOT NULL DEFAULT false,
-  hold_reason TEXT
-);
-
-CREATE TABLE IF NOT EXISTS legal_holds (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  resource_type TEXT NOT NULL,
-  resource_id UUID NOT NULL,
-  hold_until TIMESTAMPTZ NOT NULL,
-  reason TEXT NOT NULL,
-  actor TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Telemetry and system config
-CREATE TABLE IF NOT EXISTS telemetry (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_time TIMESTAMPTZ NOT NULL DEFAULT now(),
-  event TEXT NOT NULL,
-  room_id UUID,
-  user_id UUID,
-  risk NUMERIC,
-  action TEXT,
-  features JSONB,
-  latency_ms INT,
-  precision_recall JSONB DEFAULT '{}'::jsonb
-);
-
-CREATE TABLE IF NOT EXISTS system_config (
-  key TEXT PRIMARY KEY,
-  value JSONB NOT NULL,
-  updated_at TIMESTAMPTZ DEFAULT now()
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  attribute_type TEXT NOT NULL CHECK (attribute_type IN ('age', 'verified', 'subscription_tier', 'location_country', 'custom')),
+  commitment TEXT NOT NULL,
+  proof_data JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at TIMESTAMPTZ,
+  revoked_at TIMESTAMPTZ
 );
 
 -- ===============================================
--- P0 FEATURES (from 09_p0_features.sql)
+-- 4. FEATURE TABLES
 -- ===============================================
 
--- Add P0 columns to messages
-ALTER TABLE messages 
-  ADD COLUMN IF NOT EXISTS reactions JSONB DEFAULT '[]'::jsonb,
-  ADD COLUMN IF NOT EXISTS thread_id UUID,
-  ADD COLUMN IF NOT EXISTS reply_to UUID,
-  ADD COLUMN IF NOT EXISTS is_edited BOOLEAN DEFAULT FALSE;
-
--- Threads table
+-- Threads
 CREATE TABLE IF NOT EXISTS threads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   parent_message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
@@ -228,15 +237,16 @@ CREATE TABLE IF NOT EXISTS threads (
   created_by UUID REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Add foreign key constraint for thread_id
-ALTER TABLE messages 
-  ADD CONSTRAINT messages_thread_id_fkey 
-  FOREIGN KEY (thread_id) REFERENCES threads(id) ON DELETE SET NULL;
-
--- Add foreign key constraint for reply_to
-ALTER TABLE messages 
-  ADD CONSTRAINT messages_reply_to_fkey 
-  FOREIGN KEY (reply_to) REFERENCES messages(id) ON DELETE SET NULL;
+-- Add foreign key constraint for thread_id and reply_to in messages
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'messages_thread_id_fkey') THEN
+        ALTER TABLE messages ADD CONSTRAINT messages_thread_id_fkey FOREIGN KEY (thread_id) REFERENCES threads(id) ON DELETE SET NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'messages_reply_to_fkey') THEN
+        ALTER TABLE messages ADD CONSTRAINT messages_reply_to_fkey FOREIGN KEY (reply_to) REFERENCES messages(id) ON DELETE SET NULL;
+    END IF;
+END $$;
 
 -- Edit history
 CREATE TABLE IF NOT EXISTS edit_history (
@@ -245,37 +255,6 @@ CREATE TABLE IF NOT EXISTS edit_history (
   old_content TEXT NOT NULL,
   edited_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   edited_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Bot endpoints
-CREATE TABLE IF NOT EXISTS bot_endpoints (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  bot_id UUID NOT NULL,
-  endpoint_url VARCHAR(500) NOT NULL,
-  webhook_secret VARCHAR(255),
-  event_types TEXT[] DEFAULT '{}',
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- ===============================================
--- INTEGRATED FEATURES (from 10_integrated_features.sql)
--- ===============================================
-
--- AI Assistants
-CREATE TABLE IF NOT EXISTS assistants (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  model VARCHAR(100) NOT NULL DEFAULT 'gpt-4',
-  temperature DECIMAL(3,2) DEFAULT 0.7 CHECK (temperature >= 0 AND temperature <= 2),
-  system_prompt TEXT,
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  metadata JSONB DEFAULT '{}'::jsonb
 );
 
 -- Bots
@@ -292,11 +271,32 @@ CREATE TABLE IF NOT EXISTS bots (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Update bot_endpoints foreign key
-ALTER TABLE bot_endpoints 
-  DROP CONSTRAINT IF EXISTS bot_endpoints_bot_id_fkey,
-  ADD CONSTRAINT bot_endpoints_bot_id_fkey 
-    FOREIGN KEY (bot_id) REFERENCES bots(id) ON DELETE CASCADE;
+-- Bot endpoints
+CREATE TABLE IF NOT EXISTS bot_endpoints (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  bot_id UUID NOT NULL REFERENCES bots(id) ON DELETE CASCADE,
+  endpoint_url VARCHAR(500) NOT NULL,
+  webhook_secret VARCHAR(255),
+  event_types TEXT[] DEFAULT '{}',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- AI Assistants
+CREATE TABLE IF NOT EXISTS assistants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  model VARCHAR(100) NOT NULL DEFAULT 'gpt-4',
+  temperature DECIMAL(3,2) DEFAULT 0.7 CHECK (temperature >= 0 AND temperature <= 2),
+  system_prompt TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  metadata JSONB DEFAULT '{}'::jsonb
+);
 
 -- Subscriptions
 CREATE TABLE IF NOT EXISTS subscriptions (
@@ -339,10 +339,6 @@ CREATE TABLE IF NOT EXISTS presence_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ===============================================
--- VIBES FEATURES (from migrations)
--- ===============================================
-
 -- Conversations (VIBES)
 CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -365,12 +361,13 @@ CREATE TABLE IF NOT EXISTS conversation_participants (
   UNIQUE(conversation_id, user_id)
 );
 
--- Update messages for VIBES
-ALTER TABLE messages 
-  ADD COLUMN IF NOT EXISTS conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-  ADD COLUMN IF NOT EXISTS message_type TEXT DEFAULT 'text' CHECK (message_type IN ('text', 'voice', 'image')),
-  ADD COLUMN IF NOT EXISTS voice_url TEXT,
-  ADD COLUMN IF NOT EXISTS is_analyzed BOOLEAN DEFAULT false;
+-- Add FK to messages for conversation_id
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'messages_conversation_id_fkey') THEN
+        ALTER TABLE messages ADD CONSTRAINT messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE;
+    END IF;
+END $$;
 
 -- Sentiment analysis
 CREATE TABLE IF NOT EXISTS sentiment_analysis (
@@ -447,16 +444,87 @@ CREATE TABLE IF NOT EXISTS boosts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Privacy: ZKP Commitments
-CREATE TABLE IF NOT EXISTS user_zkp_commitments (
+-- ===============================================
+-- 5. SERVICE & ARCHIVAL TABLES
+-- ===============================================
+
+-- Service tables
+CREATE TABLE IF NOT EXISTS service.encode_queue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  attribute_type TEXT NOT NULL CHECK (attribute_type IN ('age', 'verified', 'subscription_tier', 'location_country', 'custom')),
-  commitment TEXT NOT NULL,
-  proof_data JSONB DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  expires_at TIMESTAMPTZ,
-  revoked_at TIMESTAMPTZ
+  raw_id UUID NOT NULL REFERENCES logs_raw(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'pending',
+  attempts INT NOT NULL DEFAULT 0,
+  max_attempts INT NOT NULL DEFAULT 3,
+  last_attempt_at TIMESTAMPTZ,
+  error TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS service.moderation_queue (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'pending',
+  attempts INT NOT NULL DEFAULT 0,
+  max_attempts INT NOT NULL DEFAULT 3,
+  last_attempt_at TIMESTAMPTZ,
+  error TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Retention and legal holds
+CREATE TABLE IF NOT EXISTS retention_schedule (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  resource_type TEXT NOT NULL,
+  resource_id UUID NOT NULL,
+  scheduled_for TIMESTAMPTZ NOT NULL,
+  action TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  on_hold BOOLEAN NOT NULL DEFAULT false,
+  hold_reason TEXT
+);
+
+CREATE TABLE IF NOT EXISTS legal_holds (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  resource_type TEXT NOT NULL,
+  resource_id UUID NOT NULL,
+  hold_until TIMESTAMPTZ NOT NULL,
+  reason TEXT NOT NULL,
+  actor TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- System config
+CREATE TABLE IF NOT EXISTS system_config (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Telemetry
+CREATE TABLE IF NOT EXISTS telemetry (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_time TIMESTAMPTZ NOT NULL DEFAULT now(),
+  event TEXT NOT NULL,
+  room_id UUID,
+  user_id UUID,
+  risk NUMERIC,
+  action TEXT,
+  features JSONB,
+  latency_ms INT,
+  precision_recall JSONB DEFAULT '{}'::jsonb
+);
+
+-- Message Archives (Cold Storage)
+CREATE TABLE IF NOT EXISTS message_archives (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  message_id UUID NOT NULL UNIQUE REFERENCES messages(id) ON DELETE CASCADE,
+  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  archived_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  archive_format TEXT NOT NULL DEFAULT 'encrypted_json_v1',
+  archive_checksum TEXT NOT NULL,
+  archive_data TEXT NOT NULL,
+  cold_storage_uri TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Moderation tables
@@ -479,24 +547,8 @@ CREATE TABLE IF NOT EXISTS user_mutes (
   UNIQUE(user_id, room_id)
 );
 
--- API Keys Vault
-CREATE TABLE IF NOT EXISTS api_keys (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    key_name VARCHAR(100) NOT NULL UNIQUE,
-    key_category VARCHAR(50) NOT NULL,
-    encrypted_value BYTEA NOT NULL,
-    description TEXT,
-    environment VARCHAR(20) DEFAULT 'production' CHECK (environment IN ('development', 'staging', 'production')),
-    is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by UUID,
-    last_accessed_at TIMESTAMPTZ,
-    access_count INTEGER DEFAULT 0
-);
-
 -- ===============================================
--- INDEXES
+-- 6. INDEXES
 -- ===============================================
 
 -- Core indexes
@@ -535,8 +587,25 @@ CREATE INDEX IF NOT EXISTS idx_api_keys_name ON api_keys(key_name);
 CREATE INDEX IF NOT EXISTS idx_api_keys_category ON api_keys(key_category);
 CREATE INDEX IF NOT EXISTS idx_zkp_commitments_user_id ON user_zkp_commitments(user_id, created_at DESC);
 
+-- Refresh Tokens
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id) WHERE revoked_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token_hash ON refresh_tokens(token_hash);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_family_id ON refresh_tokens(family_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
+
+-- Auth Audit
+CREATE INDEX IF NOT EXISTS idx_auth_audit_user_id ON auth_audit_log(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_auth_audit_event_type ON auth_audit_log(event_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_auth_audit_created_at ON auth_audit_log(created_at DESC);
+
+-- Message Archives
+CREATE INDEX IF NOT EXISTS idx_message_archives_message_id ON message_archives(message_id);
+CREATE INDEX IF NOT EXISTS idx_message_archives_room_id ON message_archives(room_id);
+CREATE INDEX IF NOT EXISTS idx_message_archives_archived_at ON message_archives(archived_at DESC);
+CREATE INDEX IF NOT EXISTS idx_message_archives_room_archived ON message_archives(room_id, archived_at DESC);
+
 -- ===============================================
--- FUNCTIONS (from 02_compressor_functions.sql)
+-- 7. FUNCTIONS
 -- ===============================================
 
 -- SHA256 hex helper
@@ -670,6 +739,20 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Cleanup expired refresh tokens
+CREATE OR REPLACE FUNCTION cleanup_expired_refresh_tokens()
+RETURNS INTEGER AS $$
+DECLARE
+  deleted_count INTEGER;
+BEGIN
+  DELETE FROM refresh_tokens
+  WHERE expires_at < NOW() OR revoked_at IS NOT NULL;
+  
+  GET DIAGNOSTICS deleted_count = ROW_COUNT;
+  RETURN deleted_count;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Search functions
 CREATE MATERIALIZED VIEW IF NOT EXISTS message_search_index AS
 SELECT
@@ -721,32 +804,28 @@ END;
 $$;
 
 -- ===============================================
--- TRIGGERS
+-- 8. TRIGGERS
 -- ===============================================
 
 -- Updated_at triggers
-CREATE TRIGGER update_assistants_updated_at
-  BEFORE UPDATE ON assistants
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_bots_updated_at
-  BEFORE UPDATE ON bots
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_subscriptions_updated_at
-  BEFORE UPDATE ON subscriptions
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_message_violations_updated_at
-  BEFORE UPDATE ON message_violations
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_assistants_updated_at') THEN
+        CREATE TRIGGER update_assistants_updated_at BEFORE UPDATE ON assistants FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_bots_updated_at') THEN
+        CREATE TRIGGER update_bots_updated_at BEFORE UPDATE ON bots FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_subscriptions_updated_at') THEN
+        CREATE TRIGGER update_subscriptions_updated_at BEFORE UPDATE ON subscriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_message_violations_updated_at') THEN
+        CREATE TRIGGER update_message_violations_updated_at BEFORE UPDATE ON message_violations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
 
 -- ===============================================
--- ROW LEVEL SECURITY
+-- 9. ROW LEVEL SECURITY (RLS)
 -- ===============================================
 
 -- Enable RLS on all tables
@@ -771,6 +850,9 @@ ALTER TABLE threads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE embeddings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE presence_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auth_audit_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE message_archives ENABLE ROW LEVEL SECURITY;
 
 -- Helper functions for RLS
 CREATE OR REPLACE FUNCTION public.current_uid() RETURNS UUID AS $$
@@ -784,117 +866,23 @@ CREATE OR REPLACE FUNCTION public.current_role() RETURNS TEXT AS $$
   );
 $$ LANGUAGE SQL STABLE;
 
--- Basic RLS policies (extend as needed)
--- Audit log: Service role only
-CREATE POLICY audit_insert_service ON audit_log
-  FOR INSERT
-  TO service_role
-  WITH CHECK (true);
+-- Basic RLS policies (Service Role Access)
+-- Service role should have full access to everything
+CREATE POLICY service_all_audit_log ON audit_log FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_messages ON messages FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_users ON users FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_rooms ON rooms FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_room_memberships ON room_memberships FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_refresh_tokens ON refresh_tokens FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_auth_audit_log ON auth_audit_log FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_message_archives ON message_archives FOR ALL TO service_role USING (true) WITH CHECK (true);
 
-CREATE POLICY audit_select_service ON audit_log
-  FOR SELECT
-  TO service_role
-  USING (true);
-
-CREATE POLICY audit_no_update ON audit_log
-  FOR UPDATE
-  TO public
-  USING (false);
-
-CREATE POLICY audit_no_delete ON audit_log
-  FOR DELETE
-  TO public
-  USING (false);
-
--- Messages: Authenticated users
-CREATE POLICY messages_insert_auth ON messages
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (true);
-
-CREATE POLICY messages_select_room ON messages
-  FOR SELECT
-  TO authenticated
-  USING (true);
-
--- System tables: Service role only
-CREATE POLICY system_config_service_only ON system_config
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
-CREATE POLICY telemetry_service_only ON telemetry
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
--- API Keys: Service role only
-CREATE POLICY api_keys_service_role_only ON api_keys
-    FOR ALL
-    USING (auth.role() = 'service_role');
-
-CREATE POLICY api_keys_deny_all ON api_keys
-    FOR ALL
-    USING (false);
+-- Authenticated User Access (Basic)
+CREATE POLICY auth_select_users ON users FOR SELECT TO authenticated USING (true);
+CREATE POLICY auth_select_rooms ON rooms FOR SELECT TO authenticated USING (true);
+CREATE POLICY auth_select_messages ON messages FOR SELECT TO authenticated USING (true);
+CREATE POLICY auth_insert_messages ON messages FOR INSERT TO authenticated WITH CHECK (true);
 
 -- ===============================================
--- DEFAULT SYSTEM CONFIGURATION
+-- SETUP COMPLETE
 -- ===============================================
-
-INSERT INTO system_config (key, value) VALUES
-  ('retention_policy', jsonb_build_object(
-    'hot_retention_days', 30,
-    'cold_retention_days', 365
-  )),
-  ('cold_storage', jsonb_build_object(
-    'bucket', 'vibez-cold',
-    'provider', 's3'
-  )),
-  ('moderation_thresholds', jsonb_build_object(
-    'default', 0.6,
-    'illegal', 0.7,
-    'threat', 0.6,
-    'pii', 0.65,
-    'hate', 0.55,
-    'adult', 0.0,
-    'probation_multiplier', 0.5
-  )),
-  ('codec', jsonb_build_object(
-    'preferences', jsonb_build_object(
-      'text/plain', 'lz4',
-      'text/*', 'lz4',
-      'application/json', 'lz4',
-      'application/*', 'gzip',
-      'image/*', 'gzip',
-      'video/*', 'gzip',
-      'audio/*', 'gzip',
-      'default', 'gzip'
-    )
-  ))
-ON CONFLICT (key) DO NOTHING;
-
--- Set default node_id if not already set
-DO $$
-BEGIN
-  IF current_setting('app.node_id', true) IS NULL THEN
-    PERFORM set_config('app.node_id', 'local', false);
-  END IF;
-END $$;
-
--- ===============================================
--- COMPLETION MESSAGE
--- ===============================================
-DO $$
-BEGIN
-  RAISE NOTICE 'VibeZ database setup completed successfully!';
-  RAISE NOTICE 'Tables created: %', (SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public');
-  RAISE NOTICE 'Indexes created: %', (SELECT count(*) FROM pg_indexes WHERE schemaname = 'public');
-  RAISE NOTICE 'RLS enabled on sensitive tables';
-  RAISE NOTICE '';
-  RAISE NOTICE 'Next steps:';
-  RAISE NOTICE '1. Set encryption key: ALTER DATABASE postgres SET app.encryption_key = ''<your-hex-key>'';';
-  RAISE NOTICE '2. Store API keys using store_api_key() function';
-  RAISE NOTICE '3. Run validation scripts to verify setup';
-END $$;
