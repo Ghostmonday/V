@@ -15,7 +15,7 @@ const redis = getRedisClient();
 
 // Create Redis store for rate limiting
 const redisStore = new RedisStore({
-  client: redis,
+  sendCommand: (...args: string[]) => redis.call(...args),
   prefix: 'rl:', // Rate limit prefix
 });
 
