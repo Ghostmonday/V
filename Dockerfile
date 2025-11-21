@@ -3,6 +3,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Install build dependencies for native modules (lz4 requires node-gyp)
+RUN apk add --no-cache python3 make g++
+
 # Copy package files for the root and all workspaces
 COPY package*.json ./
 COPY turbo.json ./
