@@ -55,10 +55,10 @@ import { rateLimit, ipRateLimit } from './middleware/rate-limiting/rate-limiter-
 // Removed default rateLimiter import in favor of ipRateLimit
 import { sanitizeInput } from './middleware/validation/input-validation-middleware.js';
 import { fileUploadSecurity } from './middleware/security/file-upload-security-middleware.js';
-import { authMiddleware as supabaseAuthMiddleware } from './middleware/auth/supabase-auth-middleware.js'; // Supabase JWT auth middleware
 import helmet from 'helmet';
 import csurf from 'csurf';
-import { logInfo, logError } from './shared/logger-shared.js';
+import { authMiddleware as supabaseAuthMiddleware } from './middleware/auth/supabase-auth-middleware.js';
+import { logInfo, logError, logWarning } from './shared/logger-shared.js';
 import { LIMIT_REQUESTS_PER_MIN } from './server-config.js';
 
 
@@ -92,26 +92,26 @@ collectDefaultMetrics();
 if (process.env.NODE_ENV === 'production') {
   app.use((req: Request, res: Response, next: NextFunction) => {
     const isHttps = req.secure || req.get('x-forwarded-proto') === 'https';
-    
+
     if (!isHttps) {
       // Preserve query parameters in redirect
       const fullUrl = `https://${req.get('host')}${req.originalUrl}`;
       return res.redirect(308, fullUrl);
     }
-    
+
     next();
   });
 }
 
 // CORS middleware - Production-safe configuration
-const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || 
-  (process.env.NODE_ENV === 'production' 
-    ? ['https://vibez.app', 'https://www.vibez.app'] 
+const allowedOrigins = process.env.CORS_ORIGINS?.split(',') ||
+  (process.env.NODE_ENV === 'production'
+    ? ['https://vibez.app', 'https://www.vibez.app']
     : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:19006']);
 
 app.use((req: any, res: Response, next: any) => {
   const origin = req.headers.origin;
-  
+
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -119,54 +119,36 @@ app.use((req: any, res: Response, next: any) => {
     // Allow requests with no origin (e.g., mobile apps, Postman)
     res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
   }
-  
+
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
-  
+
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
+
   if (next) next();
 });
 
+// Apply Helmet security headers
+app.use(helmet());
+
 // Security middleware - Helmet with strict CSP
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"], // 'unsafe-inline' needed for some UI frameworks
-        scriptSrc: ["'self'"], // No inline scripts - XSS protection
-        imgSrc: ["'self'", 'data:', 'https:'], // Allow images from HTTPS sources
-        connectSrc: ["'self'", 'wss:', 'ws:'], // WebSocket connections
-        fontSrc: ["'self'", 'data:'],
-        objectSrc: ["'none'"], // Block plugins
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"], // Block iframes
-        baseUri: ["'self'"],
-        formAction: ["'self'"],
-        upgradeInsecureRequests: [], // Upgrade HTTP to HTTPS
-      },
-    },
-    crossOriginEmbedderPolicy: false, // Allow WebSocket connections
-    hsts: {
-      maxAge: 31536000, // 1 year
-      includeSubDomains: true,
-      preload: true,
-    },
-    noSniff: true, // Prevent MIME type sniffing
-    xssFilter: true, // Enable XSS filter
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  }) as any
-);
+import { defaultRateLimit } from './middleware/rate-limiting/express-rate-limit-middleware.js';
+
+// Apply rate limiting (windowMs 15000, max 100) to all routes except health
+
 
 // Phase 6.1: Structured logging middleware (after security, before routes)
 app.use(structuredLogging);
 
 // Health endpoint - must be public (before rate limiting and auth)
 app.get('/health', (req: Request, res: Response) => res.json({ status: 'ok', ts: new Date().toISOString() }));
+
+// Apply rate limiting with express-rate-limit (windowMs: 15000, max: 100)
+app.use(defaultRateLimit);
+
 
 import { checkSupabaseHealth, checkRedisHealthStatus } from './config/database-config.js';
 

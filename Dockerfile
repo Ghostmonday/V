@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install only production + dev deps needed for build
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy source files and build
 COPY . .
@@ -17,8 +17,7 @@ WORKDIR /app
 
 # Copy only compiled output and production deps
 COPY --from=builder /app/dist ./dist
-COPY package*.json ./
-RUN npm ci --production
+COPY --from=builder /app/node_modules ./node_modules
 
 # Expose the port Railway forwards (default 3000, but respect $PORT)
 ENV PORT=3000
