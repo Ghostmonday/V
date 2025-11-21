@@ -1,6 +1,9 @@
 # Railway Config-as-Code Configuration
 # This file defines build and deployment settings for Railway
-# See: https://docs.railway.app/deploy/config-as-code
+# See: https://docs.railway.com/deploy/config-as-code
+#
+# Note: Config-as-code settings override dashboard settings
+# Settings defined here will always take precedence
 
 [build]
 builder = "DOCKERFILE"
@@ -24,4 +27,8 @@ restartPolicyMaxRetries = 10
 # - REDIS_URL (auto-set when Redis service is added)
 #
 # See RAILWAY_ENV_SETUP.md for details
+#
+# Optional: preDeployCommand can be added if you need to run migrations:
+# preDeployCommand = ["npm run db:migrate"]
+# (Not needed since we use Supabase, not Railway PostgreSQL)
 

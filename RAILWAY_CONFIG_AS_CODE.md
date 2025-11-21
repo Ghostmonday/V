@@ -78,7 +78,18 @@ If your config file is not in the root directory, specify the path in Railway Da
 
 ## Railway Documentation
 
-- [Config-as-Code Guide](https://docs.railway.app/deploy/config-as-code)
-- [Build Configuration](https://docs.railway.app/guides/build-configuration)
-- [Schema Reference](https://railway.app/railway.schema.json)
+- [Config-as-Code Guide](https://docs.railway.com/deploy/config-as-code)
+- [Build Configuration](https://docs.railway.com/guides/build-configuration)
+- [Schema Reference](https://railway.com/railway.schema.json)
+
+## Important Notes
+
+⚠️ **Config-as-code overrides dashboard settings**  
+Settings defined in `railway.json` or `railway.toml` will **always override** values set in the Railway Dashboard. The dashboard settings will not be updated with values from the config file.
+
+✅ **Both formats are equivalent**  
+Railway treats `railway.json` and `railway.toml` identically. Use whichever format you prefer.
+
+🔍 **View config source in deployments**  
+On a deployment's details page, settings from config files show a file icon. Hover over it to see which part of the file the value came from.
 
