@@ -210,7 +210,7 @@ router.get(
         await import('../services/hardware-accelerated-encryption.js');
 
       const capabilities = detectHardwareAcceleration();
-      const algorithm = getOptimalEncryptionAlgorithm();
+      const algorithm = 'aes-256-gcm'; // Use default algorithm
 
       // Run quick benchmark
       const benchmark = await benchmarkEncryption(1024 * 1024); // 1MB test
