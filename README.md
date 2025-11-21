@@ -28,8 +28,8 @@ cd VibeZ
 # Install dependencies (Node 20+, npm)
 npm ci
 
-# Set up environment variables (see .env.example)
-cp .env.example .env
+# Set up environment variables (see env.template)
+cp env.template .env
 # Edit .env with your Supabase credentials, Redis config, etc.
 
 # Run the development server

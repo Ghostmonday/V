@@ -37,14 +37,14 @@ Before running tests, ensure Swift Package Manager dependencies are configured:
 ### Step 1: Open Xcode Project
 
 ```bash
-cd /Users/rentamac/Desktop/VibeZ/frontend/iOS
-open Sinapse.xcodeproj
+cd frontend/iOS
+open VibeZ.xcodeproj
 ```
 
 Or manually:
 
 - Open Xcode
-- File → Open → Navigate to `frontend/iOS/Sinapse.xcodeproj`
+- File → Open → Navigate to `frontend/iOS/VibeZ.xcodeproj`
 
 ### Step 2: Set Up Swift Package Dependencies
 
