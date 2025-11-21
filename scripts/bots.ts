@@ -2,236 +2,209 @@
 
 /**
  * Bot Simulation Script
- * Simulates multiple users connecting and interacting with the app
+ * Simulates seeded users (Alice, Bob, Admin) performing random actions
+ * to verify RLS policies and system behavior.
  */
 
-import WebSocket from 'ws';
-import fetch from 'node-fetch';
-import crypto from 'crypto';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-const WS_URL = BASE_URL.replace('http', 'ws') + '/ws';
-const NUM_BOTS = parseInt(process.env.NUM_BOTS || '10');
-const MESSAGE_INTERVAL = parseInt(process.env.MESSAGE_INTERVAL || '5000'); // ms
+// Load environment variables
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
-interface BotUser {
-    id: string;
-    username: string;
-    token: string;
-    ws?: WebSocket;
-    roomId?: string;
+const SUPABASE_URL = process.env.SUPABASE_URL || 'http://localhost:54321';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
+
+if (!SUPABASE_SERVICE_ROLE_KEY || !SUPABASE_JWT_SECRET) {
+    console.error('❌ Missing SUPABASE_SERVICE_ROLE_KEY or SUPABASE_JWT_SECRET');
+    process.exit(1);
 }
 
-const bots: BotUser[] = [];
-
-const BOT_NAMES = [
-    'AlphaBot', 'BetaBot', 'GammaBot', 'DeltaBot', 'EpsilonBot',
-    'ZetaBot', 'EtaBot', 'ThetaBot', 'IotaBot', 'KappaBot',
-    'LambdaBot', 'MuBot', 'NuBot', 'XiBot', 'OmicronBot',
-    'PiBot', 'RhoBot', 'SigmaBot', 'TauBot', 'UpsilonBot'
+// Seeded Users (from SEED_DATA.sql)
+const SEEDED_USERS = [
+    { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', handle: 'admin_user', role: 'admin' },
+    { id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b22', handle: 'alice', role: 'user' },
+    { id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c33', handle: 'bob', role: 'user' }
 ];
 
-const SAMPLE_MESSAGES = [
-    'Hello everyone! 👋',
-    'How is everyone doing today?',
-    'This is amazing!',
-    'Great to be here!',
-    'Anyone want to chat?',
-    'What a cool app!',
-    'Testing the waters...',
-    'Loving the vibes here! ✨',
-    'Hey there! 🎉',
-    'This is so smooth!',
-    'Anyone else excited?',
-    'Let\'s get this party started!',
-    'Greetings from the bot world! 🤖',
-    'Checking in!',
-    'What\'s new?'
+const ROOMS = [
+    'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380d44', // General
+    'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380e55'  // Random
 ];
+
+// Action types
+type ActionType = 'send_message' | 'create_thread' | 'react_message' | 'view_room';
 
 /**
- * Register a bot user
+ * Generate a valid Supabase JWT for a specific user ID
  */
-async function registerBot(username: string): Promise<BotUser> {
-    try {
-        const email = `${username.toLowerCase()}@bots.vibez.app`;
-        const password = crypto.randomBytes(16).toString('hex');
+function generateUserToken(userId: string, role: string = 'authenticated'): string {
+    const payload = {
+        sub: userId,
+        aud: 'authenticated',
+        role: role,
+        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) // 24 hours
+    };
+    return jwt.sign(payload, SUPABASE_JWT_SECRET!);
+}
 
-        const response = await fetch(`${BASE_URL}/api/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email,
-                password,
-                username,
-            }),
-        });
-
-        if (!response.ok) {
-            // Try login instead
-            const loginResponse = await fetch(`${BASE_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password: 'bot-password-123' }),
-            });
-
-            if (loginResponse.ok) {
-                const data = await loginResponse.json();
-                return {
-                    id: data.user.id,
-                    username,
-                    token: data.token,
-                };
+/**
+ * Create an authenticated Supabase client for a user
+ */
+function getClientForUser(userId: string): SupabaseClient {
+    const token = generateUserToken(userId);
+    return createClient(SUPABASE_URL, process.env.SUPABASE_ANON_KEY || '', {
+        global: {
+            headers: {
+                Authorization: `Bearer ${token}`
             }
         }
-
-        const data = await response.json();
-        return {
-            id: data.user.id,
-            username,
-            token: data.token,
-        };
-    } catch (error) {
-        console.error(`Failed to register bot ${username}:`, error);
-        throw error;
-    }
-}
-
-/**
- * Connect bot to WebSocket
- */
-function connectBot(bot: BotUser): Promise<void> {
-    return new Promise((resolve, reject) => {
-        try {
-            const ws = new WebSocket(`${WS_URL}?token=${bot.token}`);
-
-            ws.on('open', () => {
-                console.log(`✅ ${bot.username} connected`);
-                bot.ws = ws;
-                resolve();
-            });
-
-            ws.on('message', (data: WebSocket.Data) => {
-                try {
-                    const message = JSON.parse(data.toString());
-                    if (message.type === 'room_joined') {
-                        bot.roomId = message.roomId;
-                        console.log(`📍 ${bot.username} joined room ${bot.roomId}`);
-                    }
-                } catch (err) {
-                    // Ignore parse errors
-                }
-            });
-
-            ws.on('error', (error) => {
-                console.error(`❌ ${bot.username} WebSocket error:`, error.message);
-            });
-
-            ws.on('close', () => {
-                console.log(`🔌 ${bot.username} disconnected`);
-                // Attempt reconnect after 5 seconds
-                setTimeout(() => {
-                    if (bot.ws?.readyState === WebSocket.CLOSED) {
-                        connectBot(bot).catch(console.error);
-                    }
-                }, 5000);
-            });
-
-            // Timeout if connection takes too long
-            setTimeout(() => {
-                if (ws.readyState !== WebSocket.OPEN) {
-                    reject(new Error(`Connection timeout for ${bot.username}`));
-                }
-            }, 10000);
-        } catch (error) {
-            reject(error);
-        }
     });
 }
 
 /**
- * Send a random message from a bot
+ * Simulation Actions
  */
-function sendBotMessage(bot: BotUser) {
-    if (!bot.ws || bot.ws.readyState !== WebSocket.OPEN) {
-        return;
+
+async function sendMessage(user: typeof SEEDED_USERS[0], client: SupabaseClient) {
+    const roomId = ROOMS[Math.floor(Math.random() * ROOMS.length)];
+    const content = `Simulated message from ${user.handle} at ${new Date().toISOString()}`;
+
+    const { data, error } = await client
+        .from('messages')
+        .insert({
+            room_id: roomId,
+            payload_ref: `sim_${Date.now()}`,
+            content_preview: content,
+            content_hash: `hash_${Date.now()}`,
+            audit_hash_chain: `chain_${Date.now()}`,
+            partition_month: new Date().toISOString().slice(0, 7).replace('-', '_')
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error(`❌ [${user.handle}] Failed to send message:`, error.message);
+    } else {
+        console.log(`💬 [${user.handle}] Sent message in room ${roomId.slice(0, 8)}...`);
     }
+}
 
-    const message = SAMPLE_MESSAGES[Math.floor(Math.random() * SAMPLE_MESSAGES.length)];
-    const roomId = bot.roomId || 'default-room';
+async function createThread(user: typeof SEEDED_USERS[0], client: SupabaseClient) {
+    // Find a recent message to reply to
+    const { data: messages } = await client
+        .from('messages')
+        .select('id, room_id')
+        .limit(5)
+        .order('created_at', { ascending: false });
 
-    const envelope = {
-        type: 'message',
-        room_id: roomId,
-        payload: {
-            content: message,
-            type: 'text',
-        },
-    };
+    if (!messages || messages.length === 0) return;
 
-    bot.ws.send(JSON.stringify(envelope));
-    console.log(`💬 ${bot.username}: ${message}`);
+    const parent = messages[Math.floor(Math.random() * messages.length)];
+    const title = `Thread about ${parent.id.slice(0, 8)}`;
+
+    const { error } = await client
+        .from('threads')
+        .insert({
+            parent_message_id: parent.id,
+            room_id: parent.room_id,
+            title: title
+        });
+
+    if (error) {
+        console.error(`❌ [${user.handle}] Failed to create thread:`, error.message);
+    } else {
+        console.log(`🧵 [${user.handle}] Created thread on message ${parent.id.slice(0, 8)}...`);
+    }
+}
+
+async function reactToMessage(user: typeof SEEDED_USERS[0], client: SupabaseClient) {
+    const { data: messages } = await client
+        .from('messages')
+        .select('id, reactions')
+        .limit(5)
+        .order('created_at', { ascending: false });
+
+    if (!messages || messages.length === 0) return;
+
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    const reactions = (msg.reactions as any[]) || [];
+    reactions.push({ user_id: user.id, emoji: '👍', created_at: new Date().toISOString() });
+
+    const { error } = await client
+        .from('messages')
+        .update({ reactions: reactions })
+        .eq('id', msg.id);
+
+    if (error) {
+        console.error(`❌ [${user.handle}] Failed to react:`, error.message);
+    } else {
+        console.log(`👍 [${user.handle}] Reacted to message ${msg.id.slice(0, 8)}...`);
+    }
+}
+
+async function viewRoom(user: typeof SEEDED_USERS[0], client: SupabaseClient) {
+    const roomId = ROOMS[Math.floor(Math.random() * ROOMS.length)];
+    const { data, error } = await client
+        .from('rooms')
+        .select('*')
+        .eq('id', roomId)
+        .single();
+
+    if (error) {
+        console.error(`❌ [${user.handle}] Failed to view room:`, error.message);
+    } else {
+        console.log(`👀 [${user.handle}] Viewed room ${data.title}`);
+    }
 }
 
 /**
- * Main bot simulation
+ * Main Loop
  */
-async function runBotSimulation() {
-    console.log('🤖 Starting Bot Simulation...');
-    console.log(`📊 Number of bots: ${NUM_BOTS}`);
-    console.log(`⏱️  Message interval: ${MESSAGE_INTERVAL}ms`);
-    console.log(`🌐 Server: ${BASE_URL}\n`);
+async function runSimulation() {
+    console.log('🤖 Starting Bot Simulation with Seeded Users...');
+    console.log('Users:', SEEDED_USERS.map(u => u.handle).join(', '));
+    console.log('Press Ctrl+C to stop.\n');
 
-    // Register bots
-    console.log('📝 Registering bots...');
-    for (let i = 0; i < NUM_BOTS; i++) {
-        const username = BOT_NAMES[i % BOT_NAMES.length] + (i >= BOT_NAMES.length ? i : '');
+    while (true) {
+        // Pick a random user
+        const user = SEEDED_USERS[Math.floor(Math.random() * SEEDED_USERS.length)];
+        const client = getClientForUser(user.id);
+
+        // Pick a random action
+        const actions: ActionType[] = ['send_message', 'create_thread', 'react_message', 'view_room'];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+
         try {
-            const bot = await registerBot(username);
-            bots.push(bot);
-            console.log(`✓ Registered: ${username}`);
-        } catch (error) {
-            console.error(`✗ Failed to register ${username}`);
+            switch (action) {
+                case 'send_message':
+                    await sendMessage(user, client);
+                    break;
+                case 'create_thread':
+                    await createThread(user, client);
+                    break;
+                case 'react_message':
+                    await reactToMessage(user, client);
+                    break;
+                case 'view_room':
+                    await viewRoom(user, client);
+                    break;
+            }
+        } catch (err: any) {
+            console.error(`⚠️ Unexpected error for ${user.handle}:`, err.message);
         }
+
+        // Random delay between 1-3 seconds
+        const delay = Math.floor(Math.random() * 2000) + 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
     }
-
-    console.log(`\n✅ Registered ${bots.length} bots\n`);
-
-    // Connect bots
-    console.log('🔌 Connecting bots to WebSocket...');
-    const connectionPromises = bots.map(bot => connectBot(bot));
-    await Promise.allSettled(connectionPromises);
-
-    console.log(`\n✅ Connected ${bots.filter(b => b.ws?.readyState === WebSocket.OPEN).length} bots\n`);
-
-    // Start sending messages
-    console.log('💬 Starting message simulation...\n');
-    setInterval(() => {
-        // Pick a random bot to send a message
-        const activeBots = bots.filter(b => b.ws?.readyState === WebSocket.OPEN);
-        if (activeBots.length > 0) {
-            const randomBot = activeBots[Math.floor(Math.random() * activeBots.length)];
-            sendBotMessage(randomBot);
-        }
-    }, MESSAGE_INTERVAL);
-
-    // Keep the process running
-    console.log('🎯 Bot simulation running. Press Ctrl+C to stop.\n');
 }
 
-// Handle graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\n\n🛑 Shutting down bots...');
-    bots.forEach(bot => {
-        if (bot.ws) {
-            bot.ws.close();
-        }
-    });
-    process.exit(0);
-});
-
-// Run the simulation
-runBotSimulation().catch((error) => {
-    console.error('❌ Bot simulation failed:', error);
-    process.exit(1);
-});
+// Run
+runSimulation().catch(console.error);
