@@ -1,0 +1,27 @@
+# Railway Config-as-Code Configuration
+# This file defines build and deployment settings for Railway
+# See: https://docs.railway.app/deploy/config-as-code
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "node dist/server/index.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Note: Environment variables are NOT stored in this file for security reasons.
+# Set them in Railway Dashboard → Variables tab or via Railway CLI:
+# 
+# Required Environment Variables:
+# - NEXT_PUBLIC_SUPABASE_URL
+# - SUPABASE_SERVICE_ROLE_KEY
+# - JWT_SECRET
+# - NODE_ENV=production
+# - REDIS_URL (auto-set when Redis service is added)
+#
+# See RAILWAY_ENV_SETUP.md for details
+
