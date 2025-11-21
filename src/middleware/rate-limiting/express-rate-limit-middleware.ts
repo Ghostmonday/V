@@ -13,18 +13,20 @@ import { Request, Response } from 'express';
 
 const redis = getRedisClient();
 
-// Create Redis store for rate limiting
-const redisStore = new RedisStore({
-  sendCommand: (...args: string[]) => redis.call(...args),
-  prefix: 'rl:', // Rate limit prefix
-});
+// Helper function to create a new RedisStore instance with unique prefix
+function createRedisStore(prefix: string) {
+  return new RedisStore({
+    sendCommand: (...args: string[]) => redis.call(...args),
+    prefix, // Unique prefix for each rate limiter
+  });
+}
 
 /**
  * Default rate limit configuration
  * 100 requests per 15 minutes per IP
  */
 export const defaultRateLimit = rateLimit({
-  store: redisStore,
+  store: createRedisStore('rl:default:'),
   windowMs: 15000, // 15 seconds
   max: 100, // Limit each IP to 100 requests per windowMs
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
@@ -44,7 +46,7 @@ export const defaultRateLimit = rateLimit({
  * 10 requests per 15 minutes per IP
  */
 export const strictRateLimit = rateLimit({
-  store: redisStore,
+  store: createRedisStore('rl:strict:'),
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
@@ -64,7 +66,7 @@ export const strictRateLimit = rateLimit({
  * Free: 100 req/15min, Pro: 500 req/15min, Enterprise: 2000 req/15min
  */
 export const tieredRateLimit = rateLimit({
-  store: redisStore,
+  store: createRedisStore('rl:tiered:'),
   windowMs: 15 * 60 * 1000,
   max: async (req: AuthenticatedRequest) => {
     // Default to free tier limit
@@ -111,7 +113,7 @@ export const tieredRateLimit = rateLimit({
  * 200 requests per 15 minutes per user
  */
 export const userRateLimit = rateLimit({
-  store: redisStore,
+  store: createRedisStore('rl:user:'),
   windowMs: 15 * 60 * 1000,
   max: 200,
   standardHeaders: true,
@@ -142,7 +144,7 @@ export const userRateLimit = rateLimit({
  * 1000 requests per hour per API key
  */
 export const apiKeyRateLimit = rateLimit({
-  store: redisStore,
+  store: createRedisStore('rl:apikey:'),
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 1000,
   standardHeaders: true,
