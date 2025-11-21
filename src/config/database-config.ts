@@ -126,8 +126,10 @@ export function getRedisClient(): Redis | Cluster {
       const errorMsg = 'REDIS_URL not set or using localhost - Redis service may not be added in Railway';
       logError(errorMsg);
       console.error('❌', errorMsg);
-      console.error('   Add Redis service: Railway Dashboard → Your Project → "New" → "Database" → "Add Redis"');
-      console.error('   Railway will automatically set REDIS_URL with the correct connection string');
+      console.error('   Current REDIS_URL:', process.env.REDIS_URL || '(not set)');
+      console.error('   Fix: Railway Dashboard → Redis Service → Variables → Copy REDIS_URL');
+      console.error('   Then: Railway Dashboard → App Service → Variables → Set REDIS_URL');
+      console.error('   OR: Railway should auto-set it if Redis service is connected');
       // Don't create a client with localhost - it won't work in Railway
       throw new Error('REDIS_URL is required. Add Redis service in Railway to auto-set this variable.');
     }
