@@ -18,6 +18,8 @@ WORKDIR /app
 # Copy only compiled output and production deps
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
 
 # Expose the port Railway forwards (default 3000, but respect $PORT)
 ENV PORT=3000
