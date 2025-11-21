@@ -67,6 +67,9 @@ const server = http.createServer(app as any);
 // noServer: true allows us to handle the upgrade manually
 const wss = new WebSocketServer({ noServer: true });
 
+// Trust proxy headers (needed for load balancers/reverse proxies)
+app.set('trust proxy', 1);
+
 // Handle WebSocket upgrades
 server.on('upgrade', (request, socket, head) => {
   // Check if the path is for WebSocket
@@ -86,29 +89,44 @@ collectDefaultMetrics();
 
 // HTTPS enforcement in production
 if (process.env.NODE_ENV === 'production') {
-  app.use((req: Request, res: Response, next: any) => {
-    // Check if request is HTTP (not HTTPS)
-    if ((req as any).header('x-forwarded-proto') !== 'https' && (req as any).protocol !== 'https') {
-      // Redirect to HTTPS
-      return (res as any).redirect(308, `https://${(req as any).get('host')}${(req as any).url}`);
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const isHttps = req.secure || req.get('x-forwarded-proto') === 'https';
+    
+    if (!isHttps) {
+      // Preserve query parameters in redirect
+      const fullUrl = `https://${req.get('host')}${req.originalUrl}`;
+      return res.redirect(308, fullUrl);
     }
-    if (next) next();
+    
+    next();
   });
 }
 
-// CORS middleware
+// CORS middleware - Production-safe configuration
+const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || 
+  (process.env.NODE_ENV === 'production' 
+    ? ['https://vibez.app', 'https://www.vibez.app'] 
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:19006']);
+
 app.use((req: any, res: Response, next: any) => {
-  // Allow all origins for development
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  } else if (!origin) {
+    // Allow requests with no origin (e.g., mobile apps, Postman)
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
+  
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    // return res.status(200).end();
+    return res.status(200).end();
   }
-
+  
   if (next) next();
 });
 
