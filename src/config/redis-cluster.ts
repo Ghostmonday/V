@@ -262,7 +262,8 @@ function setupClusterEventHandlers(client: Cluster): void {
   });
   
   client.on('node error', (err: Error, node: any) => {
-    logError(`Redis cluster node error: ${node.options.host}:${node.options.port}`, err);
+    const nodeInfo = node?.options ? `${node.options.host}:${node.options.port}` : 'unknown';
+    logError(`Redis cluster node error: ${nodeInfo}`, err);
   });
   
   client.on('+move', (slot: number, node: any) => {
