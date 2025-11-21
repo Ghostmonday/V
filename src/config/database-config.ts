@@ -21,12 +21,18 @@ let supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Validate environment variables
 if (!supabaseUrl) {
-  logError('Missing NEXT_PUBLIC_SUPABASE_URL in .env file');
+  const errorMsg = 'Missing NEXT_PUBLIC_SUPABASE_URL - required for database connection';
+  logError(errorMsg);
+  console.error('❌', errorMsg);
+  console.error('   Set NEXT_PUBLIC_SUPABASE_URL in Railway Dashboard → Variables');
   throw new Error('NEXT_PUBLIC_SUPABASE_URL is required');
 }
 
 if (!supabaseKey) {
-  logError('Missing SUPABASE_SERVICE_ROLE_KEY in .env file');
+  const errorMsg = 'Missing SUPABASE_SERVICE_ROLE_KEY - required for database connection';
+  logError(errorMsg);
+  console.error('❌', errorMsg);
+  console.error('   Set SUPABASE_SERVICE_ROLE_KEY in Railway Dashboard → Variables');
   throw new Error('SUPABASE_SERVICE_ROLE_KEY is required');
 }
 

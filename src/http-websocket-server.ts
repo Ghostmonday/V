@@ -436,11 +436,33 @@ app.get('/health', (req: Request, res: Response) => res.json({ status: 'ok', upt
 
 const PORT = process.env.PORT || 3000;
 
+// Log startup information
+logInfo('Starting server...', {
+  port: PORT,
+  nodeEnv: process.env.NODE_ENV || 'development',
+  hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+  hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+  hasRedisUrl: !!process.env.REDIS_URL,
+});
+
 // Wrap server startup in cluster setup for multi-process support
 setupCluster(() => {
-  server.listen(PORT as number, '0.0.0.0', () => {
-    logInfo(`Server running on port ${PORT}`);
-  });
+  try {
+    server.listen(PORT as number, '0.0.0.0', () => {
+      logInfo(`Server running on port ${PORT}`);
+      console.log(`✅ Server started successfully on port ${PORT}`);
+    });
+
+    server.on('error', (error: Error) => {
+      logError('Server error', error);
+      console.error('❌ Server error:', error);
+      process.exit(1);
+    });
+  } catch (error) {
+    logError('Failed to start server', error instanceof Error ? error : new Error(String(error)));
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 });
 
 // Initialize workers (parallel import)
@@ -509,6 +531,19 @@ const shutdown = async (signal: string) => {
   logInfo('Graceful shutdown complete');
   process.exit(0);
 };
+
+// Error handlers - catch uncaught exceptions and unhandled rejections
+process.on('uncaughtException', (error: Error) => {
+  logError('Uncaught Exception - Server will exit', error);
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+  logError('Unhandled Rejection', reason instanceof Error ? reason : new Error(String(reason)));
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit on unhandled rejection, but log it
+});
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
