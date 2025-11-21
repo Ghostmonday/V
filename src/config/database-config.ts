@@ -122,15 +122,16 @@ let redisConfig: RedisClusterConfig | null = null;
 export function getRedisClient(): Redis | Cluster {
   if (!redisClient) {
     // Check if REDIS_URL is set (Railway auto-sets this when Redis service is added)
-    if (!process.env.REDIS_URL || process.env.REDIS_URL === 'redis://localhost:6379') {
-      const errorMsg = 'REDIS_URL not set or using localhost - Redis service may not be added in Railway';
+    // Allow localhost for testing environments
+    if (!process.env.REDIS_URL || (process.env.REDIS_URL === 'redis://localhost:6379' && process.env.NODE_ENV === 'production')) {
+      const errorMsg = 'REDIS_URL not set or using localhost in production - Redis service may not be added in Railway';
       logError(errorMsg);
       console.error('❌', errorMsg);
       console.error('   Current REDIS_URL:', process.env.REDIS_URL || '(not set)');
       console.error('   Fix: Railway Dashboard → Redis Service → Variables → Copy REDIS_URL');
       console.error('   Then: Railway Dashboard → App Service → Variables → Set REDIS_URL');
       console.error('   OR: Railway should auto-set it if Redis service is connected');
-      // Don't create a client with localhost - it won't work in Railway
+      // Don't create a client with localhost in production - it won't work in Railway
       throw new Error('REDIS_URL is required. Add Redis service in Railway to auto-set this variable.');
     }
 
