@@ -3,7 +3,7 @@ services:
   api:
     build: .
     ports:
-      - "3000:3000"
+      - "8000:3000"
     environment:
       - DB_URL=postgres://postgres:password@postgres:5432/sinaps
       - REDIS_URL=redis://redis:6379
@@ -52,8 +52,8 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./rules.yml:/etc/prometheus/rules.yml
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/rules.yml:/etc/prometheus/rules.yml
 
 volumes:
   postgres_data:

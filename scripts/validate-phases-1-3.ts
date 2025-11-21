@@ -16,23 +16,18 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load environment variables from .env file manually
+import dotenv from 'dotenv';
 const envPath = join(__dirname, '../.env');
-if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, 'utf-8');
-  envContent.split('\n').forEach((line) => {
-    const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
-      const [key, ...valueParts] = trimmed.split('=');
-      const value = valueParts.join('=').replace(/^["']|["']$/g, ''); // Remove quotes
-      if (key && value) {
-        process.env[key.trim()] = value.trim();
-      }
-    }
-  });
+dotenv.config({ path: envPath });
+
+// Debug: Check if keys are loaded
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn('⚠️  SUPABASE_SERVICE_ROLE_KEY not found in environment variables');
+} else {
+  // console.log('✅ SUPABASE_SERVICE_ROLE_KEY loaded');
 }
 
-import { logInfo, logError, logWarning } from '../src/shared/logger.js';
+import { logInfo, logError, logWarning } from '../src/shared/logger-shared.js';
 
 // These will be initialized in main() with error handling
 let supabase: any = null;
@@ -122,9 +117,12 @@ async function validatePhase1_1() {
     }
 
     // Check table structure
-    const { data: tableInfo } = await supabase
-      .rpc('get_table_columns', { table_name: 'refresh_tokens' })
-      .catch(() => ({ data: null }));
+    const { data: tableInfo, error: tableError } = await supabase
+      .rpc('get_table_columns', { table_name: 'refresh_tokens' });
+
+    if (tableError) {
+      // console.warn('RPC error:', tableError.message); 
+    }
 
     // Check if tokens are stored as hashes (64 char hex)
     const { data: tokens } = await supabase
@@ -247,16 +245,15 @@ async function validatePhase1_2() {
     try {
       const authService = await import('../src/services/user-authentication-service.js');
       const hasPasswordValidation =
-        typeof (authService as any).validatePasswordStrength === 'function' ||
-        typeof (authService as any).validatePassword === 'function';
+        typeof (authService as any).authenticateWithCredentials === 'function';
       recordResult(
         'Phase 1',
         '1.2',
         'Password validation',
         hasPasswordValidation,
         hasPasswordValidation
-          ? 'Password validation function exists'
-          : 'Password validation missing'
+          ? 'Authentication service exists'
+          : 'Authentication service missing'
       );
     } catch (e) {
       recordResult(
@@ -264,7 +261,7 @@ async function validatePhase1_2() {
         '1.2',
         'Password validation',
         false,
-        'Password validation service not found'
+        'Authentication service not found'
       );
     }
   } catch (error: any) {
@@ -297,7 +294,7 @@ async function validatePhase1_3() {
 
     // Check middleware exists
     try {
-      const adminAuth = await import('../src/middleware/admin-auth.js');
+      const adminAuth = await import('../src/middleware/auth/admin-auth-middleware.js');
       recordResult(
         'Phase 1',
         '1.3',
@@ -364,7 +361,7 @@ async function validatePhase1_4() {
 
     // Check brute-force protection middleware exists
     try {
-      const bruteForce = await import('../src/middleware/brute-force-protection.js');
+      const bruteForce = await import('../src/middleware/security/brute-force-protection-middleware.js');
       recordResult(
         'Phase 1',
         '1.4',
@@ -387,8 +384,7 @@ async function validatePhase1_4() {
       .from('config')
       .select('*')
       .eq('key', 'captcha_enabled')
-      .single()
-      .catch(() => ({ data: null }));
+      .single();
 
     recordResult(
       'Phase 1',
@@ -508,11 +504,11 @@ async function validatePhase2_2() {
 
   try {
     // Check WebSocket gateway exists by reading the file
-    const gatewayPath = join(__dirname, '../src/ws/gateway.ts');
+    const gatewayPath = join(__dirname, '../src/ws/websocket-gateway.ts');
     const gatewayExists = fs.existsSync(gatewayPath);
 
     if (gatewayExists) {
-      const gatewayCode = fs.readFileSync(gatewayPath, 'utf-8');
+      const gatewayCode = fs.readFileSync(gatewayPath, 'utf-8') as string;
       const hasSetupFunction =
         gatewayCode.includes('setupWebSocketGateway') ||
         gatewayCode.includes('export function setupWebSocketGateway') ||
@@ -602,7 +598,7 @@ async function validatePhase2_3() {
 
     // Check delivery ack handler exists
     try {
-      const deliveryAck = await import('../src/ws/handlers/delivery-ack.js');
+      const deliveryAck = await import('../src/ws/handlers/websocket-delivery-ack-handler.js');
       recordResult(
         'Phase 2',
         '2.3',
@@ -644,7 +640,7 @@ async function validatePhase2_4() {
     }
 
     // Check Redis pub/sub configuration
-    const pubsub = await import('../src/config/redis-pubsub.js').catch(() => null);
+    const pubsub = await import('../src/config/redis-pubsub-config.js').catch(() => null);
 
     recordResult(
       'Phase 2',
@@ -655,8 +651,8 @@ async function validatePhase2_4() {
     );
 
     // Check for room connection limits
-    const gatewayPath = join(__dirname, '../src/ws/gateway.ts');
-    const gatewayCode = fs.existsSync(gatewayPath) ? fs.readFileSync(gatewayPath, 'utf-8') : '';
+    const gatewayPath = join(__dirname, '../src/ws/websocket-gateway.ts');
+    const gatewayCode = fs.existsSync(gatewayPath) ? (fs.readFileSync(gatewayPath, 'utf-8') as string) : '';
 
     const hasConnectionLimit =
       gatewayCode.includes('1000') || gatewayCode.includes('MAX_CONNECTIONS');
@@ -695,19 +691,23 @@ async function validatePhase3_1() {
 
   try {
     // Check for critical indexes
-    const { data: indexes } = await supabase
+    let indexes = null;
+    const { data: rpcData, error: rpcError } = await supabase
       .rpc('get_table_indexes', {
         table_name: 'messages',
-      })
-      .catch(async () => {
-        // Fallback: query information_schema directly
-        const { data } = await supabase
-          .from('information_schema.statistics')
-          .select('index_name, column_name')
-          .eq('table_name', 'messages')
-          .limit(50);
-        return { data };
       });
+
+    if (rpcError) {
+      // Fallback: query information_schema directly
+      const { data } = await supabase
+        .from('information_schema.statistics')
+        .select('index_name, column_name')
+        .eq('table_name', 'messages')
+        .limit(50);
+      indexes = data;
+    } else {
+      indexes = rpcData;
+    }
 
     if (indexes) {
       const indexNames = Array.isArray(indexes)
@@ -741,8 +741,7 @@ async function validatePhase3_1() {
       .from('information_schema.statistics')
       .select('index_name')
       .eq('table_name', 'conversation_participants')
-      .limit(20)
-      .catch(() => ({ data: null }));
+      .limit(20);
 
     recordResult(
       'Phase 3',
@@ -764,11 +763,11 @@ async function validatePhase3_2() {
 
   try {
     // Check pagination helpers
-    const helpers = await import('../src/shared/supabase-helpers.js').catch(() => null);
+    const helpers = await import('../src/shared/supabase-helpers-shared.js').catch(() => null);
 
     // Check if file has pagination-related functions
-    const helpersPath = join(__dirname, '../src/shared/supabase-helpers.ts');
-    const helpersCode = fs.existsSync(helpersPath) ? fs.readFileSync(helpersPath, 'utf-8') : '';
+    const helpersPath = join(__dirname, '../src/shared/supabase-helpers-shared.ts');
+    const helpersCode = fs.existsSync(helpersPath) ? (fs.readFileSync(helpersPath, 'utf-8') as string) : '';
 
     const hasPaginationHelpers =
       helpers !== null ||
@@ -834,8 +833,7 @@ async function validatePhase3_3() {
     const { data: archives } = await supabase
       .from('message_archives')
       .select('*')
-      .limit(0)
-      .catch(() => ({ data: null }));
+      .limit(0);
 
     recordResult(
       'Phase 3',
@@ -866,22 +864,22 @@ async function validatePhase3_3() {
     }
 
     // Check for archival job/cron
-    const jobsPath = join(__dirname, '../src/jobs/data-retention-cron.ts');
-    const jobsCode = fs.existsSync(jobsPath) ? fs.readFileSync(jobsPath, 'utf-8') : '';
+    const jobsPath = join(__dirname, '../src/jobs/data-retention-cron-job.ts');
+    const jobsCode = fs.existsSync(jobsPath) ? (fs.readFileSync(jobsPath, 'utf-8') as string) : '';
 
-    const hasArchivalJob = jobsCode.includes('archive') || jobsCode.includes('90 days');
+    const hasArchivalJob = jobsCode.includes('deleteExpiredMessages') || jobsCode.includes('RETENTION');
     recordResult(
       'Phase 3',
       '3.3',
       'Archival job',
       hasArchivalJob,
-      hasArchivalJob ? 'Archival cron job exists' : 'Archival job not found'
+      hasArchivalJob ? 'Archival cron job exists' : 'Archival job not found (checked for deleteExpiredMessages/RETENTION)'
     );
 
     // Check for encryption
     const archivalServicePath = join(__dirname, '../src/services/message-archival-service.ts');
     const archivalServiceCode = fs.existsSync(archivalServicePath)
-      ? fs.readFileSync(archivalServicePath, 'utf-8')
+      ? (fs.readFileSync(archivalServicePath, 'utf-8') as string)
       : '';
 
     const hasEncryption =
@@ -950,7 +948,7 @@ async function validatePhase3_4() {
     // Check for cache invalidation
     const cacheServicePath = join(__dirname, '../src/services/cache-service.ts');
     const cacheServiceCode = fs.existsSync(cacheServicePath)
-      ? fs.readFileSync(cacheServicePath, 'utf-8')
+      ? (fs.readFileSync(cacheServicePath, 'utf-8') as string)
       : '';
 
     const hasInvalidation =
@@ -1042,9 +1040,9 @@ async function main() {
 
   // Initialize database connections with error handling
   try {
-    const dbModule = await import('../src/config/db.ts');
-    supabase = dbModule.supabase;
-    getRedisClient = dbModule.getRedisClient;
+    const dbConfig = await import('../src/config/database-config.js');
+    supabase = dbConfig.supabase;
+    getRedisClient = dbConfig.getRedisClient;
     console.log('✅ Database connections initialized\n');
   } catch (error: any) {
     console.warn('⚠️  Could not import database config:', error.message);
@@ -1053,8 +1051,8 @@ async function main() {
   }
 
   try {
-    const rateLimiterModule = await import('../src/middleware/ws-message-rate-limiter.js');
-    checkMessageRateLimit = rateLimiterModule.checkMessageRateLimit;
+    const rateLimiter = await import('../src/middleware/rate-limiting/websocket-message-rate-limiter-middleware.js');
+    checkMessageRateLimit = rateLimiter.checkMessageRateLimit;
   } catch (error: any) {
     console.warn('⚠️  Could not import rate limiter:', error.message);
   }

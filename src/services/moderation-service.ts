@@ -9,7 +9,7 @@ import axios from 'axios';
 import { logError, logWarning, logInfo } from '../shared/logger-shared.js';
 import { supabase } from '../config/database-config.js';
 import { logModerationEvent } from './telemetry-service.js';
-import { sanitizePrompt, logPromptAudit } from '../utils/prompt-sanitizer.js';
+import { sanitizePrompt, logPromptAudit } from '../utils/prompt-sanitizer-utils.js';
 import { getDeepSeekKey } from './api-keys-service.js';
 import { analyzeWithPerspective, getModerationThresholds } from './perspective-api-service.js';
 

@@ -5,7 +5,7 @@
 
 import { Response, NextFunction } from 'express';
 import { getUserSubscription, SubscriptionTier } from '../services/subscription-service.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 
 export const requirePro = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {

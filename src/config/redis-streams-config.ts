@@ -14,7 +14,7 @@
  * - Archival: Stream messages to archival service via dedicated consumer group
  */
 
-import { getRedisClient } from './db.ts';
+import { getRedisClient } from './database-config.js';
 import { logInfo, logError, logWarning } from '../shared/logger-shared.js';
 
 const redis = getRedisClient();

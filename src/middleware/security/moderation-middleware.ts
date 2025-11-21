@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { logAudit } from '../../shared/logger-shared.js';
-import { AuthenticatedRequest } from '../../types/auth.types.js';
+import { AuthenticatedRequest } from '../../types/auth-types.js';
 
 export const moderateContent = async (
   req: AuthenticatedRequest,

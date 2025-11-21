@@ -11,7 +11,7 @@
  * - At least one special character
  */
 
-import { z } from 'zod/v3';
+import { z } from 'zod';
 import { validateServiceData } from './incremental-validation-middleware.js';
 import { logWarning } from '../../shared/logger-shared.js';
 

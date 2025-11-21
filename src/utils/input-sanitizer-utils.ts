@@ -3,7 +3,7 @@
  * Prevents injection attacks and validates input for ZKP endpoints
  */
 
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 /**
  * Sanitize string input - removes potentially dangerous characters

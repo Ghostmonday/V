@@ -8,7 +8,7 @@ import { supabase } from '../config/database-config.js';
 import { redisPublisher } from '../config/redis-pubsub-config.js';
 import { recordTelemetryEvent } from './telemetry-service.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
-import { findMany, PaginatedResult } from '../shared/supabase-helpers.js';
+import { findMany, PaginatedResult } from '../shared/supabase-helpers-shared.js';
 import type {
   MessageReaction,
   ReactionUpdate,

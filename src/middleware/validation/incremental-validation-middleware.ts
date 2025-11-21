@@ -1,4 +1,4 @@
-import { z } from 'zod/v3';
+import { z } from 'zod';
 import { logError } from '../../shared/logger-shared.js';
 
 export function validateServiceData<T>(data: any, schema: any, context: string): T {

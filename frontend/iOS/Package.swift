@@ -36,7 +36,8 @@ let package = Package(
                 "Managers",
                 "Components",
                 "Extensions",
-                "Enums"
+                "Enums",
+                "StressTest"
             ]
         ),
     ]

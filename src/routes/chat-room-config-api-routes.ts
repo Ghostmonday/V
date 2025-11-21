@@ -6,9 +6,9 @@
 import { Router } from 'express';
 import { supabase } from '../config/database-config.js';
 import { logError } from '../shared/logger-shared.js';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import { getUserSubscription, SubscriptionTier } from '../services/subscription-service.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 
 const router = Router();
 

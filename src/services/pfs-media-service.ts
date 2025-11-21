@@ -13,7 +13,7 @@ import {
   decryptWithHardwareAcceleration,
 } from './hardware-accelerated-encryption.js';
 import { getEncryptionConfig } from '../config/encryption-config.js';
-import { mediaStreamCircuitBreaker } from '../utils/circuit-breaker.js';
+import { CircuitBreaker } from '../utils/circuit-breaker-utils.js';
 
 const redis = getRedisClient();
 

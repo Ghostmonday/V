@@ -13,7 +13,7 @@ import { Request, Response, NextFunction } from 'express';
 import { getRedisClient } from '../../config/database-config.js';
 import { logError, logWarning, logAudit } from '../../shared/logger-shared.js';
 import { validateServiceData } from '../validation/incremental-validation-middleware.js';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 const redis = getRedisClient();
 

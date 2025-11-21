@@ -4,11 +4,15 @@ import webPush from 'web-push';
 import { logError, logInfo } from '../shared/logger-shared.js';
 
 const redis = getRedisClient();
-webPush.setVapidDetails(
-  process.env.VAPID_SUBJECT || '',
-  process.env.VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-);
+if (process.env.VAPID_SUBJECT && process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webPush.setVapidDetails(
+    process.env.VAPID_SUBJECT,
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+} else {
+  logInfo('VAPID keys not found - push notifications disabled');
+}
 
 // Use Redis Streams for better performance (or fallback to list)
 const NOTIFICATION_STREAM = 'notifications:stream';
@@ -124,7 +128,7 @@ async function processNotificationQueue() {
         } catch (error: any) {
           logError('Error processing notification', error);
           // Acknowledge anyway to prevent reprocessing
-          await redis.xack(NOTIFICATION_STREAM, NOTIFICATION_GROUP, messageId).catch(() => {});
+          await redis.xack(NOTIFICATION_STREAM, NOTIFICATION_GROUP, messageId).catch(() => { });
         }
       }
     }
