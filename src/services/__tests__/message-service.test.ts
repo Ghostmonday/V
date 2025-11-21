@@ -39,16 +39,19 @@ describe('Message Service', () => {
   });
 
   describe('sendMessageToRoom', () => {
+    const validUserId = '550e8400-e29b-41d4-a716-446655440001';
+    const validRoomId = '550e8400-e29b-41d4-a716-446655440002';
+
     it('should send a message successfully', async () => {
       const messageData = {
-        roomId: 'test-room-id',
-        senderId: 'test-user-id',
+        roomId: validRoomId,
+        senderId: validUserId,
         content: 'Hello, world!',
       };
 
       await sendMessageToRoom(messageData);
 
-      expect(moderationService.isUserMuted).toHaveBeenCalledWith('test-user-id', 'test-room-id');
+      expect(moderationService.isUserMuted).toHaveBeenCalledWith(validUserId, validRoomId);
       expect(supabaseHelpers.create).toHaveBeenCalled();
       expect(mockRedis.publish).toHaveBeenCalled();
     });
@@ -57,8 +60,8 @@ describe('Message Service', () => {
       vi.mocked(moderationService.isUserMuted).mockResolvedValue(true);
 
       const messageData = {
-        roomId: 'test-room-id',
-        senderId: 'test-user-id',
+        roomId: validRoomId,
+        senderId: validUserId,
         content: 'Hello, world!',
       };
 
@@ -73,13 +76,13 @@ describe('Message Service', () => {
     it('should handle numeric roomId', async () => {
       const messageData = {
         roomId: 123,
-        senderId: 'test-user-id',
+        senderId: validUserId,
         content: 'Hello, world!',
       };
 
       await sendMessageToRoom(messageData);
 
-      expect(moderationService.isUserMuted).toHaveBeenCalledWith('test-user-id', '123');
+      expect(moderationService.isUserMuted).toHaveBeenCalledWith(validUserId, '123');
     });
   });
 
