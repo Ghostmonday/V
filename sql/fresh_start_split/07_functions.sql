@@ -2,12 +2,12 @@
 -- 7. FUNCTIONS
 -- ===============================================
 
-SET search_path = service, public;
+SET search_path = service, public, extensions;
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- SHA256 hex helper
 CREATE OR REPLACE FUNCTION sha256_hex(data bytea) RETURNS TEXT AS $$
-  SELECT encode(digest($1, 'sha256'), 'hex');
+  SELECT encode(digest($1, 'sha256'::text), 'hex');
 $$ LANGUAGE SQL IMMUTABLE STRICT;
 
 -- Intake log function

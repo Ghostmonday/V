@@ -14,7 +14,7 @@
 -- ===============================================
 
 -- 1. CONFIGURATION & EXTENSIONS
-SET search_path TO service, public;
+SET search_path TO service, public, extensions;
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
@@ -611,7 +611,7 @@ CREATE INDEX IF NOT EXISTS idx_message_archives_room_archived ON message_archive
 
 -- SHA256 hex helper
 CREATE OR REPLACE FUNCTION sha256_hex(data bytea) RETURNS TEXT AS $$
-  SELECT encode(digest($1, 'sha256'), 'hex');
+  SELECT encode(digest($1, 'sha256'::text), 'hex');
 $$ LANGUAGE SQL IMMUTABLE STRICT;
 
 -- Intake log function
