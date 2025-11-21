@@ -57,7 +57,7 @@ async function validatePhase5_1() {
   );
 
   if (perspectiveExists) {
-    const content: string = fs.readFileSync(perspectiveServicePath, 'utf-8');
+    const content = fs.readFileSync(perspectiveServicePath, 'utf-8') as string;
 
     // Check for analyzeWithPerspective function
     const hasAnalyzeFunction = content.includes('analyzeWithPerspective');
@@ -105,7 +105,7 @@ async function validatePhase5_1() {
   );
 
   if (moderationExists) {
-    const content: string = fs.readFileSync(moderationServicePath, 'utf-8');
+    const content = fs.readFileSync(moderationServicePath, 'utf-8') as string;
     const usesPerspective = content.includes('analyzeWithPerspective');
     const hasDeepSeekFallback =
       content.includes('DeepSeek') ||
@@ -137,7 +137,7 @@ async function validatePhase5_2() {
   // Check getModerationThresholds function
   const perspectiveServicePath = path.join(__dirname, '../src/services/perspective-api-service.ts');
   if (fs.existsSync(perspectiveServicePath)) {
-    const content = fs.readFileSync(perspectiveServicePath, 'utf-8');
+    const content = fs.readFileSync(perspectiveServicePath, 'utf-8') as string;
 
     const hasGetThresholds = content.includes('getModerationThresholds');
     recordResult(
@@ -185,7 +185,7 @@ async function validatePhase5_2() {
   );
 
   if (migrationExists) {
-    const content = fs.readFileSync(migrationPath, 'utf-8');
+    const content = fs.readFileSync(migrationPath, 'utf-8') as string;
     const hasTable = content.includes('room_moderation_thresholds');
     const hasRLS = content.includes('ROW LEVEL SECURITY') || content.includes('POLICY');
     recordResult(
@@ -207,7 +207,7 @@ async function validatePhase5_2() {
   // Check API endpoints
   const configRoutesPath = path.join(__dirname, '../src/routes/chat-room-config-routes.ts');
   if (fs.existsSync(configRoutesPath)) {
-    const content = fs.readFileSync(configRoutesPath, 'utf-8');
+    const content = fs.readFileSync(configRoutesPath, 'utf-8') as string;
     const hasGetEndpoint = content.includes('moderation-thresholds') && content.includes('GET');
     const hasPostEndpoint = content.includes('moderation-thresholds') && content.includes('POST');
     recordResult(
@@ -245,7 +245,7 @@ async function validatePhase5_3() {
   );
 
   if (flaggingExists) {
-    const content = fs.readFileSync(flaggingServicePath, 'utf-8');
+    const content = fs.readFileSync(flaggingServicePath, 'utf-8') as string;
 
     const hasFlagMessage = content.includes('flagMessage');
     const hasGetFlagged = content.includes('getFlaggedMessages');
@@ -286,7 +286,7 @@ async function validatePhase5_3() {
   );
 
   if (routesExist) {
-    const content = fs.readFileSync(moderationRoutesPath, 'utf-8');
+    const content = fs.readFileSync(moderationRoutesPath, 'utf-8') as string;
     const hasFlagEndpoint = content.includes('POST') && content.includes('/flag');
     const hasMyFlagsEndpoint = content.includes('GET') && content.includes('my-flags');
     recordResult(
@@ -308,7 +308,7 @@ async function validatePhase5_3() {
   // Check auto-flagging in moderation service
   const moderationServicePath = path.join(__dirname, '../src/services/moderation.service.ts');
   if (fs.existsSync(moderationServicePath)) {
-    const content = fs.readFileSync(moderationServicePath, 'utf-8');
+    const content = fs.readFileSync(moderationServicePath, 'utf-8') as string;
     const hasAutoFlag = content.includes('flagMessage') && content.includes('warnThreshold');
     recordResult(
       'Phase 5',
@@ -343,7 +343,7 @@ async function validateIntegration() {
   // Check server registration
   const serverPath = path.join(__dirname, '../src/server/index.ts');
   if (fs.existsSync(serverPath)) {
-    const content = fs.readFileSync(serverPath, 'utf-8');
+    const content = fs.readFileSync(serverPath, 'utf-8') as string;
     const hasModerationRoutes =
       content.includes('moderation-routes') || content.includes('moderationRoutes');
     recordResult(
@@ -358,7 +358,7 @@ async function validateIntegration() {
   // Check WebSocket integration
   const wsMessagingPath = path.join(__dirname, '../src/ws/handlers/messaging.ts');
   if (fs.existsSync(wsMessagingPath)) {
-    const content = fs.readFileSync(wsMessagingPath, 'utf-8');
+    const content = fs.readFileSync(wsMessagingPath, 'utf-8') as string;
     const hasModeration = content.includes('scanForToxicity');
     recordResult(
       'Phase 5',
@@ -372,7 +372,7 @@ async function validateIntegration() {
   // Check message service integration
   const messageServicePath = path.join(__dirname, '../src/services/message-service.ts');
   if (fs.existsSync(messageServicePath)) {
-    const content = fs.readFileSync(messageServicePath, 'utf-8');
+    const content = fs.readFileSync(messageServicePath, 'utf-8') as string;
     const hasModeration = content.includes('scanForToxicity') || content.includes('isUserMuted');
     recordResult(
       'Phase 5',

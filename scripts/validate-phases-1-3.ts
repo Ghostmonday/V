@@ -508,7 +508,7 @@ async function validatePhase2_2() {
     const gatewayExists = fs.existsSync(gatewayPath);
 
     if (gatewayExists) {
-      const gatewayCode = fs.readFileSync(gatewayPath, 'utf-8');
+      const gatewayCode = fs.readFileSync(gatewayPath, 'utf-8') as string;
       const hasSetupFunction =
         gatewayCode.includes('setupWebSocketGateway') ||
         gatewayCode.includes('export function setupWebSocketGateway') ||
@@ -652,7 +652,7 @@ async function validatePhase2_4() {
 
     // Check for room connection limits
     const gatewayPath = join(__dirname, '../src/ws/websocket-gateway.ts');
-    const gatewayCode = fs.existsSync(gatewayPath) ? fs.readFileSync(gatewayPath, 'utf-8') : '';
+    const gatewayCode = fs.existsSync(gatewayPath) ? (fs.readFileSync(gatewayPath, 'utf-8') as string) : '';
 
     const hasConnectionLimit =
       gatewayCode.includes('1000') || gatewayCode.includes('MAX_CONNECTIONS');
@@ -767,7 +767,7 @@ async function validatePhase3_2() {
 
     // Check if file has pagination-related functions
     const helpersPath = join(__dirname, '../src/shared/supabase-helpers-shared.ts');
-    const helpersCode = fs.existsSync(helpersPath) ? fs.readFileSync(helpersPath, 'utf-8') : '';
+    const helpersCode = fs.existsSync(helpersPath) ? (fs.readFileSync(helpersPath, 'utf-8') as string) : '';
 
     const hasPaginationHelpers =
       helpers !== null ||
@@ -865,7 +865,7 @@ async function validatePhase3_3() {
 
     // Check for archival job/cron
     const jobsPath = join(__dirname, '../src/jobs/data-retention-cron-job.ts');
-    const jobsCode = fs.existsSync(jobsPath) ? fs.readFileSync(jobsPath, 'utf-8') : '';
+    const jobsCode = fs.existsSync(jobsPath) ? (fs.readFileSync(jobsPath, 'utf-8') as string) : '';
 
     const hasArchivalJob = jobsCode.includes('deleteExpiredMessages') || jobsCode.includes('RETENTION');
     recordResult(
@@ -879,7 +879,7 @@ async function validatePhase3_3() {
     // Check for encryption
     const archivalServicePath = join(__dirname, '../src/services/message-archival-service.ts');
     const archivalServiceCode = fs.existsSync(archivalServicePath)
-      ? fs.readFileSync(archivalServicePath, 'utf-8')
+      ? (fs.readFileSync(archivalServicePath, 'utf-8') as string)
       : '';
 
     const hasEncryption =
@@ -948,7 +948,7 @@ async function validatePhase3_4() {
     // Check for cache invalidation
     const cacheServicePath = join(__dirname, '../src/services/cache-service.ts');
     const cacheServiceCode = fs.existsSync(cacheServicePath)
-      ? fs.readFileSync(cacheServicePath, 'utf-8')
+      ? (fs.readFileSync(cacheServicePath, 'utf-8') as string)
       : '';
 
     const hasInvalidation =
