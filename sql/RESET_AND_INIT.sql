@@ -1,35 +1,41 @@
 -- ===============================================
--- VibeZ FRESH START SQL SETUP
+-- VibeZ DATABASE RESET & INITIALIZATION
 -- ===============================================
--- This script sets up the entire VibeZ database schema from scratch.
--- It includes all core tables, features, security policies, and functions.
---
--- PREREQUISITES:
--- 1. Supabase project created.
--- 2. Extensions: pgcrypto, pg_stat_statements, uuid-ossp, vector.
--- 3. Roles: authenticated, service_role (standard Supabase roles).
+-- WARNING: THIS SCRIPT WILL WIPE ALL DATA AND RECREATE THE SCHEMA.
+-- It is designed to provide a "Perfect Fresh Start" for the VibeZ application.
 --
 -- INSTRUCTIONS:
 -- Run this script in the Supabase SQL Editor.
 -- ===============================================
 
--- 1. CONFIGURATION & EXTENSIONS
-SET search_path TO service, public, extensions;
+-- 1. CLEANUP & CONFIGURATION
+-- ===============================================
 
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS vector;
+-- Reset schemas to ensure a clean slate
+DROP SCHEMA IF EXISTS service CASCADE;
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+CREATE SCHEMA service;
 
--- Create service schema for privileged operations
-CREATE SCHEMA IF NOT EXISTS service;
+-- Grant usage on schemas
+GRANT USAGE ON SCHEMA public TO postgres, anon, authenticated, service_role;
+GRANT USAGE ON SCHEMA service TO postgres, service_role;
+
+-- Set search path: public first (for app tables), then service (for internal), then extensions
+SET search_path TO public, service, extensions;
+
+-- Enable Extensions
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS "vector" SCHEMA extensions;
 
 -- ===============================================
--- 2. CORE TABLES
+-- 2. CORE TABLES (PUBLIC SCHEMA)
 -- ===============================================
 
 -- Users: Profiles with trust metadata and federation support
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   handle TEXT NOT NULL UNIQUE,
   display_name TEXT,
@@ -42,23 +48,15 @@ CREATE TABLE IF NOT EXISTS users (
   role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'moderator', 'admin', 'owner'))
 );
 
--- Ensure role column exists (if table already existed)
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'role') THEN
-        ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'moderator', 'admin', 'owner'));
-    END IF;
-END $$;
-
 -- Rooms: Metadata with partition key and room-level retention overrides
-CREATE TABLE IF NOT EXISTS rooms (
+CREATE TABLE public.rooms (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT NOT NULL UNIQUE,
   title TEXT,
-  created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  created_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   is_public BOOLEAN NOT NULL DEFAULT true,
-  partition_month TEXT,
+  partition_month TEXT, -- Populated by trigger
   metadata JSONB DEFAULT '{}'::jsonb,
   fed_node_id TEXT,
   retention_hot_days INT,
@@ -66,10 +64,10 @@ CREATE TABLE IF NOT EXISTS rooms (
 );
 
 -- Room memberships: Roles, strikes, probation, and ban tracking
-CREATE TABLE IF NOT EXISTS room_memberships (
+CREATE TABLE public.room_memberships (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  room_id UUID NOT NULL REFERENCES public.rooms(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   role TEXT NOT NULL DEFAULT 'member',
   joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   strike_count INT NOT NULL DEFAULT 0,
@@ -80,10 +78,10 @@ CREATE TABLE IF NOT EXISTS room_memberships (
 );
 
 -- Messages: Minimal canonical records with external payload references
-CREATE TABLE IF NOT EXISTS messages (
+CREATE TABLE public.messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-  sender_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  room_id UUID NOT NULL REFERENCES public.rooms(id) ON DELETE CASCADE,
+  sender_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   payload_ref TEXT NOT NULL,
   content_preview TEXT,
@@ -92,12 +90,12 @@ CREATE TABLE IF NOT EXISTS messages (
   flags JSONB DEFAULT '{}'::jsonb,
   is_flagged BOOLEAN NOT NULL DEFAULT FALSE,
   is_exported BOOLEAN NOT NULL DEFAULT FALSE,
-  partition_month TEXT NOT NULL,
+  partition_month TEXT NOT NULL, -- Populated by trigger
   fed_origin_hash TEXT,
   -- P0 Features
   reactions JSONB DEFAULT '[]'::jsonb,
-  thread_id UUID,
-  reply_to UUID,
+  thread_id UUID, -- FK added later
+  reply_to UUID, -- FK added later
   is_edited BOOLEAN DEFAULT FALSE,
   -- VIBES Features
   conversation_id UUID, -- FK added later
@@ -107,17 +105,17 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 -- Message receipts: Delivery and read states
-CREATE TABLE IF NOT EXISTS message_receipts (
+CREATE TABLE public.message_receipts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  message_id UUID NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   delivered_at TIMESTAMPTZ,
   read_at TIMESTAMPTZ,
   UNIQUE(message_id, user_id)
 );
 
 -- Audit log: Append-only, immutable events with chained hashes
-CREATE TABLE IF NOT EXISTS audit_log (
+CREATE TABLE public.audit_log (
   id BIGSERIAL PRIMARY KEY,
   event_time TIMESTAMPTZ NOT NULL DEFAULT now(),
   event_type TEXT NOT NULL,
@@ -134,9 +132,9 @@ CREATE TABLE IF NOT EXISTS audit_log (
 );
 
 -- Raw logs: Transient intake before compression
-CREATE TABLE IF NOT EXISTS logs_raw (
+CREATE TABLE public.logs_raw (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  room_id UUID NOT NULL REFERENCES public.rooms(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   payload BYTEA NOT NULL,
   mime_type TEXT NOT NULL,
@@ -146,7 +144,7 @@ CREATE TABLE IF NOT EXISTS logs_raw (
 );
 
 -- Compressed logs: Declarative partitioning by partition_month
-CREATE TABLE IF NOT EXISTS logs_compressed (
+CREATE TABLE public.logs_compressed (
   id UUID DEFAULT gen_random_uuid(),
   room_id UUID NOT NULL,
   partition_month TEXT NOT NULL,
@@ -160,16 +158,16 @@ CREATE TABLE IF NOT EXISTS logs_compressed (
   PRIMARY KEY (id, partition_month)
 ) PARTITION BY RANGE (partition_month);
 
-CREATE TABLE IF NOT EXISTS logs_compressed_default PARTITION OF logs_compressed DEFAULT;
+CREATE TABLE public.logs_compressed_default PARTITION OF public.logs_compressed DEFAULT;
 
 -- ===============================================
--- 3. AUTH & SECURITY TABLES
+-- 3. AUTH & SECURITY TABLES (PUBLIC SCHEMA)
 -- ===============================================
 
 -- Refresh tokens for secure token rotation
-CREATE TABLE IF NOT EXISTS refresh_tokens (
+CREATE TABLE public.refresh_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   token_hash TEXT NOT NULL UNIQUE,
   family_id UUID NOT NULL,
   expires_at TIMESTAMPTZ NOT NULL,
@@ -181,9 +179,9 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 );
 
 -- Auth audit log
-CREATE TABLE IF NOT EXISTS auth_audit_log (
+CREATE TABLE public.auth_audit_log (
   id BIGSERIAL PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
   event_type TEXT NOT NULL,
   ip_address TEXT,
   user_agent TEXT,
@@ -194,7 +192,7 @@ CREATE TABLE IF NOT EXISTS auth_audit_log (
 );
 
 -- API Keys Vault
-CREATE TABLE IF NOT EXISTS api_keys (
+CREATE TABLE public.api_keys (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     key_name VARCHAR(100) NOT NULL UNIQUE,
     key_category VARCHAR(50) NOT NULL,
@@ -210,9 +208,9 @@ CREATE TABLE IF NOT EXISTS api_keys (
 );
 
 -- Privacy: ZKP Commitments
-CREATE TABLE IF NOT EXISTS user_zkp_commitments (
+CREATE TABLE public.user_zkp_commitments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   attribute_type TEXT NOT NULL CHECK (attribute_type IN ('age', 'verified', 'subscription_tier', 'location_country', 'custom')),
   commitment TEXT NOT NULL,
   proof_data JSONB DEFAULT '{}'::jsonb,
@@ -222,49 +220,42 @@ CREATE TABLE IF NOT EXISTS user_zkp_commitments (
 );
 
 -- ===============================================
--- 4. FEATURE TABLES
+-- 4. FEATURE TABLES (PUBLIC SCHEMA)
 -- ===============================================
 
 -- Threads
-CREATE TABLE IF NOT EXISTS threads (
+CREATE TABLE public.threads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  parent_message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
-  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  parent_message_id UUID NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
+  room_id UUID NOT NULL REFERENCES public.rooms(id) ON DELETE CASCADE,
   title VARCHAR(255),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   message_count INTEGER DEFAULT 0,
   is_archived BOOLEAN DEFAULT FALSE,
-  created_by UUID REFERENCES users(id) ON DELETE SET NULL
+  created_by UUID REFERENCES public.users(id) ON DELETE SET NULL
 );
 
 -- Add foreign key constraint for thread_id and reply_to in messages
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'messages_thread_id_fkey') THEN
-        ALTER TABLE messages ADD CONSTRAINT messages_thread_id_fkey FOREIGN KEY (thread_id) REFERENCES threads(id) ON DELETE SET NULL;
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'messages_reply_to_fkey') THEN
-        ALTER TABLE messages ADD CONSTRAINT messages_reply_to_fkey FOREIGN KEY (reply_to) REFERENCES messages(id) ON DELETE SET NULL;
-    END IF;
-END $$;
+ALTER TABLE public.messages ADD CONSTRAINT messages_thread_id_fkey FOREIGN KEY (thread_id) REFERENCES public.threads(id) ON DELETE SET NULL;
+ALTER TABLE public.messages ADD CONSTRAINT messages_reply_to_fkey FOREIGN KEY (reply_to) REFERENCES public.messages(id) ON DELETE SET NULL;
 
 -- Edit history
-CREATE TABLE IF NOT EXISTS edit_history (
+CREATE TABLE public.edit_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  message_id UUID NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
   old_content TEXT NOT NULL,
-  edited_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  edited_by UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   edited_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Bots
-CREATE TABLE IF NOT EXISTS bots (
+CREATE TABLE public.bots (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   url VARCHAR(500) NOT NULL,
   token VARCHAR(255) UNIQUE NOT NULL,
-  created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_by UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   is_active BOOLEAN DEFAULT TRUE,
   permissions JSONB DEFAULT '{}'::jsonb,
   metadata JSONB DEFAULT '{}'::jsonb,
@@ -273,9 +264,9 @@ CREATE TABLE IF NOT EXISTS bots (
 );
 
 -- Bot endpoints
-CREATE TABLE IF NOT EXISTS bot_endpoints (
+CREATE TABLE public.bot_endpoints (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  bot_id UUID NOT NULL REFERENCES bots(id) ON DELETE CASCADE,
+  bot_id UUID NOT NULL REFERENCES public.bots(id) ON DELETE CASCADE,
   endpoint_url VARCHAR(500) NOT NULL,
   webhook_secret VARCHAR(255),
   event_types TEXT[] DEFAULT '{}',
@@ -285,9 +276,9 @@ CREATE TABLE IF NOT EXISTS bot_endpoints (
 );
 
 -- AI Assistants
-CREATE TABLE IF NOT EXISTS assistants (
+CREATE TABLE public.assistants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  owner_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL,
   description TEXT,
   model VARCHAR(100) NOT NULL DEFAULT 'gpt-4',
@@ -300,9 +291,9 @@ CREATE TABLE IF NOT EXISTS assistants (
 );
 
 -- Subscriptions
-CREATE TABLE IF NOT EXISTS subscriptions (
+CREATE TABLE public.subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   push_sub JSONB NOT NULL,
   endpoint VARCHAR(500) NOT NULL,
   p256dh VARCHAR(255),
@@ -314,16 +305,16 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 );
 
 -- Embeddings
-CREATE TABLE IF NOT EXISTS embeddings (
+CREATE TABLE public.embeddings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  message_id UUID NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
   vector vector(1536) NOT NULL,
   model VARCHAR(100) DEFAULT 'text-embedding-3-small',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Metrics
-CREATE TABLE IF NOT EXISTS metrics (
+CREATE TABLE public.metrics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   type VARCHAR(100) NOT NULL,
   value DECIMAL(15,2) NOT NULL,
@@ -332,18 +323,18 @@ CREATE TABLE IF NOT EXISTS metrics (
 );
 
 -- Presence logs
-CREATE TABLE IF NOT EXISTS presence_logs (
+CREATE TABLE public.presence_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  room_id UUID REFERENCES public.rooms(id) ON DELETE CASCADE,
   status VARCHAR(50) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Conversations (VIBES)
-CREATE TABLE IF NOT EXISTS conversations (
+CREATE TABLE public.conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  created_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   last_message_at TIMESTAMPTZ,
@@ -353,27 +344,22 @@ CREATE TABLE IF NOT EXISTS conversations (
 );
 
 -- Conversation participants
-CREATE TABLE IF NOT EXISTS conversation_participants (
+CREATE TABLE public.conversation_participants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   last_read_at TIMESTAMPTZ,
   UNIQUE(conversation_id, user_id)
 );
 
 -- Add FK to messages for conversation_id
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'messages_conversation_id_fkey') THEN
-        ALTER TABLE messages ADD CONSTRAINT messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE;
-    END IF;
-END $$;
+ALTER TABLE public.messages ADD CONSTRAINT messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.conversations(id) ON DELETE CASCADE;
 
 -- Sentiment analysis
-CREATE TABLE IF NOT EXISTS sentiment_analysis (
+CREATE TABLE public.sentiment_analysis (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
   analysis_data JSONB NOT NULL,
   surprise_factor NUMERIC NOT NULL,
   keywords TEXT[],
@@ -383,10 +369,10 @@ CREATE TABLE IF NOT EXISTS sentiment_analysis (
 );
 
 -- Cards
-CREATE TABLE IF NOT EXISTS cards (
+CREATE TABLE public.cards (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-  sentiment_analysis_id UUID REFERENCES sentiment_analysis(id) ON DELETE SET NULL,
+  conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
+  sentiment_analysis_id UUID REFERENCES public.sentiment_analysis(id) ON DELETE SET NULL,
   artwork_url TEXT NOT NULL,
   frame_style TEXT NOT NULL CHECK (frame_style IN ('common', 'uncommon', 'rare', 'epic', 'legendary')),
   title TEXT NOT NULL,
@@ -402,30 +388,30 @@ CREATE TABLE IF NOT EXISTS cards (
 );
 
 -- Card ownerships
-CREATE TABLE IF NOT EXISTS card_ownerships (
+CREATE TABLE public.card_ownerships (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
-  owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  card_id UUID NOT NULL REFERENCES public.cards(id) ON DELETE CASCADE,
+  owner_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   acquired_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   acquisition_type TEXT NOT NULL CHECK (acquisition_type IN ('claimed', 'defaulted', 'purchased')),
   claim_deadline TIMESTAMPTZ,
-  previous_owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  previous_owner_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
   UNIQUE(card_id, owner_id)
 );
 
 -- Card events
-CREATE TABLE IF NOT EXISTS card_events (
+CREATE TABLE public.card_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
+  card_id UUID NOT NULL REFERENCES public.cards(id) ON DELETE CASCADE,
   event_type TEXT NOT NULL CHECK (event_type IN ('generated', 'offered', 'claimed', 'declined', 'defaulted', 'burned', 'printed')),
-  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
   metadata JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Museum entries
-CREATE TABLE IF NOT EXISTS museum_entries (
-  card_id UUID PRIMARY KEY REFERENCES cards(id) ON DELETE CASCADE,
+CREATE TABLE public.museum_entries (
+  card_id UUID PRIMARY KEY REFERENCES public.cards(id) ON DELETE CASCADE,
   visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public', 'redacted', 'burned', 'private')),
   view_count INTEGER DEFAULT 0,
   featured BOOLEAN DEFAULT false,
@@ -433,10 +419,10 @@ CREATE TABLE IF NOT EXISTS museum_entries (
 );
 
 -- Boosts
-CREATE TABLE IF NOT EXISTS boosts (
+CREATE TABLE public.boosts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  conversation_id UUID REFERENCES public.conversations(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   boost_type TEXT NOT NULL CHECK (boost_type IN ('rarity_boost')),
   amount_paid NUMERIC NOT NULL,
   payment_provider TEXT,
@@ -446,13 +432,13 @@ CREATE TABLE IF NOT EXISTS boosts (
 );
 
 -- ===============================================
--- 5. SERVICE & ARCHIVAL TABLES
+-- 5. SERVICE & ARCHIVAL TABLES (SERVICE/PUBLIC MIX)
 -- ===============================================
 
--- Service tables
-CREATE TABLE IF NOT EXISTS service.encode_queue (
+-- Service tables (Internal queues)
+CREATE TABLE service.encode_queue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  raw_id UUID NOT NULL REFERENCES logs_raw(id) ON DELETE CASCADE,
+  raw_id UUID NOT NULL REFERENCES public.logs_raw(id) ON DELETE CASCADE,
   status TEXT NOT NULL DEFAULT 'pending',
   attempts INT NOT NULL DEFAULT 0,
   max_attempts INT NOT NULL DEFAULT 3,
@@ -461,9 +447,9 @@ CREATE TABLE IF NOT EXISTS service.encode_queue (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS service.moderation_queue (
+CREATE TABLE service.moderation_queue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  message_id UUID NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
   status TEXT NOT NULL DEFAULT 'pending',
   attempts INT NOT NULL DEFAULT 0,
   max_attempts INT NOT NULL DEFAULT 3,
@@ -472,8 +458,8 @@ CREATE TABLE IF NOT EXISTS service.moderation_queue (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Retention and legal holds
-CREATE TABLE IF NOT EXISTS retention_schedule (
+-- Retention and legal holds (Public)
+CREATE TABLE public.retention_schedule (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   resource_type TEXT NOT NULL,
   resource_id UUID NOT NULL,
@@ -484,7 +470,7 @@ CREATE TABLE IF NOT EXISTS retention_schedule (
   hold_reason TEXT
 );
 
-CREATE TABLE IF NOT EXISTS legal_holds (
+CREATE TABLE public.legal_holds (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   resource_type TEXT NOT NULL,
   resource_id UUID NOT NULL,
@@ -495,14 +481,14 @@ CREATE TABLE IF NOT EXISTS legal_holds (
 );
 
 -- System config
-CREATE TABLE IF NOT EXISTS system_config (
+CREATE TABLE public.system_config (
   key TEXT PRIMARY KEY,
   value JSONB NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Telemetry
-CREATE TABLE IF NOT EXISTS telemetry (
+CREATE TABLE public.telemetry (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_time TIMESTAMPTZ NOT NULL DEFAULT now(),
   event TEXT NOT NULL,
@@ -516,10 +502,10 @@ CREATE TABLE IF NOT EXISTS telemetry (
 );
 
 -- Message Archives (Cold Storage)
-CREATE TABLE IF NOT EXISTS message_archives (
+CREATE TABLE public.message_archives (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  message_id UUID NOT NULL UNIQUE REFERENCES messages(id) ON DELETE CASCADE,
-  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  message_id UUID NOT NULL UNIQUE REFERENCES public.messages(id) ON DELETE CASCADE,
+  room_id UUID NOT NULL REFERENCES public.rooms(id) ON DELETE CASCADE,
   archived_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   archive_format TEXT NOT NULL DEFAULT 'encrypted_json_v1',
   archive_checksum TEXT NOT NULL,
@@ -529,20 +515,20 @@ CREATE TABLE IF NOT EXISTS message_archives (
 );
 
 -- Moderation tables
-CREATE TABLE IF NOT EXISTS message_violations (
+CREATE TABLE public.message_violations (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  room_id UUID REFERENCES public.rooms(id) ON DELETE CASCADE,
   count INTEGER DEFAULT 1,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(user_id, room_id)
 );
 
-CREATE TABLE IF NOT EXISTS user_mutes (
+CREATE TABLE public.user_mutes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  room_id UUID REFERENCES public.rooms(id) ON DELETE CASCADE,
   muted_until TIMESTAMP NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(user_id, room_id)
@@ -553,69 +539,71 @@ CREATE TABLE IF NOT EXISTS user_mutes (
 -- ===============================================
 
 -- Core indexes
-CREATE INDEX IF NOT EXISTS idx_messages_room_time ON messages (room_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_messages_hash ON messages (content_hash);
-CREATE INDEX IF NOT EXISTS idx_messages_flagged ON messages (is_flagged) WHERE is_flagged = true;
-CREATE INDEX IF NOT EXISTS idx_messages_partition ON messages (partition_month);
-CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_messages_reactions ON messages USING GIN (reactions);
-CREATE INDEX IF NOT EXISTS idx_messages_thread_id ON messages (thread_id) WHERE thread_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_messages_reply_to ON messages (reply_to) WHERE reply_to IS NOT NULL;
+CREATE INDEX idx_messages_room_time ON public.messages (room_id, created_at DESC);
+CREATE INDEX idx_messages_hash ON public.messages (content_hash);
+CREATE INDEX idx_messages_flagged ON public.messages (is_flagged) WHERE is_flagged = true;
+CREATE INDEX idx_messages_partition ON public.messages (partition_month);
+CREATE INDEX idx_messages_conversation_id ON public.messages(conversation_id, created_at DESC);
+CREATE INDEX idx_messages_reactions ON public.messages USING GIN (reactions);
+CREATE INDEX idx_messages_thread_id ON public.messages (thread_id) WHERE thread_id IS NOT NULL;
+CREATE INDEX idx_messages_reply_to ON public.messages (reply_to) WHERE reply_to IS NOT NULL;
 
 -- Audit and logs
-CREATE INDEX IF NOT EXISTS idx_audit_room_time ON audit_log (room_id, event_time DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_node_chain ON audit_log (node_id, id DESC);
-CREATE INDEX IF NOT EXISTS idx_audit_event_type ON audit_log (event_type);
-CREATE INDEX IF NOT EXISTS idx_logs_raw_room_month ON logs_raw (room_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_logs_compressed_room_month ON logs_compressed (room_id, partition_month, created_at DESC);
+CREATE INDEX idx_audit_room_time ON public.audit_log (room_id, event_time DESC);
+CREATE INDEX idx_audit_node_chain ON public.audit_log (node_id, id DESC);
+CREATE INDEX idx_audit_event_type ON public.audit_log (event_type);
+CREATE INDEX idx_logs_raw_room_month ON public.logs_raw (room_id, created_at DESC);
+CREATE INDEX idx_logs_compressed_room_month ON public.logs_compressed (room_id, partition_month, created_at DESC);
 
 -- Feature indexes
-CREATE INDEX IF NOT EXISTS idx_threads_parent_message ON threads (parent_message_id);
-CREATE INDEX IF NOT EXISTS idx_threads_room_id ON threads (room_id) WHERE is_archived = FALSE;
-CREATE INDEX IF NOT EXISTS idx_threads_updated_at ON threads (updated_at DESC) WHERE is_archived = FALSE;
-CREATE INDEX IF NOT EXISTS idx_edit_history_message_id ON edit_history (message_id);
-CREATE INDEX IF NOT EXISTS idx_edit_history_edited_at ON edit_history (edited_at DESC);
-CREATE INDEX IF NOT EXISTS idx_embeddings_vector ON embeddings USING hnsw (vector vector_cosine_ops) WITH (m = 16, ef_construction = 64);
+CREATE INDEX idx_threads_parent_message ON public.threads (parent_message_id);
+CREATE INDEX idx_threads_room_id ON public.threads (room_id) WHERE is_archived = FALSE;
+CREATE INDEX idx_threads_updated_at ON public.threads (updated_at DESC) WHERE is_archived = FALSE;
+CREATE INDEX idx_edit_history_message_id ON public.edit_history (message_id);
+CREATE INDEX idx_edit_history_edited_at ON public.edit_history (edited_at DESC);
+CREATE INDEX idx_embeddings_vector ON public.embeddings USING hnsw (vector vector_cosine_ops) WITH (m = 16, ef_construction = 64);
 
 -- User and room indexes
-CREATE INDEX IF NOT EXISTS idx_users_handle ON users (handle);
-CREATE INDEX IF NOT EXISTS idx_users_created_at ON users (created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_room_memberships_room_user ON room_memberships (room_id, user_id);
-CREATE INDEX IF NOT EXISTS idx_room_memberships_user_role ON room_memberships (user_id, role);
+CREATE INDEX idx_users_handle ON public.users (handle);
+CREATE INDEX idx_users_created_at ON public.users (created_at DESC);
+CREATE INDEX idx_room_memberships_room_user ON public.room_memberships (room_id, user_id);
+CREATE INDEX idx_room_memberships_user_role ON public.room_memberships (user_id, role);
 
 -- API keys and privacy
-CREATE INDEX IF NOT EXISTS idx_api_keys_name ON api_keys(key_name);
-CREATE INDEX IF NOT EXISTS idx_api_keys_category ON api_keys(key_category);
-CREATE INDEX IF NOT EXISTS idx_zkp_commitments_user_id ON user_zkp_commitments(user_id, created_at DESC);
+CREATE INDEX idx_api_keys_name ON public.api_keys(key_name);
+CREATE INDEX idx_api_keys_category ON public.api_keys(key_category);
+CREATE INDEX idx_zkp_commitments_user_id ON public.user_zkp_commitments(user_id, created_at DESC);
 
 -- Refresh Tokens
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id) WHERE revoked_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token_hash ON refresh_tokens(token_hash);
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_family_id ON refresh_tokens(family_id);
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
+CREATE INDEX idx_refresh_tokens_user_id ON public.refresh_tokens(user_id) WHERE revoked_at IS NULL;
+CREATE INDEX idx_refresh_tokens_token_hash ON public.refresh_tokens(token_hash);
+CREATE INDEX idx_refresh_tokens_family_id ON public.refresh_tokens(family_id);
+CREATE INDEX idx_refresh_tokens_expires_at ON public.refresh_tokens(expires_at);
 
 -- Auth Audit
-CREATE INDEX IF NOT EXISTS idx_auth_audit_user_id ON auth_audit_log(user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_auth_audit_event_type ON auth_audit_log(event_type, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_auth_audit_created_at ON auth_audit_log(created_at DESC);
+CREATE INDEX idx_auth_audit_user_id ON public.auth_audit_log(user_id, created_at DESC);
+CREATE INDEX idx_auth_audit_event_type ON public.auth_audit_log(event_type, created_at DESC);
+CREATE INDEX idx_auth_audit_created_at ON public.auth_audit_log(created_at DESC);
 
 -- Message Archives
-CREATE INDEX IF NOT EXISTS idx_message_archives_message_id ON message_archives(message_id);
-CREATE INDEX IF NOT EXISTS idx_message_archives_room_id ON message_archives(room_id);
-CREATE INDEX IF NOT EXISTS idx_message_archives_archived_at ON message_archives(archived_at DESC);
-CREATE INDEX IF NOT EXISTS idx_message_archives_room_archived ON message_archives(room_id, archived_at DESC);
+CREATE INDEX idx_message_archives_message_id ON public.message_archives(message_id);
+CREATE INDEX idx_message_archives_room_id ON public.message_archives(room_id);
+CREATE INDEX idx_message_archives_archived_at ON public.message_archives(archived_at DESC);
+CREATE INDEX idx_message_archives_room_archived ON public.message_archives(room_id, archived_at DESC);
 
 -- ===============================================
 -- 7. FUNCTIONS
 -- ===============================================
 
 -- SHA256 hex helper
-CREATE OR REPLACE FUNCTION sha256_hex(data bytea) RETURNS TEXT AS $$
-  SELECT encode(digest($1, 'sha256'::text), 'hex');
-$$ LANGUAGE SQL IMMUTABLE STRICT;
+CREATE OR REPLACE FUNCTION public.sha256_hex(data bytea) RETURNS TEXT AS $$
+BEGIN
+  RETURN encode(digest($1, 'sha256'::text), 'hex');
+END;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
 -- Intake log function
-CREATE OR REPLACE FUNCTION intake_log(
+CREATE OR REPLACE FUNCTION public.intake_log(
   room UUID,
   payload BYTEA,
   mime TEXT
@@ -624,16 +612,16 @@ DECLARE
   rid UUID;
   csum TEXT;
 BEGIN
-  csum := sha256_hex(payload);
-  INSERT INTO logs_raw (room_id, payload, mime_type, length_bytes, checksum)
+  csum := public.sha256_hex(payload);
+  INSERT INTO public.logs_raw (room_id, payload, mime_type, length_bytes, checksum)
   VALUES (room, payload, mime, octet_length(payload), csum)
   RETURNING id INTO rid;
   RETURN rid;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, service;
 
 -- Audit append function
-CREATE OR REPLACE FUNCTION audit_append(
+CREATE OR REPLACE FUNCTION public.audit_append(
   evt_type TEXT,
   room UUID,
   usr UUID,
@@ -664,7 +652,7 @@ BEGIN
   END IF;
   
   SELECT chain_hash INTO prev_chain
-  FROM audit_log
+  FROM public.audit_log
   WHERE node_id = node_id_val
   ORDER BY id DESC
   LIMIT 1;
@@ -685,10 +673,10 @@ BEGIN
     'node_id', node_id_val
   )::text;
   
-  h := sha256_hex(canonical::bytea);
-  p_hash := sha256_hex((prev_chain || h)::bytea);
+  h := public.sha256_hex(canonical::bytea);
+  p_hash := public.sha256_hex((prev_chain || h)::bytea);
   
-  INSERT INTO audit_log (
+  INSERT INTO public.audit_log (
     event_type,
     room_id,
     user_id,
@@ -718,14 +706,14 @@ BEGIN
   
   RETURN new_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, service;
 
 -- ===============================================
 -- RETENTION & LIFECYCLE FUNCTIONS
 -- ===============================================
 
 -- Schedule retention: Enqueue hot→cold and cold→delete transitions
-CREATE OR REPLACE FUNCTION schedule_retention() RETURNS JSONB AS $$
+CREATE OR REPLACE FUNCTION public.schedule_retention() RETURNS JSONB AS $$
 DECLARE
   conf JSONB;
   hot_days INT;
@@ -736,7 +724,7 @@ DECLARE
 BEGIN
   -- Get system defaults
   SELECT value INTO conf
-  FROM system_config
+  FROM public.system_config
   WHERE key = 'retention_policy';
   
   hot_days := COALESCE((conf->>'hot_retention_days')::INT, 30);
@@ -746,18 +734,18 @@ BEGIN
   FOR r IN
     SELECT lc.id, lc.room_id, lc.created_at,
            COALESCE(r.retention_hot_days, hot_days) AS effective_hot_days
-    FROM logs_compressed lc
-    LEFT JOIN rooms r ON r.id = lc.room_id
+    FROM public.logs_compressed lc
+    LEFT JOIN public.rooms r ON r.id = lc.room_id
     WHERE lc.lifecycle_state = 'hot'
       AND lc.created_at < now() - make_interval(days => COALESCE(r.retention_hot_days, hot_days))
       AND lc.id NOT IN (
-        SELECT resource_id FROM retention_schedule WHERE resource_type = 'logs_compressed' AND resource_id = lc.id
+        SELECT resource_id FROM public.retention_schedule WHERE resource_type = 'logs_compressed' AND resource_id = lc.id
       )
       AND lc.id NOT IN (
-        SELECT resource_id FROM legal_holds WHERE resource_type = 'logs_compressed' AND resource_id = lc.id AND hold_until > now()
+        SELECT resource_id FROM public.legal_holds WHERE resource_type = 'logs_compressed' AND resource_id = lc.id AND hold_until > now()
       )
   LOOP
-    INSERT INTO retention_schedule (resource_type, resource_id, scheduled_for, action)
+    INSERT INTO public.retention_schedule (resource_type, resource_id, scheduled_for, action)
     VALUES ('logs_compressed', r.id, now(), 'move_to_cold')
     ON CONFLICT DO NOTHING;
     hot_count := hot_count + 1;
@@ -767,18 +755,18 @@ BEGIN
   FOR r IN
     SELECT lc.id, lc.room_id, lc.created_at,
            COALESCE(r.retention_cold_days, cold_days) AS effective_cold_days
-    FROM logs_compressed lc
-    LEFT JOIN rooms r ON r.id = lc.room_id
+    FROM public.logs_compressed lc
+    LEFT JOIN public.rooms r ON r.id = lc.room_id
     WHERE lc.lifecycle_state = 'cold'
       AND lc.created_at < now() - make_interval(days => COALESCE(r.retention_cold_days, cold_days))
       AND lc.id NOT IN (
-        SELECT resource_id FROM retention_schedule WHERE resource_type = 'logs_compressed' AND resource_id = lc.id
+        SELECT resource_id FROM public.retention_schedule WHERE resource_type = 'logs_compressed' AND resource_id = lc.id
       )
       AND lc.id NOT IN (
-        SELECT resource_id FROM legal_holds WHERE resource_type = 'logs_compressed' AND resource_id = lc.id AND hold_until > now()
+        SELECT resource_id FROM public.legal_holds WHERE resource_type = 'logs_compressed' AND resource_id = lc.id AND hold_until > now()
       )
   LOOP
-    INSERT INTO retention_schedule (resource_type, resource_id, scheduled_for, action)
+    INSERT INTO public.retention_schedule (resource_type, resource_id, scheduled_for, action)
     VALUES ('logs_compressed', r.id, now(), 'delete')
     ON CONFLICT DO NOTHING;
     cold_count := cold_count + 1;
@@ -786,48 +774,48 @@ BEGIN
   
   RETURN jsonb_build_object('hot_scheduled', hot_count, 'cold_scheduled', cold_count, 'timestamp', now());
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, service;
 
 -- Mark cold storage
-CREATE OR REPLACE FUNCTION mark_cold_storage(compressed_id UUID, uri TEXT) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION public.mark_cold_storage(compressed_id UUID, uri TEXT) RETURNS VOID AS $$
 BEGIN
-  UPDATE logs_compressed
+  UPDATE public.logs_compressed
   SET cold_storage_uri = uri, lifecycle_state = 'cold'
   WHERE id = compressed_id AND lifecycle_state = 'hot';
   
-  UPDATE retention_schedule
+  UPDATE public.retention_schedule
   SET status = 'done'
   WHERE resource_type = 'logs_compressed' AND resource_id = compressed_id AND action = 'move_to_cold';
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, service;
 
 -- Apply legal hold
-CREATE OR REPLACE FUNCTION apply_legal_hold(resource_type TEXT, resource_id UUID, hold_until TIMESTAMPTZ, reason TEXT, actor TEXT) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION public.apply_legal_hold(resource_type TEXT, resource_id UUID, hold_until TIMESTAMPTZ, reason TEXT, actor TEXT) RETURNS VOID AS $$
 BEGIN
-  INSERT INTO legal_holds (resource_type, resource_id, hold_until, reason, actor)
+  INSERT INTO public.legal_holds (resource_type, resource_id, hold_until, reason, actor)
   VALUES (resource_type, resource_id, hold_until, reason, actor)
   ON CONFLICT DO NOTHING;
   
-  UPDATE retention_schedule
+  UPDATE public.retention_schedule
   SET on_hold = TRUE, hold_reason = reason, status = 'on_hold'
   WHERE resource_type = apply_legal_hold.resource_type AND resource_id = apply_legal_hold.resource_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, service;
 
 -- Release legal hold
-CREATE OR REPLACE FUNCTION release_legal_hold(resource_type TEXT, resource_id UUID) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION public.release_legal_hold(resource_type TEXT, resource_id UUID) RETURNS VOID AS $$
 BEGIN
-  DELETE FROM legal_holds
+  DELETE FROM public.legal_holds
   WHERE resource_type = release_legal_hold.resource_type AND resource_id = release_legal_hold.resource_id;
   
-  UPDATE retention_schedule
+  UPDATE public.retention_schedule
   SET on_hold = FALSE, hold_reason = NULL, status = 'pending'
   WHERE resource_type = release_legal_hold.resource_type AND resource_id = release_legal_hold.resource_id AND on_hold = TRUE;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = service, public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, service;
 
 -- Update timestamp function
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -836,23 +824,23 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- API Keys encryption helper
-CREATE OR REPLACE FUNCTION get_encryption_key()
+CREATE OR REPLACE FUNCTION public.get_encryption_key()
 RETURNS BYTEA AS $$
 BEGIN
     RETURN decode(current_setting('app.encryption_key', true), 'hex');
 EXCEPTION
     WHEN OTHERS THEN
-        RETURN digest('vibez-api-keys-master-key-change-this-in-production', 'sha256');
+        RETURN digest('vibez-api-keys-master-key-change-this-in-production'::text, 'sha256'::text);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Cleanup expired refresh tokens
-CREATE OR REPLACE FUNCTION cleanup_expired_refresh_tokens()
+CREATE OR REPLACE FUNCTION public.cleanup_expired_refresh_tokens()
 RETURNS INTEGER AS $$
 DECLARE
   deleted_count INTEGER;
 BEGIN
-  DELETE FROM refresh_tokens
+  DELETE FROM public.refresh_tokens
   WHERE expires_at < NOW() OR revoked_at IS NOT NULL;
   
   GET DIAGNOSTICS deleted_count = ROW_COUNT;
@@ -861,7 +849,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Search functions
-CREATE MATERIALIZED VIEW IF NOT EXISTS message_search_index AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.message_search_index AS
 SELECT
   m.id,
   m.content_preview AS content,
@@ -869,13 +857,13 @@ SELECT
   m.sender_id AS user_id,
   m.created_at,
   to_tsvector('english', COALESCE(m.content_preview, '')) AS search_vector
-FROM messages m
+FROM public.messages m
 WHERE m.thread_id IS NULL;
 
-CREATE INDEX IF NOT EXISTS idx_message_search_vector ON message_search_index USING GIN (search_vector);
+CREATE INDEX IF NOT EXISTS idx_message_search_vector ON public.message_search_index USING GIN (search_vector);
 
 -- Vector search function
-CREATE OR REPLACE FUNCTION match_messages(
+CREATE OR REPLACE FUNCTION public.match_messages(
   query_embedding vector(1536),
   match_threshold float DEFAULT 0.78,
   match_count int DEFAULT 10,
@@ -900,8 +888,8 @@ BEGIN
     m.content_preview,
     m.created_at,
     1 - (e.vector <=> query_embedding) AS similarity
-  FROM messages m
-  INNER JOIN embeddings e ON e.message_id = m.id
+  FROM public.messages m
+  INNER JOIN public.embeddings e ON e.message_id = m.id
   WHERE 
     (filter_room_id IS NULL OR m.room_id = filter_room_id)
     AND (1 - (e.vector <=> query_embedding)) > match_threshold
@@ -915,24 +903,13 @@ $$;
 -- ===============================================
 
 -- Updated_at triggers
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_assistants_updated_at') THEN
-        CREATE TRIGGER update_assistants_updated_at BEFORE UPDATE ON assistants FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_bots_updated_at') THEN
-        CREATE TRIGGER update_bots_updated_at BEFORE UPDATE ON bots FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_subscriptions_updated_at') THEN
-        CREATE TRIGGER update_subscriptions_updated_at BEFORE UPDATE ON subscriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'update_message_violations_updated_at') THEN
-        CREATE TRIGGER update_message_violations_updated_at BEFORE UPDATE ON message_violations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    END IF;
-END $$;
+CREATE TRIGGER update_assistants_updated_at BEFORE UPDATE ON public.assistants FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE TRIGGER update_bots_updated_at BEFORE UPDATE ON public.bots FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE TRIGGER update_subscriptions_updated_at BEFORE UPDATE ON public.subscriptions FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE TRIGGER update_message_violations_updated_at BEFORE UPDATE ON public.message_violations FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Partition month triggers (to avoid GENERATED column immutability issues)
-CREATE OR REPLACE FUNCTION set_partition_month()
+CREATE OR REPLACE FUNCTION public.set_partition_month()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.partition_month := to_char(NEW.created_at, 'YYYY_MM');
@@ -940,62 +917,58 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS rooms_set_partition_month ON rooms;
 CREATE TRIGGER rooms_set_partition_month
-  BEFORE INSERT OR UPDATE ON rooms
+  BEFORE INSERT OR UPDATE ON public.rooms
   FOR EACH ROW
-  EXECUTE FUNCTION set_partition_month();
+  EXECUTE FUNCTION public.set_partition_month();
 
-DROP TRIGGER IF EXISTS messages_set_partition_month ON messages;
 CREATE TRIGGER messages_set_partition_month
-  BEFORE INSERT OR UPDATE ON messages
+  BEFORE INSERT OR UPDATE ON public.messages
   FOR EACH ROW
-  EXECUTE FUNCTION set_partition_month();
+  EXECUTE FUNCTION public.set_partition_month();
 
 -- ===============================================
 -- 9. ROW LEVEL SECURITY (RLS)
 -- ===============================================
 
 -- Enable RLS on all tables
-ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
-ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE logs_raw ENABLE ROW LEVEL SECURITY;
-ALTER TABLE logs_compressed ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.logs_raw ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.logs_compressed ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service.encode_queue ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service.moderation_queue ENABLE ROW LEVEL SECURITY;
-ALTER TABLE retention_schedule ENABLE ROW LEVEL SECURITY;
-ALTER TABLE legal_holds ENABLE ROW LEVEL SECURITY;
-ALTER TABLE system_config ENABLE ROW LEVEL SECURITY;
-ALTER TABLE telemetry ENABLE ROW LEVEL SECURITY;
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rooms ENABLE ROW LEVEL SECURITY;
-ALTER TABLE room_memberships ENABLE ROW LEVEL SECURITY;
-ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_zkp_commitments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bots ENABLE ROW LEVEL SECURITY;
-ALTER TABLE assistants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE threads ENABLE ROW LEVEL SECURITY;
-ALTER TABLE embeddings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE presence_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
-ALTER TABLE auth_audit_log ENABLE ROW LEVEL SECURITY;
-ALTER TABLE message_archives ENABLE ROW LEVEL SECURITY;
-
--- Additional Feature Tables (Ensure RLS is enabled)
-ALTER TABLE edit_history ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bot_endpoints ENABLE ROW LEVEL SECURITY;
-ALTER TABLE metrics ENABLE ROW LEVEL SECURITY;
-ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sentiment_analysis ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cards ENABLE ROW LEVEL SECURITY;
-ALTER TABLE card_ownerships ENABLE ROW LEVEL SECURITY;
-ALTER TABLE card_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE museum_entries ENABLE ROW LEVEL SECURITY;
-ALTER TABLE boosts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE message_violations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_mutes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.retention_schedule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.legal_holds ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.system_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.telemetry ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.room_memberships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.api_keys ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_zkp_commitments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.assistants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.threads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.embeddings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.presence_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.refresh_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.auth_audit_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.message_archives ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.edit_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bot_endpoints ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.metrics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.conversation_participants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sentiment_analysis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.card_ownerships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.card_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.museum_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.boosts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.message_violations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_mutes ENABLE ROW LEVEL SECURITY;
 
 -- Helper functions for RLS
 CREATE OR REPLACE FUNCTION public.current_uid() RETURNS UUID AS $$
@@ -1011,20 +984,20 @@ $$ LANGUAGE SQL STABLE;
 
 -- Basic RLS policies (Service Role Access)
 -- Service role should have full access to everything
-CREATE POLICY service_all_audit_log ON audit_log FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY service_all_messages ON messages FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY service_all_users ON users FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY service_all_rooms ON rooms FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY service_all_room_memberships ON room_memberships FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY service_all_refresh_tokens ON refresh_tokens FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY service_all_auth_audit_log ON auth_audit_log FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY service_all_message_archives ON message_archives FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_audit_log ON public.audit_log FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_messages ON public.messages FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_users ON public.users FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_rooms ON public.rooms FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_room_memberships ON public.room_memberships FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_refresh_tokens ON public.refresh_tokens FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_auth_audit_log ON public.auth_audit_log FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_all_message_archives ON public.message_archives FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- Authenticated User Access (Basic)
-CREATE POLICY auth_select_users ON users FOR SELECT TO authenticated USING (true);
-CREATE POLICY auth_select_rooms ON rooms FOR SELECT TO authenticated USING (true);
-CREATE POLICY auth_select_messages ON messages FOR SELECT TO authenticated USING (true);
-CREATE POLICY auth_insert_messages ON messages FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY auth_select_users ON public.users FOR SELECT TO authenticated USING (true);
+CREATE POLICY auth_select_rooms ON public.rooms FOR SELECT TO authenticated USING (true);
+CREATE POLICY auth_select_messages ON public.messages FOR SELECT TO authenticated USING (true);
+CREATE POLICY auth_insert_messages ON public.messages FOR INSERT TO authenticated WITH CHECK (true);
 
 -- ===============================================
 -- SETUP COMPLETE
