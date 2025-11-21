@@ -940,11 +940,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS rooms_set_partition_month ON rooms;
 CREATE TRIGGER rooms_set_partition_month
   BEFORE INSERT OR UPDATE ON rooms
   FOR EACH ROW
   EXECUTE FUNCTION set_partition_month();
 
+DROP TRIGGER IF EXISTS messages_set_partition_month ON messages;
 CREATE TRIGGER messages_set_partition_month
   BEFORE INSERT OR UPDATE ON messages
   FOR EACH ROW
