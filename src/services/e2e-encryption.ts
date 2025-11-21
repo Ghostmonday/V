@@ -53,9 +53,11 @@ export async function generateIdentityKeyPair(): Promise<{
     const signal = await initSignalProtocol();
     const identityKeyPair = signal.IdentityKeyPair.generate();
 
+    // API changed: IdentityKeyPair.generate() returns object with publicKey/privateKey properties
+    // These are already IdentityKey and PrivateKey objects with serialize() methods
     return {
-      publicKey: identityKeyPair.getPublicKey().serialize(),
-      privateKey: identityKeyPair.getPrivateKey().serialize(),
+      publicKey: new Uint8Array(identityKeyPair.publicKey.serialize()),
+      privateKey: new Uint8Array(identityKeyPair.privateKey.serialize()),
     };
   } catch (error) {
     logError(
@@ -83,30 +85,37 @@ export async function generatePreKeyBundle(identityKeyPair: {
     const signal = await initSignalProtocol();
 
     // Reconstruct identity key pair from serialized keys
-    const identityPublicKey = signal.IdentityKey.deserialize(
+    // API: In v0.86.4, IdentityKeyPair.generate() returns {publicKey: PublicKey, privateKey: PrivateKey}
+    // To reconstruct, deserialize as PublicKey/PrivateKey and create new IdentityKeyPair
+    // Note: IdentityKeyPair constructor takes (IdentityKey, PrivateKey), but IdentityKey is just PublicKey
+    const identityPublicKey = signal.PublicKey.deserialize(
       Buffer.from(identityKeyPair.publicKey)
     );
     const identityPrivateKey = signal.PrivateKey.deserialize(
       Buffer.from(identityKeyPair.privateKey)
     );
+    // IdentityKeyPair constructor accepts PublicKey directly (IdentityKey is just a type alias)
     const identityKeyPairObj = new signal.IdentityKeyPair(identityPublicKey, identityPrivateKey);
 
     // Generate signed prekey
+    // API: Use PrivateKey.generate() to create a key pair, then extract public key
     const signedPreKeyId = Math.floor(Math.random() * 0x7fffffff);
-    const signedPreKeyPair = signal.KeyPair.generate();
-    const signedPreKeyPublic = signedPreKeyPair.getPublicKey();
+    const signedPreKeyPrivate = signal.PrivateKey.generate();
+    const signedPreKeyPublic = signedPreKeyPrivate.getPublicKey();
 
     // Sign the signed prekey
     const signature = identityPrivateKey.sign(signedPreKeyPublic.serialize());
 
     // Generate one-time prekeys (typically 100, but we'll generate 10 for efficiency)
+    // API: Use PrivateKey.generate() to create key pairs
     const oneTimePreKeys = [];
     for (let i = 0; i < 10; i++) {
       const preKeyId = Math.floor(Math.random() * 0x7fffffff);
-      const preKeyPair = signal.KeyPair.generate();
+      const preKeyPrivate = signal.PrivateKey.generate();
+      const preKeyPublic = preKeyPrivate.getPublicKey();
       oneTimePreKeys.push({
         keyId: preKeyId,
-        publicKey: preKeyPair.getPublicKey().serialize(),
+        publicKey: new Uint8Array(preKeyPublic.serialize()),
       });
     }
 
@@ -114,8 +123,8 @@ export async function generatePreKeyBundle(identityKeyPair: {
       identityKey: identityKeyPair.publicKey,
       signedPreKey: {
         keyId: signedPreKeyId,
-        publicKey: signedPreKeyPublic.serialize(),
-        signature: signature,
+        publicKey: new Uint8Array(signedPreKeyPublic.serialize()),
+        signature: new Uint8Array(signature),
       },
       oneTimePreKeys,
     };
@@ -151,7 +160,8 @@ export async function encryptMessage(
     const signal = await initSignalProtocol();
 
     // Reconstruct sender identity key pair
-    const senderIdentityPublic = signal.IdentityKey.deserialize(
+    // API: IdentityKeyPair constructor accepts PublicKey directly
+    const senderIdentityPublic = signal.PublicKey.deserialize(
       Buffer.from(senderIdentityKeyPair.publicKey)
     );
     const senderIdentityPrivate = signal.PrivateKey.deserialize(
@@ -162,8 +172,8 @@ export async function encryptMessage(
       senderIdentityPrivate
     );
 
-    // Reconstruct recipient identity key
-    const recipientIdentityKey = signal.IdentityKey.deserialize(
+    // Reconstruct recipient identity key (just a PublicKey)
+    const recipientIdentityKey = signal.PublicKey.deserialize(
       Buffer.from(recipientPreKeyBundle.identityKey)
     );
 
@@ -182,9 +192,9 @@ export async function encryptMessage(
     const signedPreKeySignature = Buffer.from(recipientPreKeyBundle.signedPreKey.signature);
 
     // Verify signature
+    // API: PublicKey has verifySignature method
     if (
       !recipientIdentityKey
-        .getPublicKey()
         .verifySignature(signedPreKeyPublic.serialize(), signedPreKeySignature)
     ) {
       throw new Error('Invalid signed prekey signature');
@@ -290,7 +300,8 @@ export async function decryptMessage(
     const signal = await initSignalProtocol();
 
     // Reconstruct recipient identity key pair
-    const recipientIdentityPublic = signal.IdentityKey.deserialize(
+    // API: IdentityKeyPair constructor accepts PublicKey directly
+    const recipientIdentityPublic = signal.PublicKey.deserialize(
       Buffer.from(recipientIdentityKeyPair.publicKey)
     );
     const recipientIdentityPrivate = signal.PrivateKey.deserialize(
@@ -301,8 +312,8 @@ export async function decryptMessage(
       recipientIdentityPrivate
     );
 
-    // Reconstruct sender identity key
-    const senderIdentityKeyObj = signal.IdentityKey.deserialize(Buffer.from(senderIdentityKey));
+    // Reconstruct sender identity key (just a PublicKey)
+    const senderIdentityKeyObj = signal.PublicKey.deserialize(Buffer.from(senderIdentityKey));
 
     // Create session cipher
     const address = new signal.ProtocolAddress('sender', 0);
@@ -343,13 +354,27 @@ export function isEncryptedPayload(payload: any): boolean {
     return false;
   }
 
-  // Signal Protocol ciphertexts are base64 encoded and have specific structure
-  // This is a basic check - in production, you'd validate the actual structure
+  // Signal Protocol ciphertexts are base64 encoded
+  // Check if it's valid base64 format (only contains base64 characters)
+  const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+  if (!base64Regex.test(payload)) {
+    return false;
+  }
+
+  // Try to decode as base64
   try {
     const decoded = Buffer.from(payload, 'base64');
-    // Signal Protocol messages typically start with specific version bytes
-    return decoded.length > 0 && decoded.length % 16 === 0; // Rough heuristic
+    
+    // Empty strings or very short payloads are not encrypted
+    if (decoded.length === 0 || decoded.length < 10) {
+      return false;
+    }
+    
+    // Valid base64 with reasonable length = likely encrypted
+    // Note: This is a heuristic - in production, you'd validate the actual Signal Protocol structure
+    return true;
   } catch {
+    // Not valid base64, so not encrypted
     return false;
   }
 }

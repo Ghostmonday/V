@@ -95,7 +95,7 @@ describe('Message Service', () => {
       };
 
       await expect(sendMessageToRoom(messageData)).rejects.toThrow(
-        'You are temporarily muted in this room'
+        "You're muted for now"
       );
 
       expect(supabaseHelpers.create).not.toHaveBeenCalled();

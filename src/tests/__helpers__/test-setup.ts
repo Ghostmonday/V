@@ -13,7 +13,10 @@ export function createMockRedis(): Partial<RedisClientType> {
   const store = new Map<string, string>();
   const sortedSets = new Map<string, Map<string, number>>();
 
-  return {
+  const mockRedis = {
+    // Expose internal state for test cleanup
+    _store: store,
+    _sortedSets: sortedSets,
     get: vi.fn(async (key: string) => {
       return store.get(key) || null;
     }),
@@ -146,6 +149,8 @@ export function createMockRedis(): Partial<RedisClientType> {
       return 1;
     }),
   } as any;
+  
+  return mockRedis;
 }
 
 /**

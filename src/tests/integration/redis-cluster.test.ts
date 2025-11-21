@@ -88,7 +88,7 @@ describe('Redis Cluster Configuration', () => {
       expect(client).toBeInstanceOf(Redis);
     });
 
-  it.skip('should create cluster client', () => {
+  it('should create cluster client', () => {
     const config: RedisClusterConfig = {
       mode: 'cluster',
       nodes: [
@@ -97,10 +97,15 @@ describe('Redis Cluster Configuration', () => {
       ],
     };
 
-    // Skip this test - mocking Cluster constructor is complex in ESM
+    // Use behavior-based assertions instead of checking internal mocks
     const client = createRedisClient(config);
 
+    // Verify client is created and has expected methods
     expect(client).toBeDefined();
+    expect(client).toBeInstanceOf(Cluster);
+    // Verify it has expected Redis client methods
+    expect(typeof client.on).toBe('function');
+    expect(typeof client.quit).toBe('function');
   });
 
     it('should create sentinel client', () => {

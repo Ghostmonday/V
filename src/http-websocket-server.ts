@@ -48,6 +48,7 @@ import schedulingRoutes from './routes/scheduling-api-routes.js';
 import userSettingsRoutes from './routes/user-settings-api-routes.js';
 import authRoutes from './routes/auth-api-routes.js';
 import { telemetryMiddleware } from './middleware/monitoring/telemetry-middleware.js';
+import { setupCluster } from './server/cluster.js';
 import { errorMiddleware } from './middleware/error-middleware.js';
 import { structuredLogging } from './middleware/monitoring/structured-logging-middleware.js';
 import { rateLimit, ipRateLimit } from './middleware/rate-limiting/rate-limiter-middleware.js';
@@ -452,11 +453,15 @@ app.get('/health', (req: Request, res: Response) => res.json({ status: 'ok', upt
 // ... (rest of file)
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT as number, '0.0.0.0', () => {
-  logInfo(`Server running on port ${PORT}`);
+
+// Wrap server startup in cluster setup for multi-process support
+setupCluster(() => {
+  server.listen(PORT as number, '0.0.0.0', () => {
+    logInfo(`Server running on port ${PORT}`);
+  });
 });
 
-// Initialize Sin AI worker (parallel import)
+// Initialize workers (parallel import)
 Promise.all([
   import('./workers/sin-ai-worker.js')
     .then(({ startSinWorker }) => {
@@ -465,6 +470,25 @@ Promise.all([
     })
     .catch((error) => {
       logInfo('Sin worker not available', error);
+    }),
+  // Start message delivery retry processor
+  import('./services/message-delivery-service.js')
+    .then(({ processPendingDeliveries }) => {
+      // Process pending deliveries every 5 seconds
+      setInterval(async () => {
+        try {
+          const processed = await processPendingDeliveries();
+          if (processed > 0) {
+            logInfo(`Processed ${processed} pending message deliveries`);
+          }
+        } catch (error) {
+          logError('Failed to process pending deliveries', error instanceof Error ? error : new Error(String(error)));
+        }
+      }, 5000);
+      logInfo('Message delivery retry processor started');
+    })
+    .catch((error) => {
+      logWarning('Message delivery retry processor not available', error instanceof Error ? error : new Error(String(error)));
     }),
 ]).catch((error) => {
   logError('Failed to initialize workers', error);

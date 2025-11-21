@@ -26,6 +26,11 @@ vi.mock('../../services/subscription-service.js', () => ({
     if (userId === 'team-user') return 'team';
     return 'free';
   }),
+  SubscriptionTier: {
+    FREE: 'free',
+    PRO: 'pro',
+    TEAM: 'team',
+  },
 }));
 
 // Import the functions AFTER mocking
@@ -46,6 +51,15 @@ describe('Rate Limiter', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Clear mock Redis state (sortedSets Map) to prevent test pollution
+    const redisMock = mockRedis as any;
+    if (redisMock._sortedSets) {
+      redisMock._sortedSets.clear();
+    }
+    // Also clear the store Map if it exists
+    if (redisMock._store) {
+      redisMock._store.clear();
+    }
     req = createMockRequest();
     res = createMockResponse();
     next = createMockNext();
@@ -64,8 +78,7 @@ describe('Rate Limiter', () => {
       expect(res.status).not.toHaveBeenCalled();
     });
 
-  it.skip('should block requests exceeding limit', async () => {
-    // TODO: Fix mock redis pipeline behavior in tests
+  it('should block requests exceeding limit', async () => {
     const middleware = rateLimit({ max: 2, windowMs: 60000 });
 
     // Make 3 requests from same client (same IP)
@@ -116,13 +129,17 @@ describe('Rate Limiter', () => {
       expect(customKeyGen).toHaveBeenCalledWith(req);
     });
 
-  it.skip('should fail open if Redis is unavailable', async () => {
-    // TODO: Fix error handling mock in tests
+  it('should fail open if Redis is unavailable', async () => {
     // Mock getRedisClient to return an error-throwing redis client
     const { getRedisClient } = await import('../../config/database-config.js');
     const badRedis = {
-      incr: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
-      expire: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
+      pipeline: vi.fn(() => ({
+        zremrangebyscore: vi.fn().mockReturnThis(),
+        zcard: vi.fn().mockReturnThis(),
+        zadd: vi.fn().mockReturnThis(),
+        expire: vi.fn().mockReturnThis(),
+        exec: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
+      })),
     };
     vi.mocked(getRedisClient).mockReturnValue(badRedis as any);
 
@@ -149,27 +166,32 @@ describe('Rate Limiter', () => {
       expect(next).toHaveBeenCalledTimes(15);
     });
 
-  it.skip('should apply standard limits for free users', async () => {
-    // TODO: Fix mock redis pipeline to properly track separate requests
+  it('should apply standard limits for free users', async () => {
     req.user = { userId: 'free-user' };
     const middleware = userRateLimit(10, 60000);
 
     // Free users get standard limit (10)  
     // Make 10 requests successfully
+    const nexts: any[] = [];
+    const ress: any[] = [];
     for (let i = 0; i < 10; i++) {
       const nextFn = createMockNext();
       const resFn = createMockResponse();
+      nexts.push(nextFn);
+      ress.push(resFn);
       await middleware(req, resFn, nextFn);
     }
 
-    // 11th and 12th should be blocked
+    // All 10 should pass
+    for (let i = 0; i < 10; i++) {
+      expect(nexts[i]).toHaveBeenCalledTimes(1);
+      expect(ress[i].status).not.toHaveBeenCalled();
+    }
+
+    // 11th should be blocked
     const res11 = createMockResponse();
     const next11 = createMockNext();
     await middleware(req, res11, next11);
-    
-    const res12 = createMockResponse();
-    const next12 = createMockNext();
-    await middleware(req, res12, next12);
 
     expect(next11).not.toHaveBeenCalled();
     expect(res11.status).toHaveBeenCalledWith(429);
@@ -209,8 +231,7 @@ describe('Rate Limiter', () => {
       expect(responses[5].status).toHaveBeenCalledWith(429);
     });
 
-  it.skip('should allow different IPs independently', async () => {
-    // TODO: Fix mock redis to track different keys separately
+  it('should allow different IPs independently', async () => {
     const middleware = ipRateLimit(2, 60000);
 
     // Request from IP 1
@@ -233,11 +254,16 @@ describe('Rate Limiter', () => {
     const res4 = createMockResponse();
     await middleware(req, res4, next4);
 
-    // Both IPs should have 2 requests each
+    // Both IPs should have 2 requests each (limit is 2 per IP)
     expect(next1).toHaveBeenCalledTimes(1);
     expect(next2).toHaveBeenCalledTimes(1);
     expect(next3).toHaveBeenCalledTimes(1);
     expect(next4).toHaveBeenCalledTimes(1);
+    // None should be blocked
+    expect(res1.status).not.toHaveBeenCalled();
+    expect(res2.status).not.toHaveBeenCalled();
+    expect(res3.status).not.toHaveBeenCalled();
+    expect(res4.status).not.toHaveBeenCalled();
   });
   });
 });
