@@ -19,7 +19,7 @@ import {
   sanitizedVerifyDisclosureSchema,
   sanitizedBatchedVerifyDisclosureSchema,
   sanitizeInput,
-} from '../utils/input-sanitizer-utils.js';
+, sanitizeUUID } from '../utils/input-sanitizer-utils.js';
 import { verifyBatchedSelectiveDisclosure } from '../services/zkp-service.js';
 import { rateLimit } from '../middleware/rate-limiting/rate-limiter-middleware.js';
 

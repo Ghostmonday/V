@@ -18,13 +18,13 @@ const publisher = getRedisClient();
 // A connection in SUBSCRIBE mode can only execute subscribe/unsubscribe commands
 // So we need two connections: one for pub, one for sub
 // Supports cluster and sentinel modes
-let subscriber: Redis | Cluster | null = null;
+let subscriber: Redis.Redis | Cluster | null = null;
 
-export function getRedisPublisher(): Redis | Cluster {
+export function getRedisPublisher(): Redis.Redis | Cluster {
   return publisher;
 }
 
-export function getRedisSubscriber(): Redis | Cluster {
+export function getRedisSubscriber(): Redis.Redis | Cluster {
   if (!subscriber) {
     try {
       // Parse configuration from environment (same as main client)

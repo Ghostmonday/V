@@ -10,9 +10,9 @@ import { supabase } from '../config/database-config.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
 import type Redis from 'ioredis';
 
-let redis: Redis | null = null;
+let redis: Redis.Redis | null = null;
 
-function getRedis(): Redis {
+function getRedis(): Redis.Redis {
   if (!redis) {
     redis = getRedisClient();
   }

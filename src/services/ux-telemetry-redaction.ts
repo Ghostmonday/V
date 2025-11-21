@@ -16,7 +16,7 @@
  */
 
 import { logError, logInfo } from '../shared/logger-shared.js';
-import type { UXTelemetryEvent } from '../types/ux-telemetry.js';
+import type { UXTelemetryEvent } from '../types/ux-telemetry-types.js';
 
 /**
  * PII detection patterns

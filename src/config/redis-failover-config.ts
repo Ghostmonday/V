@@ -18,7 +18,7 @@ export interface FailoverHandler {
  * Monitors connection health and handles failover scenarios
  */
 export function setupFailoverHandlers(
-  client: Redis | Cluster,
+  client: Redis.Redis | Cluster,
   handlers?: Partial<FailoverHandler>
 ): void {
   let reconnectAttempts = 0;
@@ -121,7 +121,7 @@ export function setupFailoverHandlers(
  * Create a resilient Redis client with failover support
  * Automatically handles reconnection and failover scenarios
  */
-export function createResilientRedisClient(): Redis | Cluster {
+export function createResilientRedisClient(): Redis.Redis | Cluster {
   const config = parseRedisConfig();
   const client = createRedisClient(config);
 
@@ -144,7 +144,7 @@ export function createResilientRedisClient(): Redis | Cluster {
  * Wait for Redis to be ready (with timeout)
  */
 export async function waitForRedisReady(
-  client: Redis | Cluster,
+  client: Redis.Redis | Cluster,
   timeout: number = 10000
 ): Promise<boolean> {
   return new Promise((resolve) => {

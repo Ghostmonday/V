@@ -6,7 +6,8 @@
  * Sentinel Mode: For high availability with automatic failover (recommended for most use cases)
  */
 
-import Redis, { Cluster, Sentinel } from 'ioredis';
+import Redis from 'ioredis';
+import type { Cluster } from 'ioredis';
 import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 
 export type RedisMode = 'single' | 'cluster' | 'sentinel';
@@ -136,7 +137,7 @@ export function parseRedisConfig(): RedisClusterConfig {
  * Create Redis client based on configuration
  * Supports single instance, cluster, and sentinel modes
  */
-export function createRedisClient(config?: RedisClusterConfig): Redis | Cluster {
+export function createRedisClient(config?: RedisClusterConfig): Redis.Redis | Cluster {
   const redisConfig = config || parseRedisConfig();
   
   // Single instance mode
@@ -279,7 +280,7 @@ function setupClusterEventHandlers(client: Cluster): void {
 /**
  * Check if Redis client is healthy
  */
-export async function checkRedisHealth(client: Redis | Cluster): Promise<boolean> {
+export async function checkRedisHealth(client: Redis.Redis | Cluster): Promise<boolean> {
   try {
     const result = await Promise.race([
       client.ping(),
@@ -297,7 +298,7 @@ export async function checkRedisHealth(client: Redis | Cluster): Promise<boolean
 /**
  * Gracefully close Redis client
  */
-export async function closeRedisClient(client: Redis | Cluster): Promise<void> {
+export async function closeRedisClient(client: Redis.Redis | Cluster): Promise<void> {
   try {
     await client.quit();
     logInfo('Redis client closed gracefully');

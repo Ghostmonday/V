@@ -6,9 +6,9 @@ import { AccessToken } from 'livekit-server-sdk';
 
 import { supabase } from '../../config/database-config.js';
 
-import { healingLogger } from '../../shared/logger-shared.js';
+import { logInfo, logError, logWarning } from '../../shared/logger-shared.js';
 
-import { telemetryService } from '../../services/telemetry-service.js';
+import { recordTelemetryEvent } from '../../services/telemetry-service.js';
 
 import * as Sentry from '@sentry/node'; // Added for server-side error reporting
 
@@ -29,7 +29,7 @@ interface JoinVideoResponse {
 }
 
 router.post('/join', async (req, res) => {
-  const transaction = Sentry.startTransaction({ op: 'video.join', name: 'Generate Video Token' }); // Wrapped with Sentry
+  const transaction = Sentry.startSpan({ op: 'video.join', name: 'Generate Video Token' }); // Wrapped with Sentry
 
   const startTime = Date.now();
 
@@ -66,7 +66,7 @@ router.post('/join', async (req, res) => {
     } = await supabase.auth.getUser(jwt);
 
     if (authError || !user) {
-      healingLogger.warn('VideoJoinRoute', 'Unauthorized video join attempt');
+      logWarning.warn('VideoJoinRoute', 'Unauthorized video join attempt');
 
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -86,7 +86,7 @@ router.post('/join', async (req, res) => {
       .single();
 
     if (userError || !userData) {
-      healingLogger.warn('VideoJoinRoute', `User not found: ${userId}`);
+      logWarning.warn('VideoJoinRoute', `User not found: ${userId}`);
 
       return res.status(404).json({ error: 'User not found' });
     }
@@ -104,7 +104,7 @@ router.post('/join', async (req, res) => {
       .single();
 
     if (roomError || !roomAccess) {
-      healingLogger.warn('VideoJoinRoute', `Room not found or access denied: ${sanitizedRoomName}`);
+      logWarning.warn('VideoJoinRoute', `Room not found or access denied: ${sanitizedRoomName}`);
 
       return res.status(404).json({ error: 'Room not found or access denied' });
     }
@@ -114,7 +114,7 @@ router.post('/join', async (req, res) => {
     const livekitKeys = await getLiveKitKeys();
 
     if (!livekitKeys.apiKey || !livekitKeys.apiSecret) {
-      healingLogger.error('VideoJoinRoute', 'LiveKit credentials not found in vault');
+      logWarning.error('VideoJoinRoute', 'LiveKit credentials not found in vault');
       return res.status(500).json({ error: 'Video service not configured' });
     }
 
@@ -144,12 +144,12 @@ router.post('/join', async (req, res) => {
 
     const serverUrl = `wss://${livekitKeys.host || livekitKeys.url?.replace('wss://', '')}`;
 
-    healingLogger.info(
+    logWarning.info(
       'VideoJoinRoute',
       `Video token generated for user ${userId} in room ${sanitizedRoomName}`
     );
 
-    telemetryService.logEvent('video_token_generated', {
+    recordTelemetryEvent('video_token_generated', {
       userId,
       roomName: sanitizedRoomName,
       duration: Date.now() - startTime,
@@ -167,9 +167,9 @@ router.post('/join', async (req, res) => {
   } catch (error) {
     Sentry.captureException(error);
 
-    healingLogger.error('VideoJoinRoute', `Error generating video token: ${error.message}`);
+    logWarning.error('VideoJoinRoute', `Error generating video token: ${error.message}`);
 
-    telemetryService.logEvent('video_token_error', {
+    recordTelemetryEvent('video_token_error', {
       error: error.message,
       duration: Date.now() - startTime,
     });
@@ -189,7 +189,7 @@ router.post('/join', async (req, res) => {
 // Health check endpoint for video service
 
 router.get('/health', async (_req, res) => {
-  const transaction = Sentry.startTransaction({ op: 'video.health', name: 'Video Health Check' });
+  const transaction = Sentry.startSpan({ op: 'video.health', name: 'Video Health Check' });
 
   try {
     // Test LiveKit connectivity by creating a test token
@@ -219,7 +219,7 @@ router.get('/health', async (_req, res) => {
   } catch (error) {
     Sentry.captureException(error);
 
-    healingLogger.error('VideoJoinRoute', `Video health check failed: ${error.message}`);
+    logWarning.error('VideoJoinRoute', `Video health check failed: ${error.message}`);
 
     res.status(503).json({
       status: 'error',

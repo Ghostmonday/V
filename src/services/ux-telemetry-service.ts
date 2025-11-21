@@ -9,7 +9,7 @@
 
 import { supabase } from '../config/database-config.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
-import type { UXTelemetryEvent, UXEventCategory } from '../types/ux-telemetry.js';
+import type { UXTelemetryEvent, UXEventCategory } from '../types/ux-telemetry-types.js';
 import { redactUXTelemetryEvent, redactUXTelemetryBatch } from './ux-telemetry-redaction.js';
 
 /**

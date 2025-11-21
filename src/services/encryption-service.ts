@@ -9,7 +9,6 @@ import { supabase } from '../config/database-config.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
 import { getApiKey } from './api-keys-service.js';
 import {
-  getOptimalEncryptionAlgorithm,
   encryptWithHardwareAcceleration,
   decryptWithHardwareAcceleration,
 } from './hardware-accelerated-encryption.js';

@@ -14,7 +14,7 @@ import type {
   ReactionUpdate,
   CreateThreadRequest,
   Thread,
-} from '../types/message.types.js';
+} from '../types/message-types.js';
 
 export class MessagesController {
   /**

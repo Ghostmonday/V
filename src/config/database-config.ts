@@ -4,7 +4,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import Redis, { Cluster } from 'ioredis';
+import Redis from 'ioredis';
 import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 import { getSupabaseKeys, getRedisUrl } from '../services/api-keys-service.js';
 import {
@@ -102,8 +102,8 @@ if (!healthCheckInterval) {
 
 // Singleton Redis client instance (shared across entire application)
 // Supports single instance, cluster, and sentinel modes
-let redisClient: Redis | Cluster | null = null;
-let redisClientPromise: Promise<Redis | Cluster> | null = null;
+let redisClient: Redis.Redis | Redis.Cluster | null = null;
+let redisClientPromise: Promise<Redis.Redis | Redis.Cluster> | null = null;
 let redisConfig: RedisClusterConfig | null = null;
 
 /**
@@ -119,7 +119,7 @@ let redisConfig: RedisClusterConfig | null = null;
  * - REDIS_SENTINEL_NAME: For sentinel mode (default: 'mymaster')
  * - REDIS_PASSWORD: Optional password for all modes
  */
-export function getRedisClient(): Redis | Cluster {
+export function getRedisClient(): Redis.Redis | Redis.Cluster {
   if (!redisClient) {
     // Check if REDIS_URL is set (Railway auto-sets this when Redis service is added)
     // Allow localhost for testing environments

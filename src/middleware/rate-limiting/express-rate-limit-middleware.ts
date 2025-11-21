@@ -82,7 +82,7 @@ export const tieredRateLimit = rateLimit({
           return 100;
         case SubscriptionTier.PRO:
           return 500;
-        case SubscriptionTier.ENTERPRISE:
+        case SubscriptionTier.TEAM:
           return 2000;
         default:
           return 100;

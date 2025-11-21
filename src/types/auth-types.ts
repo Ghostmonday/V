@@ -7,6 +7,7 @@ import { Request } from 'express';
 
 export interface AuthenticatedUser {
   userId: string;
+  id: string; // Add id property for compatibility
   iat?: number;
   exp?: number;
 }
