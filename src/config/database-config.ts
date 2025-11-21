@@ -121,6 +121,17 @@ let redisConfig: RedisClusterConfig | null = null;
  */
 export function getRedisClient(): Redis | Cluster {
   if (!redisClient) {
+    // Check if REDIS_URL is set (Railway auto-sets this when Redis service is added)
+    if (!process.env.REDIS_URL || process.env.REDIS_URL === 'redis://localhost:6379') {
+      const errorMsg = 'REDIS_URL not set or using localhost - Redis service may not be added in Railway';
+      logError(errorMsg);
+      console.error('❌', errorMsg);
+      console.error('   Add Redis service: Railway Dashboard → Your Project → "New" → "Database" → "Add Redis"');
+      console.error('   Railway will automatically set REDIS_URL with the correct connection string');
+      // Don't create a client with localhost - it won't work in Railway
+      throw new Error('REDIS_URL is required. Add Redis service in Railway to auto-set this variable.');
+    }
+
     try {
       // Parse configuration from environment
       redisConfig = parseRedisConfig();
@@ -129,18 +140,14 @@ export function getRedisClient(): Redis | Cluster {
       redisClient = createRedisClient(redisConfig);
 
       logInfo(`Redis client initialized in ${redisConfig.mode} mode`);
+      console.log(`✅ Redis client initialized (mode: ${redisConfig.mode})`);
     } catch (error) {
       logError(
         'Failed to initialize Redis client',
         error instanceof Error ? error : new Error(String(error))
       );
-      // Fallback to single instance mode if configuration fails
-      const fallbackUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-      redisClient = new Redis(fallbackUrl, {
-        retryStrategy: (times) => Math.min(times * 50, 2000),
-        maxRetriesPerRequest: 3,
-      });
-      logWarning('Using fallback single-instance Redis configuration');
+      console.error('❌ Failed to initialize Redis client:', error);
+      throw error; // Don't fallback to localhost - fail fast with clear error
     }
   }
   // Return existing client if already created (singleton pattern)

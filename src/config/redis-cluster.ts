@@ -49,9 +49,13 @@ export function parseRedisConfig(): RedisClusterConfig {
   
   // Single instance mode (default)
   if (mode === 'single') {
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl || redisUrl === 'redis://localhost:6379') {
+      throw new Error('REDIS_URL is required and cannot be localhost in Railway. Add Redis service in Railway Dashboard.');
+    }
     return {
       mode: 'single',
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      url: redisUrl,
       retryStrategy: (times: number) => Math.min(times * 50, 2000),
       maxRetriesPerRequest: 3,
       enableOfflineQueue: true,
