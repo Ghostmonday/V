@@ -25,7 +25,9 @@ const mockSentiment = {
     const positiveCount = positiveWords.filter((w) => lowerText.includes(w)).length;
     const negativeCount = negativeWords.filter((w) => lowerText.includes(w)).length;
 
-    const score = positiveCount - negativeCount;
+    // Return higher scores to exceed the 0.6 threshold after normalization
+    // The service divides by max(abs(score), 10), so we need score > 6 for polarity > 0.6
+    const score = (positiveCount - negativeCount) * 4; // Multiply by 4 to get stronger signal
     return {
       score,
       words: text.split(/\s+/),
@@ -48,6 +50,21 @@ describe('Sentiment Analysis Service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset the mock analyze function to the default implementation
+    mockSentiment.analyze = vi.fn((text: string) => {
+      const positiveWords = ['love', 'happy', 'great', 'amazing', 'wonderful'];
+      const negativeWords = ['hate', 'sad', 'bad', 'terrible', 'awful'];
+
+      const lowerText = text.toLowerCase();
+      const positiveCount = positiveWords.filter((w) => lowerText.includes(w)).length;
+      const negativeCount = negativeWords.filter((w) => lowerText.includes(w)).length;
+
+      const score = (positiveCount - negativeCount) * 4;
+      return {
+        score,
+        words: text.split(/\s+/),
+      };
+    });
   });
 
   describe('analyzeSentiment', () => {

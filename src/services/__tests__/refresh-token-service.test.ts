@@ -4,37 +4,44 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  issueTokenPair,
-  rotateRefreshToken,
-  revokeRefreshToken,
-} from '../refresh-token-service.js';
 import { createHash } from 'crypto';
 
-// Mock Supabase
-const mockSupabase = {
-  from: vi.fn(),
-};
-
-const mockSupabaseAdmin = {
-  auth: {
-    updateUserById: vi.fn(),
+// Mock must be declared BEFORE importing the module under test
+vi.mock('../config/database-config.js', () => ({
+  supabase: {
+    from: vi.fn(),
   },
-};
-
-vi.mock('../shared/supabase-client.js', () => ({
-  supabase: mockSupabase,
 }));
 
 vi.mock('../../config/supabase-admin.js', () => ({
-  supabaseAdmin: mockSupabaseAdmin,
+  supabaseAdmin: {
+    auth: {
+      updateUserById: vi.fn(),
+    },
+  },
+}));
+
+vi.mock('./user-authentication-service.js', () => ({
+  issueToken: vi.fn(() => 'mock-access-token'),
 }));
 
 vi.mock('../shared/logger-shared.js', () => ({
   logError: vi.fn(),
   logInfo: vi.fn(),
   logWarning: vi.fn(),
+  logAudit: vi.fn(),
 }));
+
+// Import after mocks are set up
+import {
+  issueTokenPair,
+  rotateRefreshToken,
+  revokeRefreshToken,
+} from '../refresh-token-service.js';
+import { supabase } from '../config/database-config.js';
+
+// Get access to the mock
+const mockSupabase = supabase as any;
 
 describe('Refresh Token Service', () => {
   beforeEach(() => {
@@ -105,15 +112,17 @@ describe('Refresh Token Service', () => {
 
       const mockSelect = vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: {
-              id: 'token-123',
-              user_id: 'user-123',
-              token_hash: oldTokenHash,
-              expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-              last_used_at: null,
-            },
-            error: null,
+          is: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: {
+                id: 'token-123',
+                user_id: 'user-123',
+                token_hash: oldTokenHash,
+                expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                last_used_at: null,
+              },
+              error: null,
+            }),
           }),
         }),
       });
@@ -213,9 +222,15 @@ describe('Refresh Token Service', () => {
       const tokenHash = createHash('sha256').update('token-to-revoke').digest('hex');
 
       const mockUpdate = vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({
-          data: { id: 'token-123' },
-          error: null,
+        eq: vi.fn().mockReturnValue({
+          is: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { id: 'token-123', user_id: 'user-123' },
+                error: null,
+              }),
+            }),
+          }),
         }),
       });
 
