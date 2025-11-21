@@ -75,12 +75,12 @@ export function anonymizePhone(phone: string, salt?: string): string {
  * @param salt - Optional salt for consistent hashing
  * @returns Object with anonymized fields
  */
-export function anonymizePII<T extends Record<string, any>>(
+export function anonymizePII<T extends Record<string, unknown>>(
   data: T,
   fields: string[] = ['email', 'phone', 'userId'],
   salt?: string
 ): T {
-  const anonymized = { ...data } as Record<string, any>;
+  const anonymized = { ...data } as Record<string, unknown>;
 
   for (const field of fields) {
     if (anonymized[field] && typeof anonymized[field] === 'string') {

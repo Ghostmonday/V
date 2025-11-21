@@ -22,6 +22,7 @@ fi
 # Set environment variables for validation
 export DATABASE_URL="postgresql://vibez:vibez_dev_password@localhost:5433/vibez_validation"
 export REDIS_URL="redis://localhost:6380"
+export SKIP_SUPABASE_CHECKS="true"
 
 # For Supabase client compatibility
 # Note: Supabase client expects HTTP URL, but we're using direct PostgreSQL
