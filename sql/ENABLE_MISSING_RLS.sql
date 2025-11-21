@@ -4,6 +4,7 @@
 -- These tables were defined in FRESH_START.sql but missed the RLS enablement step.
 -- Running this ensures they are protected by Row Level Security.
 
+-- Tables are in 'service' schema due to FRESH_START.sql settings.
 SET search_path = service, public;
 
 ALTER TABLE edit_history ENABLE ROW LEVEL SECURITY;
