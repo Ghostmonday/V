@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { authMiddleware as authenticate } from '../middleware/auth/supabase-auth-middleware.js';
 import { fullTextSearch, searchRoomMessages, searchRooms } from '../services/search-service.js';
 import { logAudit } from '../shared/logger-shared.js';
@@ -10,7 +10,7 @@ const router = express.Router();
  * GET /search?query=foo&type=messages&room_id=xxx
  * Full-text search across messages, rooms, and users
  */
-router.get('/', authenticate, async (req: AuthenticatedRequest, res) => {
+router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { query, type, room_id, user_id, limit, offset } = req.query;
 
@@ -43,7 +43,7 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res) => {
  * GET /search/messages?room_id=xxx&query=foo
  * Search messages in a specific room
  */
-router.get('/messages', authenticate, async (req: AuthenticatedRequest, res) => {
+router.get('/messages', authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { room_id, query, limit } = req.query;
 
@@ -71,7 +71,7 @@ router.get('/messages', authenticate, async (req: AuthenticatedRequest, res) => 
  * GET /search/rooms?query=foo
  * Search public rooms
  */
-router.get('/rooms', authenticate, async (req: AuthenticatedRequest, res) => {
+router.get('/rooms', authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { query, limit } = req.query;
 
