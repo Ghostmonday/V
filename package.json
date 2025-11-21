@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build && tsc -p tsconfig.build.json || true",
+    "start": "node dist/server/index.js",
     "build:root": "tsc -p tsconfig.build.json",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",

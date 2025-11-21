@@ -1,23 +1,28 @@
-# Production Dockerfile for node build & run
-FROM node:20-alpine
-
+# Multi‑stage Dockerfile optimized for Railway
+## ---------- Build stage ----------
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# copy package manifests, install all deps (need dev deps for build)
+# Install only production + dev deps needed for build
 COPY package*.json ./
 RUN npm ci
 
-# copy app
+# Copy source files and build
 COPY . .
-
-# build TypeScript to JS
 RUN npm run build
 
-# remove dev dependencies to reduce image size
-RUN npm prune --production
+## ---------- Runtime stage ----------
+FROM node:20-alpine AS runtime
+WORKDIR /app
 
-# default run
+# Copy only compiled output and production deps
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
+RUN npm ci --production
+
+# Expose the port Railway forwards (default 3000, but respect $PORT)
+ENV PORT=3000
+EXPOSE $PORT
+
+# Use the same start command as defined in package.json
 CMD ["node", "dist/server/index.js"]
-
-# Expose port is a documentation item; docker-compose maps it
-
