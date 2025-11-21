@@ -20,36 +20,13 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        working-directory: server
         run: npm ci
       
-      - name: Run depcheck
-        working-directory: server
-        run: npx depcheck --ignores="@types/*,hardhat,@nomicfoundation/hardhat-toolbox,tsx,typescript" || true
-        continue-on-error: true
-      
-      - name: Run knip
-        working-directory: server
-        run: npx knip --reporter json || true
-        continue-on-error: true
-      
       - name: Run TypeScript type check
-        working-directory: server
         run: npm run typecheck
       
       - name: Run ESLint
-        working-directory: server
         run: npm run lint || echo "Linting skipped - ESLint not fully configured"
-        continue-on-error: true
-      
-      - name: Validate Terraform
-        run: |
-          if [ -d "infra/aws" ]; then
-            cd infra/aws
-            terraform fmt -check -recursive
-            terraform init -backend=false
-            terraform validate
-          fi
         continue-on-error: true
 
   test:
@@ -63,14 +40,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: server/package-lock.json
       
       - name: Install dependencies
-        working-directory: server
         run: npm ci
       
       - name: Run tests
-        working-directory: server
         run: npm run test || echo "Tests not implemented yet"
         continue-on-error: true
 
@@ -85,12 +59,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: server/package-lock.json
       
       - name: Install dependencies
-        working-directory: server
         run: npm ci
       
       - name: Build
-        working-directory: server
         run: npm run build

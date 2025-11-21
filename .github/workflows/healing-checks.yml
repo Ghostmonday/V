@@ -2,9 +2,9 @@ name: Healing Checks
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
 
 jobs:
   test:
@@ -29,15 +29,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: server/package-lock.json
       
       - name: Install dependencies
-        working-directory: server
         run: npm ci
       
       - name: Set environment variables
         run: |
-          echo "NE     XT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:54321}" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:54321}" >> $GITHUB_ENV
           echo "SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-test-service-role-key}" >> $GITHUB_ENV
           echo "JWT_SECRET=${JWT_SECRET:-test-secret-change-in-production}" >> $GITHUB_ENV
           echo "DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}" >> $GITHUB_ENV
@@ -48,7 +46,6 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       
       - name: Run tests
-        working-directory: server
         run: npm test || echo "Tests not implemented yet"
         continue-on-error: true
         env:
@@ -59,8 +56,8 @@ jobs:
           DEEPSEEK_API_KEY: ${{ env.DEEPSEEK_API_KEY }}
       
       - name: Build
-        working-directory: server
         run: npm run build
         env:                              
           REDIS_URL: redis://localhost:6379
+
 
