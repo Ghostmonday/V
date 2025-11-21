@@ -17,7 +17,7 @@ struct PrivacySettingsView: View {
                             .foregroundColor(Color.Vibez.textPrimary)
                             .font(.system(size: 20))
                     }
-                    Text("Privacy Control Center")
+                    Text("Your privacy")
                         .vibezHeaderMedium()
                         .padding(.leading, 8)
                     Spacer()
@@ -34,10 +34,10 @@ struct PrivacySettingsView: View {
                                     .font(.system(size: 30))
                                     .foregroundColor(Color.Vibez.success)
                                 VStack(alignment: .leading) {
-                                    Text("Privacy Shield Active")
+                                    Text("Privacy on")
                                         .font(VibezTypography.bodyLarge)
                                         .foregroundColor(Color.Vibez.textPrimary)
-                                    Text("Your data is local-first and encrypted.")
+                                    Text("Your stuff stays on your device, locked up tight.")
                                         .font(VibezTypography.caption)
                                         .foregroundColor(Color.Vibez.textSecondary)
                                 }
@@ -47,7 +47,7 @@ struct PrivacySettingsView: View {
                         
                         // Chat Privacy
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Chat Security")
+                            Text("Keep chats private")
                                 .vibezHeaderSmall()
                             
                             PrivacyToggleRow(
@@ -59,7 +59,7 @@ struct PrivacySettingsView: View {
                         
                         // Toggles
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Data Permissions")
+                            Text("What we can see")
                                 .vibezHeaderSmall()
                             
                             PrivacyToggleRow(
@@ -83,7 +83,7 @@ struct PrivacySettingsView: View {
                         
                         // Danger Zone
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Data Management")
+                            Text("Your data")
                                 .vibezHeaderSmall()
                             
                             Button(action: {
@@ -91,7 +91,7 @@ struct PrivacySettingsView: View {
                             }) {
                                 GlassCard {
                                     HStack {
-                                        Text("Export My Data")
+                                        Text("Download my stuff")
                                             .foregroundColor(Color.Vibez.textPrimary)
                                         Spacer()
                                         Image(systemName: "square.and.arrow.up")
@@ -105,7 +105,7 @@ struct PrivacySettingsView: View {
                             }) {
                                 GlassCard {
                                     HStack {
-                                        Text("Delete Account & Data")
+                                        Text("Delete everything")
                                             .foregroundColor(Color.Vibez.error)
                                         Spacer()
                                         Image(systemName: "trash")

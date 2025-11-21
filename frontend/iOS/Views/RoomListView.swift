@@ -26,15 +26,15 @@ struct RoomListView: View {
                             .scaleEffect(1.5)
                             .tint(.blue)
                         
-                        Text("Loading rooms...")
+                        Text("Finding your rooms...")
                             .font(.headline) // Dynamic Type support
                             .foregroundColor(.secondary)
-                            .accessibilityLabel("Loading rooms")
+                            .accessibilityLabel("Finding your rooms")
                         
-                        Text("Connecting to your spaces")
+                        Text("Linking up...")
                             .font(.caption) // Dynamic Type support
                             .foregroundColor(.secondary.opacity(0.7))
-                            .accessibilityLabel("Connecting to your spaces")
+                            .accessibilityLabel("Linking up")
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .transition(.opacity.combined(with: .scale))
@@ -53,12 +53,12 @@ struct RoomListView: View {
                             .shadow(color: .blue.opacity(0.3), radius: 10)
                         
                         VStack(spacing: 8) {
-                            Text("No rooms available")
+                            Text("Nothing here yet")
                                 .font(.title3)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.primary)
                             
-                            Text("Create a room to get started")
+                            Text("Make your first room")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -76,14 +76,14 @@ struct RoomListView: View {
                             ) {
                                 HStack {
                                     Image(systemName: "plus.circle.fill")
-                                    Text("Create Room")
+                                    Text("New room")
                                 }
                                 .font(.headline)
                                 .foregroundColor(.white)
                             }
                         }
-                        .accessibilityLabel("Create room")
-                        .accessibilityHint("Double tap to create a new room")
+                        .accessibilityLabel("New room")
+                        .accessibilityHint("Double tap to make a room")
                         .accessibilityAddTraits(.isButton)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -17,7 +17,7 @@ router.post('/login', async (req: Request, res: Response) => {
         const { username, password } = req.body;
 
         if (!username || !password) {
-            return res.status(400).json({ error: 'Username and password are required' });
+            return res.status(400).json({ error: 'Need your username and password' });
         }
 
         const result = await authenticateWithCredentials(username, password);
@@ -26,7 +26,7 @@ router.post('/login', async (req: Request, res: Response) => {
         res.json(result);
     } catch (error: any) {
         logError('Login failed', error);
-        res.status(401).json({ error: error.message || 'Authentication failed' });
+        res.status(401).json({ error: error.message || "Couldn't sign you in" });
     }
 });
 
@@ -39,7 +39,7 @@ router.post('/register', async (req: Request, res: Response) => {
         const { username, password, ageVerified } = req.body;
 
         if (!username || !password) {
-            return res.status(400).json({ error: 'Username and password are required' });
+            return res.status(400).json({ error: 'Need your username and password' });
         }
 
         const result = await registerUser(username, password, ageVerified);
@@ -48,7 +48,7 @@ router.post('/register', async (req: Request, res: Response) => {
         res.json(result);
     } catch (error: any) {
         logError('Registration failed', error);
-        res.status(400).json({ error: error.message || 'Registration failed' });
+        res.status(400).json({ error: error.message || "Couldn't create your account" });
     }
 });
 

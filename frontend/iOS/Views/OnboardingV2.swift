@@ -125,7 +125,7 @@ struct OnboardingV2: View {
                         .opacity(showContent ? 1.0 : 0.0)
                     
                     // Tagline
-                    Text("Experience Connection Reimagined.")
+                    Text("Real conversations. No drama.")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
@@ -144,7 +144,7 @@ struct OnboardingV2: View {
                             .foregroundColor(ageVerified ? Color("VibeZGold") : .white.opacity(0.6))
                             .font(.system(size: 20))
                     }
-                    Text("I am 18 years or older")
+                    Text("I'm 18+")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.8))
                 }
@@ -196,7 +196,7 @@ struct OnboardingV2: View {
                     }
                 }) {
                     HStack(spacing: 12) {
-                        Text("Get Started")
+                        Text("Jump in")
                             .font(.title3.bold())
                         Image(systemName: "arrow.right")
                             .font(.title3.bold())
@@ -227,8 +227,8 @@ struct OnboardingV2: View {
                 .padding(.bottom, 50)
                 .offset(y: showContent ? 0 : 30)
                 .opacity(showContent ? 1.0 : 0.0)
-                .accessibilityLabel("Get Started")
-                .accessibilityHint("Double tap to begin using VibeZ")
+                .accessibilityLabel("Jump in")
+                .accessibilityHint("Double tap to start")
             }
         }
         .onAppear {

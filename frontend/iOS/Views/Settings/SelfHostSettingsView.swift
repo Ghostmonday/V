@@ -25,7 +25,7 @@ struct SelfHostSettingsView: View {
                             .foregroundColor(Color.Vibez.textPrimary)
                             .font(.system(size: 20))
                     }
-                    Text("Self-Hosted Node")
+                    Text("Your own server")
                         .vibezHeaderMedium()
                         .padding(.leading, 8)
                     Spacer()
@@ -43,11 +43,11 @@ struct SelfHostSettingsView: View {
                                     .foregroundColor(Color.Vibez.electricBlue)
                                 
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("Run Your Own Cloud")
+                                    Text("Host it yourself")
                                         .font(VibezTypography.headerSmall)
                                         .foregroundColor(Color.Vibez.textPrimary)
                                     
-                                    Text("Connect to a personal VIBEZ Node for complete data sovereignty. No third-party servers involved.")
+                                    Text("Run your own VibeZ server. Your data stays with you.")
                                         .font(VibezTypography.bodyMedium)
                                         .foregroundColor(Color.Vibez.textSecondary)
                                         .fixedSize(horizontal: false, vertical: true)
@@ -57,7 +57,7 @@ struct SelfHostSettingsView: View {
                         
                         // Connection Input
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("CONNECTION DETAILS")
+                            Text("Server info")
                                 .font(VibezTypography.caption)
                                 .foregroundColor(Color.Vibez.textSecondary)
                                 .padding(.leading, 4)
@@ -81,7 +81,7 @@ struct SelfHostSettingsView: View {
                                 }) {
                                     HStack {
                                         Image(systemName: "qrcode.viewfinder")
-                                        Text("Scan QR Code")
+                                        Text("Scan code")
                                     }
                                     .foregroundColor(Color.Vibez.electricBlue)
                                     .padding()
@@ -105,7 +105,7 @@ struct SelfHostSettingsView: View {
                                     ProgressView()
                                         .tint(.white)
                                 } else {
-                                    Text(connectionStatus == .connected ? "Connected" : "Connect to Node")
+                                    Text(connectionStatus == .connected ? "Connected" : "Connect")
                                         .font(VibezTypography.button)
                                 }
                             }
@@ -121,7 +121,7 @@ struct SelfHostSettingsView: View {
                         .disabled(serverURL.isEmpty || isConnecting)
                         
                         if connectionStatus == .error {
-                            Text("Could not connect to server. Please check the URL.")
+                            Text("Can't reach that server. Check the link?")
                                 .font(VibezTypography.caption)
                                 .foregroundColor(Color.Vibez.error)
                         }

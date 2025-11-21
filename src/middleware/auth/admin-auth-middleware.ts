@@ -155,7 +155,7 @@ export const requireAdmin = async (
     const userId = req.user?.id || req.user?.userId;
 
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
+      res.status(401).json({ error: 'Sign in first' });
       return;
     }
 
@@ -166,7 +166,7 @@ export const requireAdmin = async (
         endpoint: req.path,
         method: req.method,
       });
-      res.status(403).json({ error: 'Admin access required' });
+      res.status(403).json({ error: 'Admins only' });
       return;
     }
 
@@ -174,7 +174,7 @@ export const requireAdmin = async (
     next();
   } catch (error: any) {
     logError('Admin middleware error', error);
-    res.status(500).json({ error: 'Authorization check failed' });
+    res.status(500).json({ error: "Can't verify your permissions" });
   }
 };
 
@@ -190,7 +190,7 @@ export const requireModerator = async (
     const userId = req.user?.id || req.user?.userId;
 
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
+      res.status(401).json({ error: 'Sign in first' });
       return;
     }
 
@@ -206,10 +206,10 @@ export const requireModerator = async (
       method: req.method,
       role,
     });
-    res.status(403).json({ error: 'Moderator access required' });
+    res.status(403).json({ error: 'Moderators only' });
   } catch (error: any) {
     logError('Moderator middleware error', error);
-    res.status(500).json({ error: 'Authorization check failed' });
+    res.status(500).json({ error: "Can't verify your permissions" });
   }
 };
 
@@ -225,7 +225,7 @@ export const requireOwner = async (
     const userId = req.user?.id || req.user?.userId;
 
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
+      res.status(401).json({ error: 'Sign in first' });
       return;
     }
 
@@ -236,14 +236,14 @@ export const requireOwner = async (
         endpoint: req.path,
         method: req.method,
       });
-      res.status(403).json({ error: 'Owner access required' });
+      res.status(403).json({ error: 'Room owners only' });
       return;
     }
 
     next();
   } catch (error: any) {
     logError('Owner middleware error', error);
-    res.status(500).json({ error: 'Authorization check failed' });
+    res.status(500).json({ error: "Can't verify your permissions" });
   }
 };
 
@@ -257,7 +257,7 @@ export function requirePermission(permission: string) {
       const roomId = req.params?.roomId || req.body?.roomId;
 
       if (!userId) {
-        res.status(401).json({ error: 'Authentication required' });
+        res.status(401).json({ error: 'Sign in first' });
         return;
       }
 
@@ -270,14 +270,14 @@ export function requirePermission(permission: string) {
           permission,
           roomId,
         });
-        res.status(403).json({ error: `Permission required: ${permission}` });
+        res.status(403).json({ error: "You can't do that here" });
         return;
       }
 
       next();
     } catch (error: any) {
       logError('Permission check error', error);
-      res.status(500).json({ error: 'Authorization check failed' });
+      res.status(500).json({ error: "Can't verify your permissions" });
     }
   };
 }

@@ -29,11 +29,11 @@ export const defaultRateLimit = rateLimit({
   max: 100, // Limit each IP to 100 requests per windowMs
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: 'Too many requests from this IP, please try again later.',
+  message: 'Slow down. Try again in a bit.',
   handler: (req: Request, res: Response) => {
     res.status(429).json({
-      error: 'Rate limit exceeded',
-      message: 'Too many requests, please try again later.',
+      error: "You're going too fast",
+      message: 'Slow down. Try again in a bit.',
       retryAfter: Math.ceil(15 * 60), // Seconds
     });
   },
@@ -49,11 +49,11 @@ export const strictRateLimit = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many requests, please slow down.',
+  message: 'Slow down',
   handler: (req: Request, res: Response) => {
     res.status(429).json({
-      error: 'Rate limit exceeded',
-      message: 'Too many requests to this sensitive endpoint, please try again later.',
+      error: "You're going too fast",
+      message: 'Too many tries. Wait a sec.',
       retryAfter: Math.ceil(15 * 60),
     });
   },
@@ -96,11 +96,11 @@ export const tieredRateLimit = rateLimit({
     // Use user ID if authenticated, otherwise use IP
     return req.user?.userId || req.ip || 'unknown';
   },
-  message: 'Rate limit exceeded for your subscription tier.',
+  message: 'Hit your plan\'s limit',
   handler: (req: Request, res: Response) => {
     res.status(429).json({
-      error: 'Rate limit exceeded',
-      message: 'You have exceeded the rate limit for your subscription tier.',
+      error: "You're going too fast",
+      message: 'You hit your plan\'s limit',
       retryAfter: Math.ceil(15 * 60),
     });
   },
@@ -122,11 +122,11 @@ export const userRateLimit = rateLimit({
     }
     return `user:${req.user.userId}`;
   },
-  message: 'Too many requests from this user account.',
+  message: 'Slow down on your account',
   handler: (req: Request, res: Response) => {
     res.status(429).json({
-      error: 'Rate limit exceeded',
-      message: 'Too many requests from this account, please try again later.',
+      error: "You're going too fast",
+      message: 'Too fast. Wait a bit.',
       retryAfter: Math.ceil(15 * 60),
     });
   },
@@ -152,11 +152,11 @@ export const apiKeyRateLimit = rateLimit({
     const apiKey = req.headers['x-api-key'] || req.headers['authorization'];
     return apiKey ? `apikey:${apiKey}` : req.ip || 'unknown';
   },
-  message: 'API key rate limit exceeded.',
+  message: 'Your API key hit the limit',
   handler: (req: Request, res: Response) => {
     res.status(429).json({
-      error: 'Rate limit exceeded',
-      message: 'API key rate limit exceeded, please try again later.',
+      error: "You're going too fast",
+      message: 'API limit hit. Try again soon.',
       retryAfter: Math.ceil(60 * 60),
     });
   },

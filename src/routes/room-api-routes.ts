@@ -33,7 +33,7 @@ router.post(
       const { name } = req.body;
 
       if (!name || typeof name !== 'string' || name.trim().length === 0) {
-        return res.status(400).json({ error: 'Room name is required' });
+        return res.status(400).json({ error: 'Give your room a name' });
       }
 
       const room = await createRoom(name, userId);
@@ -50,7 +50,7 @@ router.post(
       });
     } catch (error) {
       if (error instanceof Error && error.message === 'Name taken') {
-        return res.status(400).json({ error: 'Name taken' });
+        return res.status(400).json({ error: "That name's taken" });
       }
       logError('Create room error', error instanceof Error ? error : new Error(String(error)));
       next(error);
@@ -85,7 +85,7 @@ router.post(
       // Get room state
       const roomState = await getRoomState(roomId);
       if (!roomState) {
-        return res.status(404).json({ error: 'Room not found' });
+        return res.status(404).json({ error: "Can't find that room" });
       }
 
       // Generate unique UID for Agora (use hash of userId for consistency)
@@ -94,7 +94,7 @@ router.post(
       // Add user to room
       const joinResult = await addRoomMember(roomId, userId, uid);
       if (!joinResult.success) {
-        return res.status(400).json({ error: joinResult.error || 'Failed to join room' });
+        return res.status(400).json({ error: joinResult.error || "Can't join right now" });
       }
 
       // Generate Agora token
@@ -129,7 +129,7 @@ router.post(
           return res.status(403).json({ error: error.message });
         }
         if (error.message.includes('Agora credentials')) {
-          return res.status(500).json({ error: 'Video service not configured' });
+          return res.status(500).json({ error: "Video isn't set up" });
         }
       }
       logError('Join room error', error instanceof Error ? error : new Error(String(error)));
@@ -151,7 +151,7 @@ router.get(
       const room = await getRoom(roomId);
 
       if (!room) {
-        return res.status(404).json({ error: 'Room not found' });
+        return res.status(404).json({ error: "Can't find that room" });
       }
 
       res.json({ room });

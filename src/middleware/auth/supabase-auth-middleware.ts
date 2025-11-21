@@ -61,7 +61,7 @@ export const supabaseAuthMiddleware = async (
 
   if (!supabase) {
     Sentry.captureMessage('Supabase client not initialized', 'error');
-    return res.status(500).json({ error: 'Server configuration error' });
+    return res.status(500).json({ error: "Something's wrong on our end" });
   }
 
   try {
@@ -77,7 +77,7 @@ export const supabaseAuthMiddleware = async (
         level: 'warning',
         data: { error: authError?.message || 'User not found' },
       });
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: 'Session expired. Sign in again?' });
     }
 
     // Set user on request

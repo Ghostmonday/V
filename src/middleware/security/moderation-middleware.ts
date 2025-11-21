@@ -15,13 +15,13 @@ export const moderateContent = async (
   try {
     // Input validation
     if (typeof content !== 'string') {
-      return res.status(400).json({ error: 'Content must be a string' });
+      return res.status(400).json({ error: 'Invalid text' });
     }
 
     // Length check
     // @llm_param - Maximum content length for moderation. Prevents extremely long inputs that could abuse LLM APIs.
     if (content.length > 50000) {
-      return res.status(400).json({ error: 'Content exceeds maximum length' });
+      return res.status(400).json({ error: 'Too long' });
     }
 
     // Basic moderation - check for blocked words
@@ -48,7 +48,7 @@ export const moderateContent = async (
         reason: 'blocked_word',
         content_length: content.length,
       });
-      return res.status(400).json({ error: 'Content violates community guidelines' });
+      return res.status(400).json({ error: "Can't post that" });
     }
 
     // Check for excessive repetition (spam detection)
@@ -67,7 +67,7 @@ export const moderateContent = async (
         reason: 'excessive_repetition',
         max_repetition: maxRepetition,
       });
-      return res.status(400).json({ error: 'Content appears to be spam' });
+      return res.status(400).json({ error: 'Looks like spam' });
     }
 
     next();

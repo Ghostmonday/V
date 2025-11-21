@@ -40,7 +40,7 @@ struct ProfileView: View {
                         
                         if guestService.isGuest {
                             VStack(spacing: 8) {
-                                Text("Guest User")
+                                Text("Just browsing")
                                     .vibezHeaderMedium()
                                 Text(guestService.guestHandle)
                                     .vibezBody()
@@ -51,10 +51,10 @@ struct ProfileView: View {
                                 GlassCard {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text("Initialize Identity")
+                                            Text("Pick your name")
                                                 .font(VibezTypography.button)
                                                 .foregroundColor(Color.Vibez.textPrimary)
-                                            Text("Secure your name and stats.")
+                                            Text("Keep your name and activity private.")
                                                 .font(VibezTypography.caption)
                                                 .foregroundColor(Color.Vibez.textSecondary)
                                         }
@@ -91,7 +91,7 @@ struct ProfileView: View {
                             }
                             
                             NavigationLink(destination: SelfHostSettingsView()) {
-                                MenuRow(icon: "server.rack", title: "Self-Hosted Node")
+                                MenuRow(icon: "server.rack", title: "Your own server")
                             }
                             
                             MenuRow(icon: "creditcard.fill", title: "Subscription")
@@ -117,7 +117,7 @@ struct SettingsView: View {
     var body: some View {
         ZStack {
             VibezBackground()
-            Text("General Settings")
+            Text("Settings")
                 .vibezHeaderMedium()
         }
     }

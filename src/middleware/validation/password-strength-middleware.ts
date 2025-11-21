@@ -18,14 +18,14 @@ import { logWarning } from '../../shared/logger-shared.js';
 // Password strength schema
 const passwordStrengthSchema = z
   .string()
-  .min(8, { message: 'Password must be at least 8 characters' })
-  .max(500, { message: 'Password must be at most 500 characters' })
-  .refine((pwd) => /[A-Z]/.test(pwd), { message: 'Password must contain at least one uppercase letter' })
-  .refine((pwd) => /[a-z]/.test(pwd), { message: 'Password must contain at least one lowercase letter' })
-  .refine((pwd) => /[0-9]/.test(pwd), { message: 'Password must contain at least one number' })
+  .min(8, { message: 'Use 8+ characters' })
+  .max(500, { message: 'Way too long' })
+  .refine((pwd) => /[A-Z]/.test(pwd), { message: 'Add a capital letter' })
+  .refine((pwd) => /[a-z]/.test(pwd), { message: 'Add a lowercase letter' })
+  .refine((pwd) => /[0-9]/.test(pwd), { message: 'Add a number' })
   .refine(
     (pwd) => /[^A-Za-z0-9]/.test(pwd),
-    { message: 'Password must contain at least one special character' }
+    { message: 'Add a symbol like ! or $' }
   );
 
 export interface PasswordStrengthResult {
@@ -59,7 +59,7 @@ export function validatePasswordStrength(password: string): PasswordStrengthResu
         hasNumber: false,
         hasSpecial: false,
       },
-      errors: ['Password must be a string'],
+      errors: ['Invalid text'],
     };
   }
 
@@ -76,14 +76,14 @@ export function validatePasswordStrength(password: string): PasswordStrengthResu
   const valid = score === 6; // All 6 requirements met
 
   const errors: string[] = [];
-  if (!requirements.minLength) errors.push('Password must be at least 8 characters');
-  if (!requirements.maxLength) errors.push('Password must be at most 500 characters');
+  if (!requirements.minLength) errors.push('Use 8+ characters');
+  if (!requirements.maxLength) errors.push('Way too long');
   if (!requirements.hasUppercase)
-    errors.push('Password must contain at least one uppercase letter');
+    errors.push('Add a capital letter');
   if (!requirements.hasLowercase)
-    errors.push('Password must contain at least one lowercase letter');
-  if (!requirements.hasNumber) errors.push('Password must contain at least one number');
-  if (!requirements.hasSpecial) errors.push('Password must contain at least one special character');
+    errors.push('Add a lowercase letter');
+  if (!requirements.hasNumber) errors.push('Add a number');
+  if (!requirements.hasSpecial) errors.push('Add a symbol like ! or $');
 
   // VALIDATION CHECKPOINT: Validate password strength result structure
   return {

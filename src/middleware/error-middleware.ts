@@ -26,17 +26,17 @@ export const errorMiddleware = (err: Error, req: Request, res: Response, next: N
   // Handle Zod Validation Errors (check by name to avoid import issues)
   else if (err.name === 'ZodError' || (err as any).issues) {
     statusCode = 400;
-    message = 'Validation Error';
+    message = "Something's wrong";
   }
   // Handle Supabase/Postgres Errors (basic mapping)
   else if ((err as any).code) {
     const code = (err as any).code;
     if (code === '23505') { // Unique violation
       statusCode = 409;
-      message = 'Duplicate entry';
+      message = 'That already exists';
     } else if (code === '23503') { // Foreign key violation
       statusCode = 400;
-      message = 'Invalid reference';
+      message = "Link doesn't work";
     }
   }
 
@@ -105,7 +105,7 @@ export const errorMiddleware = (err: Error, req: Request, res: Response, next: N
 
   res.status(statusCode).json({
     success: false,
-    error: statusCode >= 500 ? 'Internal Server Error' : message,
+    error: statusCode >= 500 ? "Something went wrong" : message,
     ...(isDevelopment && {
       debug: err.message,
       stack: err.stack,

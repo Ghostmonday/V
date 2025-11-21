@@ -54,7 +54,7 @@ struct WelcomeStep: View {
             Text("Welcome to VIBEZ")
                 .vibezHeaderLarge()
             
-            Text("A social experience designed around\nabsolute privacy and control.")
+            Text("Chat freely. Your business stays your business.")
                 .vibezBody()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -62,7 +62,7 @@ struct WelcomeStep: View {
             Spacer()
             
             Button(action: nextAction) {
-                Text("Begin Setup")
+                Text("Let's go")
                     .font(VibezTypography.button)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
@@ -87,7 +87,7 @@ struct PrivacyConsentStep: View {
                 .vibezHeaderMedium()
                 .padding(.top, 60)
             
-            Text("We don't track you by default. Enable only what you're comfortable with.")
+            Text("We don't watch you. Turn on only what helps.")
                 .vibezBody()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -172,7 +172,7 @@ struct CompletionStep: View {
             Text("You're All Set")
                 .vibezHeaderLarge()
             
-            Text("Your privacy preferences have been saved.\nYou can change them anytime in Settings.")
+            Text("Saved your choices.\nChange this anytime in settings.")
                 .vibezBody()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -180,7 +180,7 @@ struct CompletionStep: View {
             Spacer()
             
             Button(action: finishAction) {
-                Text("Enter VIBEZ")
+                Text("Start vibing")
                     .font(VibezTypography.button)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)

@@ -74,7 +74,7 @@ export async function sendMessageToRoom(data: {
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(roomIdValue) &&
       isNaN(Number(roomIdValue))
     ) {
-      throw new Error('Invalid roomId format');
+      throw new Error("Room ID doesn't work");
     }
 
     // VALIDATION POINT 3: Validate senderId format
@@ -83,13 +83,13 @@ export async function sendMessageToRoom(data: {
         validatedInput.senderId
       )
     ) {
-      throw new Error('Invalid senderId format');
+      throw new Error("User ID doesn't work");
     }
 
     // Check if user is muted in this room
     const isMuted = await isUserMuted(validatedInput.senderId, String(roomIdValue));
     if (isMuted) {
-      throw new Error('You are temporarily muted in this room');
+      throw new Error("You're muted for now");
     }
 
     // Check if room has AI moderation enabled (enterprise only)
@@ -152,7 +152,7 @@ export async function sendMessageToRoom(data: {
     const requiresEncryption = room && isE2ERoom(room);
 
     if (requiresEncryption && !isEncryptedPayload(validatedInput.content)) {
-      throw new Error('Room requires end-to-end encryption. Message payload must be encrypted.');
+      throw new Error('This room needs encryption');
     }
 
     // For E2E rooms, store encrypted payload only (no plaintext)
@@ -178,7 +178,7 @@ export async function sendMessageToRoom(data: {
         JSON.parse(contentToStore);
       }
     } catch (e) {
-      throw new Error('Failed to prepare message content for storage');
+      throw new Error("Can't save that message");
     }
 
     // Calculate expires_at if TTL is provided (ephemeral messages - Phase 2.1)
@@ -251,7 +251,7 @@ export async function sendMessageToRoom(data: {
   } catch (error: any) {
     logError('Failed to send message', error);
     // Preserve original error message if available, otherwise use generic message
-    throw new Error(error.message || 'Failed to send message'); // DB insert may have succeeded - partial failure
+      throw new Error(error.message || "Couldn't send that"); // DB insert may have succeeded - partial failure
   }
 }
 
@@ -313,6 +313,6 @@ export async function getRoomMessages(
   } catch (error: any) {
     logError('Failed to retrieve room messages', error);
     // Preserve original error message for debugging
-    throw new Error(error.message || 'Failed to get messages');
+      throw new Error(error.message || "Can't load messages");
   }
 }

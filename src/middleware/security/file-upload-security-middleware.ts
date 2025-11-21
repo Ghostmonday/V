@@ -35,7 +35,7 @@ export const fileUploadSecurity = (req: Request, res: Response, next: NextFuncti
   if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
     logInfo('File upload rejected', `Invalid MIME type: ${mimeType}`);
     return res.status(400).json({
-      error: 'Invalid file type',
+      error: "Can't upload that file type",
       allowedTypes: ALLOWED_MIME_TYPES,
     });
   }
@@ -51,7 +51,7 @@ export const fileUploadSecurity = (req: Request, res: Response, next: NextFuncti
   if (fileSize > maxSize) {
     logInfo('File upload rejected', `File too large: ${fileSize} bytes`);
     return res.status(400).json({
-      error: 'File too large',
+      error: "File's too big",
       maxSize: maxSize,
       fileSize: fileSize,
     });
