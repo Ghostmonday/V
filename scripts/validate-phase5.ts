@@ -57,10 +57,10 @@ async function validatePhase5_1() {
   );
 
   if (perspectiveExists) {
-    const content = fs.readFileSync(perspectiveServicePath, 'utf-8');
+    const content: string = fs.readFileSync(perspectiveServicePath, 'utf-8');
 
     // Check for analyzeWithPerspective function
-    const hasAnalyzeFunction = typeof content === 'string' && content.includes('analyzeWithPerspective');
+    const hasAnalyzeFunction = content.includes('analyzeWithPerspective');
     recordResult(
       'Phase 5',
       '5.1',
@@ -105,7 +105,7 @@ async function validatePhase5_1() {
   );
 
   if (moderationExists) {
-    const content = fs.readFileSync(moderationServicePath, 'utf-8');
+    const content: string = fs.readFileSync(moderationServicePath, 'utf-8');
     const usesPerspective = content.includes('analyzeWithPerspective');
     const hasDeepSeekFallback =
       content.includes('DeepSeek') ||
