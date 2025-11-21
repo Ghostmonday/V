@@ -1,0 +1,16 @@
+# Compiled output
+*.js
+*.js.map
+*.d.ts
+!*.config.js
+
+# Build artifacts
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# Dependencies
+node_modules/
