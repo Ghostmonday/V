@@ -76,21 +76,68 @@ export function createMockRedis(): Partial<RedisClientType> {
     zcard: vi.fn(async (key: string) => {
       return sortedSets.get(key)?.size || 0;
     }),
-    pipeline: vi.fn(() => ({
-      zremrangebyscore: vi.fn().mockReturnThis(),
-      zcard: vi.fn().mockReturnThis(),
-      zadd: vi.fn().mockReturnThis(),
-      expire: vi.fn().mockReturnThis(),
-      exec: vi.fn(async () => {
-        // Mock pipeline execution
-        return [
-          [null, 0], // zremrangebyscore result
-          [null, sortedSets.get('rate_limit:test')?.size || 0], // zcard result
-          [null, 1], // zadd result
-          [null, 1], // expire result
-        ];
-      }),
-    })),
+    pipeline: vi.fn(() => {
+      // Store pipeline commands to execute them in sequence
+      const commands: Array<{ method: string; args: any[] }> = [];
+
+      const pipelineObj = {
+        zremrangebyscore: vi.fn((...args: any[]) => {
+          commands.push({ method: 'zremrangebyscore', args });
+          return pipelineObj;
+        }),
+        zcard: vi.fn((...args: any[]) => {
+          commands.push({ method: 'zcard', args });
+          return pipelineObj;
+        }),
+        zadd: vi.fn((...args: any[]) => {
+          commands.push({ method: 'zadd', args });
+          return pipelineObj;
+        }),
+        expire: vi.fn((...args: any[]) => {
+          commands.push({ method: 'expire', args });
+          return pipelineObj;
+        }),
+        exec: vi.fn(async () => {
+          // Execute commands in order and collect results
+          const results: Array<[Error | null, any]> = [];
+
+          for (const cmd of commands) {
+            const [key, ...rest] = cmd.args;
+
+            if (cmd.method === 'zremrangebyscore') {
+              const [min, max] = rest;
+              const set = sortedSets.get(key);
+              let removed = 0;
+              if (set) {
+                for (const [member, score] of set.entries()) {
+                  if (score >= min && score <= max) {
+                    set.delete(member);
+                    removed++;
+                  }
+                }
+              }
+              results.push([null, removed]);
+            } else if (cmd.method === 'zcard') {
+              const size = sortedSets.get(key)?.size || 0;
+              results.push([null, size]);
+            } else if (cmd.method === 'zadd') {
+              const [score, member] = rest;
+              if (!sortedSets.has(key)) {
+                sortedSets.set(key, new Map());
+              }
+              sortedSets.get(key)!.set(member, score);
+              results.push([null, 1]);
+            } else if (cmd.method === 'expire') {
+              results.push([null, 1]);
+            }
+          }
+
+          return results;
+        }),
+      };
+
+      return pipelineObj;
+    }),
     hget: vi.fn(async (key: string, field: string) => {
       // Mock hash get for user tier caching
       return null;

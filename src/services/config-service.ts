@@ -3,7 +3,7 @@
  * Manages application configuration stored as key-value pairs
  */
 
-import { findMany, upsert } from '../shared/supabase-helpers.js';
+import { findMany, upsert } from '../shared/supabase-helpers-shared.js';
 import { logError } from '../shared/logger-shared.js';
 
 /**

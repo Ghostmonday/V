@@ -3,12 +3,12 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { telemetryHook } from '../../telemetry/index.js';
+import { telemetryHook } from '../../telemetry/telemetry-exports.js';
 import crypto from 'crypto';
 
 export const telemetryMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const path = req.path || '/';
-  
+
   // Scrub sensitive metadata: Hash user ID for logs to prevent long-term tracking
   // We use a rotating salt (e.g., daily) in production, but for now a simple hash suffices
   // to disconnect the log from the user ID table directly.
@@ -21,6 +21,6 @@ export const telemetryMiddleware = (req: Request, res: Response, next: NextFunct
   telemetryHook(`request_${req.method}_${path.replace(/\//g, '_')}`, {
     scrubbedUserId
   });
-  
+
   next();
 };

@@ -28,7 +28,7 @@ vi.mock('../utils/prompt-sanitizer.js', () => ({
   logPromptAudit: vi.fn(async () => {}),
 }));
 
-vi.mock('../shared/logger.js', () => ({
+vi.mock('../shared/logger-shared.js', () => ({
   logError: vi.fn(),
   logWarning: vi.fn(),
   logInfo: vi.fn(),

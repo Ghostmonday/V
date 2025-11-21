@@ -4,8 +4,8 @@
  */
 
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
 import {
   markRead,
   markDelivered,

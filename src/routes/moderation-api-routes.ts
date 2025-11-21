@@ -4,10 +4,10 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { authMiddleware } from '../middleware/auth/supabase-auth.js';
+import { authMiddleware } from '../middleware/auth/supabase-auth-middleware.js';
 import { flagMessage } from '../services/message-flagging-service.js';
-import { AuthenticatedRequest } from '../types/auth.types.js';
-import { rateLimit } from '../middleware/rate-limiting/rate-limiter.js';
+import { AuthenticatedRequest } from '../types/auth-types.js';
+import { rateLimit } from '../middleware/rate-limiting/rate-limiter-middleware.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
 import { supabase } from '../config/database-config.js';
 

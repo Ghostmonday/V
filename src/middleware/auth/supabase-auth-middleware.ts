@@ -7,7 +7,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
 import * as Sentry from '@sentry/node';
-import { AuthenticatedRequest, AuthenticatedUser } from '../../types/auth.types.js';
+import { AuthenticatedRequest, AuthenticatedUser } from '../../types/auth-types.js';
 
 // Initialize Supabase client for token verification
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';

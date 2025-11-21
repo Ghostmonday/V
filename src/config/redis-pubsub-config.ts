@@ -3,7 +3,7 @@
  * Supports Redis Cluster and Sentinel modes for high availability
  */
 
-import { getRedisClient } from './db.ts';
+import { getRedisClient } from './database-config.js';
 import { createRedisClient, parseRedisConfig, type RedisClusterConfig } from './redis-cluster.js';
 import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 import Redis, { Cluster } from 'ioredis';

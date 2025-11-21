@@ -4,7 +4,7 @@
  */
 
 import AWS from 'aws-sdk';
-import { create, findOne, deleteOne } from '../shared/supabase-helpers.js';
+import { create, findOne, deleteOne } from '../shared/supabase-helpers-shared.js';
 import { logError, logInfo } from '../shared/logger-shared.js';
 import { encodeVoiceHash, verifyVoiceHash, extractAudioBuffer } from './voice-security-service.js';
 import { getAwsKeys } from './api-keys-service.js';
