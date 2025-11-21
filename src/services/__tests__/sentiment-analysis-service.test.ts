@@ -162,7 +162,13 @@ describe('Sentiment Analysis Service', () => {
 
   describe('analyzeSentimentBatch', () => {
     it('should analyze multiple texts', async () => {
-      const texts = ['I love this!', 'I hate this!', 'This is neutral.'];
+      // Use multi-word text to get strong enough sentiment scores
+      // Need 2+ positive/negative words to exceed 0.6 threshold after normalization
+      const texts = [
+        'I love this! It is amazing and wonderful!',
+        'I hate this. It is terrible and awful.',
+        'This is neutral.'
+      ];
 
       const results = await analyzeSentimentBatch(texts);
 

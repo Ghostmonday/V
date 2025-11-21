@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createHash } from 'crypto';
 
 // Mock must be declared BEFORE importing the module under test
-vi.mock('../config/database-config.js', () => ({
+vi.mock('../../config/database-config.js', () => ({
   supabase: {
     from: vi.fn(),
   },
@@ -21,11 +21,11 @@ vi.mock('../../config/supabase-admin.js', () => ({
   },
 }));
 
-vi.mock('./user-authentication-service.js', () => ({
+vi.mock('../user-authentication-service.js', () => ({
   issueToken: vi.fn(() => 'mock-access-token'),
 }));
 
-vi.mock('../shared/logger-shared.js', () => ({
+vi.mock('../../shared/logger-shared.js', () => ({
   logError: vi.fn(),
   logInfo: vi.fn(),
   logWarning: vi.fn(),
@@ -38,7 +38,7 @@ import {
   rotateRefreshToken,
   revokeRefreshToken,
 } from '../refresh-token-service.js';
-import { supabase } from '../config/database-config.js';
+import { supabase } from '../../config/database-config.js';
 
 // Get access to the mock
 const mockSupabase = supabase as any;
