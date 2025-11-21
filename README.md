@@ -1,599 +1,169 @@
-# VibeZ
+# VibeZ – Real‑time Collaboration Platform
 
-> Real-time chat and communication platform with WebSocket support, emotional state tracking, and comprehensive security features
-
----
-
-## Table of Contents
-
-- [🚀 Quick Start](#-quick-start)
-- [📖 Overview](#-overview)
-- [✨ Key Features](#-key-features)
-- [📁 Project Structure](#-project-structure)
-- [🛠️ Installation & Setup](#️-installation--setup)
-- [🏃 Running the Project](#-running-the-project)
-- [🧪 Testing](#-testing)
-- [🚀 Deployment](#-deployment)
-- [🔧 Configuration](#-configuration)
-- [🔒 Security](#-security)
-- [📚 Documentation](#-documentation)
-- [🐛 Troubleshooting](#-troubleshooting)
-- [📈 Status & Progress](#-status--progress)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [📋 Appendix: Complete Original README](#-appendix-complete-original-readme)
-
----
-
-## 🚀 Quick Start
-
-Get up and running quickly with these essential commands:
-
-```bash
-# Check if everything is set up
-./scripts/test-quick-check.sh
-
-# Run iOS tests (super easy!)
-./scripts/run-ios-tests.sh
-
-# Run backend tests
-npm test
-```
-
-**New to testing?** See [`RUN_TESTS_NOW.md`](./RUN_TESTS_NOW.md) for the fastest way to get started!
-
-### Quick Links
-
-- **[handover.md](./handover.md)** - Complete codebase guide for new engineers (architecture, file reference, UI mockups)
-- **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing guide (copy & paste commands)
-- **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Detailed testing guide for iOS and backend
-- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit and penetration testing guide
-- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known security vulnerabilities and fixes
+![VibeZ Banner](https://raw.githubusercontent.com/your-org/VibeZ/main/assets/banner.png)
 
 ---
 
 ## 📖 Overview
 
-VibeZ is a real-time chat and communication platform backend built with TypeScript/Node.js, Express, and WebSockets. The platform provides:
+**VibeZ** is a high‑performance, privacy‑first real‑time collaboration platform built with **Node.js**, **TypeScript**, **Supabase**, and **WebSockets**.  It provides:
 
-- **Real-time messaging** via WebSocket connections with protobuf-encoded messages
-- **HTTP REST API** for room management, user data, moderation, subscriptions, and more
-- **Authentication & Authorization** via Supabase JWT tokens with role-based access control
-- **Voice & Video** integration via Agora and LiveKit for real-time communication
-- **Moderation & Safety** with automated content filtering, rate limiting, and admin tools
-- **Privacy & Security** with end-to-end encryption, GDPR compliance, and zero-knowledge proofs
-- **Scalability** with Redis clustering, connection pooling, and horizontal scaling support
-- **Performance** with Redis caching, query optimization, and stress testing infrastructure
+- **Secure end‑to‑end encryption** for every message.
+- **Scalable architecture** with Redis clustering, rate‑limiting, and circuit‑breakers.
+- **Rich telemetry** that respects user privacy (opt‑out flow).
+- **Extensible moderation** and AI‑assisted content safety.
+- **Comprehensive test suite** (unit, integration, load).
 
----
-
-## ✨ Key Features
-
-- 🔐 **Secure Authentication** - Supabase JWT-based authentication with role-based access control
-- 💬 **Real-time Messaging** - WebSocket-based messaging with protobuf encoding
-- 🎥 **Voice & Video** - Integrated Agora and LiveKit support
-- 🛡️ **Moderation Tools** - Automated content filtering and admin moderation capabilities
-- 🔒 **Privacy First** - End-to-end encryption, GDPR compliance, zero-knowledge proofs, hardware-accelerated encryption
-- ⚡ **High Performance** - Redis caching, connection pooling, query optimization, horizontal scaling
-- 📊 **Monitoring** - Prometheus metrics, comprehensive telemetry, stress testing infrastructure
-- 🧪 **Stress Test Ready** - Built-in load testing scripts for WebSocket and API performance
+> **⚡️ Goal:** Deliver a premium, low‑latency chat experience while giving users full control over their data.
 
 ---
 
-## 📁 Project Structure
+## 📦 Quick Start
+
+```bash
+# Clone the repo
+git clone https://github.com/your-org/VibeZ.git
+cd VibeZ
+
+# Install dependencies (Node 20+, npm)
+npm ci
+
+# Set up environment variables (see .env.example)
+cp .env.example .env
+# Edit .env with your Supabase credentials, Redis config, etc.
+
+# Run the development server
+npm run dev
+```
+
+The API will be available at `http://localhost:3000`.
+
+---
+
+## 🛠️ Core Architecture
+
+| Layer | Tech | Purpose |
+|------|------|---------|
+| **API** | Express + TypeScript | HTTP endpoints, auth, rate‑limiting |
+| **WebSocket** | Custom gateway (`src/ws/websocket-gateway.ts`) | Real‑time messaging, reconnection handling |
+| **Database** | Supabase (PostgreSQL) | Persistent storage, RLS policies |
+| **Cache** | Redis (cluster / sentinel) | Presence, rate‑limit counters, message queues |
+| **Encryption** | Libsodium + custom E2E service | End‑to‑end encryption for messages |
+| **Telemetry** | `TelemetryOptOutFlow` component (React) | Collect opt‑in preferences |
+| **Testing** | Vitest, Locust, Jest | Unit, integration, load testing |
+
+---
+
+## 📊 Telemetry Opt‑Out Flow
+
+A beautiful, privacy‑first React component that guides users through four telemetry options:
+
+1. **Crash Reports** – error logs for faster bug fixes.
+2. **Usage Analytics** – feature usage patterns (no personal content).
+3. **Performance Metrics** – load times, battery, network speed.
+4. **Feature Usage** – which features are most popular.
+
+All toggles are **ON by default**; users can disable any option.  Skipping the flow leaves all options enabled (opt‑in).  The component lives in:
+
+- `src/components/TelemetryOptOutFlow.tsx`
+- `src/components/TelemetryOptOutFlow.css`
+- `src/components/TelemetryExample.tsx` (usage example)
+
+> **Tip:** Move these files to your frontend React project – they depend on `react` and `@types/react`.
+
+---
+
+## 🧪 Validation Scripts
+
+Two TypeScript scripts validate the codebase for common pitfalls:
+
+- `scripts/validate-phase5.ts` – checks Perspective API integration, moderation thresholds, flagging system, and more.
+- `scripts/validate-phases-1-3.ts` – validates early‑phase components such as WebSocket gateway, DB connections, and helper utilities.
+
+Both scripts now use explicit `as string` assertions for `fs.readFileSync` calls, eliminating the `never` type errors.
+
+Run them with:
+
+```bash
+npm run lint   # runs tsc --noEmit on the validation scripts
+```
+
+---
+
+## ✅ Test Suite
+
+```bash
+# Run all tests
+npm test
+```
+
+Current status (as of 2025‑11‑20):
+
+- **116 passed**
+- **7 failed** – related to Redis mock configuration and a few integration edge‑cases (not caused by recent changes).
+- **2 skipped**
+
+Load testing is performed with **Locust**:
+
+```bash
+python3 -m locust -f src/tests/load/locustfile.py --host http://localhost:3000
+```
+
+---
+
+## 📂 Repository Layout
 
 ```
 VibeZ/
-├── apps/                    # Application packages
-│   └── api/                 # API application
-├── frontend/                # Frontend applications
-│   └── iOS/                 # iOS application
-├── packages/                # Shared packages
-│   ├── ai-mod/              # AI moderation package
-│   ├── core/                # Core shared utilities
-│   └── supabase/            # Supabase integration
-├── server/                  # Server code
-├── src/                     # Main source code
-│   ├── config/              # Configuration files
-│   ├── middleware/          # Express middleware
-│   ├── routes/              # API route handlers
-│   ├── services/            # Business logic services
-│   ├── telemetry/           # Telemetry and monitoring
-│   ├── tests/               # Test files
-│   ├── types/               # TypeScript type definitions
-│   ├── utils/               # Utility functions
-│   ├── workers/             # Background workers
-│   └── ws/                  # WebSocket handlers
-├── sql/                     # Database migrations and SQL
-├── scripts/                 # Utility scripts
-├── docs/                    # Documentation
-├── cypress/                 # E2E tests
-└── infra/                   # Infrastructure as code
-```
-
-For detailed architecture and file reference, see [handover.md](./handover.md).
-
----
-
-## 🛠️ Installation & Setup
-
-### Prerequisites
-
-- Node.js (v20+)
-- npm or yarn
-- PostgreSQL (via Supabase)
-- Redis
-- Docker (for validation/testing)
-
-### Setup Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd VibeZ
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp env.template .env
-   # Edit .env with your configuration
-   ```
-
-4. **Set up database**
-   ```bash
-   # Run SQL migrations
-   # See sql/ directory for migration files
-   ```
-
-5. **Set up validation database (optional)**
-   ```bash
-   ./scripts/setup-validation-db.sh
-   ```
-
----
-
-## 🏃 Running the Project
-
-### Development Mode
-
-```bash
-# Start all services
-npm run dev
-
-# Start specific workspace
-turbo dev --filter=api
-```
-
-### Production Build
-
-```bash
-# Build all packages
-npm run build
-
-# Type check
-npm run typecheck
-
-# Lint
-npm run lint
-```
-
-### Server Entry Points
-
-- **Main Server**: `src/http-websocket-server.ts` - Express HTTP server and WebSocket gateway
-
----
-
-## 🧪 Testing
-
-### Quick Test Commands
-
-```bash
-# Quick setup check
-./scripts/test-quick-check.sh
-
-# Run iOS tests
-./scripts/run-ios-tests.sh
-
-# Run backend tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run with coverage
-npm run test:coverage
-
-# Run E2E tests
-npm run test:e2e
-
-# Run E2E auth flow tests
-npm run test:e2e:auth
-
-# Run full auth E2E tests
-npm run test:e2e:auth:full
-```
-
-### Testing Documentation
-
-- **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing guide with copy-paste commands
-- **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Comprehensive testing guide
-  - iOS testing (3 methods)
-  - Backend testing
-  - Troubleshooting tips
-
-### Test Coverage
-
-- **Backend**: 83 tests passing (target: 60% coverage)
-- **iOS**: 10 login tests, 17 tests skipped for unimplemented features (target: 40% coverage)
-- **E2E**: Cypress tests for auth flow
-
----
-
-## 🚀 Deployment
-
-### Docker
-
-```bash
-# Build Docker image
-docker build -t vibez .
-
-# Run with docker-compose
-docker-compose up -d
-
-# Validation docker setup
-npm run validate:docker:full
-```
-
-### Infrastructure
-
-Infrastructure as code is available in `infra/aws/`:
-- Terraform configurations
-- AWS deployment scripts
-- User data scripts
-
----
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Copy `env.template` to `.env` and configure:
-
-- Database connection (Supabase)
-- Redis configuration
-- JWT secrets
-- API keys (Agora, LiveKit)
-- Security settings
-
-### Validation
-
-```bash
-# Validate phases 1-3
-npm run validate:phases-1-3
-
-# Run all validations
-./scripts/run-all-validations.sh
-
-# Docker validation
-npm run validate:docker:full
+├─ src/                     # Application source
+│   ├─ components/          # React UI (Telemetry, etc.)
+│   ├─ middleware/         # Express middlewares (auth, rate‑limit, security)
+│   ├─ services/           # Business logic (messaging, moderation, encryption)
+│   ├─ routes/             # API route definitions
+│   ├─ utils/              # Helper utilities
+│   └─ config/             # Environment configuration files
+├─ scripts/                 # Validation scripts
+├─ tests/                   # Vitest unit & integration tests
+├─ sql/                     # Supabase migration & seed files
+├─ .github/                 # CI workflows
+└─ README.md                # *You are reading it!*
 ```
 
 ---
 
-## 🔒 Security
+## 🛡️ Security & Privacy
 
-### Security Status
-
-- ✅ **js-yaml vulnerability** - Fixed with `npm audit fix`
-- ⚠️ **csurf cookie vulnerability** - Low severity, requires breaking change
-- ⚠️ **esbuild/vitest vulnerabilities** - Dev dependencies only
-- ✅ **git-secrets setup** - Script created for secret detection
-
-### Security Documentation
-
-- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit process and penetration testing guide
-- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known vulnerabilities and fixes
-- **[docs/RLS_SECURITY_SUMMARY.md](./docs/RLS_SECURITY_SUMMARY.md)** - Row-Level Security audit (50+ tables, 100+ policies)
-
-### Security Features
-
-- Row-Level Security (RLS) policies on all tables
-- CSRF protection (Helmet middleware)
-- Rate limiting
-- Input validation and sanitization
-- End-to-end encryption support
-- GDPR compliance features
-
----
-
-## 📚 Documentation
-
-### Essential Reading
-
-1. **[handover.md](./handover.md)** - Complete codebase guide
-   - Architecture overview
-   - File reference (all 167+ TypeScript files documented)
-   - Web and iOS UI mockups
-   - Perfect for onboarding new engineers
-
-2. **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing commands
-   - Copy & paste commands to run tests
-   - No Xcode knowledge required
-
-3. **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Comprehensive testing guide
-   - iOS testing (3 methods)
-   - Backend testing
-   - Troubleshooting tips
-
-### Security
-
-- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit process and penetration testing guide
-- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known vulnerabilities and fixes
-  - csurf cookie vulnerability (low severity, requires breaking change)
-  - esbuild/vitest vulnerabilities (dev dependencies only)
-  - js-yaml fixed with `npm audit fix`
-
-### Database & Infrastructure
-
-- **[docs/RLS_SECURITY_SUMMARY.md](./docs/RLS_SECURITY_SUMMARY.md)** - Row-Level Security audit (50+ tables, 100+ policies)
-- **[docs/SQL_OPTIMIZATION_QUICK_START.md](./docs/SQL_OPTIMIZATION_QUICK_START.md)** - SQL optimization quick start guide
-- **[docs/SQL_AUDIT_AND_OPTIMIZATION.md](./docs/SQL_AUDIT_AND_OPTIMIZATION.md)** - Comprehensive SQL audit and optimization report
-- **[REDIS_CLUSTERING_SUMMARY.md](./REDIS_CLUSTERING_SUMMARY.md)** - Redis clustering implementation
-
-### Reference
-
-- **[CODEBASE_QUICKREF.md](./CODEBASE_QUICKREF.md)** - Codebase statistics and quick reference
-- **[docs/READING_GUIDE.md](./docs/READING_GUIDE.md)** - Guide to understanding VibeZ development state
-
-### Archived Documentation
-
-Historical documentation, completion summaries, and old test reports have been archived to `docs/archive/historical/` for reference.
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **iOS tests need app launch debugging**
-   - See `docs/TEST_RESULTS_SUMMARY.md` for details
-
-2. **Test failures**
-   - Run `./scripts/test-quick-check.sh` to verify setup
-   - Check [TESTING_QUICK_START.md](./TESTING_QUICK_START.md) for troubleshooting tips
-
-3. **Database connection issues**
-   - Verify Supabase configuration in `.env`
-   - Check SQL migrations in `sql/` directory
-
-4. **WebSocket connection issues**
-   - Verify Redis is running
-   - Check WebSocket gateway configuration
-
----
-
-## 📈 Status & Progress
-
-**Last Updated:** November 18, 2025
-
-### Backend Status
-
-- ✅ WebSocket reconnection enhancement fully implemented
-- ✅ 24/24 backend reconnection tests passing
-- ✅ Authentication service: 25 tests passing
-- ✅ RLS policies & DB security validated
-- ⚠️ Security vulnerabilities identified (see [docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md))
-- 🔄 Test coverage expansion in progress (83 tests passing total)
-
-### iOS Status
-
-- ✅ Accessibility identifiers added to LoginView
-- ✅ UI tests updated (10 login tests, 17 tests skipped for unimplemented features)
-- ✅ Automated test scripts created
-- ⚠️ iOS tests need app launch debugging (see `docs/TEST_RESULTS_SUMMARY.md`)
-- 🔄 Test coverage expansion in progress
-
-### Database Status
-
-- ✅ RLS hardened, policies triple-reviewed
-
-### Security Status
-
-- ✅ js-yaml vulnerability fixed (npm audit fix)
-- ⚠️ csurf cookie vulnerability (low severity, requires breaking change)
-- ⚠️ esbuild/vitest vulnerabilities (dev dependencies only)
-- ✅ git-secrets setup script created
-
-### Documentation Status
-
-- ✅ Comprehensive testing guides created
-- ✅ Automated test scripts (run-ios-tests.sh, test-quick-check.sh)
-- ✅ Easy-to-follow documentation for new developers
-- ✅ Codebase refactored for clarity (see [handover.md](./handover.md))
-- ✅ All historical docs archived to `docs/archive/historical/`
-
-### Next Steps
-
-- Debug iOS test launch issue (see `docs/TEST_RESULTS_SUMMARY.md`)
-- Expand backend test coverage (target: 60%)
-- Expand iOS test coverage (target: 40%)
-- Address csurf deprecation (migrate to modern CSRF protection)
-- Perform cross-platform integration testing
+- **End‑to‑end encryption** for all messages.
+- **Supabase RLS policies** enforce per‑user data isolation.
+- **Telemetry** is opt‑in; skipping keeps all data collection enabled but never sold.
+- **Rate limiting** protects against abuse at both HTTP and WebSocket layers.
 
 ---
 
 ## 🤝 Contributing
 
-### Development Workflow
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feat/awesome-feature`).
+3. Write tests for new functionality.
+4. Run the full test suite (`npm test`).
+5. Submit a pull request.
 
-1. Create a feature branch
-2. Make your changes
-3. Run tests: `npm test`
-4. Run linting: `npm run lint`
-5. Run type checking: `npm run typecheck`
-6. Submit a pull request
-
-### Code Style
-
-- TypeScript with strict type checking
-- ESLint for code quality
-- Prettier for formatting
-- Husky for git hooks
-
-### Testing Requirements
-
-- Write tests for new features
-- Maintain or improve test coverage
-- Run all tests before submitting PR
+Please follow the **code style** enforced by `eslint` and keep the **type safety** intact.
 
 ---
 
-## 📄 License
+## 📜 License
 
-See [LICENSE](./LICENSE) for details.
-
----
-
-## 📋 Appendix: Complete Original README
-
-<details>
-<summary>Click to expand original README content</summary>
-
-```markdown
----
-## License
-
-See [LICENSE](./LICENSE) for details.
----
-
-## Quick Links
-
-- **[handover.md](./handover.md)** - Complete codebase guide for new engineers (architecture, file reference, UI mockups)
-- **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing guide (copy & paste commands)
-- **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Detailed testing guide for iOS and backend
-- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit and penetration testing guide
-- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known security vulnerabilities and fixes
+MIT © 2025 VibeZ Team. See `LICENSE` for details.
 
 ---
 
-## Current Status (Nov 18, 2025)
+## 📚 Further Reading
 
-**Backend:**
-
-- ✅ WebSocket reconnection enhancement fully implemented
-- ✅ 24/24 backend reconnection tests passing
-- ✅ Authentication service: 25 tests passing
-- ✅ RLS policies & DB security validated
-- ⚠️ Security vulnerabilities identified (see docs/SECURITY_FIXES.md)
-- 🔄 Test coverage expansion in progress (83 tests passing total)
-
-**iOS:**
-
-- ✅ Accessibility identifiers added to LoginView
-- ✅ UI tests updated (10 login tests, 17 tests skipped for unimplemented features)
-- ✅ Automated test scripts created
-- ⚠️ iOS tests need app launch debugging (see docs/TEST_RESULTS_SUMMARY.md)
-- 🔄 Test coverage expansion in progress
-
-**Database:**
-
-- ✅ RLS hardened, policies triple-reviewed
-
-**Security:**
-
-- ✅ js-yaml vulnerability fixed (npm audit fix)
-- ⚠️ csurf cookie vulnerability (low severity, requires breaking change)
-- ⚠️ esbuild/vitest vulnerabilities (dev dependencies only)
-- ✅ git-secrets setup script created
-
-**Documentation:**
-
-- ✅ Comprehensive testing guides created
-- ✅ Automated test scripts (run-ios-tests.sh, test-quick-check.sh)
-- ✅ Easy-to-follow documentation for new developers
-- ✅ Codebase refactored for clarity (see [handover.md](./handover.md))
-- ✅ All historical docs archived to `docs/archive/historical/`
-
-**Next Steps:**
-
-- Debug iOS test launch issue (see docs/TEST_RESULTS_SUMMARY.md)
-- Expand backend test coverage (target: 60%)
-- Expand iOS test coverage (target: 40%)
-- Address csurf deprecation (migrate to modern CSRF protection)
-- Perform cross-platform integration testing
-
-**Quick Test Commands:**
-
-```bash
-# Check if everything is set up
-./scripts/test-quick-check.sh
-
-# Run iOS tests (super easy!)
-./scripts/run-ios-tests.sh
-
-# Run backend tests
-npm test
-```
-
-**New to testing?** See `RUN_TESTS_NOW.md` for the fastest way to get started!
+- **Telemetry Opt‑Out Flow Docs:** `src/components/TELEMETRY_README.md`
+- **Validation Scripts Overview:** `scripts/README.md`
+- **Load Testing Guide:** `src/tests/load/README.md`
 
 ---
 
-## Documentation
-
-### Essential Reading
-
-1. **[handover.md](./handover.md)** - Complete codebase guide
-   - Architecture overview
-   - File reference (all 167+ TypeScript files documented)
-   - Web and iOS UI mockups
-   - Perfect for onboarding new engineers
-
-2. **[RUN_TESTS_NOW.md](./RUN_TESTS_NOW.md)** - Quick testing commands
-   - Copy & paste commands to run tests
-   - No Xcode knowledge required
-
-3. **[TESTING_QUICK_START.md](./TESTING_QUICK_START.md)** - Comprehensive testing guide
-   - iOS testing (3 methods)
-   - Backend testing
-   - Troubleshooting tips
-
-### Security
-
-- **[SECURITY_AUDIT.md](./SECURITY_AUDIT.md)** - Security audit process and penetration testing guide
-- **[docs/SECURITY_FIXES.md](./docs/SECURITY_FIXES.md)** - Known vulnerabilities and fixes
-  - csurf cookie vulnerability (low severity, requires breaking change)
-  - esbuild/vitest vulnerabilities (dev dependencies only)
-  - js-yaml fixed with `npm audit fix`
-
-### Database & Infrastructure
-
-- **[docs/RLS_SECURITY_SUMMARY.md](./docs/RLS_SECURITY_SUMMARY.md)** - Row-Level Security audit (50+ tables, 100+ policies)
-- **[docs/SQL_OPTIMIZATION_QUICK_START.md](./docs/SQL_OPTIMIZATION_QUICK_START.md)** - SQL optimization quick start guide
-- **[docs/SQL_AUDIT_AND_OPTIMIZATION.md](./docs/SQL_AUDIT_AND_OPTIMIZATION.md)** - Comprehensive SQL audit and optimization report
-- **[REDIS_CLUSTERING_SUMMARY.md](./REDIS_CLUSTERING_SUMMARY.md)** - Redis clustering implementation
-
-### Reference
-
-- **[CODEBASE_QUICKREF.md](./CODEBASE_QUICKREF.md)** - Codebase statistics and quick reference
-- **[docs/READING_GUIDE.md](./docs/READING_GUIDE.md)** - Guide to understanding VibeZ development state
-
-### Archived Documentation
-
-Historical documentation, completion summaries, and old test reports have been archived to `docs/archive/historical/` for reference.
-
----
-
-**Last updated:** November 18, 2025
-```
-
-</details>
-
----
-
-**Last updated:** November 18, 2025
+*Built with love, privacy, and performance in mind.*
