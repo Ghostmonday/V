@@ -6,8 +6,7 @@
  * Sentinel Mode: For high availability with automatic failover (recommended for most use cases)
  */
 
-import Redis from 'ioredis';
-import type { Cluster } from 'ioredis';
+import Redis, { Cluster } from 'ioredis';
 import { logError, logInfo, logWarning } from '../shared/logger-shared.js';
 
 export type RedisMode = 'single' | 'cluster' | 'sentinel';
@@ -47,7 +46,7 @@ export interface RedisClusterConfig {
  */
 export function parseRedisConfig(): RedisClusterConfig {
   const mode = (process.env.REDIS_MODE || 'single').toLowerCase() as RedisMode;
-  
+
   // Single instance mode (default)
   if (mode === 'single') {
     const redisUrl = process.env.REDIS_URL;
@@ -64,14 +63,14 @@ export function parseRedisConfig(): RedisClusterConfig {
       connectTimeout: 10000,
     };
   }
-  
+
   // Cluster mode
   if (mode === 'cluster') {
     const clusterNodes = process.env.REDIS_CLUSTER_NODES || '';
     if (!clusterNodes) {
       throw new Error('REDIS_CLUSTER_NODES is required when REDIS_MODE=cluster');
     }
-    
+
     const nodes = clusterNodes.split(',').map(node => {
       const [host, port] = node.trim().split(':');
       return {
@@ -79,7 +78,7 @@ export function parseRedisConfig(): RedisClusterConfig {
         port: parseInt(port || '6379', 10),
       };
     });
-    
+
     return {
       mode: 'cluster',
       nodes,
@@ -95,16 +94,16 @@ export function parseRedisConfig(): RedisClusterConfig {
       },
     };
   }
-  
+
   // Sentinel mode (recommended for HA)
   if (mode === 'sentinel') {
     const sentinelsStr = process.env.REDIS_SENTINELS || '';
     const sentinelName = process.env.REDIS_SENTINEL_NAME || 'mymaster';
-    
+
     if (!sentinelsStr) {
       throw new Error('REDIS_SENTINELS is required when REDIS_MODE=sentinel');
     }
-    
+
     const sentinels = sentinelsStr.split(',').map(sentinel => {
       const [host, port] = sentinel.trim().split(':');
       return {
@@ -112,7 +111,7 @@ export function parseRedisConfig(): RedisClusterConfig {
         port: parseInt(port || '26379', 10),
       };
     });
-    
+
     return {
       mode: 'sentinel',
       sentinels,
@@ -129,7 +128,7 @@ export function parseRedisConfig(): RedisClusterConfig {
       },
     };
   }
-  
+
   throw new Error(`Invalid REDIS_MODE: ${mode}. Must be 'single', 'cluster', or 'sentinel'`);
 }
 
@@ -139,7 +138,7 @@ export function parseRedisConfig(): RedisClusterConfig {
  */
 export function createRedisClient(config?: RedisClusterConfig): Redis.Redis | Cluster {
   const redisConfig = config || parseRedisConfig();
-  
+
   // Single instance mode
   if (redisConfig.mode === 'single') {
     const client = new Redis(redisConfig.url!, {
@@ -149,17 +148,17 @@ export function createRedisClient(config?: RedisClusterConfig): Redis.Redis | Cl
       connectTimeout: redisConfig.connectTimeout,
       lazyConnect: redisConfig.lazyConnect,
     });
-    
+
     setupClientEventHandlers(client, 'single');
     return client;
   }
-  
+
   // Cluster mode
   if (redisConfig.mode === 'cluster') {
     if (!redisConfig.nodes || redisConfig.nodes.length === 0) {
       throw new Error('Cluster nodes are required for cluster mode');
     }
-    
+
     const client = new Cluster(redisConfig.nodes, {
       ...redisConfig.clusterOptions,
       redisOptions: {
@@ -170,17 +169,17 @@ export function createRedisClient(config?: RedisClusterConfig): Redis.Redis | Cl
         connectTimeout: redisConfig.connectTimeout,
       },
     });
-    
+
     setupClusterEventHandlers(client);
     return client;
   }
-  
+
   // Sentinel mode
   if (redisConfig.mode === 'sentinel') {
     if (!redisConfig.sentinels || redisConfig.sentinels.length === 0) {
       throw new Error('Sentinels are required for sentinel mode');
     }
-    
+
     const client = new Redis({
       sentinels: redisConfig.sentinels,
       name: redisConfig.sentinelName,
@@ -193,11 +192,11 @@ export function createRedisClient(config?: RedisClusterConfig): Redis.Redis | Cl
         connectTimeout: redisConfig.connectTimeout,
       },
     });
-    
+
     setupClientEventHandlers(client, 'sentinel');
     return client;
   }
-  
+
   throw new Error(`Unsupported Redis mode: ${redisConfig.mode}`);
 }
 
@@ -208,23 +207,23 @@ function setupClientEventHandlers(client: Redis, mode: string): void {
   client.on('connect', () => {
     logInfo(`Redis ${mode} client connected`);
   });
-  
+
   client.on('ready', () => {
     logInfo(`Redis ${mode} client ready`);
   });
-  
+
   client.on('error', (err) => {
     logError(`Redis ${mode} client error`, err);
   });
-  
+
   client.on('close', () => {
     logWarning(`Redis ${mode} client connection closed`);
   });
-  
+
   client.on('reconnecting', (delay: number) => {
     logInfo(`Redis ${mode} client reconnecting in ${delay}ms`);
   });
-  
+
   client.on('end', () => {
     logWarning(`Redis ${mode} client connection ended`);
   });
@@ -237,41 +236,41 @@ function setupClusterEventHandlers(client: Cluster): void {
   client.on('connect', () => {
     logInfo('Redis cluster client connected');
   });
-  
+
   client.on('ready', () => {
     logInfo('Redis cluster client ready');
   });
-  
+
   client.on('error', (err) => {
     logError('Redis cluster client error', err);
   });
-  
+
   client.on('close', () => {
     logWarning('Redis cluster client connection closed');
   });
-  
+
   client.on('reconnecting', (delay: number) => {
     logInfo(`Redis cluster client reconnecting in ${delay}ms`);
   });
-  
+
   client.on('end', () => {
     logWarning('Redis cluster client connection ended');
   });
-  
+
   // Cluster-specific events
   client.on('+node', (node: any) => {
     logInfo(`Redis cluster node added: ${node.options.host}:${node.options.port}`);
   });
-  
+
   client.on('-node', (node: any) => {
     logWarning(`Redis cluster node removed: ${node.options.host}:${node.options.port}`);
   });
-  
+
   client.on('node error', (err: Error, node: any) => {
     const nodeInfo = node?.options ? `${node.options.host}:${node.options.port}` : 'unknown';
     logError(`Redis cluster node error: ${nodeInfo}`, err);
   });
-  
+
   client.on('+move', (slot: number, node: any) => {
     logInfo(`Redis cluster slot ${slot} moved to ${node.options.host}:${node.options.port}`);
   });
@@ -284,7 +283,7 @@ export async function checkRedisHealth(client: Redis.Redis | Cluster): Promise<b
   try {
     const result = await Promise.race([
       client.ping(),
-      new Promise((_, reject) => 
+      new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Redis health check timeout')), 5000)
       ),
     ]);
