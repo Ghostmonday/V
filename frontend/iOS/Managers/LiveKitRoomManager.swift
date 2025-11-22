@@ -84,7 +84,14 @@ class LiveKitRoomManager: ObservableObject {
                 noiseSuppression: true
             ),
             adaptiveStream: true,
-            dynacast: true
+            dynacast: true,
+            connectOptions: ConnectOptions(
+                protocolVersion: .v9,
+                autoSubscribe: true,
+                rtcConfiguration: RTCConfiguration(
+                    iceTransportPolicy: GlobalAccessManager.shared.isGAMEnabled ? .relay : .all
+                )
+            )
         )
         
         let newRoom = Room(delegate: self, roomOptions: roomOptions)
@@ -95,6 +102,9 @@ class LiveKitRoomManager: ObservableObject {
         
             self.isConnected = true
             self.isPushToTalkMode = config.pushToTalk
+            
+            // Report success to GAM
+            GlobalAccessManager.shared.reportConnectionSuccess()
             
             // Publish local tracks based on config
             try await newRoom.localParticipant.setMicrophone(enabled: config.audioEnabled && !config.pushToTalk)
@@ -110,11 +120,14 @@ class LiveKitRoomManager: ObservableObject {
             UXTelemetryService.logRoomEntry(roomId: newRoom.name ?? "unknown", metadata: [
                 "audioEnabled": "\(config.audioEnabled)",
                 "videoEnabled": "\(config.videoEnabled)",
-                "pushToTalk": "\(config.pushToTalk)"
+                "pushToTalk": "\(config.pushToTalk)",
+                "gamEnabled": "\(GlobalAccessManager.shared.isGAMEnabled)"
             ])
             
         } catch {
             print("[LiveKit] Failed to join room: \(error)")
+            // Report failure to GAM
+            GlobalAccessManager.shared.reportConnectionFailure()
             self.room = nil
             throw error
         }

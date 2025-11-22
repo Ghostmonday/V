@@ -57,6 +57,21 @@ struct PrivacySettingsView: View {
                             )
                         }
                         
+                        // Global Access Mode (Network Optimization)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Connection Stability")
+                                .vibezHeaderSmall()
+                            
+                            PrivacyToggleRow(
+                                title: "Global Access Mode",
+                                description: "Optimizes connectivity for restricted or poor network conditions.",
+                                isOn: Binding(
+                                    get: { GlobalAccessManager.shared.isGAMEnabled },
+                                    set: { GlobalAccessManager.shared.toggleGAM($0) }
+                                )
+                            )
+                        }
+                        
                         // Toggles
                         VStack(alignment: .leading, spacing: 16) {
                             Text("What we can see")

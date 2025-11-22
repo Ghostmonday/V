@@ -4,6 +4,7 @@ struct RoomListView: View {
     @State private var rooms: [Room] = []
     @State private var isLoading = true
     @State private var showCreateSheet = false
+    @ObservedObject private var globalAccessManager = GlobalAccessManager.shared
     
     var body: some View {
         NavigationStack {
@@ -133,6 +134,16 @@ struct RoomListView: View {
             // }
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isLoading)
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: rooms.isEmpty)
+            .alert("Network Unstable", isPresented: $globalAccessManager.isRestrictionDetected) {
+                Button("Enable Global Access Mode") {
+                    globalAccessManager.toggleGAM(true)
+                }
+                Button("Cancel", role: .cancel) {
+                    globalAccessManager.dismissRecommendation()
+                }
+            } message: {
+                Text("Your network seems restricted or unstable. Global Access Mode may improve voice room stability on congested networks.")
+            }
         }
         .task {
             await loadRooms()
