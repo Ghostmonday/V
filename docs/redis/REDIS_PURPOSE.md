@@ -136,3 +136,4 @@ Redis (Single Source of Truth)
 
 **That's why the server crashes if REDIS_URL is missing** - Redis is a core dependency, not optional.
 
+

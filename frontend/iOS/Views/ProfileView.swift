@@ -3,6 +3,11 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var guestService: GuestService
     @State private var showSignupSheet = false
+    @State private var showEditProfile = false
+    
+    // Local state for profile fields (in a real app, this would come from a UserService)
+    @State private var userBio: String = ""
+    @State private var userGender: String = ""
     
     var body: some View {
         NavigationStack {
@@ -33,9 +38,33 @@ struct ProfileView: View {
                                         .stroke(guestService.isGuest ? AnyShapeStyle(Color.gray.opacity(0.5)) : AnyShapeStyle(Color.Vibez.primaryGradient), lineWidth: 2)
                                 )
                             
-                            Image(systemName: guestService.isGuest ? "person.crop.circle.badge.questionmark" : "person.fill")
-                                .font(.system(size: 50))
-                                .foregroundColor(Color.Vibez.textSecondary)
+                            // Dynamic Avatar Logic based on Gender
+                            if guestService.isGuest {
+                                Image("avatar_placeholder_guest") // Using asset name
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Image(systemName: "questionmark") // Fallback if asset missing
+                                            .font(.system(size: 50))
+                                            .foregroundColor(Color.Vibez.textSecondary)
+                                            .opacity(0) // Hidden if image loads
+                                    )
+                            } else {
+                                // User Avatar Logic
+                                let avatarImageName: String = {
+                                    if userGender == "male" { return "avatar_male" }
+                                    if userGender == "female" { return "avatar_female" }
+                                    return "avatar_neutral"
+                                }()
+                                
+                                Image(avatarImageName)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(Circle())
+                            }
                         }
                         
                         if guestService.isGuest {
@@ -67,11 +96,35 @@ struct ProfileView: View {
                             .padding(.horizontal)
                             
                         } else {
-                            Text(guestService.guestHandle)
-                                .vibezHeaderMedium()
-                            
-                            Text("@\(guestService.guestHandle.lowercased())")
-                                .vibezBody()
+                            // Registered User Profile
+                            VStack(spacing: 8) {
+                                Text(guestService.guestHandle)
+                                    .vibezHeaderMedium()
+                                
+                                Text("@\(guestService.guestHandle.lowercased())")
+                                    .vibezBody()
+                                    .foregroundColor(Color.Vibez.textSecondary)
+                                
+                                if !userBio.isEmpty {
+                                    Text(userBio)
+                                        .vibezBody()
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal, 32)
+                                        .padding(.top, 4)
+                                }
+                                
+                                // Edit Profile Button (Only for registered users)
+                                Button(action: { showEditProfile = true }) {
+                                    Text("Edit Profile")
+                                        .font(VibezTypography.label)
+                                        .foregroundColor(Color.Vibez.electricBlue)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(Color.Vibez.electricBlue.opacity(0.1))
+                                        .cornerRadius(20)
+                                }
+                                .padding(.top, 8)
+                            }
                             
                             // Stats
                             HStack(spacing: 40) {
@@ -108,6 +161,9 @@ struct ProfileView: View {
             LazySignupView()
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showEditProfile) {
+            ProfileEditView(bio: $userBio, gender: $userGender, isPresented: $showEditProfile)
         }
     }
 }

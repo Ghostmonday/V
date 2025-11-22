@@ -15,17 +15,27 @@ struct User: Codable {
     let mood: String /// UX: For emotional attunement and tone mirroring
     var presenceStatus: PresenceStatus? /// Presence status (online/offline/away/busy)
     
+    // New fields for registered/paid users
+    var bio: String?
+    var gender: String? // "male", "female", "other"
+    var isPaidUser: Bool = false
+    
     enum CodingKeys: String, CodingKey {
         case id, name, avatar, mood
         case presenceStatus = "presence_status"
+        case bio, gender
+        case isPaidUser = "is_paid_user"
     }
     
-    init(id: UUID, name: String, avatar: String, mood: String, presenceStatus: PresenceStatus? = nil) {
+    init(id: UUID, name: String, avatar: String, mood: String, presenceStatus: PresenceStatus? = nil, bio: String? = nil, gender: String? = nil, isPaidUser: Bool = false) {
         self.id = id
         self.name = name
         self.avatar = avatar
         self.mood = mood
         self.presenceStatus = presenceStatus
+        self.bio = bio
+        self.gender = gender
+        self.isPaidUser = isPaidUser
     }
     
     init(from decoder: Decoder) throws {
@@ -40,6 +50,10 @@ struct User: Codable {
         } else {
             presenceStatus = nil
         }
+        
+        bio = try container.decodeIfPresent(String.self, forKey: .bio)
+        gender = try container.decodeIfPresent(String.self, forKey: .gender)
+        isPaidUser = try container.decodeIfPresent(Bool.self, forKey: .isPaidUser) ?? false
     }
     
     func encode(to encoder: Encoder) throws {
@@ -51,6 +65,9 @@ struct User: Codable {
         if let status = presenceStatus {
             try container.encode(status.rawValue, forKey: .presenceStatus)
         }
+        try container.encodeIfPresent(bio, forKey: .bio)
+        try container.encodeIfPresent(gender, forKey: .gender)
+        try container.encode(isPaidUser, forKey: .isPaidUser)
     }
 }
 
@@ -78,12 +95,14 @@ extension User {
         let name = displayName ?? email?.components(separatedBy: "@").first ?? "User"
         let avatarURL = avatar ?? ""
         
+        // In a real app, we would fetch the full profile from Supabase to get bio/gender/isPaid
+        // For now, we default to a basic user
         return User(
             id: userId,
             name: name,
             avatar: avatarURL,
-            mood: "calm"
+            mood: "calm",
+            isPaidUser: true // Assume logged-in users are "registered" and can have profiles for this demo, or hook into logic
         )
     }
 }
-

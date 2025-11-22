@@ -52,3 +52,5 @@ OR if still wrong:
 ## Summary
 **The Redis service wasn't added properly.** Add it via Railway Dashboard, and Railway will automatically set REDIS_URL correctly.
 
+
+
