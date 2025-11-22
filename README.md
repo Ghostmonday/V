@@ -1,6 +1,6 @@
 # VibeZ
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen) ![Coverage](https://img.shields.io/badge/coverage-94%25-brightgreen) ![License](https://img.shields.io/badge/license-MIT-blue) ![Stage](https://img.shields.io/badge/stage-production--ready-success)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen) ![Coverage](https://img.shields.io/badge/coverage-94%25-brightgreen) ![License](https://img.shields.io/badge/license-Proprietary-red) ![Stage](https://img.shields.io/badge/stage-production--ready-success)
 
 **The Privacy-First Communication Layer for the Next Generation.**
 
